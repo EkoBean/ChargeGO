@@ -1,0 +1,62 @@
+// ==============================================
+// 自訂 Bootstrap 變數
+// ==============================================
+
+// 顏色變數
+$primary: #f0be52;        // 主要顏色
+$secondary: #f16100;      // 次要顏色
+$success: #00ff3c;        // 成功顏色
+$danger: #d65562;         // 危險顏色
+
+// 字體變數
+$font-family-base: 'Arial', 'Microsoft JhengHei', sans-serif;
+$font-size-base: 1rem;
+
+// 間距變數
+$spacer: 1rem;
+
+// ==============================================
+// 匯入 Bootstrap
+// ==============================================
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+// ==============================================
+// 自訂樣式
+// ==============================================
+
+// 全域樣式
+body {
+  font-family: $font-family-base;
+  line-height: 1.6;
+}
+
+// 自訂按鈕樣式
+.btn-custom {
+  background-color: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+  
+  &:hover {
+    background-color: #ff5252;
+    border-color: #ff5252;
+  }
+}
+
+// 自訂卡片樣式
+.card-custom {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  
+  .card-header {
+    background-color: $primary;
+    color: white;
+    border-radius: 10px 10px 0 0;
+  }
+}
+
+// 響應式設計範例
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+}

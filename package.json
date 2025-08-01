@@ -1,0 +1,15 @@
+{
+  "name": "my-frontend-project",
+  "version": "1.0.0",
+  "description": "前端班大專題",
+  "scripts": {
+    "sass": "sass --watch scss:css",
+    "sass-build": "sass scss:css"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.7"
+  },
+  "devDependencies": {
+    "sass": "^1.89.2"
+  }
+}

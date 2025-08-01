@@ -1,0 +1,26 @@
+# 忽略 node_modules（npm 套件資料夾，千萬不要上傳）
+node_modules/
+
+# 忽略編譯產物
+/dist/
+/css/*.css.map
+
+# 忽略環境設定檔
+.env
+
+# macOS 系統檔案
+.DS_Store
+
+# Windows 系統檔案
+Thumbs.db
+
+# 其他常見壓縮檔
+*.temp
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
