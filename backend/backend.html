@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <title>客戶管理頁面</title>
+    <style>
+        .user-item {
+            margin: 10px 0;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .edit-form {
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>客戶管理</h1>
+    <form id="addClientForm">
+        <input type="text" id="clientName" placeholder="客戶名稱" required>
+        <input type="text" id="clientAccount" placeholder="客戶帳號" required>
+        <input type="password" id="clientPassword" placeholder="客戶密碼" required>
+        <button type="submit">新增客戶</button>
+    </form>
+    <h2>所有客戶</h2>
+    <div id="clientList"></div>
+
+    <script>
+        // 新增客戶
+        document.getElementById('addClientForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const clientName = document.getElementById('clientName').value;
+            const clientAccount = document.getElementById('clientAccount').value;
+            const clientPassword = document.getElementById('clientPassword').value;
+            
+            await fetch('/api/client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    name: clientName, 
+                    account: clientAccount,
+                    password: clientPassword
+                })
+            });
+            
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientAccount').value = '';
+            document.getElementById('clientPassword').value = '';
+            loadClients();
+        });
+
+        // 讀取所有客戶
+        async function loadClients() {
+            const res = await fetch('/api/client');
+            const clients = await res.json();
+            const clientList = document.getElementById('clientList');
+            clientList.innerHTML = '';
+            clients.forEach(client => {
+                const div = document.createElement('div');
+                div.className = 'user-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${client.cname}</strong><br>
+                        帳號: ${client.cacct || '無'}<br>
+                        密碼: ${client.cpwd || '無'}
+                    </div>
+                    <div class="user-actions">
+                        <button onclick="showEditForm(${client.cid})">編輯</button>
+                        <button onclick="deleteClient(${client.cid})">刪除</button>
+                    </div>
+                    <div class="edit-form" id="edit-${client.cid}">
+                        <input type="text" id="edit-name-${client.cid}" value="${client.cname}" placeholder="客戶名稱"><br>
+                        <input type="text" id="edit-account-${client.cid}" value="${client.cacct || ''}" placeholder="客戶帳號"><br>
+                        <input type="password" id="edit-password-${client.cid}" value="${client.cpwd || ''}" placeholder="客戶密碼"><br>
+                        <button onclick="updateClient(${client.cid})">確認</button>
+                        <button onclick="cancelEdit(${client.cid})">取消</button>
+                    </div>
+                `;
+                clientList.appendChild(div);
+            });
+        }
+
+        // 顯示編輯表單
+        function showEditForm(cid) {
+            const form = document.getElementById(`edit-${cid}`);
+            form.style.display = 'block';
+        }
+
+        // 隱藏編輯表單
+        function cancelEdit(cid) {
+            const form = document.getElementById(`edit-${cid}`);
+            form.style.display = 'none';
+        }
+
+        // 更新客戶
+        async function updateClient(cid) {
+            const name = document.getElementById(`edit-name-${cid}`).value;
+            const account = document.getElementById(`edit-account-${cid}`).value;
+            const password = document.getElementById(`edit-password-${cid}`).value;
+            
+            await fetch(`/api/client/${cid}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, account, password })
+            });
+            loadClients();
+        }
+
+        // 刪除客戶
+        async function deleteClient(cid) {
+            if (confirm('確定要刪除此客戶嗎？')) {
+                await fetch(`/api/client/${cid}`, {
+                    method: 'DELETE'
+                });
+                loadClients();
+            }
+        }
+
+        // 頁面載入時自動讀取
+        loadClients();
+    </script>
+</body>
+</html>
