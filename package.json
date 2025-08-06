@@ -7,7 +7,12 @@
     "sass-build": "sass scss:css"
   },
   "dependencies": {
-    "bootstrap": "^5.3.7"
+    "bootstrap": "^5.3.7",
+    "body-parser": "^2.2.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "sass": "^1.89.2"

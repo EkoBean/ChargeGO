@@ -11,8 +11,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname));
 
 // 設置根路由
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/backend.html');
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/backend.html');
 });
 
 // 以 express-session 管理狀態資訊
@@ -42,12 +42,13 @@ var pool = mysql.createPool({
     user: 'root',
     password: '',
     database: 'backend',
+    // 等DB建好就更改database名稱
     connectionLimit: 10, // 最大連線數
     waitForConnections: true // 等待連線
 });
 
 // 測試資料庫連線
-pool.getConnection(function(err, connection) {
+pool.getConnection(function (err, connection) {
     if (err) {
         console.log('資料庫連線失敗: ');
         console.log(JSON.stringify(err));
@@ -81,12 +82,12 @@ app.post("/api/client", function (request, response) {
                 response.status(500).send('資料庫新增錯誤');
                 return;
             }
-            response.json({ 
+            response.json({
                 cid: result.insertId,
                 cname: request.body.name,
                 cacct: request.body.account,
                 cpwd: request.body.password,
-                message: "客戶新增成功" 
+                message: "客戶新增成功"
             });
         }
     );
@@ -103,18 +104,18 @@ app.put("/api/client/:cid", function (request, response) {
                 response.status(500).send('資料庫更新錯誤');
                 return;
             }
-            
+
             if (result.affectedRows === 0) {
                 response.status(404).send('找不到該客戶');
                 return;
             }
-            
-            response.json({ 
+
+            response.json({
                 cid: parseInt(request.params.cid),
                 cname: request.body.name,
                 cacct: request.body.account,
                 cpwd: request.body.password,
-                message: "客戶更新成功" 
+                message: "客戶更新成功"
             });
         }
     );
@@ -131,32 +132,32 @@ app.delete("/api/client/:cid", function (request, response) {
                 response.status(500).send('資料庫刪除錯誤');
                 return;
             }
-            
+
             if (result.affectedRows === 0) {
                 response.status(404).send('找不到該客戶');
                 return;
             }
-            
-            response.json({ 
-                message: "客戶刪除成功" 
+
+            response.json({
+                message: "客戶刪除成功"
             });
         }
     );
 });
-        function handleDatabaseError(err, result) {
-            if (err) {
-                console.log(JSON.stringify(err));
-                response.status(500).send('資料庫刪除錯誤');
-                return;
-            }
-            
-            if (result.affectedRows === 0) {
-                response.status(404).send('找不到該客戶');
-                return;
-            }
-            
-            response.json({ 
-                message: "客戶刪除成功" 
-            });
-        }
- 
+function handleDatabaseError(err, result) {
+    if (err) {
+        console.log(JSON.stringify(err));
+        response.status(500).send('資料庫刪除錯誤');
+        return;
+    }
+
+    if (result.affectedRows === 0) {
+        response.status(404).send('找不到該客戶');
+        return;
+    }
+
+    response.json({
+        message: "客戶刪除成功"
+    });
+}
+
