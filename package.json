@@ -2,19 +2,35 @@
   "name": "my-frontend-project",
   "version": "1.0.0",
   "description": "前端班大專題",
+  "type": "module",
   "scripts": {
+    "_note": "這裡是自訂的 npm 指令，使用 npm run <scripts name> 就可以在 cmd 裡面跑 scripts",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "sass": "sass --watch scss:css",
     "sass-build": "sass scss:css"
   },
   "dependencies": {
-    "bootstrap": "^5.3.7",
     "body-parser": "^2.2.0",
+    "bootstrap": "^5.3.7",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "sass": "^1.89.2"
+    "@vitejs/plugin-react": "^4.7.0",
+    "sass": "^1.89.2",
+    "vite": "^7.1.0",
+    "@eslint/js": "^9.32.0",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "eslint": "^9.32.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0"
   }
 }
