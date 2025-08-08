@@ -18,7 +18,7 @@ $spacer: 1rem;
 // ==============================================
 // 匯入 Bootstrap
 // ==============================================
-@import "../node_modules/bootstrap/scss/bootstrap";
+@use "../../../node_modules/bootstrap/scss/bootstrap.scss";
 
 // ==============================================
 // 自訂樣式
