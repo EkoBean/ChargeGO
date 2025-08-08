@@ -1,0 +1,149 @@
+import React, { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+
+
+createRoot(document.getElementById('root')).render(
+    <StrictMode>
+
+        <main className="container-fluid mt-4">
+            <div className="row">
+                <div className="col-md-2">
+                    <div className="list-group">
+                        <a href="back.html" className="list-group-item list-group-item-action">使用者管理</a>
+                        <a href="order-history.html" className="list-group-item list-group-item-action">訂單歷史紀錄</a>
+                        <a href="charging-stations.html" className="list-group-item list-group-item-action">行充站點管理</a>
+                        <a href="charging-status.html" className="list-group-item list-group-item-action">行充狀態</a>
+                        <a href="employee-login.html" className="list-group-item list-group-item-action">員工登入紀錄</a>
+                        <a href="employee-data.html" className="list-group-item list-group-item-action">員工資料</a>
+                        <a href="product-management.html" className="list-group-item list-group-item-action active">商城商品管理</a>
+                        <a href="activities.html" className="list-group-item list-group-item-action">活動</a>
+                        <a href="discount-codes.html" className="list-group-item list-group-item-action">折扣碼</a>
+                    </div>
+                </div>
+
+                <div className="col-md-10">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h3>商城商品管理</h3>
+                        <button className="btn btn-success">新增商品</button>
+                    </div>
+
+                    <form className="row g-3 mb-3">
+                        <div className="col-auto">
+                            <input type="text" className="form-control" placeholder="商品名稱或編號" />
+                        </div>
+                        <div className="col-auto">
+                            <select className="form-control">
+                                <option>全部分類</option>
+                                <option>行動電源</option>
+                                <option>充電線</option>
+                                <option>充電器</option>
+                                <option>配件</option>
+                            </select>
+                        </div>
+                        <div className="col-auto">
+                            <select className="form-control">
+                                <option>全部狀態</option>
+                                <option>上架中</option>
+                                <option>已下架</option>
+                                <option>缺貨</option>
+                            </select>
+                        </div>
+                        <div className="col-auto">
+                            <button type="submit" className="btn btn-primary">搜尋</button>
+                        </div>
+                    </form>
+
+                    <div className="table-responsive">
+                        <table className="table table-striped table-bordered align-middle">
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>商品編號</th>
+                                    <th>商品圖片</th>
+                                    <th>商品名稱</th>
+                                    <th>分類</th>
+                                    <th>價格</th>
+                                    <th>庫存</th>
+                                    <th>狀態</th>
+                                    <th>建立日期</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PRD001</td>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品圖片" className="img-thumbnail" style="width: 50px; height: 50px;" /></td>
+                                    <td>行動電源 20000mAh</td>
+                                    <td>行動電源</td>
+                                    <td>NT$ 899</td>
+                                    <td>50</td>
+                                    <td><span className="badge bg-success">上架中</span></td>
+                                    <td>2024-01-01</td>
+                                    <td>
+                                        <div className="btn-group" role="group">
+                                            <button className="btn btn-sm btn-outline-info" title="查看詳情">
+                                                <i className="bi bi-eye"></i>
+                                            </button>
+                                            <button className="btn btn-sm btn-outline-warning" title="編輯">
+                                                <i className="bi bi-pencil"></i>
+                                            </button>
+                                            <button className="btn btn-sm btn-outline-danger" title="下架">
+                                                <i className="bi bi-x-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>PRD002</td>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品圖片" className="img-thumbnail" style="width: 50px; height: 50px;" /></td>
+                                    <td>USB-C充電線</td>
+                                    <td>充電線</td>
+                                    <td>NT$ 299</td>
+                                    <td>0</td>
+                                    <td><span className="badge bg-danger">缺貨</span></td>
+                                    <td>2024-01-05</td>
+                                    <td>
+                                        <div className="btn-group" role="group">
+                                            <button className="btn btn-sm btn-outline-info" title="查看詳情">
+                                                <i className="bi bi-eye"></i>
+                                            </button>
+                                            <button className="btn btn-sm btn-outline-warning" title="編輯">
+                                                <i className="bi bi-pencil"></i>
+                                            </button>
+                                            <button className="btn btn-sm btn-outline-success" title="進貨">
+                                                <i className="bi bi-plus-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>PRD003</td>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品圖片" className="img-thumbnail" style="width: 50px; height: 50px;" /></td>
+                                    <td>無線充電板</td>
+                                    <td>充電器</td>
+                                    <td>NT$ 1,299</td>
+                                    <td>25</td>
+                                    <td><span className="badge bg-success">上架中</span></td>
+                                    <td>2024-01-10</td>
+                                    <td>
+                                        <div className="btn-group" role="group">
+                                            <button className="btn btn-sm btn-outline-info" title="查看詳情">
+                                                <i className="bi bi-eye"></i>
+                                            </button>
+                                            <button className="btn btn-sm btn-outline-warning" title="編輯">
+                                                <i className="bi bi-pencil"></i>
+                                            </button>
+                                            <button className="btn btn-sm btn-outline-danger" title="下架">
+                                                <i className="bi bi-x-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </StrictMode>
+);

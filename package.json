@@ -8,8 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "sass": "sass --watch scss:css",
-    "sass-build": "sass scss:css"
+    "sass:watch": "sass --watch ./src/styles/scss:./src/styles/css",
+    "sass:build": "sass ./src/styles/scss:./src/styles/css"
   },
   "dependencies": {
     "body-parser": "^2.2.0",
