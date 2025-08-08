@@ -11884,5 +11884,8 @@ body {
     padding: 0 15px;
   }
 }
+ul li {
+  color: red;
+}
 
 /*# sourceMappingURL=style.css.map */
