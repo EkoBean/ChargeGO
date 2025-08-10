@@ -1,5 +1,5 @@
 import React from "react";
-import '../scss/style.scss';
+import '../styles/scss/global.scss';
 
 function NavBar() {
     return (
@@ -15,6 +15,7 @@ function NavBar() {
                 <a className="nav-link disabled" href="#">Disabled link</a>
             </li>
         </ul>
+
 
     </nav>)
 }
