@@ -5,7 +5,7 @@ import NavBar from '../components/nav'
 
 function App(){
 useEffect(()=>{
-  document.getElementById('div1').innerText = '1230jdsklfj'; 
+  document.getElementById('div1').innerText = 'this is a text from useEffect()'; 
 
 
 }, [])
