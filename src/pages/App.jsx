@@ -1,6 +1,6 @@
-import '../scss/style.scss'
+import '../styles/scss/global.scss'
 import React, { useEffect } from 'react';
-import NavBar from './reuse_component/nav.jsx'
+import NavBar from '../components/nav'
 
 
 function App(){
