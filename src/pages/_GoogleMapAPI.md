@@ -1,6 +1,6 @@
 # **@react-google-maps/api**
 比起google官方提供的@vis.gl/  react-google-maps，由第三方製作的@react-google-maps/api更加簡化了原生地API，並且可以透過直接操作React的DOM來直接實現功能。
-- [說明文件](https://tomchentw.github.io/react-google-maps/#introduction)
+- [說明文件](https://visgl.github.io/react-google-maps/docs/get-started)
 
 ## 四大主要功能
 這是 `@react-google-maps/api` 提供的核心功能，幫助開發者更方便地在 React 中使用 Google Maps JavaScript API。
