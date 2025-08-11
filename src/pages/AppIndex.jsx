@@ -9,9 +9,12 @@ import React, { useEffect, Component } from 'react';
 import mapOptions from './mapOptions.json';
 
 // APIProvider
-import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, Pin, AdvancedMarker } from '@vis.gl/react-google-maps';
+
 
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
+const mapId = '7ade7c4e6e2cc1087f2619a5'
+const defaultCenter = { lat: 25.033964, lng: 121.564468 }
 
 
 
@@ -25,11 +28,15 @@ function AppIndex() {
       <APIProvider apiKey={APIkey}>
         <Map
           style={{ width: '100vw', height: '100vh' }}
-          defaultCenter={{ lat: 22.54992, lng: 0 }}
-          defaultZoom={3}
+          defaultCenter={defaultCenter}
+          defaultZoom={16}
           gestureHandling={'greedy'}
           disableDefaultUI={true}
-        />
+          mapId={mapId}
+
+        >
+          <AdvancedMarker position={defaultCenter} />
+        </Map>
       </APIProvider>
     )
   }
