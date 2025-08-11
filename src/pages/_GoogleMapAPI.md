@@ -1,9 +1,8 @@
-# **@react-google-maps/api**
-比起google官方提供的@vis.gl/  react-google-maps，由第三方製作的@react-google-maps/api更加簡化了原生地API，並且可以透過直接操作React的DOM來直接實現功能。
+# **@react-google-maps**
+Google自己出的，把自己的原生API打包成React。
 - [說明文件](https://visgl.github.io/react-google-maps/docs/get-started)
 
-## 四大主要功能
-這是 `@react-google-maps/api` 提供的核心功能，幫助開發者更方便地在 React 中使用 Google Maps JavaScript API。
+
 
 ---
 
@@ -82,7 +81,4 @@
 3. **Lifecycle Management**：自動管理地圖和元件的生命週期。
 4. **Auto-Mount on Map**：子元件自動掛載到地圖上。
 ---
-
-## HOC (Higher-Order Component) 高階元件
-### `withGoogleMap`
-用於包裝你的 React 元件，使其能夠與 Google Maps API 一起使用。它的主要功能是幫助你管理地圖的初始化和生命周期，並將地圖的相關屬性和方法注入到你的元件中。
+<>
