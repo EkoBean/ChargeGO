@@ -16,6 +16,20 @@ import {
   InfoWindow,
 } from '@vis.gl/react-google-maps';
 
+// 
+export const fetchGeoJSONData = async () => {
+  try {
+    const response = await fetch('./sample.geojson'); // 確保 sample.geojson 位於 public 資料夾
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.features; // 返回 GeoJSON 的 features
+  } catch (error) {
+    console.error('Error loading GeoJSON:', error);
+    return [];
+  }
+};
 
 // ================= Constants ============================
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
@@ -25,14 +39,17 @@ const defaultCenter = { lat: 25.033964, lng: 121.564468 }
 
 // =============== Main function ===========================
 function AppIndex() {
+  const [stations, setStations] = React.useState([]);
 
 
-
+  // 在組件掛載時加載資料
   useEffect(() => {
-
+    const loadData = async () => {
+      const data = await fetchGeoJSONData();
+      setStations(data); // 將資料存入狀態
+    };
+    loadData();
   }, []);
-
-
 
 
 
@@ -44,12 +61,12 @@ function AppIndex() {
     // =============== 開關 InfoWindow =================
     const infoWindowHandlers = {
       toggleInfoWindow: () => {
-      setInfoWindowShown((prev) => !prev);
-      console.log('Marker clicked, InfoWindow toggled.');
+        setInfoWindowShown((prev) => !prev);
+        console.log('Marker clicked, InfoWindow toggled.');
       },
       closeWindow: () => {
-      setInfoWindowShown(false);
-      console.log('Map clicked, InfoWindow closed.');
+        setInfoWindowShown(false);
+        console.log('Map clicked, InfoWindow closed.');
       }
     };
 
@@ -58,21 +75,29 @@ function AppIndex() {
     const MarkerWithInfoWindow = props => {
       const [markerRef, marker] = useAdvancedMarkerRef();
 
-      // infoWindowShown =====> control InforWindow
 
       useEffect(() => {
-
       }, []);
 
       return (
         <>
-          <AdvancedMarker position={defaultCenter} ref={markerRef} onClick={infoWindowHandlers.toggleInfoWindow} >
-            <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
-          </AdvancedMarker>
-
-          {infoWindowShown && (
-            <InfoWindow anchor={marker}>Infowindow Content</InfoWindow>
-          )}
+          {stations.map((station, index) => (
+            <React.Fragment key={station.id || index}>
+              <AdvancedMarker
+                position={{
+                  lat: station.geometry.coordinates[1],
+                  lng: station.geometry.coordinates[0]
+                }}
+                onClick={() => infoWindowHandlers.toggleInfoWindow()}
+                ref={markerRef}
+              >
+                <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+              </AdvancedMarker>
+              {infoWindowShown && (
+                <InfoWindow anchor={marker}>Infowindow Content</InfoWindow>
+              )}
+            </React.Fragment>
+          ))}
         </>
       )
     };
