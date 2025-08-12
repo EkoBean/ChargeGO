@@ -1,12 +1,12 @@
 // ================= Library =============================
 // style
-import '../styles/scss/map_index.scss'
+import '../../styles/scss/map_index.scss'
 
 //React
 import React, { useEffect, Component } from 'react';
 
 //map style option
-import mapOptions from './mapOptions.json';
+import mapOptions from '../mapOptions.json';
 
 // APIProvider
 import { APIProvider, Map, Pin, AdvancedMarker } from '@vis.gl/react-google-maps';
