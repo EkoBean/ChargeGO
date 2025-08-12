@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員註冊</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>會員註冊</h1>
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="username">帳號：</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密碼：</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="password">確認密碼：</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <label for="username">姓名：</label>
+                <input id="username" type="text">
+            </div>
+            <div>
+                <label for="mail">電子郵件：</label>
+                <input id="mail" type="email">
+            </div>
+            <div>
+                <label for="phone">電話：</label>
+                <input id="phone" type="text">
+            </div>
+            <div>
+                <span>現居地點：</span>
+                <select name="city" id="city-list">
+                    <option value="">請選擇現居地點</option>
+                    <option value="">台北市</option>
+                    <option value="">新北市</option>
+                    <option value="">基隆市</option>
+                    <option value="">宜蘭縣</option>
+                    <option value="">桃園市</option>
+                    <option value="">新竹縣</option>
+                    <option value="">新竹市</option>
+                    <option value="">苗栗縣</option>
+                    <option value="">台中市</option>
+                    <option value="">彰化縣</option>
+                    <option value="">雲林縣</option>
+                    <option value="">嘉義市</option>
+                    <option value="">嘉義縣</option>
+                    <option value="">台南市</option>
+                    <option value="">高雄市</option>
+                    <option value="">屏東縣</option>
+                    <option value="">花蓮縣</option>
+                    <option value="">台東縣</option>
+                    <option value="">澎湖縣</option>
+                    <option value="">金門縣</option>
+                    <option value="">連江縣</option>
+
+                </select>
+            </div>
+
+            <div id="capbox">
+                <span>驗證碼：<span id="captchapwd"></span></span>
+            </div>
+            <!-- 亂數JS -->
+            <script>
+                var randomNumber = document.getElementById("captchapwd");
+                var randomValue = Math.floor(Math.random() * (999999 - 100000 + 1) + 10000);
+
+                randomNumber.textContent = randomValue;
+
+            </script>
+            <br>
+            <label for="subpwd">請輸入驗證碼：</label>
+            <input id="subpwd" type="text">
+            <br>
+            <input type="checkbox" id="agreerule">
+            <span>同意使用者規範</span>
+            <br>
+            <input type="checkbox" id="event" checked>
+            <span>訂閱活動資訊</span>
+            <br>
+            <button id="register" type="submit">註冊</button>
+            <button id="clear">清除</button>
+
+    </div>
+
+</body>
+
+</html>
