@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [121.5654, 25.0330]
+      },
+      "properties": {
+        "name": "站點A",
+        "description": "這是站點A的描述",
+        "address": "台北市信義區信義路五段7號",
+        "status": "營運中"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [121.5431, 25.0327]
+      },
+      "properties": {
+        "name": "站點B",
+        "description": "這是站點B的描述",
+        "address": "台北市中正區忠孝西路一段49號",
+        "status": "維護中"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [121.5650, 25.0478]
+      },
+      "properties": {
+        "name": "站點C",
+        "description": "這是站點C的描述",
+        "address": "台北市中正區忠孝西路一段49號",
+        "status": "營運中"
+      }
+    }
+  ]
+}

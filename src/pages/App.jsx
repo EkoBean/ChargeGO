@@ -13,7 +13,7 @@ import AppIndex from './mapIndex/AppIndex'
 
 function App() {
   useEffect(() => {
-    document.getElementById('div1').innerText = 'this is a text from useEffect()';
+    // document.getElementById('div1').innerText = 'this is a text from useEffect()';
 
 
   }, [])
@@ -22,14 +22,7 @@ function App() {
         <Routes>
           <Route path='/AppIndex' element={<AppIndex />} />
         </Routes>
-      <div id='div1'>
-      </div>
-      <ul>
-        <li>1</li>
-        <li>1</li>
-        <li>1</li>
-        <li>1</li>
-      </ul>
+
 
     </>
   );
