@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>商城商品管理 - 後台管理系統</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="back.html">後台管理系統</a>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container-fluid mt-4">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="list-group">
+                        <a href="back.html" class="list-group-item list-group-item-action">使用者管理</a>
+                        <a href="order-history.html" class="list-group-item list-group-item-action">訂單歷史紀錄</a>
+                        <a href="charging-stations.html" class="list-group-item list-group-item-action">行充站點管理</a>
+                        <a href="charging-status.html" class="list-group-item list-group-item-action">行充狀態</a>
+                        <a href="employee-login.html" class="list-group-item list-group-item-action">員工登入紀錄</a>
+                        <a href="employee-data.html" class="list-group-item list-group-item-action">員工資料</a>
+                        <a href="product-management.html" class="list-group-item list-group-item-action active">商城商品管理</a>
+                        <a href="activities.html" class="list-group-item list-group-item-action">活動</a>
+                        <a href="discount-codes.html" class="list-group-item list-group-item-action">折扣碼</a>
+                    </div>
+                </div>
+
+                <div class="col-md-10">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>商城商品管理</h3>
+                        <button class="btn btn-success">新增商品</button>
+                    </div>
+                    
+                    <form class="row g-3 mb-3">
+                        <div class="col-auto">
+                            <input type="text" class="form-control" placeholder="商品名稱或編號">
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-control">
+                                <option>全部分類</option>
+                                <option>行動電源</option>
+                                <option>充電線</option>
+                                <option>充電器</option>
+                                <option>配件</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-control">
+                                <option>全部狀態</option>
+                                <option>上架中</option>
+                                <option>已下架</option>
+                                <option>缺貨</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">搜尋</button>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>商品編號</th>
+                                    <th>商品圖片</th>
+                                    <th>商品名稱</th>
+                                    <th>分類</th>
+                                    <th>價格</th>
+                                    <th>庫存</th>
+                                    <th>狀態</th>
+                                    <th>建立日期</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PRD001</td>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;"></td>
+                                    <td>行動電源 20000mAh</td>
+                                    <td>行動電源</td>
+                                    <td>NT$ 899</td>
+                                    <td>50</td>
+                                    <td><span class="badge bg-success">上架中</span></td>
+                                    <td>2024-01-01</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-info" title="查看詳情">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" title="編輯">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" title="下架">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>PRD002</td>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;"></td>
+                                    <td>USB-C充電線</td>
+                                    <td>充電線</td>
+                                    <td>NT$ 299</td>
+                                    <td>0</td>
+                                    <td><span class="badge bg-danger">缺貨</span></td>
+                                    <td>2024-01-05</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-info" title="查看詳情">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" title="編輯">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success" title="進貨">
+                                                <i class="bi bi-plus-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>PRD003</td>
+                                    <td><img src="https://via.placeholder.com/50x50" alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;"></td>
+                                    <td>無線充電板</td>
+                                    <td>充電器</td>
+                                    <td>NT$ 1,299</td>
+                                    <td>25</td>
+                                    <td><span class="badge bg-success">上架中</span></td>
+                                    <td>2024-01-10</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-info" title="查看詳情">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" title="編輯">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" title="下架">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    </body>
+</html>
