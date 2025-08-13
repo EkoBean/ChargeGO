@@ -15,12 +15,11 @@ import {
   Pin,
   InfoWindow,
 } from '@vis.gl/react-google-maps';
-import { info } from 'sass';
 
-// 
+// geojson fetch
 export const fetchGeoJSONData = async () => {
   try {
-    const response = await fetch('./sample.geojson'); // 確保 sample.geojson 位於 public 資料夾
+    const response = await fetch('./sample.geojson');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -53,64 +52,86 @@ function AppIndex() {
 
 
 
-  // ================= Base Map Component =====================
+
+  // ================= App base map =====================
   const AppBaseMap = () => {
     // 載入map hook的功能
     const map = useMap();
-    const [infoWindowShown, setInfoWindowShown] = React.useState(false);
-    const [infoWindowContent, setInfoWindowContent] = React.useState(null);
-    const [activeMarker, setActiveMarker] = React.useState(null);
 
-    // =============== 開關 InfoWindow =================
-    const infoWindowHandlers = {
-      toggleInfoWindow: () => {
-        setInfoWindowShown((prev) => !prev);
-        if (!infoWindowShown) {
-        }
-      },
-      closeWindow: () => {
-        setInfoWindowShown(false);
-      }
-    };
+    // ================= Marker with InfoWindow =================
+    const MarkerWithInfoWindow = () => {
+      useEffect(() => {
+      }, []);
 
-
-
-
-    // =============== marker click handler =================
-    const markerClick = (marker, station) => {
-
-      // =============== InfoWindow content&style =================
-      const infoWindowContent = () => (
-        <div>
-          <h3>{station.properties.name}</h3>
-          <p>{station.properties.description}</p>
-          <p>地址: {station.properties.address}</p>
-          <p>狀態: {station.properties.status}</p>
-          <p>ID: {station.properties.id}</p>
-        </div>
+      return (
+        <>
+          {stations.map((station, index) => {
+            return (
+              <React.Fragment key={station.properties.id}>
+                <MarkerItem
+                  station={station}
+                />
+              </React.Fragment>
+            )
+          })}
+        </>
       )
-      // ================ End of InfoWindow content&style ===========
-
-
-      if (map && station) {
-        const pos = {
-          lat: station.geometry.coordinates[1],
-          lng: station.geometry.coordinates[0]
-        };
-        map.panTo(pos);
-        infoWindowHandlers.toggleInfoWindow();
-        setActiveMarker(marker);
-        setInfoWindowContent(infoWindowContent);
-
-      }
     };
-
 
     // =============marker item元件 =================
     const MarkerItem = ({ station, index }) => {
+      const [infoWindowShown, setInfoWindowShown] = React.useState(false);
       const [markerRef, marker] = useAdvancedMarkerRef();
+      const [activeMarker, setActiveMarker] = React.useState(null);
+
+      const id = station?.properties?.id ?? index;
+
+      // =============== info window toggle ================
+      const toggleInfoWindow = () => {
+        setInfoWindowShown((prev) => !prev);
+        if (!infoWindowShown) {
+        }
+      }
+
+      // =============== marker click handler =================
+      const markerClick = (marker, station) => {
+        if (map && station) {
+          const pos = {
+            lat: station.geometry.coordinates[1],
+            lng: station.geometry.coordinates[0]
+          };
+          map.panTo(pos);
+          toggleInfoWindow();
+          setActiveMarker(marker);
+          window.dispatchEvent(new CustomEvent('marker:clicked', { detail: { id } }));
+        }
+      };
+
+
+      // ================= click map to close info window =================
       useEffect(() => {
-      })
+        if (!map) return;
+        const listener = map.addListener('click', (e) => {
+          setInfoWindowShown(false);
+          setActiveMarker(null);
+        });
+        return () => {
+          listener.remove();
+        };
+      }, [map]);
+
+
+
+
+      // 監聽別的 marker 被點擊 → 關閉本 InfoWindow
+      React.useEffect(() => {
+        const onOtherMarkerClicked = (e) => {
+          const clickedId = e.detail?.id;
+          if (clickedId !== id) setInfoWindowShown(false);
+        };
+        window.addEventListener('marker:clicked', onOtherMarkerClicked);
+        return () => window.removeEventListener('marker:clicked', onOtherMarkerClicked);
+      }, [id]);
       return (
         <>
           <AdvancedMarker
@@ -125,34 +146,20 @@ function AppIndex() {
           >
             <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
           </AdvancedMarker >
+          {infoWindowShown && activeMarker && (
+            <InfoWindow anchor={activeMarker} onCloseClick={() => setInfoWindowShown(false)}>
+              <div>
+                <h3>{station.properties.name}</h3>
+                <p>{station.properties.description}</p>
+                <p>地址: {station.properties.address}</p>
+                <p>狀態: {station.properties.status}</p>
+                <p>ID: {station.properties.id}</p>
+              </div>
+            </InfoWindow>
+          )}
         </>
       )
     }
-
-
-    // ================= Marker with InfoWindow =================
-    const MarkerWithInfoWindow = props => {
-      useEffect(() => {
-      }, []);
-
-      return (
-        <>
-          {stations.map((station, index) => {
-            return (
-              <React.Fragment key={station.properties.id}>
-                <MarkerItem
-                  station={station}
-                />
-                {infoWindowShown && activeMarker && (
-                  <InfoWindow anchor={activeMarker} onCloseClick={()=> setInfoWindowShown(false)}>{infoWindowContent}
-                  </InfoWindow>
-                )}
-              </React.Fragment>
-            )
-          })}
-        </>
-      )
-    };
 
     useEffect(() => {
     }, [])
@@ -172,7 +179,6 @@ function AppIndex() {
           draggingCursor={'default'}
           draggableCursor={'default'}
           mapId={mapId}
-          onClick={infoWindowHandlers.closeWindow}
         >
           <MarkerWithInfoWindow />
         </Map>

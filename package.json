@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "前端班大專題",
   "type": "module",
+  
   "scripts": {
     "_note": "這裡是自訂的 npm 指令，使用 npm run <scripts name> 就可以在 cmd 裡面跑 scripts",
     "dev": "vite",
@@ -35,4 +36,5 @@
     "sass": "^1.89.2",
     "vite": "^7.1.0"
   }
+
 }
