@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+
+// 註冊元件
 const Register = () => {
     const [form, setForm] = useState({
         username: '',
@@ -14,8 +16,10 @@ const Register = () => {
         agreerule: false,
         event: true
     });
-    const [captchaValue, setCaptchaValue] = useState(() => Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
 
+    // 驗證碼
+    const [captchaValue, setCaptchaValue] = useState(() => Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
+    // 處理表單變更
     const handleChange = e => {
         const { name, value, type, checked } = e.target;
         setForm({
@@ -23,13 +27,13 @@ const Register = () => {
             [name]: type === 'checkbox' ? checked : value
         });
     };
-
+    // 處理表單提交
     const handleSubmit = e => {
         e.preventDefault();
         // 這裡可以加上 API 串接
         alert('註冊功能尚未串接');
     };
-
+    // 處理表單清空
     const handleClear = () => {
         setForm({
             username: '', password: '', confirmPassword: '', name: '', mail: '', phone: '', city: '', captcha: '', subpwd: '', agreerule: false, event: true
