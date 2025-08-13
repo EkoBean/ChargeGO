@@ -11,7 +11,8 @@
         "name": "站點A",
         "description": "這是站點A的描述",
         "address": "台北市信義區信義路五段7號",
-        "status": "營運中"
+        "status": "營運中",
+        "id": "A12345"
       }
     },
     {
@@ -24,7 +25,8 @@
         "name": "站點B",
         "description": "這是站點B的描述",
         "address": "台北市中正區忠孝西路一段49號",
-        "status": "維護中"
+        "status": "維護中",
+        "id": "B12345"
       }
     },
     {
@@ -37,7 +39,8 @@
         "name": "站點C",
         "description": "這是站點C的描述",
         "address": "台北市中正區忠孝西路一段49號",
-        "status": "營運中"
+        "status": "營運中",
+        "id": "C12345"
       }
     }
   ]
