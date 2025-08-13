@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Bar</title>
+    <link rel="stylesheet" href="./navbar.css">
+    <link rel="stylesheet" href="https://use.typekit.net/qla0nmx.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+
+</head>
+
+<body>
+    
+    <header class="navbar">
+        <div class="logo">
+            <img src="./img/home-buttom.png">
+        </div>
+
+        <nav class="menu">
+            <div class="menu-item">服務據點</div>
+            <div class="menu-item">成為站點</div>
+            <div class="menu-item">租借系統</div>
+            <div class="menu-item">會員專區</div>
+            <div class="menu-item">聯絡我們</div>
+            <div class="ball main"></div>
+            <div class="ball follower"></div>
+        </nav>
+    </header>
+
+    <!-- Gooey Filter -->
+    <svg style="display:none;">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  
+                  0 1 0 0 0  
+                  0 0 1 0 0  
+                  0 0 0 25 -12" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
+    
+    <script src="./navbar.js"></script>
+</body>
+
+</html>
