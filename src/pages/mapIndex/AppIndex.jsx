@@ -3,7 +3,7 @@
 import '../../styles/scss/map_index.scss'
 
 //React
-import React, { useEffect, useRef } from 'react';
+import React, { cloneElement, useEffect, useRef } from 'react';
 
 // Google Maps
 import {
@@ -15,6 +15,7 @@ import {
   Pin,
   InfoWindow,
 } from '@vis.gl/react-google-maps';
+import { info } from 'sass';
 
 // 
 export const fetchGeoJSONData = async () => {
@@ -41,7 +42,6 @@ const defaultCenter = { lat: 25.033964, lng: 121.564468 }
 function AppIndex() {
   const [stations, setStations] = React.useState([]);
 
-
   // 在組件掛載時加載資料
   useEffect(() => {
     const loadData = async () => {
@@ -55,49 +55,101 @@ function AppIndex() {
 
   // ================= Base Map Component =====================
   const AppBaseMap = () => {
+    // 載入map hook的功能
     const map = useMap();
     const [infoWindowShown, setInfoWindowShown] = React.useState(false);
+    const [infoWindowContent, setInfoWindowContent] = React.useState(null);
+    const [activeMarker, setActiveMarker] = React.useState(null);
 
     // =============== 開關 InfoWindow =================
     const infoWindowHandlers = {
       toggleInfoWindow: () => {
         setInfoWindowShown((prev) => !prev);
-        console.log('Marker clicked, InfoWindow toggled.');
+        if (!infoWindowShown) {
+        }
       },
       closeWindow: () => {
         setInfoWindowShown(false);
-        console.log('Map clicked, InfoWindow closed.');
       }
     };
 
 
+
+
+    // =============== marker click handler =================
+    const markerClick = (marker, station) => {
+
+      // =============== InfoWindow content&style =================
+      const infoWindowContent = () => (
+        <div>
+          <h3>{station.properties.name}</h3>
+          <p>{station.properties.description}</p>
+          <p>地址: {station.properties.address}</p>
+          <p>狀態: {station.properties.status}</p>
+          <p>ID: {station.properties.id}</p>
+        </div>
+      )
+      // ================ End of InfoWindow content&style ===========
+
+
+      if (map && station) {
+        const pos = {
+          lat: station.geometry.coordinates[1],
+          lng: station.geometry.coordinates[0]
+        };
+        map.panTo(pos);
+        infoWindowHandlers.toggleInfoWindow();
+        setActiveMarker(marker);
+        setInfoWindowContent(infoWindowContent);
+
+      }
+    };
+
+
+    // =============marker item元件 =================
+    const MarkerItem = ({ station, index }) => {
+      const [markerRef, marker] = useAdvancedMarkerRef();
+      useEffect(() => {
+      })
+      return (
+        <>
+          <AdvancedMarker
+            position={
+              {
+                lat: station.geometry.coordinates[1],
+                lng: station.geometry.coordinates[0]
+              }
+            }
+            ref={markerRef}
+            onClick={() => markerClick(marker, station)}
+          >
+            <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+          </AdvancedMarker >
+        </>
+      )
+    }
+
+
     // ================= Marker with InfoWindow =================
     const MarkerWithInfoWindow = props => {
-      const [markerRef, marker] = useAdvancedMarkerRef();
-
-
       useEffect(() => {
       }, []);
 
       return (
         <>
-          {stations.map((station, index) => (
-            <React.Fragment key={station.id || index}>
-              <AdvancedMarker
-                position={{
-                  lat: station.geometry.coordinates[1],
-                  lng: station.geometry.coordinates[0]
-                }}
-                onClick={() => infoWindowHandlers.toggleInfoWindow()}
-                ref={markerRef}
-              >
-                <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
-              </AdvancedMarker>
-              {infoWindowShown && (
-                <InfoWindow anchor={marker}>Infowindow Content</InfoWindow>
-              )}
-            </React.Fragment>
-          ))}
+          {stations.map((station, index) => {
+            return (
+              <React.Fragment key={station.properties.id}>
+                <MarkerItem
+                  station={station}
+                />
+                {infoWindowShown && activeMarker && (
+                  <InfoWindow anchor={activeMarker} onCloseClick={()=> setInfoWindowShown(false)}>{infoWindowContent}
+                  </InfoWindow>
+                )}
+              </React.Fragment>
+            )
+          })}
         </>
       )
     };
