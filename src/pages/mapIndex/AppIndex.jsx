@@ -36,6 +36,31 @@ const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
 const mapId = '7ade7c4e6e2cc1087f2619a5'
 const defaultCenter = { lat: 25.033964, lng: 121.564468 }
 
+// ======== MarkerBus  ==========
+// 將對markerID的操作不管在哪裡都將他連結進markerItem裡面
+// 不管在父元件還是在其他地方都可以操作subscribe這個class的物件
+class MarkerBus {
+  constructor() {
+    this.current = null;
+    this.listeners = new Set();
+  }
+  set(id) {
+    this.current = (this.current === id ? null : id);
+    this.listeners.forEach(l => l(this.current));
+  }
+  clear() {
+    if (this.current !== null) {
+      this.current = null;
+      this.listeners.forEach(l => l(this.current));
+    }
+  }
+  subscribe(fn) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+}
+
+const markerBus = new MarkerBus();
 
 // =============== Main function ===========================
 function AppIndex() {
@@ -78,20 +103,14 @@ function AppIndex() {
       )
     };
 
-    // =============marker item元件 =================
+    // ============= MarkerItem  =================
     const MarkerItem = ({ station, index }) => {
-      const [infoWindowShown, setInfoWindowShown] = React.useState(false);
-      const [markerRef, marker] = useAdvancedMarkerRef();
-      const [activeMarker, setActiveMarker] = React.useState(null);
-
       const id = station?.properties?.id ?? index;
+      const [markerRef, marker] = useAdvancedMarkerRef();
+      const [activeMarkerId, setActiveMarkerId] = React.useState(null);
+      // const [infoWindowShown, setInfoWindowShown] = React.useState(false);
 
-      // =============== info window toggle ================
-      const toggleInfoWindow = () => {
-        setInfoWindowShown((prev) => !prev);
-        if (!infoWindowShown) {
-        }
-      }
+
 
       // =============== marker click handler =================
       const markerClick = (marker, station) => {
@@ -101,37 +120,39 @@ function AppIndex() {
             lng: station.geometry.coordinates[0]
           };
           map.panTo(pos);
-          toggleInfoWindow();
-          setActiveMarker(marker);
-          window.dispatchEvent(new CustomEvent('marker:clicked', { detail: { id } }));
+          markerBus.set(id);
+          // setInfoWindowShown((prev) => !prev);
+          // setActiveMarker(marker);
+          // window.dispatchEvent(new CustomEvent('marker:clicked', { detail: { id } }));
         }
       };
 
 
-      // ================= click map to close info window =================
+
+      // ================= suscribe markerBus 把id綁進markerBus裡面，僅限一次 =================
       useEffect(() => {
-        if (!map) return;
-        const listener = map.addListener('click', (e) => {
-          setInfoWindowShown(false);
-          setActiveMarker(null);
-        });
-        return () => {
-          listener.remove();
-        };
-      }, [map]);
+        const unsub = markerBus.subscribe(
+          // markerBus主程式
+          activeId => {
+            const x = activeId === id;
+            setActiveMarkerId(x ? id : null);
+          }
+        )
+        return unsub;
+      }, [id]);
 
 
 
 
       // 監聽別的 marker 被點擊 → 關閉本 InfoWindow
-      React.useEffect(() => {
-        const onOtherMarkerClicked = (e) => {
-          const clickedId = e.detail?.id;
-          if (clickedId !== id) setInfoWindowShown(false);
-        };
-        window.addEventListener('marker:clicked', onOtherMarkerClicked);
-        return () => window.removeEventListener('marker:clicked', onOtherMarkerClicked);
-      }, [id]);
+      // React.useEffect(() => {
+      //   const onOtherMarkerClicked = (e) => {
+      //     const clickedId = e.detail?.id;
+      //     if (clickedId !== id) setInfoWindowShown(false);
+      //   };
+      //   window.addEventListener('marker:clicked', onOtherMarkerClicked);
+      //   return () => window.removeEventListener('marker:clicked', onOtherMarkerClicked);
+      // }, [id]);
       return (
         <>
           <AdvancedMarker
@@ -146,8 +167,11 @@ function AppIndex() {
           >
             <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
           </AdvancedMarker >
-          {infoWindowShown && activeMarker && (
-            <InfoWindow anchor={activeMarker} onCloseClick={() => setInfoWindowShown(false)}>
+          {activeMarkerId && marker && (
+            <InfoWindow anchor={marker}
+              onCloseClick={() => markerBus.clear()}
+
+            >
               <div>
                 <h3>{station.properties.name}</h3>
                 <p>{station.properties.description}</p>
@@ -162,7 +186,10 @@ function AppIndex() {
     }
 
     useEffect(() => {
-    }, [])
+      if (!map) return;
+      const closeWindow = map.addListener('click', () => markerBus.clear());
+      return () => closeWindow.remove();
+    }, [map])
     return (
       <>
         {/* ==== search bar ==== */}
