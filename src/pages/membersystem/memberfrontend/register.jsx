@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-function Register() {
+// 註冊元件
+const Register = () => {
   const [form, setForm] = useState({
     username: "",
     password: "",
     confirmPassword: "",
     mail: "",
-    phone: "",
+    telephone: "",
     city: "",
     credit_card_number: "",
     credit_card_date: "",
@@ -20,7 +21,6 @@ function Register() {
   const [captchaValue, setCaptchaValue] = useState(() =>
     Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
   );
-
   // 處理表單變更
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -29,20 +29,60 @@ function Register() {
       [name]: type === "checkbox" ? checked : value,
     });
   };
-
-  const handleRegister = async () => {
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert("註冊成功！");
-      // 可導向登入頁或其他頁面
-    } else {
-      alert("註冊失敗");
+  // 處理表單提交
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // 驗證碼檢查
+    if (form.subpwd !== String(captchaValue)) {
+      alert("驗證碼錯誤，請重新輸入");
+      return;
     }
+    // 密碼確認
+    if (form.password !== form.confirmPassword) {
+      alert("密碼與確認密碼不一致");
+      return;
+    }
+    // API 串接
+    try {
+      const res = await axios.post("http://localhost:3000/api/login", {
+        user_name: form.username,
+        password: form.password,
+        email: form.mail,
+        telephone: form.telephone,
+        address: form.city,
+        blacklist: 0,
+        wallet: 0,
+        point: 0,
+        total_carbon_footprint: 0,
+        credit_card_number: form.credit_card_number,
+        credit_card_date: form.credit_card_date,
+      });
+      if (res.data.success) {
+        alert("註冊成功！");
+        handleClear();
+      } else {
+        alert(res.data.message || "註冊失敗");
+      }
+    } catch (err) {
+      alert("伺服器錯誤，請稍後再試");
+    }
+  };
+  // 處理表單清空
+  const handleClear = () => {
+    setForm({
+      username: "",
+      password: "",
+      confirmPassword: "",
+      mail: "",
+      credit_card_number: "",
+      credit_card_date: "",
+      telephone: "",
+      city: "",
+      subpwd: "",
+      agreerule: false,
+      event: true,
+    });
+    setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
   };
 
   return (
@@ -82,7 +122,7 @@ function Register() {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="mail">電子郵件：</label>
           <input
             id="mail"
@@ -92,17 +132,17 @@ function Register() {
             onChange={handleChange}
           />
         </div>
-        <div>
-          <label htmlFor="phone">電話：</label>
+        <div className="form-group">
+          <label htmlFor="telephone">電話：</label>
           <input
-            id="phone"
-            name="phone"
+            id="telephone"
+            name="telephone"
             type="text"
-            value={form.phone}
+            value={form.telephone}
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="credit_card_number">信用卡號：</label>
           <input
             id="credit_card_number"
@@ -113,7 +153,7 @@ function Register() {
             maxLength={16}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="credit_card_date">信用卡到期日：</label>
           <input
             id="credit_card_date"
@@ -125,8 +165,8 @@ function Register() {
             maxLength={5}
           />
         </div>
-        <div>
-          <span>現居地點：</span>
+        <div className="form-group">
+          <label htmlFor="city-list">現居地點：</label>
           <select
             name="city"
             id="city-list"
@@ -157,48 +197,53 @@ function Register() {
             <option value="連江縣">連江縣</option>
           </select>
         </div>
-        <div id="capbox">
-          <span>
-            驗證碼：<span id="captchapwd">{captchaValue}</span>
-          </span>
+        <div className="form-group" id="capbox">
+          <label>驗證碼：</label>
+          <span id="captchapwd">{captchaValue}</span>
         </div>
-        <br />
-        <label htmlFor="subpwd">請輸入驗證碼：</label>
-        <input
-          id="subpwd"
-          name="subpwd"
-          type="text"
-          value={form.subpwd}
-          onChange={handleChange}
-        />
-        <br />
-        <input
-          type="checkbox"
-          id="agreerule"
-          name="agreerule"
-          checked={form.agreerule}
-          onChange={handleChange}
-        />
-        <span>同意使用者規範</span>
-        <br />
-        <input
-          type="checkbox"
-          id="event"
-          name="event"
-          checked={form.event}
-          onChange={handleChange}
-        />
-        <span>訂閱活動資訊</span>
-        <br />
-        <button id="register" type="submit">
-          註冊
-        </button>
-        <button id="clear" type="button" onClick={handleClear}>
-          清除
-        </button>
+        <div className="form-group">
+          <label htmlFor="subpwd">請輸入驗證碼：</label>
+          <input
+            id="subpwd"
+            name="subpwd"
+            type="text"
+            value={form.subpwd}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="checkbox"
+            id="agreerule"
+            name="agreerule"
+            checked={form.agreerule}
+            onChange={handleChange}
+          />
+          <span>同意使用者規範</span>
+        </div>
+        <div className="form-group">
+          <input
+            type="checkbox"
+            id="event"
+            name="event"
+            checked={form.event}
+            onChange={handleChange}
+          />
+          <span>訂閱活動資訊</span>
+        </div>
+        <div className="form-group">
+          <button id="register" type="submit">
+            註冊
+          </button>
+          <button id="clear" type="button" onClick={handleClear}>
+            清除
+          </button>
+        </div>
       </form>
     </div>
   );
-}
+};
 
 export default Register;
+
+
