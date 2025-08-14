@@ -4,6 +4,7 @@ import '../../styles/scss/map_index.scss'
 
 //React
 import React, { cloneElement, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 // Google Maps
 import {
@@ -17,19 +18,19 @@ import {
 } from '@vis.gl/react-google-maps';
 
 // geojson fetch
-export const fetchGeoJSONData = async () => {
-  try {
-    const response = await fetch('./sample.geojson');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.features; // 返回 GeoJSON 的 features
-  } catch (error) {
-    console.error('Error loading GeoJSON:', error);
-    return [];
-  }
-};
+// export const fetchGeoJSONData = async () => {
+//   try {
+//     const response = await fetch('./sample.geojson');
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     return data.features; // 返回 GeoJSON 的 features
+//   } catch (error) {
+//     console.error('Error loading GeoJSON:', error);
+//     return [];
+//   }
+// };
 
 // ================= Constants ============================
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
@@ -59,23 +60,26 @@ class MarkerBus {
     return () => this.listeners.delete(fn);
   }
 }
-
 const markerBus = new MarkerBus();
 
 // =============== Main function ===========================
 function AppIndex() {
   const [stations, setStations] = React.useState([]);
-
-  // 在組件掛載時加載資料
+  // ================= fetch sataions =================
   useEffect(() => {
-    const loadData = async () => {
-      const data = await fetchGeoJSONData();
-      setStations(data); // 將資料存入狀態
-    };
-    loadData();
+    const getStations = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/stations');
+        console.log('res.data :>> ', res.data);
+        setStations(res.data);
+      }
+      catch (error) {
+        console.error(error);
+        return [];
+      }
+    }
+    getStations();
   }, []);
-
-
 
 
   // ================= App base map =====================
@@ -92,7 +96,7 @@ function AppIndex() {
         <>
           {stations.map((station, index) => {
             return (
-              <React.Fragment key={station.properties.id}>
+              <React.Fragment key={station.site_id}>
                 <MarkerItem
                   station={station}
                 />
@@ -105,7 +109,7 @@ function AppIndex() {
 
     // ============= MarkerItem  =================
     const MarkerItem = ({ station, index }) => {
-      const id = station?.properties?.id ?? index;
+      const id = station?.site_id ?? index;
       const [markerRef, marker] = useAdvancedMarkerRef();
       const [activeMarkerId, setActiveMarkerId] = React.useState(null);
       // const [infoWindowShown, setInfoWindowShown] = React.useState(false);
@@ -116,8 +120,8 @@ function AppIndex() {
       const markerClick = (marker, station) => {
         if (map && station) {
           const pos = {
-            lat: station.geometry.coordinates[1],
-            lng: station.geometry.coordinates[0]
+            lat: station.latitude,
+            lng: station.longitude
           };
           map.panTo(pos);
           markerBus.set(id);
@@ -141,25 +145,13 @@ function AppIndex() {
         return unsub;
       }, [id]);
 
-
-
-
-      // 監聽別的 marker 被點擊 → 關閉本 InfoWindow
-      // React.useEffect(() => {
-      //   const onOtherMarkerClicked = (e) => {
-      //     const clickedId = e.detail?.id;
-      //     if (clickedId !== id) setInfoWindowShown(false);
-      //   };
-      //   window.addEventListener('marker:clicked', onOtherMarkerClicked);
-      //   return () => window.removeEventListener('marker:clicked', onOtherMarkerClicked);
-      // }, [id]);
       return (
         <>
           <AdvancedMarker
             position={
               {
-                lat: station.geometry.coordinates[1],
-                lng: station.geometry.coordinates[0]
+                lat: station.latitude,
+                lng: station.longitude
               }
             }
             ref={markerRef}
@@ -177,19 +169,21 @@ function AppIndex() {
                 <p>{station.properties.description}</p>
                 <p>地址: {station.properties.address}</p>
                 <p>狀態: {station.properties.status}</p>
-                <p>ID: {station.properties.id}</p>
+                <p>ID: {station.site_id}</p>
               </div>
             </InfoWindow>
           )}
         </>
       )
     }
-
+    // ============== close InfoWindow on map click ===============
     useEffect(() => {
       if (!map) return;
       const closeWindow = map.addListener('click', () => markerBus.clear());
       return () => closeWindow.remove();
     }, [map])
+
+
     return (
       <>
         {/* ==== search bar ==== */}
