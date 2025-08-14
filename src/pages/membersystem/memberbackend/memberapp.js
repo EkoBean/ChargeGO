@@ -1,5 +1,5 @@
-const express = require('express');
-const mysql = require('mysql2');
+import express from 'express';
+import mysql from 'mysql2';
 const app = express();
 app.use(express.json());
 
@@ -83,6 +83,10 @@ app.post('/api/register', (req, res) => {
             res.json({ success: true, uid: result.insertId });
         }
     );
+});
+
+app.get('/', (req, res) => {
+  res.send('伺服器連線成功！');
 });
 
 // 伺服器啟動
