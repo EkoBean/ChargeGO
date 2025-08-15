@@ -69,12 +69,8 @@ const Register = () => {
         email: form.email,
         telephone: form.telephone,
         address: form.address,
-        blacklist: 0,
-        wallet: 0,
-        point: 0,
-        total_carbon_footprint: 0,
         credit_card_number: form.credit_card_number,
-        credit_card_date: form.credit_card_date,
+        credit_card_date: form.credit_card_date
       };
       const res = await axios.post("http://localhost:3000/api/register", payload);
       if (res.data?.success) {
