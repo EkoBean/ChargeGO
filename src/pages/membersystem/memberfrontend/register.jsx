@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+// 新增 useNavigate
+import { useNavigate } from "react-router-dom";
 
 // 註冊元件
 const Register = () => {
@@ -16,7 +18,8 @@ const Register = () => {
     agreerule: false,
     event: true,
   });
-
+  
+  const navigate = useNavigate(); 
   // 驗證碼
   const [captchaValue, setCaptchaValue] = useState(() =>
     Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
@@ -44,7 +47,7 @@ const Register = () => {
     }
     // API 串接
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
+      const res = await axios.post("http://localhost:3000/api/register", {
         user_name: form.username,
         password: form.password,
         email: form.mail,
@@ -60,6 +63,7 @@ const Register = () => {
       if (res.data.success) {
         alert("註冊成功！");
         handleClear();
+        navigate("./login.jsx"); // 註冊成功後導向登入頁面
       } else {
         alert(res.data.message || "註冊失敗");
       }
