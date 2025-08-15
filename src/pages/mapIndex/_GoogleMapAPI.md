@@ -196,3 +196,6 @@ Google自己出的，把自己的原生API打包成React。
 
 #### 要使用變數就用setState
 `const [state, setState] = React.setState()`
+
+### Auto Complete doc
+https://github.com/wellyshen/use-places-autocomplete#api
