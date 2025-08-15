@@ -1,25 +1,28 @@
 // import { useState } from 'react'
-import { Routes, Route,Link } from 'react-router-dom';
-import TodoIndex from './views/todo-index';
-import TodoCreate from './views/todo-create';
-import TodoEdit from './views/todo-edit';
-import TodoDelete from './views/todo-delete';
+import { Routes, Route } from 'react-router-dom';
+import AdminDashboard from './backfrom/views/AdminDashboard';
+// import UserManagement from './backfrom/views/UserManagement';
+// import OrderManagement from './backfrom/views/OrderManagement';
+// import SiteManagement from './backfrom/views/SiteManagement';
+// import SystemSettings from './backfrom/views/SystemSettings';
+import Charging from './backfrom/views/charging';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 function App() {
   return (
     <>
-     <Routes>
-      {/*  path="這裡要跟連接的地方一樣" */}
-       <Route path="/" element={<TodoIndex />} />
-      <Route path="/todo/index" element={<TodoIndex />} />
-      <Route path='/todo/create' element={<TodoCreate />} />
-      <Route path='/todo/edit/:id' element={<TodoEdit />} />
-      <Route path='/todo/delete/:id' element={<TodoDelete />} />
-     </Routes>
+      <Routes>
+        {/* 後台管理路由 */}
+        <Route path="/" element={<AdminDashboard />} />
+        <Route path="/dashboard" element={<AdminDashboard />} />
+        {/* <Route path="/users" element={<UserManagement />} />
+        <Route path="/orders" element={<OrderManagement />} />
+        <Route path="/sites" element={<SiteManagement />} />
+        <Route path="/charging" element={<Charging />} />
+        <Route path="/settings" element={<SystemSettings />} /> */}
+      </Routes>
     </>
   );
 }
 
-export default App
+export default App;
