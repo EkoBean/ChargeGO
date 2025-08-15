@@ -1,4 +1,4 @@
-@use './global.scss' as bs ; 
+@use './global.scss' as g;
 
 html,
 body,
@@ -7,7 +7,8 @@ body,
   margin: 0;
   padding: 0;
 }
-#search-bar{
+
+#search-bar {
   position: fixed;
   top: 10px;
   left: 50%;
@@ -15,4 +16,53 @@ body,
   z-index: 1000;
   width: 80%;
   max-width: 600px;
+}
+
+// google map infowindow styles
+.gm-style-iw {
+
+  .site-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    overflow: default;
+  }
+
+  .adress {
+    font-size: 1rem;
+    color: #555;
+  }
+
+  .bat-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+// search bar
+.search-bar {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 80%;
+  max-width: 600px;
+
+  input {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    outline: 0px solid g.$primary ;
+
+    border-radius: 999px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: outline 0.1s linear;
+
+    &:focus {
+      // border-color: g.$primary ;
+      outline: 3px solid g.$primary ;
+    }
+  }
 }

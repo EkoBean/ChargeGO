@@ -17,25 +17,14 @@ import {
   InfoWindow,
 } from '@vis.gl/react-google-maps';
 
-// geojson fetch
-// export const fetchGeoJSONData = async () => {
-//   try {
-//     const response = await fetch('./sample.geojson');
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-//     const data = await response.json();
-//     return data.features; // 返回 GeoJSON 的 features
-//   } catch (error) {
-//     console.error('Error loading GeoJSON:', error);
-//     return [];
-//   }
-// };
 
 // ================= Constants ============================
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
+
 const mapId = '7ade7c4e6e2cc1087f2619a5'
-const defaultCenter = { lat: 25.033964, lng: 121.564468 }
+const defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 }
+
+
 
 // ======== MarkerBus  ==========
 // 將對markerID的操作不管在哪裡都將他連結進markerItem裡面
@@ -65,12 +54,13 @@ const markerBus = new MarkerBus();
 // =============== Main function ===========================
 function AppIndex() {
   const [stations, setStations] = React.useState([]);
-  // ================= fetch sataions =================
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = React.useState(false);
+  // ================= Axios fetch =================
+  // all stations
   useEffect(() => {
     const getStations = async () => {
       try {
         const res = await axios.get('http://localhost:3000/api/stations');
-        console.log('res.data :>> ', res.data);
         setStations(res.data);
       }
       catch (error) {
@@ -78,20 +68,33 @@ function AppIndex() {
         return [];
       }
     }
+
     getStations();
   }, []);
 
+
+  // ================= SearchBar component =================
+  const SearchBar = (stations) => {
+    const map = useMap();
+
+    // const { AutocompleteSuggestion } = google.maps.importLibrary("places") 
+
+    return (
+      <div className='search-bar'>
+        <input type="text"
+          placeholder='搜尋地點'
+        />
+      </div>
+    )
+
+  }
 
   // ================= App base map =====================
   const AppBaseMap = () => {
     // 載入map hook的功能
     const map = useMap();
-
     // ================= Marker with InfoWindow =================
     const MarkerWithInfoWindow = () => {
-      useEffect(() => {
-      }, []);
-
       return (
         <>
           {stations.map((station, index) => {
@@ -112,9 +115,51 @@ function AppIndex() {
       const id = station?.site_id ?? index;
       const [markerRef, marker] = useAdvancedMarkerRef();
       const [activeMarkerId, setActiveMarkerId] = React.useState(null);
-      // const [infoWindowShown, setInfoWindowShown] = React.useState(false);
+
+      // =============== Info Window =================
+      function InfoWin() {
+        const [info, setInfo] = React.useState([]);
+
+        // ================= Axios fetch =================
+        // infowindow detail
+        useEffect(() => {
+          const siteId = station.site_id;
+          const getInfo = async () => {
+            try {
+              const res = await axios.get(`http://localhost:3000/api/infoWindow/${siteId}`);
+              setInfo(res.data);
+            }
+            catch (error) {
+              console.error(error);
+              return [];
+            }
+          }
+          getInfo();
+        }, []);
 
 
+        if (info.length >= 1) {
+          const rentable = info.filter(x => x.status === '2' || x.status === '3').length;
+          const charging = info.filter(x => x.status === '4').length;
+          return (
+            <InfoWindow
+              anchor={marker}
+            >
+              <div>
+                <h4 className='site-name'>{info[0].site_name}</h4>
+                <p className='address'>{info[0].address}</p>
+                <div className='bat-status'>
+                  <p>可租借 {rentable}</p>
+                  <p>充電中 {charging}</p>
+                </div>
+
+              </div>
+            </InfoWindow>
+          )
+        }
+
+
+      }
 
       // =============== marker click handler =================
       const markerClick = (marker, station) => {
@@ -125,13 +170,8 @@ function AppIndex() {
           };
           map.panTo(pos);
           markerBus.set(id);
-          // setInfoWindowShown((prev) => !prev);
-          // setActiveMarker(marker);
-          // window.dispatchEvent(new CustomEvent('marker:clicked', { detail: { id } }));
         }
       };
-
-
 
       // ================= suscribe markerBus 把id綁進markerBus裡面，僅限一次 =================
       useEffect(() => {
@@ -144,6 +184,7 @@ function AppIndex() {
         )
         return unsub;
       }, [id]);
+
 
       return (
         <>
@@ -160,18 +201,10 @@ function AppIndex() {
             <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
           </AdvancedMarker >
           {activeMarkerId && marker && (
-            <InfoWindow anchor={marker}
+            <InfoWin
               onCloseClick={() => markerBus.clear()}
+            />
 
-            >
-              <div>
-                <h3>{station.properties.name}</h3>
-                <p>{station.properties.description}</p>
-                <p>地址: {station.properties.address}</p>
-                <p>狀態: {station.properties.status}</p>
-                <p>ID: {station.site_id}</p>
-              </div>
-            </InfoWindow>
           )}
         </>
       )
@@ -186,11 +219,6 @@ function AppIndex() {
 
     return (
       <>
-        {/* ==== search bar ==== */}
-        <input type="text" id="search-bar" placeholder="搜尋地點" />
-
-        {/* ==== maps ==== */}
-
         <Map
           style={{ width: '100vw', height: '100vh' }}
           defaultCenter={defaultCenter}
@@ -211,11 +239,20 @@ function AppIndex() {
 
 
 
+
   // ============= Render zone ================
   return (
     <>
-      <APIProvider apiKey={APIkey}>
-        <AppBaseMap />
+      <APIProvider apiKey={APIkey}
+        region='TW'
+        libraries={['places']}
+        onLoad={() => setIsGoogleMapsLoaded(true)}>
+        {isGoogleMapsLoaded && (
+          <>
+            <SearchBar />
+            <AppBaseMap />
+          </>
+        )}
       </APIProvider>
     </>
   );
