@@ -8,17 +8,20 @@ const Login = () => {
     password: "",
     captcha: "",
   });
+  // 產生驗證碼
   const [captchaValue, setCaptchaValue] = useState(() =>
     Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
   );
+  // 更新驗證碼
   const [error, setError] = useState("");
+  // 導向
   const navigate = useNavigate();
-
+  // 處理表單變更
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
+  // 提交表單
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -54,11 +57,9 @@ const Login = () => {
       setError("系統錯誤，請稍後再試");
     }
   };
-
+  // 重新產生驗證碼
   const refreshCaptcha = () => {
-    setCaptchaValue(
-      Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-    );
+    setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
   };
 
   return (
