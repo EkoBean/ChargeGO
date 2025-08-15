@@ -17,10 +17,12 @@ function App() {
   return (
     <>
         <Routes>
-          <Route path='/' element={<Register />} />
+          <Route path='/AppIndex' element={<AppIndex />} />
+          <Route path='/' />
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
           <Route path='*' element={<Register />} />
+          {/* 這個以後可以來寫個no Found頁 */}
         </Routes>
 
     </>
