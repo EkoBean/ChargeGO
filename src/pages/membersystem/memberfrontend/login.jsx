@@ -1,85 +1,167 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [form, setForm] = useState({ username: "", password: "", captcha: "" });
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+    captcha: "",
+  });
+  const [captchaValue, setCaptchaValue] = useState(() =>
+    Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
+  );
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // API 串接
+    setError("");
+
+    // 驗證
+    if (!form.username || !form.password) {
+      setError("請輸入帳號和密碼");
+      return;
+    }
+
+    if (form.captcha !== String(captchaValue)) {
+      setError("驗證碼錯誤");
+      return;
+    }
 
     try {
+      // 登入 API 呼叫
       const res = await axios.post("http://localhost:3000/api/login", {
         user_name: form.username,
         password: form.password,
-        email: form.mail,
-        telephone: form.telephone,
-        address: form.city,
-        blacklist: 0,
-        wallet: 0,
-        point: 0,
-        total_carbon_footprint: 0,
-        credit_card_number: form.credit_card_number,
-        credit_card_date: form.credit_card_date,
       });
-      if (res.data.success) {
-        alert("註冊成功！");
-        handleClear();
+
+      if (res.data?.success) {
+        // 儲存用戶資訊到 localStorage
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        alert("登入成功！");
+        navigate("/"); // 導向首頁或會員中心
       } else {
-        alert(res.data.message || "註冊失敗");
+        setError(res.data?.message || "登入失敗，請檢查帳號密碼");
       }
     } catch (err) {
-      alert("伺服器錯誤，請稍後再試");
+      console.error("登入錯誤:", err);
+      setError("系統錯誤，請稍後再試");
     }
   };
 
+  const refreshCaptcha = () => {
+    setCaptchaValue(
+      Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
+    );
+  };
+
   return (
-    <div className="login-container">
-      <h1>會員登入</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username">帳號:</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header bg-primary text-white">
+              <h3 className="mb-0">會員登入</h3>
+            </div>
+            <div className="card-body">
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
+              <form onSubmit={handleSubmit}>
+                <div className="form-group mb-3">
+                  <label htmlFor="username" className="form-label">
+                    帳號:
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="username"
+                    name="username"
+                    value={form.username}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group mb-3">
+                  <label htmlFor="password" className="form-label">
+                    密碼:
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label">驗證碼:</label>
+                  <div className="d-flex align-items-center">
+                    <span
+                      className="me-2 p-2 bg-light border rounded"
+                      style={{ fontWeight: "bold" }}
+                    >
+                      {captchaValue}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-secondary"
+                      onClick={refreshCaptcha}
+                    >
+                      重新產生
+                    </button>
+                  </div>
+                </div>
+                <div className="form-group mb-4">
+                  <label htmlFor="captcha" className="form-label">
+                    請輸入驗證碼:
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="captcha"
+                    name="captcha"
+                    value={form.captcha}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="d-grid gap-2">
+                  <button type="submit" className="btn btn-primary">
+                    登入
+                  </button>
+                </div>
+                <div className="mt-3 text-center">
+                  <button
+                    type="button"
+                    className="btn btn-link"
+                    onClick={() => navigate("/register")}
+                  >
+                    註冊新帳號
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-link"
+                    onClick={() => alert("請聯繫客服重設密碼")}
+                  >
+                    忘記密碼?
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-        <div className="form-group">
-          <label htmlFor="password">密碼:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <span>驗證碼：</span>
-          {/* 這裡可以放驗證碼圖片或亂數 */}
-        </div>
-        <label htmlFor="captcha">請輸入驗證碼：</label>
-        <input
-          id="captcha"
-          name="captcha"
-          type="text"
-          value={form.captcha}
-          onChange={handleChange}
-        />
-        <br />
-        <button type="submit">登入</button>
-        <button type="button">註冊</button>
-        <button type="button">忘記密碼?</button>
-      </form>
+      </div>
     </div>
   );
 };
