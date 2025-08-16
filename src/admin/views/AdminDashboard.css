@@ -1,9 +1,11 @@
+/* 整體頁面容器：設定最低高度、背景與系統字體 */
 .admin-dashboard {
   min-height: 100vh;
   background-color: #f5f5f5;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* 頂部導覽列：深色背景、左右分佈、陰影 */
 .top-nav {
   background: #343a40;
   color: white;
@@ -14,30 +16,36 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* 導覽列品牌文字樣式 */
 .nav-brand {
   font-weight: bold;
   font-size: 1.2rem;
 }
 
+/* 導覽列內圖示間距 */
 .nav-icon {
   margin-right: 0.5rem;
 }
 
+/* 主版面：側邊欄 + 主內容的 Flex 容器 */
 .dashboard-layout {
   display: flex;
   min-height: calc(100vh - 70px);
 }
 
+/* 側邊欄：固定寬度與右側陰影 */
 .sidebar {
   width: 250px;
   background: white;
   box-shadow: 2px 0 4px rgba(0,0,0,0.1);
 }
 
+/* 側邊欄內部導航容器 */
 .sidebar-nav {
   padding: 1rem 0;
 }
 
+/* 側邊欄導航按鈕：滿寬、左對齊、滑入過渡、左側高亮邊框預留 */
 .nav-item {
   display: block;
   width: 100%;
@@ -51,28 +59,34 @@
   border-left: 3px solid transparent;
 }
 
+/* 側邊欄導航 hover 狀態 */
 .nav-item:hover {
   background-color: #f8f9fa;
 }
 
+/* 側邊欄導航啟用（當前）狀態：底色、左側藍線與字色 */
 .nav-item.active {
   background-color: #e3f2fd;
   border-left-color: #2196f3;
   color: #1976d2;
 }
 
+/* 主內容容器：可伸縮、內距 */
 .main-content {
   flex: 1;
   padding: 2rem;
 }
 
+/* 內容區標頭列：左右分佈、置中對齊
+   注意：justify-content: between; 應為 space-between */
 .content-header {
   display: flex;
-  justify-content: between;
+  justify-content: space-between; /* 修正 between -> space-between */
   align-items: center;
   margin-bottom: 2rem;
 }
 
+/* 儀表板統計卡片的網格佈局 */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -80,6 +94,7 @@
   margin-bottom: 2rem;
 }
 
+/* 單張統計卡片外觀 */
 .stat-card {
   background: white;
   padding: 1.5rem;
@@ -90,6 +105,7 @@
   gap: 1rem;
 }
 
+/* 統計卡片內的圖示圓形區塊 */
 .stat-icon {
   font-size: 2.5rem;
   width: 60px;
@@ -100,6 +116,7 @@
   border-radius: 50%;
 }
 
+/* 統計卡片：不同語意色系的圖示底色 */
 .stat-card.primary .stat-icon {
   background: #e3f2fd;
 }
@@ -116,6 +133,7 @@
   background: #e0f2f1;
 }
 
+/* 統計卡片內資訊：數字與描述 */
 .stat-info h3 {
   margin: 0;
   font-size: 2rem;
@@ -127,12 +145,14 @@
   color: #666;
 }
 
+/* 主內容的雙欄網格：主要內容 2fr、側欄 1fr */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 1.5rem;
 }
 
+/* 通用卡片外觀 */
 .dashboard-card {
   background: white;
   padding: 1.5rem;
@@ -140,22 +160,26 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* 卡片標題間距 */
 .dashboard-card h3 {
   margin: 0 0 1rem 0;
 }
 
+/* 狀態列清單：垂直堆疊 */
 .status-grid {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+/* 狀態列單項：水平對齊 */
 .status-item {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
+/* 進度條底與填滿區塊 */
 .progress-bar {
   flex: 1;
   height: 8px;
@@ -170,6 +194,7 @@
   transition: width 0.3s ease;
 }
 
+/* 進度條不同語意色系 */
 .progress-fill.warning {
   background: #ff9800;
 }
@@ -178,12 +203,14 @@
   background: #2196f3;
 }
 
+/* 快速動作按鈕區：垂直排列 */
 .quick-actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+/* 快速動作按鈕基礎樣式與語意色 */
 .action-btn {
   padding: 0.75rem 1rem;
   border: none;
@@ -213,11 +240,13 @@
   color: white;
 }
 
+/* 快速動作按鈕 hover 動效 */
 .action-btn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
 }
 
+/* 小型統計列的網格 */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -225,6 +254,7 @@
   margin-bottom: 2rem;
 }
 
+/* 小型統計卡片 */
 .mini-stat {
   background: white;
   padding: 1rem;
@@ -233,6 +263,7 @@
   text-align: center;
 }
 
+/* 小型統計：數字樣式與語意色 */
 .mini-stat .number {
   display: block;
   font-size: 2rem;
@@ -256,11 +287,13 @@
   color: #f44336;
 }
 
+/* 小型統計：標籤文字 */
 .mini-stat .label {
   color: #666;
   font-size: 0.9rem;
 }
 
+/* 表格外容器：白底卡片樣式並隱藏溢出 */
 .table-container {
   background: white;
   border-radius: 8px;
@@ -268,6 +301,7 @@
   overflow: hidden;
 }
 
+/* 表格與儲存格樣式 */
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -280,15 +314,18 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
+/* 表頭底色與字重 */
 .data-table th {
   background: #f8f9fa;
   font-weight: 600;
 }
 
+/* 表格列 hover 高亮 */
 .data-table tr:hover {
   background: #f8f9fa;
 }
 
+/* 小徽章基礎與語意色 */
 .badge {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -311,6 +348,7 @@
   color: #ef6c00;
 }
 
+/* 通用按鈕樣式與尺寸、hover 效果 */
 .btn {
   padding: 0.5rem 1rem;
   border: none;
@@ -335,6 +373,7 @@
   transform: translateY(-1px);
 }
 
+/* 載入與錯誤畫面：置中滿版 */
 .loading-screen,
 .error-screen {
   display: flex;
@@ -345,6 +384,7 @@
   text-align: center;
 }
 
+/* 旋轉載入器與動畫 */
 .loading-spinner {
   width: 40px;
   height: 40px;
@@ -355,11 +395,13 @@
   margin-bottom: 1rem;
 }
 
+/* 旋轉動畫定義 */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
+/* 錯誤訊息卡片 */
 .error-message {
   background: white;
   padding: 2rem;
@@ -367,19 +409,21 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
+/* Modal：遮罩層與層級 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background:  white;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
+/* Modal 內容容器：大小限制與可捲動 */
 .modal-content {
   background: white;
   border-radius: 8px;
@@ -389,6 +433,7 @@
   overflow-y: auto;
 }
 
+/* Modal 標頭：左右分布、下邊線 */
 .modal-header {
   padding: 1.5rem;
   border-bottom: 1px solid #e0e0e0;
@@ -397,10 +442,12 @@
   align-items: center;
 }
 
+/* Modal 標題 margin 重設 */
 .modal-header h3 {
   margin: 0;
 }
 
+/* 關閉按鈕樣式 */
 .close-btn {
   background: none;
   border: none;
@@ -409,15 +456,18 @@
   color: #666;
 }
 
+/* Modal 內容區 */
 .modal-body {
   padding: 1.5rem;
 }
 
+/* 使用者詳情：網格間距 */
 .user-details {
   display: grid;
   gap: 1.5rem;
 }
 
+/* 詳情區段標題樣式 */
 .detail-section h4 {
   margin: 0 0 1rem 0;
   color: #333;
@@ -425,10 +475,12 @@
   padding-bottom: 0.5rem;
 }
 
+/* 詳情區段段落間距 */
 .detail-section p {
   margin: 0.5rem 0;
 }
 
+/* Modal 內表格樣式 */
 .modal-table {
   width: 100%;
   border-collapse: collapse;
@@ -447,34 +499,94 @@
   font-weight: 600;
 }
 
+/* Modal 內表單樣式 */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group.form-col-2 {
+  grid-column: span 2;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33,150,243,0.12);
+}
+
+.form-group .checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* 小螢幕：表單改單欄 */
 @media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* 主版面改直向堆疊 */
   .dashboard-layout {
     flex-direction: column;
   }
   
+  /* 側邊欄改滿寬 */
   .sidebar {
     width: 100%;
   }
   
+  /* 側邊欄導覽改成可橫向捲動的列 */
   .sidebar-nav {
     display: flex;
     overflow-x: auto;
     padding: 0;
   }
   
+  /* 導覽項目最小寬以利橫向滑動 */
   .nav-item {
     white-space: nowrap;
     min-width: 120px;
   }
   
+  /* 統計卡片改單欄 */
   .stats-grid {
     grid-template-columns: 1fr;
   }
   
+  /* 主要/側欄網格改單欄 */
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
   
+  /* 小型統計改成雙欄 */
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
   }
