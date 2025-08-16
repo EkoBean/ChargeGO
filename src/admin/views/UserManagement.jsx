@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button, Modal, Form, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import ApiService from '../services/api';
 
+// 用戶管理頁面元件
 const UserManagement = () => {
+  // 狀態管理：用戶資料、載入狀態、錯誤、Modal顯示、選取用戶、該用戶訂單、搜尋字串
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,10 +13,12 @@ const UserManagement = () => {
   const [userOrders, setUserOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // 元件掛載時自動載入用戶資料
   useEffect(() => {
     loadUsers();
   }, []);
 
+  // 從 API 載入用戶資料
   const loadUsers = async () => {
     try {
       setLoading(true);
@@ -29,6 +33,7 @@ const UserManagement = () => {
     }
   };
 
+  // 點擊「查看詳情」時，載入該用戶的訂單資料並顯示 Modal
   const handleViewUser = async (user) => {
     try {
       setSelectedUser(user);
@@ -40,12 +45,14 @@ const UserManagement = () => {
     }
   };
 
+  // 根據搜尋字串篩選用戶
   const filteredUsers = users.filter(user =>
     user.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.uid.toString().includes(searchTerm)
   );
 
+  // 載入中顯示 Spinner
   if (loading) {
     return (
       <div className="text-center p-5">
@@ -57,6 +64,7 @@ const UserManagement = () => {
     );
   }
 
+  // 載入失敗顯示錯誤訊息
   if (error) {
     return (
       <Alert variant="danger">
@@ -71,6 +79,7 @@ const UserManagement = () => {
 
   return (
     <div>
+      {/* 頁面標題與刷新按鈕 */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>用戶管理</h2>
         <Button variant="outline-primary" onClick={loadUsers}>
@@ -78,6 +87,7 @@ const UserManagement = () => {
         </Button>
       </div>
 
+      {/* 用戶列表卡片：搜尋、表格顯示 */}
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-white">
           <Row className="align-items-center">
@@ -110,6 +120,7 @@ const UserManagement = () => {
                 </tr>
               </thead>
               <tbody>
+                {/* 依篩選結果顯示用戶資料 */}
                 {filteredUsers.map(user => (
                   <tr key={user.uid}>
                     <td>{user.uid}</td>
@@ -126,6 +137,7 @@ const UserManagement = () => {
                       )}
                     </td>
                     <td>
+                      {/* 查看詳情按鈕，點擊後顯示 Modal */}
                       <Button
                         variant="outline-primary"
                         size="sm"
@@ -142,7 +154,7 @@ const UserManagement = () => {
         </Card.Body>
       </Card>
 
-      {/* 用戶詳情 Modal */}
+      {/* 用戶詳情 Modal：顯示該用戶的詳細資訊與最近訂單 */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>用戶詳情 - {selectedUser?.user_name}</Modal.Title>

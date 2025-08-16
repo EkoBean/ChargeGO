@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button, Modal, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import ApiService from '../services/api';
 
+// 站點管理頁面元件
 const SiteManagement = () => {
+  // 狀態管理：站點、充電器、載入狀態、錯誤、Modal顯示、選取站點、該站點充電器
   const [sites, setSites] = useState([]);
   const [chargers, setChargers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,10 +13,12 @@ const SiteManagement = () => {
   const [selectedSite, setSelectedSite] = useState(null);
   const [siteChargers, setSiteChargers] = useState([]);
 
+  // 元件掛載時自動載入站點與充電器資料
   useEffect(() => {
     loadSiteData();
   }, []);
 
+  // 從 API 載入站點與充電器資料
   const loadSiteData = async () => {
     try {
       setLoading(true);
@@ -33,6 +37,7 @@ const SiteManagement = () => {
     }
   };
 
+  // 點擊「查看詳情」時，載入該站點的充電器資料並顯示 Modal
   const handleViewSite = async (site) => {
     try {
       setSelectedSite(site);
@@ -44,6 +49,7 @@ const SiteManagement = () => {
     }
   };
 
+  // 根據充電器狀態顯示不同顏色徽章
   const getStatusBadge = (status) => {
     switch (status) {
       case 'available':
@@ -57,6 +63,7 @@ const SiteManagement = () => {
     }
   };
 
+  // 載入中顯示 Spinner
   if (loading) {
     return (
       <div className="text-center p-5">
@@ -68,6 +75,7 @@ const SiteManagement = () => {
     );
   }
 
+  // 載入失敗顯示錯誤訊息
   if (error) {
     return (
       <Alert variant="danger">
@@ -82,6 +90,7 @@ const SiteManagement = () => {
 
   return (
     <div>
+      {/* 頁面標題與刷新按鈕 */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>站點管理</h2>
         <Button variant="outline-primary" onClick={loadSiteData}>
@@ -89,7 +98,7 @@ const SiteManagement = () => {
         </Button>
       </div>
 
-      {/* 統計卡片 */}
+      {/* 統計卡片：顯示站點數、各狀態充電器數量 */}
       <Row className="mb-4">
         <Col md={3}>
           <Card className="border-0 shadow-sm text-center">
@@ -131,6 +140,7 @@ const SiteManagement = () => {
         </Col>
       </Row>
 
+      {/* 站點列表：顯示所有站點及其充電器狀態 */}
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-white">
           <h5 className="mb-0">站點列表</h5>
@@ -151,6 +161,7 @@ const SiteManagement = () => {
               </thead>
               <tbody>
                 {sites.map(site => {
+                  // 計算該站點的充電器數量與可用數量
                   const siteChargers = chargers.filter(c => c.site_id === site.site_id);
                   const availableCount = siteChargers.filter(c => c.status === 'available').length;
                   
@@ -171,6 +182,7 @@ const SiteManagement = () => {
                         </Badge>
                       </td>
                       <td>
+                        {/* 查看詳情按鈕，點擊後顯示 Modal */}
                         <Button
                           variant="outline-primary"
                           size="sm"
@@ -188,7 +200,7 @@ const SiteManagement = () => {
         </Card.Body>
       </Card>
 
-      {/* 站點詳情 Modal */}
+      {/* 站點詳情 Modal：顯示該站點的詳細資訊與充電器狀態 */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>站點詳情 - {selectedSite?.site_name}</Modal.Title>

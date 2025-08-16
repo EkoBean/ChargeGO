@@ -1,22 +1,42 @@
 //node charger_site.cjs
 const API_BASE_URL = 'http://127.0.0.1:3000';
 
+const defaultOptions = {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+};
+
 const ApiService = {
   async request(endpoint, options = {}) {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+        ...defaultOptions,
         ...options,
+        headers: {
+          ...defaultOptions.headers,
+          ...options.headers
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+      const responseText = await response.text();
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch (e) {
+        data = responseText;
       }
 
-      return await response.json();
+      if (!response.ok) {
+        const message = (data && data.message) ? data.message : `API Error: ${response.status}`;
+        const err = new Error(message);
+        err.status = response.status;
+        err.response = response;
+        err.data = data;
+        throw err;
+      }
+
+      return data;
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
@@ -100,31 +120,135 @@ const ApiService = {
     });
   },
 
+  // 通用工具方法
+  _parseCoordinate(value) {
+    if (value === null || value === undefined || value === '') {
+      return undefined;
+    }
+    const num = parseFloat(String(value).trim());
+    return Number.isNaN(num) ? undefined : num;
+  },
+
+  _normalizeDateTime(value) {
+    if (!value) return null;
+    const s = String(value).trim();
+    if (s.includes('T')) {
+      const [d, t] = s.split('T');
+      return `${d} ${t.length === 5 ? `${t}:00` : t}`;
+    }
+    return s;
+  },
+
   // 站點 CRUD
   async updateSite(site_id, payload) {
+    const body = {
+      site_name: payload.site_name ?? payload.siteName,
+      address: payload.address,
+      longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
+      latitude: this._parseCoordinate(payload.latitude ?? payload.lat),
+    };
+
+    // 移除 undefined 欄位
+    Object.keys(body).forEach(key => 
+      body[key] === undefined && delete body[key]
+    );
+
     return this.request(`/api/sites/${site_id}`, {
       method: 'PUT',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
   },
+
   async createSite(payload) {
-    return this.request(`/api/sites`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+    const body = {
+      site_name: String(payload.site_name ?? payload.siteName ?? "").trim(),
+      address: String(payload.address ?? "").trim(),
+    };
+
+    // 經緯度改為選填
+    const longitude = this._parseCoordinate(payload.longitude ?? payload.lng);
+    const latitude = this._parseCoordinate(payload.latitude ?? payload.lat);
+    
+    // 只有當兩個都有值時才加入
+    if (longitude !== undefined && latitude !== undefined) {
+      body.longitude = longitude;
+      body.latitude = latitude;
+    }
+
+    // 只驗證必填欄位
+    const errors = [];
+    if (!body.site_name) errors.push("站點名稱不能為空");
+    if (!body.address) errors.push("地址不能為空");
+
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+
+    try {
+      const result = await this.request(`/api/sites`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      console.log('Site created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create site:', error);
+      throw error;
+    }
   },
 
   // 訂單 CRUD
   async updateOrder(order_ID, payload) {
+    const body = {
+      uid: payload.uid != null ? Number(payload.uid) : undefined,
+      start_date: payload.start_date ? this._normalizeDateTime(payload.start_date) : undefined,
+      end: payload.end === '' ? null : this._normalizeDateTime(payload.end),
+      site_id: payload.site_id != null ? Number(payload.site_id) : undefined,
+      order_status: payload.order_status,
+      charger_id: payload.charger_id != null ? Number(payload.charger_id) : undefined,
+    };
+
+    // 移除 undefined 欄位
+    Object.keys(body).forEach(key => 
+      body[key] === undefined && delete body[key]
+    );
+
     return this.request(`/api/orders/${order_ID}`, {
       method: 'PUT',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
   },
+
   async createOrder(payload) {
+    const body = {
+      uid: Number(payload.uid),
+      start_date: this._normalizeDateTime(payload.start_date),
+      end: payload.end ? this._normalizeDateTime(payload.end) : null,
+      site_id: Number(payload.site_id),
+      order_status: String(payload.order_status ?? "").trim(),
+      charger_id: Number(payload.charger_id),
+    };
+
+    // 驗證必填欄位
+    if (!body.uid || Number.isNaN(body.uid)) {
+      throw new Error("用戶 ID 不能為空且必須為數字");
+    }
+    if (!body.start_date) {
+      throw new Error("開始時間不能為空");
+    }
+    if (!body.site_id || Number.isNaN(body.site_id)) {
+      throw new Error("站點 ID 不能為空且必須為數字");
+    }
+    if (!body.order_status) {
+      throw new Error("訂單狀態不能為空");
+    }
+    if (!body.charger_id || Number.isNaN(body.charger_id)) {
+      throw new Error("充電器 ID 不能為空且必須為數字");
+    }
+
     return this.request(`/api/orders`, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
   },
 };

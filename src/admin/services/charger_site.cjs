@@ -1,15 +1,13 @@
-// server.js
-var express = require("express");
-var cors = require("cors");
-var mysql = require("mysql");
+const express = require('express');
+const cors = require('cors');
+const mysql = require('mysql2'); // 確保已引入
+const app = express();
 
-var app = express();
-
-// Middlewares
-app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.json());
+
+// 健康檢查（可用來確認伺服器有起來）
+app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // === DB 連線：charger_database ===
 var connCharger = mysql.createConnection({
@@ -194,28 +192,111 @@ app.get("/api/orders", (req, res) => {
   });
 });
 
-// 新增訂單
+// 新增站點
+app.post("/api/sites", (req, res) => {
+  const { site_name, address, longitude, latitude } = req.body;
+
+  if (!site_name || !address || typeof longitude === "undefined" || typeof latitude === "undefined") {
+    return res.status(400).json({ message: "缺少必要欄位" });
+  }
+
+  const lon = parseFloat(longitude);
+  const lat = parseFloat(latitude);
+  if (Number.isNaN(lon) || Number.isNaN(lat)) {
+    return res.status(400).json({ message: "經緯度格式錯誤" });
+  }
+
+  connCharger.query(
+    `INSERT INTO charger_site (site_name, address, longitude, latitude)
+     VALUES (?, ?, ?, ?)`,
+    [site_name, address, lon, lat],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: "DB error", code: err.code });
+
+      connCharger.query(
+        `SELECT site_id, site_name, address, longitude, latitude
+         FROM charger_site WHERE site_id = ?`,
+        [result.insertId],
+        (e2, rows) => {
+          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
+          res.json(rows[0]);
+        }
+      );
+    }
+  );
+});
+
+// 更新站點
+app.put("/api/sites/:site_id", (req, res) => {
+  const site_id = req.params.site_id;
+  if (!/^\d+$/.test(String(site_id))) {
+    return res.status(400).json({ message: "invalid site_id" });
+  }
+
+  const { site_name, address, longitude, latitude } = req.body;
+  const sets = [];
+  const params = [];
+  const add = (col, val) => {
+    if (typeof val !== "undefined") {
+      sets.push(`${col} = ?`);
+      params.push(val);
+    }
+  };
+
+  add("site_name", site_name);
+  add("address", address);
+
+  if (typeof longitude !== "undefined") {
+    const lon = parseFloat(longitude);
+    if (Number.isNaN(lon)) return res.status(400).json({ message: "longitude 格式錯誤" });
+    add("longitude", lon);
+  }
+  if (typeof latitude !== "undefined") {
+    const lat = parseFloat(latitude);
+    if (Number.isNaN(lat)) return res.status(400).json({ message: "latitude 格式錯誤" });
+    add("latitude", lat);
+  }
+
+  if (!sets.length) {
+    return res.status(400).json({ message: "no fields to update" });
+  }
+
+  params.push(site_id);
+
+  connCharger.query(
+    `UPDATE charger_site SET ${sets.join(", ")} WHERE site_id = ?`,
+    params,
+    (err, result) => {
+      if (err) return res.status(500).json({ error: "DB error", code: err.code });
+      if (result.affectedRows === 0) return res.status(404).json({ message: "site not found" });
+
+      connCharger.query(
+        `SELECT site_id, site_name, address, longitude, latitude
+         FROM charger_site WHERE site_id = ?`,
+        [site_id],
+        (e2, rows) => {
+          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
+          res.json(rows[0]);
+        }
+      );
+    }
+  );
+});
+
+// 新增訂單（補上回傳與錯誤處理，並避免 end 保留字）
 app.post("/api/orders", (req, res) => {
-  const {
-    uid,
-    start_date,
-    end,
-    site_id,
-    order_status,
-    charger_id
-  } = req.body;
+  const { uid, start_date, end, site_id, order_status, charger_id } = req.body;
 
   if (!uid || !start_date || !site_id || !order_status || !charger_id) {
     return res.status(400).json({ message: "缺少必要欄位" });
   }
 
   connCharger.query(
-    `INSERT INTO order_record (uid, start_date, end, site_id, order_status, charger_id)
+    `INSERT INTO order_record (uid, start_date, \`end\`, site_id, order_status, charger_id)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    [uid, start_date, end, site_id, order_status, charger_id],
+    [uid, start_date, end ?? null, site_id, order_status, charger_id],
     (err, result) => {
       if (err) return res.status(500).json({ error: "DB error", code: err.code });
-      // 回傳新訂單資料
       connCharger.query(
         `SELECT * FROM order_record WHERE order_ID = ?`,
         [result.insertId],
@@ -228,21 +309,17 @@ app.post("/api/orders", (req, res) => {
   );
 });
 
-// 更新訂單
+// 更新訂單（補完）
 app.put("/api/orders/:order_ID", (req, res) => {
   const order_ID = req.params.order_ID;
-  const {
-    uid,
-    start_date,
-    end,
-    site_id,
-    order_status,
-    charger_id
-  } = req.body;
+  if (!/^\d+$/.test(String(order_ID))) {
+    return res.status(400).json({ message: "invalid order_ID" });
+  }
+
+  const { uid, start_date, end, site_id, order_status, charger_id } = req.body;
 
   const sets = [];
   const params = [];
-
   const add = (col, val) => {
     if (typeof val !== "undefined") {
       sets.push(`${col} = ?`);
@@ -252,7 +329,7 @@ app.put("/api/orders/:order_ID", (req, res) => {
 
   add("uid", uid);
   add("start_date", start_date);
-  add("end", end);
+  add("`end`", end ?? null);
   add("site_id", site_id);
   add("order_status", order_status);
   add("charger_id", charger_id);
@@ -349,3 +426,9 @@ process.on("SIGINT", () => {
     connBank.end(() => process.exit(0));
   });
 });
+
+// 處理 DB 錯誤的函式
+const handleDBError = (res, err) => {
+  console.error("DB錯誤:", err);
+  return res.status(500).json({ error: "DB error", code: err.code });
+};
