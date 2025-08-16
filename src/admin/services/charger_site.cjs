@@ -84,6 +84,63 @@ app.get("/user/list", (req, res) => {
   });
 });
 
+// 新增：更新使用者資料
+app.put("/user/:uid", (req, res) => {
+  const uid = req.params.uid;
+  const {
+    user_name,
+    email,
+    telephone,
+    address,
+    wallet,
+    point,
+    blacklist,
+  } = req.body;
+
+  const sets = [];
+  const params = [];
+
+  const add = (col, val) => {
+    if (typeof val !== "undefined") {
+      sets.push(`${col} = ?`);
+      params.push(val);
+    }
+  };
+
+  add("user_name", user_name);
+  add("email", email);
+  add("telephone", telephone);
+  add("address", address);
+  if (typeof wallet !== "undefined") add("wallet", Number(wallet) || 0);
+  if (typeof point !== "undefined") add("point", Number(point) || 0);
+  if (typeof blacklist !== "undefined") add("blacklist", blacklist ? 1 : 0);
+
+  if (!sets.length) {
+    return res.status(400).json({ message: "no fields to update" });
+  }
+
+  params.push(uid);
+
+  connCharger.query(
+    `UPDATE user SET ${sets.join(", ")} WHERE uid = ?`,
+    params,
+    (err, result) => {
+      if (err) return res.status(500).json({ error: "DB error", code: err.code });
+      if (result.affectedRows === 0) return res.status(404).json({ message: "user not found" });
+
+      connCharger.query(
+        `SELECT uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint
+         FROM user WHERE uid = ?`,
+        [uid],
+        (e2, rows) => {
+          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
+          res.json(rows[0]);
+        }
+      );
+    }
+  );
+});
+
 // 站點清單（charger_site）
 app.get("/api/sites", (req, res) => {
   connCharger.query(`
@@ -135,6 +192,94 @@ app.get("/api/orders", (req, res) => {
     if (err) return res.status(500).json({ error: "DB error", code: err.code });
     res.json(rows);
   });
+});
+
+// 新增訂單
+app.post("/api/orders", (req, res) => {
+  const {
+    uid,
+    start_date,
+    end,
+    site_id,
+    order_status,
+    charger_id
+  } = req.body;
+
+  if (!uid || !start_date || !site_id || !order_status || !charger_id) {
+    return res.status(400).json({ message: "缺少必要欄位" });
+  }
+
+  connCharger.query(
+    `INSERT INTO order_record (uid, start_date, end, site_id, order_status, charger_id)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [uid, start_date, end, site_id, order_status, charger_id],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: "DB error", code: err.code });
+      // 回傳新訂單資料
+      connCharger.query(
+        `SELECT * FROM order_record WHERE order_ID = ?`,
+        [result.insertId],
+        (e2, rows) => {
+          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
+          res.json(rows[0]);
+        }
+      );
+    }
+  );
+});
+
+// 更新訂單
+app.put("/api/orders/:order_ID", (req, res) => {
+  const order_ID = req.params.order_ID;
+  const {
+    uid,
+    start_date,
+    end,
+    site_id,
+    order_status,
+    charger_id
+  } = req.body;
+
+  const sets = [];
+  const params = [];
+
+  const add = (col, val) => {
+    if (typeof val !== "undefined") {
+      sets.push(`${col} = ?`);
+      params.push(val);
+    }
+  };
+
+  add("uid", uid);
+  add("start_date", start_date);
+  add("end", end);
+  add("site_id", site_id);
+  add("order_status", order_status);
+  add("charger_id", charger_id);
+
+  if (!sets.length) {
+    return res.status(400).json({ message: "no fields to update" });
+  }
+
+  params.push(order_ID);
+
+  connCharger.query(
+    `UPDATE order_record SET ${sets.join(", ")} WHERE order_ID = ?`,
+    params,
+    (err, result) => {
+      if (err) return res.status(500).json({ error: "DB error", code: err.code });
+      if (result.affectedRows === 0) return res.status(404).json({ message: "order not found" });
+
+      connCharger.query(
+        `SELECT * FROM order_record WHERE order_ID = ?`,
+        [order_ID],
+        (e2, rows) => {
+          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
+          res.json(rows[0]);
+        }
+      );
+    }
+  );
 });
 
 // ===== bank 區 =====
