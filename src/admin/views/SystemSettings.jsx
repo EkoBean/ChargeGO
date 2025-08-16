@@ -2,21 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Form, Row, Col, Alert } from 'react-bootstrap';
 import ApiService from '../services/api';
 
+// 系統設定頁面元件
 const SystemSettings = () => {
+  // 狀態管理：銀行卡片資料、載入狀態、系統參數
   const [bankCards, setBankCards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState({
-    systemName: '行動電源租借系統',
-    rentalPrice: 50,
-    maxRentalHours: 24,
-    penaltyRate: 10,
-    maintenanceMode: false
+    systemName: '行動電源租借系統', // 系統名稱
+    rentalPrice: 50,                // 租借價格
+    maxRentalHours: 24,             // 最大租借時間
+    penaltyRate: 10,                // 逾期罰金比率
+    maintenanceMode: false          // 維護模式開關
   });
 
+  // 元件掛載時自動載入銀行卡片資料
   useEffect(() => {
     loadBankCards();
   }, []);
 
+  // 從 API 載入銀行卡片資料
   const loadBankCards = async () => {
     try {
       setLoading(true);
@@ -29,6 +33,7 @@ const SystemSettings = () => {
     }
   };
 
+  // 處理系統參數變更
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -36,8 +41,8 @@ const SystemSettings = () => {
     }));
   };
 
+  // 保存系統設定（目前僅顯示提示，實際應調用 API）
   const handleSaveSettings = () => {
-    // 這裡應該調用 API 保存設定
     alert('設定已保存！');
   };
 
@@ -47,7 +52,7 @@ const SystemSettings = () => {
 
       <Row>
         <Col lg={8}>
-          {/* 系統參數設定 */}
+          {/* 系統參數設定表單 */}
           <Card className="border-0 shadow-sm mb-4">
             <Card.Header className="bg-white">
               <h5 className="mb-0">系統參數設定</h5>
@@ -117,7 +122,7 @@ const SystemSettings = () => {
             </Card.Body>
           </Card>
 
-          {/* 銀行卡片管理 */}
+          {/* 銀行卡片管理列表 */}
           <Card className="border-0 shadow-sm">
             <Card.Header className="bg-white d-flex justify-content-between align-items-center">
               <h5 className="mb-0">銀行卡片資料</h5>
@@ -163,7 +168,7 @@ const SystemSettings = () => {
         </Col>
 
         <Col lg={4}>
-          {/* 系統狀態 */}
+          {/* 系統狀態顯示卡片 */}
           <Card className="border-0 shadow-sm mb-4">
             <Card.Header className="bg-white">
               <h5 className="mb-0">系統狀態</h5>
@@ -188,7 +193,7 @@ const SystemSettings = () => {
             </Card.Body>
           </Card>
 
-          {/* 快速操作 */}
+          {/* 快速操作按鈕卡片 */}
           <Card className="border-0 shadow-sm">
             <Card.Header className="bg-white">
               <h5 className="mb-0">快速操作</h5>

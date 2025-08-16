@@ -4,28 +4,29 @@ import { Card, Table, Badge, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import ApiService from '../services/api';
 
 class Charging extends Component {
+    // state 儲存充電站、充電器資料及 UI 狀態
     state = {
-        sites: [],
-        chargers: [],
-        loading: true,
-        error: null,
-        selectedSite: null
+        sites: [],         // 充電站列表
+        chargers: [],      // 充電器列表
+        loading: true,     // 是否載入中
+        error: null,       // 錯誤訊息
+        selectedSite: null // 使用者選擇的站點
     }
 
+    // 元件掛載時載入資料
     componentDidMount() {
         this.loadChargingData();
     }
 
-    // 載入充電站和充電器資料
+    // 從 API 載入充電站與充電器資料
     loadChargingData = async () => {
         try {
             this.setState({ loading: true, error: null });
-            
+            // 同時取得站點與充電器資料
             const [sites, chargers] = await Promise.all([
                 ApiService.getSites(),
                 ApiService.getChargers()
             ]);
-
             this.setState({
                 sites,
                 chargers,
@@ -38,16 +39,19 @@ class Charging extends Component {
             });
         }
     }
-    // 處理站點選擇
+
+    // 使用者點擊「查看詳情」時，載入該站點的充電器資料
     handleSiteSelect = async (siteId) => {
         try {
             const siteChargers = await ApiService.getSiteChargers(siteId);
             this.setState({ selectedSite: siteId });
+            // 可在此擴充顯示該站點充電器詳情
         } catch (error) {
             console.error('Failed to load site chargers:', error);
         }
     }
-    // 根據狀態返回對應的徽章
+
+    // 根據充電器狀態顯示不同顏色徽章
     getStatusBadge = (status) => {
         switch (status) {
             case 'available':
@@ -64,6 +68,7 @@ class Charging extends Component {
     render() {
         const { sites, chargers, loading, error } = this.state;
 
+        // 載入中顯示 Spinner
         if (loading) {
             return (
                 <div className="p-4 d-flex justify-content-center align-items-center" style={{minHeight: '400px'}}>
@@ -75,6 +80,7 @@ class Charging extends Component {
             );
         }
 
+        // 載入失敗顯示錯誤訊息
         if (error) {
             return (
                 <div className="p-4">
@@ -89,13 +95,14 @@ class Charging extends Component {
             );
         }
 
-        // 計算統計資料
+        // 統計各種充電器狀態數量
         const availableChargers = chargers.filter(c => c.status === 'available').length;
         const occupiedChargers = chargers.filter(c => c.status === 'occupied').length;
         const maintenanceChargers = chargers.filter(c => c.status === 'maintenance').length;
 
         return (
             <div className="p-4">
+                {/* 頁面標題與刷新按鈕 */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h2>充電站管理</h2>
                     <button className="btn btn-outline-primary" onClick={this.loadChargingData}>
@@ -103,7 +110,7 @@ class Charging extends Component {
                     </button>
                 </div>
 
-                {/* 統計卡片 */}
+                {/* 統計卡片：顯示站點數、各狀態充電器數量 */}
                 <Row className="mb-4">
                     <Col md={3}>
                         <Card className="border-0 shadow-sm">
@@ -139,7 +146,7 @@ class Charging extends Component {
                     </Col>
                 </Row>
 
-                {/* 充電站列表 */}
+                {/* 充電站列表：顯示所有站點及其充電器狀態 */}
                 <Card className="border-0 shadow-sm">
                     <Card.Header className="bg-white">
                         <h5 className="mb-0">充電站列表</h5>
@@ -159,6 +166,7 @@ class Charging extends Component {
                                 </thead>
                                 <tbody>
                                     {sites.map(site => {
+                                        // 計算該站點的充電器數量與可用數量
                                         const siteChargers = chargers.filter(c => c.site_id === site.site_id);
                                         const availableCount = siteChargers.filter(c => c.status === 'available').length;
                                         
@@ -174,6 +182,7 @@ class Charging extends Component {
                                                     </Badge>
                                                 </td>
                                                 <td>
+                                                    {/* 查看詳情與管理按鈕 */}
                                                     <button 
                                                         className="btn btn-sm btn-outline-primary me-2"
                                                         onClick={() => this.handleSiteSelect(site.site_id)}
