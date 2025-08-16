@@ -1,3 +1,4 @@
+// 顯示和管理充電站及充電器的狀態
 import React, { Component } from 'react';
 import { Card, Table, Badge, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import ApiService from '../services/api';
@@ -15,6 +16,7 @@ class Charging extends Component {
         this.loadChargingData();
     }
 
+    // 載入充電站和充電器資料
     loadChargingData = async () => {
         try {
             this.setState({ loading: true, error: null });
@@ -36,7 +38,7 @@ class Charging extends Component {
             });
         }
     }
-
+    // 處理站點選擇
     handleSiteSelect = async (siteId) => {
         try {
             const siteChargers = await ApiService.getSiteChargers(siteId);
@@ -45,7 +47,7 @@ class Charging extends Component {
             console.error('Failed to load site chargers:', error);
         }
     }
-
+    // 根據狀態返回對應的徽章
     getStatusBadge = (status) => {
         switch (status) {
             case 'available':
