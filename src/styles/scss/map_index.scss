@@ -1,5 +1,7 @@
 @use './global.scss' as g;
 
+$search-bar-radius: 1.4rem;
+
 html,
 body,
 #root {
@@ -40,7 +42,7 @@ body,
 }
 
 // search bar
-.search-bar {
+.search-bar-container {
   position: fixed;
   top: 10px;
   left: 50%;
@@ -49,20 +51,79 @@ body,
   width: 80%;
   max-width: 600px;
 
-  input {
+  .search-bar {
+    input {
+      width: 100%;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      outline: 0px solid g.$primary;
+      font-size: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: outline 0.1s linear;
+      border-radius: $search-bar-radius;
+
+      &:focus {
+        outline: 3px solid g.$primary;
+      }
+    }
+  }
+
+  .suggestions-list {
+    margin-top: 1rem;
     width: 100%;
-    padding: 0.8rem 1.5rem;
-    border: none;
-    outline: 0px solid g.$primary ;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: $search-bar-radius;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 
-    border-radius: 999px;
-    font-size: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: outline 0.1s linear;
+    /* Scrollbar styles */
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
 
-    &:focus {
-      // border-color: g.$primary ;
-      outline: 3px solid g.$primary ;
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+
+    }
+    -webkit-scrollbar-button {
+      display: none;
+    }
+
+
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0.3em 1em;
+
+      li {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        border-bottom: #ececec 1px solid;
+
+        &:hover {
+          background-color: #f0f0f0;
+        }
+
+        .suggestion-primary {
+          font-size: 17px;
+          font-weight: bold;
+          color: #535353;
+        }
+
+        .suggestion-secondary {
+          font-size: 14px;
+          color: #b3b3b3;
+        }
+        .local-station{
+          color: g.$primary;
+          font-weight: bold;
+        }
+      }
     }
   }
 }
