@@ -125,3 +125,27 @@ const SearchBar = () => {
     </div>
   );
 };
+
+
+(5) [{…}, {…}, {…}, {…}, {…}]
+0
+: 
+{id: 'ChIJlUmsQQk9aTQRaI5aQI_8YU0', primaryText: '林森路125號', secondaryText: '403台中市西區林森路125號', type: 'google', data: HF}
+1
+: 
+{id: 'ChIJWR3VQLg9aTQRwkqPg5ahtHY', primaryText: '17買新概念百貨&壹咖啡', secondaryText: '402台中市南區復興路三段318號', type: 'google', data: HF}
+2
+: 
+{id: 'ChIJPTSrMcI9aTQRjWvN8q5tPuM', primaryText: '12街貓屋Nekoya', secondaryText: '403台中市西區精誠十二街30號', type: 'google', data: HF}
+3
+: 
+{id: 'Ehvlj7DkuK3luILlpKrlubPljYAxMzbnuKPpgZMiLiosChQKEg…o8wCNpNBFgiFyNT60kIRIUChIJlbVybVIiaTQRC0WRiBgf30s', primaryText: '136縣道', secondaryText: '台中市太平區136縣道', type: 'google', data: HF}
+4
+: 
+{id: 'ChIJly4XU2U9aTQRjNY4BcQojmk', primaryText: '中清路一段100號', secondaryText: '404台中市北區中清路一段100號', type: 'google', data: HF}
+length
+: 
+5
+[[Prototype]]
+: 
+Array(0)

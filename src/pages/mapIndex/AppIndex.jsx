@@ -80,6 +80,7 @@ function AppIndex() {
     const [inputValue, setInputValue] = React.useState('');
     const [suggestions, setSuggestions] = React.useState([]);
     const [sessionToken, setSessionToken] = React.useState(null);
+    const [listClose, setListClose] = React.useState(true);
     //================ initial session token =================
     // token是用來避免打字的時候去不斷重新向API要求搜尋 
     useEffect(() => {
@@ -94,6 +95,10 @@ function AppIndex() {
       }
       // ================= Autocomplete fetch =================
       const fetchSuggestions = async () => {
+        if (!inputValue || !sessionToken || !map) {
+          setSuggestions([]);
+          return;
+        }
         // ========== local search ==============
         const localResults = stations
           .filter(station => (
@@ -111,7 +116,7 @@ function AppIndex() {
           })
         // ========== google search ==============
         try {
-          const { AutocompleteSuggestion } = await window.google.maps.places;
+          const { AutocompleteSuggestion } = window.google.maps.places;
           const request = {
             input: inputValue,
             sessionToken: sessionToken,
@@ -149,10 +154,8 @@ function AppIndex() {
               }
             })
           );
-
-console.log('googleResults :>> ', googleResults);
-
-
+          console.log('googleResults :>> ', googleResults);
+          setSuggestions([...localResults, ...googleResults]);
         }
         // ========== google search error handling ==============
         catch (error) {
@@ -165,34 +168,57 @@ console.log('googleResults :>> ', googleResults);
     }, [inputValue, sessionToken, stations, map]);
 
 
-
-
-    // press the enter
+    // input bar press the enter
     const handleKeyDown = (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        handleSelect();
+        handleSelect(suggestions[0]);
       }
     }
 
+    // select suggestion option
+    const handleSelect = async (suggestion) => {
+      setInputValue(suggestion.primaryText);
+      setSuggestions([]);
+      setListClose(true); 
+      console.log('suggestions :>> ', suggestions);
+      if (suggestion.type === 'local') {
+        const { longitude, latitude, site_id } = suggestion.data;
+        const pos = { lat: latitude, lng: longitude };
+        map.panTo(pos);
+        markerBus.set(site_id);
+        map.setZoom(16);
+      } else if (suggestion.type === 'google') {
+        const place = suggestion.data
+        if (place.location) {
+          map.panTo(place.location);
+          map.setZoom(16);
+        }
+      }
 
+
+      // Reset session token after selection
+      const { AutocompleteSessionToken } = window.google.maps.places;
+      setSessionToken(new AutocompleteSessionToken());
+    }
     return (
       <div className='search-bar-container'>
         <div className='search-bar'>
           <input type="text"
             placeholder='搜尋地點'
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => (setInputValue(e.target.value), setListClose(false)) }
+            onKeyDown={handleKeyDown}
           />
         </div>
-        {suggestions.length > 0 && (
+        {suggestions.length > 0 && !listClose && (
           <div className='suggestions-list'>
             <ul>
-              {suggestions.map((suggest) => {
-                <li key={suggest.id} onClick={() => handleSelect()} >
-                  <div className="suggestion-primary">{suggestion.primaryText}</div>
-                  <div className="suggestion-secondary">{suggestion.secondary}</div>
+              {suggestions.map((suggestion) => (
+                <li key={suggestion.id} onClick={() => handleSelect(suggestion)} >
+                  <div className={suggestion.type === 'local' ? 'local-station' : 'google-station' + ' ' + 'suggestion-primary'}>{suggestion.primaryText}</div>
+                  <div className="suggestion-secondary">{suggestion.secondaryText}</div>
                 </li>
-              })}
+              ))}
             </ul>
           </div>
 
@@ -200,6 +226,8 @@ console.log('googleResults :>> ', googleResults);
         }
       </div >
     )
+
+
 
   }
 

@@ -253,7 +253,7 @@ const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(reque
 `fetchAutocompleteSuggestions()` 讓你用 Google Maps API 取得地點自動完成建議，回傳一個建議陣列，適合用在搜尋列自動提示功能。
 
 
-## AutoCompleteSuggestions Request
+## AutocompleteSuggestions Request
 ```jsx
 const request = {
   input: '搜尋字串', // 必填，使用者輸入的文字
@@ -269,3 +269,51 @@ const request = {
   // origin: {lat, lng}
 }
 ```
+
+## AutocompleteSuggestions Response
+
+
+在 Google Maps Places API 中，`AutocompleteSuggestion` 和 `PlacePrediction` 具有明確的層級關係：
+
+### AutocompleteSuggestion
+- 是 `fetchAutocompleteSuggestions()` 方法回傳的**建議項**
+- 代表一個搜尋結果建議
+- 是一個**容器物件**，內含更多詳細資訊
+
+### PlacePrediction 
+- 是 `AutocompleteSuggestion` 的**子屬性**
+- 可透過 `suggestion.placePrediction` 取得
+- 包含地點的核心資訊，如 `placeId`、`mainText` 等
+- 提供 `toPlace()` 方法轉換為更詳細的 `Place` 物件
+
+### 完整的資料流程
+1. **取得建議列表**：
+   ```js
+   const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+   // response 包含 suggestions 陣列
+   ```
+
+2. **從建議中取得 placePrediction**：
+   ```js
+   const placePrediction = suggestion.placePrediction;
+   ```
+
+3. **轉換為 Place 物件**：
+   ```js
+   const place = placePrediction.toPlace();
+   ```
+
+4. **取得詳細資訊**：
+   ```js
+   await place.fetchFields({
+     fields: ["location", "formattedAddress", "displayName"]
+   });
+   ```
+
+### 為什麼要這樣設計？
+這種設計讓 Google Maps API 可以**分階段提供資訊**：
+- 先快速提供簡單的建議列表 (AutocompleteSuggestion)
+- 只有當使用者選定了某個建議，才需進一步取得詳細資訊 (Place)
+- 這樣既節省資料傳輸量，又能降低 API 計費
+
+這就像是餐廳先給你菜單(AutocompleteSuggestion)，然後你點了菜(placePrediction)，最後才上完整的餐點(Place)。
