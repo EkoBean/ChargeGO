@@ -16,6 +16,7 @@ import {
   Pin,
   InfoWindow,
 } from '@vis.gl/react-google-maps';
+import { data } from 'react-router-dom';
 
 
 // ================= Constants ============================
@@ -74,17 +75,130 @@ function AppIndex() {
 
 
   // ================= SearchBar component =================
-  const SearchBar = (stations) => {
+  const SearchBar = () => {
     const map = useMap();
+    const [inputValue, setInputValue] = React.useState('');
+    const [suggestions, setSuggestions] = React.useState([]);
+    const [sessionToken, setSessionToken] = React.useState(null);
+    //================ initial session token =================
+    // token是用來避免打字的時候去不斷重新向API要求搜尋 
+    useEffect(() => {
+      const { AutocompleteSessionToken } = window.google.maps.places;
+      setSessionToken(new AutocompleteSessionToken());
+    }, [isGoogleMapsLoaded])
 
-    // const { AutocompleteSuggestion } = google.maps.importLibrary("places") 
+    useEffect(() => {
+      if (!inputValue || !sessionToken || !map) {
+        setSuggestions([]);
+        return;
+      }
+      // ================= Autocomplete fetch =================
+      const fetchSuggestions = async () => {
+        // ========== local search ==============
+        const localResults = stations
+          .filter(station => (
+            station.site_name.toLowerCase().includes(inputValue.toLowerCase())
+          ))
+          .map(station => {
+            // make the filter result into a suggestion object
+            return {
+              id: station.site_id,
+              primaryText: station.site_name,
+              secondaryText: station.address,
+              type: 'local',
+              data: station
+            }
+          })
+        // ========== google search ==============
+        try {
+          const { AutocompleteSuggestion } = await window.google.maps.places;
+          const request = {
+            input: inputValue,
+            sessionToken: sessionToken,
+            language: 'zh-TW',
+            region: 'tw',
+            locationBias: map.getCenter(),
+          }
+
+          const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+
+          // 建立可用的 googleResults 陣列
+          const googleResults = await Promise.all(
+            response.suggestions.map(async (suggestion) => {
+              try {
+                // 取得 placePrediction (正確的方式)
+                const placePrediction = suggestion.placePrediction;
+                if (!placePrediction) return null;
+
+                // 轉換為 Place 並取得需要的欄位
+                const place = placePrediction.toPlace();
+                await place.fetchFields({
+                  fields: ["location", "formattedAddress", "displayName"]
+                });
+
+                return {
+                  id: place.id,
+                  primaryText: place.displayName || '',
+                  secondaryText: place.formattedAddress || '',
+                  type: 'google',
+                  data: place
+                };
+              } catch (error) {
+                console.error('Error processing suggestion:', error);
+                return null;
+              }
+            })
+          );
+
+console.log('googleResults :>> ', googleResults);
+
+
+        }
+        // ========== google search error handling ==============
+        catch (error) {
+          console.error('Error fetching suggestions:', error);
+          setSuggestions(localResults);
+        }
+      }
+
+      fetchSuggestions();
+    }, [inputValue, sessionToken, stations, map]);
+
+
+
+
+    // press the enter
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSelect();
+      }
+    }
+
 
     return (
-      <div className='search-bar'>
-        <input type="text"
-          placeholder='搜尋地點'
-        />
-      </div>
+      <div className='search-bar-container'>
+        <div className='search-bar'>
+          <input type="text"
+            placeholder='搜尋地點'
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+        </div>
+        {suggestions.length > 0 && (
+          <div className='suggestions-list'>
+            <ul>
+              {suggestions.map((suggest) => {
+                <li key={suggest.id} onClick={() => handleSelect()} >
+                  <div className="suggestion-primary">{suggestion.primaryText}</div>
+                  <div className="suggestion-secondary">{suggestion.secondary}</div>
+                </li>
+              })}
+            </ul>
+          </div>
+
+        )
+        }
+      </div >
     )
 
   }

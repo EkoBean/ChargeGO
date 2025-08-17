@@ -1,126 +1,123 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useMap } from '@vis.gl/react-google-maps';
-
-// 這是一個 debounce 函式，用來延遲 API 請求，避免過度頻繁的呼叫
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-export const SearchBar = ({ stations, markerBus }) => {
+// ================= SearchBar component =================
+const SearchBar = () => {
   const map = useMap();
-  const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const autocompleteService = useRef(null);
+  const [inputValue, setInputValue] = React.useState('');
+  const [suggestions, setSuggestions] = React.useState([]);
+  const [sessionToken, setSessionToken] = React.useState(null);
 
-  // 使用 debounce 來優化效能
-  const debouncedInput = useDebounce(inputValue, 300);
-
-  // 初始化 Google Autocomplete Service
+  // 初始化 Session Token
   useEffect(() => {
-    if (map && !autocompleteService.current) {
-      autocompleteService.current = new window.google.maps.places.AutocompleteService();
-    }
-  }, [map]);
+    if (!isGoogleMapsLoaded || !window.google) return;
+    const { AutocompleteSessionToken } = google.maps.places;
+    setSessionToken(new AutocompleteSessionToken());
+  }, [isGoogleMapsLoaded]);
 
-  // 當使用者輸入時，觸發搜尋
+  // 當輸入框文字改變時，觸發搜尋
   useEffect(() => {
-    if (!autocompleteService.current || !debouncedInput) {
+    if (!inputValue || !sessionToken) {
       setSuggestions([]);
       return;
     }
 
-    // 1. 搜尋自訂站點
-    const localSuggestions = stations
-      .filter(station =>
-        station.site_name.toLowerCase().includes(debouncedInput.toLowerCase())
-      )
-      .map(station => ({
-        isLocal: true,
-        ...station,
-        description: station.site_name,
-      }));
+    const fetchSuggestions = async () => {
+      // 1. 搜尋本地站點
+      const localResults = stations
+        .filter(station => station.site_name.toLowerCase().includes(inputValue.toLowerCase()))
+        .map(station => ({
+          id: station.site_id,
+          primaryText: station.site_name,
+          secondaryText: 'iRent 站點',
+          type: 'local',
+          data: station
+        }));
 
-    // 2. 搜尋 Google Places
-    autocompleteService.current.getPlacePredictions(
-      {
-        input: debouncedInput,
-        componentRestrictions: { country: 'tw' }, // 優先顯示台灣的結果
-      },
-      (googleResults, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK && googleResults) {
-          const googleSuggestions = googleResults.map(result => ({
-            isLocal: false,
-            ...result,
-          }));
-          // 合併並更新建議列表 (自訂站點優先)
-          setSuggestions([...localSuggestions, ...googleSuggestions]);
-        } else {
-          // 如果 Google 沒有結果，只顯示自訂站點的結果
-          setSuggestions(localSuggestions);
-        }
+      // 2. 搜尋 Google Places
+      try {
+        const { AutocompleteSuggestion } = google.maps.places;
+        const request = {
+          input: inputValue,
+          sessionToken: sessionToken,
+          language: 'zh-TW',
+          region: 'tw',
+          locationBias: map.getCenter() // 以地圖中心為搜尋偏好
+        };
+
+        const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+        const googleResults = response.suggestions.map(prediction => ({
+          id: prediction.placeId,
+          primaryText: prediction.mainText.text,
+          secondaryText: prediction.secondaryText?.text || '',
+          type: 'google',
+          data: prediction
+        }));
+
+        // 3. 合併結果，本地站點優先
+        setSuggestions([...localResults, ...googleResults]);
+      } catch (error) {
+        console.error('Autocomplete search error:', error);
+        setSuggestions(localResults); // 如果 Google API 失敗，仍顯示本地結果
       }
-    );
-  }, [debouncedInput, stations]);
+    };
 
-  const handleSelect = (suggestion) => {
-    setInputValue(suggestion.description, false);
-    setSuggestions([]);
+    fetchSuggestions();
+  }, [inputValue, sessionToken, stations, map]);
 
-    if (suggestion.isLocal) {
-      // 處理自訂站點
-      const pos = { lat: suggestion.latitude, lng: suggestion.longitude };
+  // 處理選項點擊或 Enter
+  const handleSelect = async (suggestion) => {
+    setInputValue(suggestion.primaryText); // 將 input 設為選定的文字
+    setSuggestions([]); // 清空建議列表
+
+    if (suggestion.type === 'local') {
+      const { latitude, longitude, site_id } = suggestion.data;
+      const pos = { lat: latitude, lng: longitude };
       map.panTo(pos);
       map.setZoom(18);
-      markerBus.set(suggestion.site_id);
-    } else {
-      // 處理 Google Place
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ placeId: suggestion.place_id }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          const location = results[0].geometry.location;
-          map.panTo(location);
-          map.setZoom(16);
-        } else {
-          console.error('Geocode was not successful for the following reason: ' + status);
+      markerBus.set(site_id); // 開啟 InfoWindow
+    } else if (suggestion.type === 'google') {
+      try {
+        // 使用現代 API：PlacePrediction.toPlace() 和 fetchFields
+        const place = suggestion.data.toPlace();
+        await place.fetchFields({ fields: ['location'] });
+        
+        if (place.location) {
+          map.panTo(place.location);
+          map.setZoom(17);
         }
-      });
+      } catch (error) {
+        console.error('Fetch place details error:', error);
+      }
     }
+
+    // 產生一個新的 session token 供下次搜尋使用
+    const { AutocompleteSessionToken } = google.maps.places;
+    setSessionToken(new AutocompleteSessionToken());
   };
-  
+
+  // 處理鍵盤事件 (Enter)
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && suggestions.length > 0) {
-      e.preventDefault();
-      handleSelect(suggestions[0]);
+      e.preventDefault(); // 防止表單提交
+      handleSelect(suggestions[0]); // 自動選取第一個
     }
   };
 
   return (
-    <div className='search-bar'>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={e => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder='搜尋充電站或地點'
-      />
+    <div className='search-bar-container'>
+      <div className='search-bar'>
+        <input
+          type="text"
+          placeholder='搜尋 iRent 站點或地點'
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
       {suggestions.length > 0 && (
         <ul className="suggestions-list">
-          {suggestions.map((suggestion, index) => (
-            <li key={suggestion.isLocal ? suggestion.site_id : suggestion.place_id} onClick={() => handleSelect(suggestion)}>
-              <strong>{suggestion.isLocal ? suggestion.description : suggestion.structured_formatting.main_text}</strong>
-              <small>{suggestion.isLocal ? ' (自訂站點)' : ` ${suggestion.structured_formatting.secondary_text}`}</small>
+          {suggestions.map((suggestion) => (
+            <li key={suggestion.id} onClick={() => handleSelect(suggestion)}>
+              <div className='suggestion-primary'>{suggestion.primaryText}</div>
+              <div className='suggestion-secondary'>{suggestion.secondaryText}</div>
             </li>
           ))}
         </ul>
@@ -128,347 +125,3 @@ export const SearchBar = ({ stations, markerBus }) => {
     </div>
   );
 };
-```
-
-### 3. 修改 `AppIndex.jsx` 來使用新的 `SearchBar`
-
-現在，更新您的 `AppIndex.jsx`，移除舊的 `SearchBar` 程式碼，並匯入和使用我們剛剛建立的新元件。
-
-````jsx
-// filepath: c:\Coding Learning\The_Final_Profject\src\pages\mapIndex\AppIndex.jsx
-// ================= Library =============================
-// style
-import '../../styles/scss/map_index.scss'
-
-//React
-import React, { cloneElement, useEffect, useRef } from 'react';
-import axios from 'axios';
-
-// Google Maps
-import {
-  APIProvider,
-  Map,
-  useMap,
-  useAdvancedMarkerRef,
-  AdvancedMarker,
-  Pin,
-  InfoWindow,
-} from '@vis.gl/react-google-maps';
-
-// +++ 匯入新的 SearchBar 元件 +++
-import { SearchBar } from './SearchBar';
-
-
-// ================= Constants ============================
-// ...existing code...
-const markerBus = new MarkerBus();
-
-// =============== Main function ===========================
-function AppIndex() {
-  const [stations, setStations] = React.useState([]);
-  // --- 移除 isGoogleMapsLoaded 狀態 ---
-
-  // ================= Axios fetch =================
-  // all stations
-  useEffect(() => {
-    const getStations = async () => {
-      try {
-        const res = await axios.get('http://localhost:3000/api/stations');
-        setStations(res.data);
-      }
-      catch (error) {
-        console.error(error);
-        return [];
-      }
-    }
-
-    getStations();
-  }, []);
-
-
-  // --- 移除舊的 SearchBar component 和手動載入 script 的 useEffect ---
-
-
-  // ================= App base map =====================
-  const AppBaseMap = () => {
-    // ...existing code...
-    // ...existing code...
-    return (
-      <>
-        {/* +++ 將 SearchBar 移到 Map 內部，這樣才能使用 useMap() hook +++ */}
-        <SearchBar stations={stations} markerBus={markerBus} />
-        <Map
-          style={{ width: '100vw', height: '100vh' }}
-          // ...existing code...
-        >
-          <MarkerWithInfoWindow />
-        </Map>
-
-      </>
-    );
-  };
-
-  // ============= Render zone ================
-  return (
-    <>
-      <APIProvider apiKey={APIkey}
-        region='TW'
-        // +++ 加上 libraries 屬性，讓 APIProvider 幫我們載入 places API +++
-        libraries={['places']}
-      >
-        <AppBaseMap />
-      </APIProvider>
-    </>
-  );
-}
-
-export default AppIndex;
-```
-
-### 總結與說明
-
-1.  **`APIProvider` 載入 API**：我們在 `APIProvider` 中加入了 `libraries={['places']}`。這是 `@vis.gl/react-google-maps` 建議的方式，它會確保在渲染地圖前，Google Maps 的 Places API 已經被正確載入。
-2.  **獨立的 `SearchBar.jsx`**：將 `SearchBar` 邏輯分離到自己的檔案中，讓程式碼更清晰。
-3.  **手動呼叫 Google API**：我們直接使用 `window.google.maps.places.AutocompleteService()` 來獲取建議，完全繞過了有問題的舊套件。
-4.  **合併建議**：程式碼會先過濾您自己的 `stations` 資料，然後再呼叫 Google API，最後將兩種結果合併顯示在同一個列表中。
-5.  **`useDebounce`**：這是一個自訂的 Hook，用來防止使用者每輸入一個字元就觸發一次 API 呼叫，可以節省 API 用量並提升效能。
-6.  **點擊處理**：`handleSelect` 函式會判斷使用者點擊的是自訂站點 (`isLocal: true`) 還是 Google 地點，並執行相應的地圖操作。
-
-這樣就完成了一個現代、高效且功能完整的搜尋列！// filepath: c:\Coding Learning\The_Final_Profject\src\pages\mapIndex\SearchBar.jsx
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useMap } from '@vis.gl/react-google-maps';
-
-// 這是一個 debounce 函式，用來延遲 API 請求，避免過度頻繁的呼叫
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-export const SearchBar = ({ stations, markerBus }) => {
-  const map = useMap();
-  const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const autocompleteService = useRef(null);
-
-  // 使用 debounce 來優化效能
-  const debouncedInput = useDebounce(inputValue, 300);
-
-  // 初始化 Google Autocomplete Service
-  useEffect(() => {
-    if (map && !autocompleteService.current) {
-      autocompleteService.current = new window.google.maps.places.AutocompleteService();
-    }
-  }, [map]);
-
-  // 當使用者輸入時，觸發搜尋
-  useEffect(() => {
-    if (!autocompleteService.current || !debouncedInput) {
-      setSuggestions([]);
-      return;
-    }
-
-    // 1. 搜尋自訂站點
-    const localSuggestions = stations
-      .filter(station =>
-        station.site_name.toLowerCase().includes(debouncedInput.toLowerCase())
-      )
-      .map(station => ({
-        isLocal: true,
-        ...station,
-        description: station.site_name,
-      }));
-
-    // 2. 搜尋 Google Places
-    autocompleteService.current.getPlacePredictions(
-      {
-        input: debouncedInput,
-        componentRestrictions: { country: 'tw' }, // 優先顯示台灣的結果
-      },
-      (googleResults, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK && googleResults) {
-          const googleSuggestions = googleResults.map(result => ({
-            isLocal: false,
-            ...result,
-          }));
-          // 合併並更新建議列表 (自訂站點優先)
-          setSuggestions([...localSuggestions, ...googleSuggestions]);
-        } else {
-          // 如果 Google 沒有結果，只顯示自訂站點的結果
-          setSuggestions(localSuggestions);
-        }
-      }
-    );
-  }, [debouncedInput, stations]);
-
-  const handleSelect = (suggestion) => {
-    setInputValue(suggestion.description, false);
-    setSuggestions([]);
-
-    if (suggestion.isLocal) {
-      // 處理自訂站點
-      const pos = { lat: suggestion.latitude, lng: suggestion.longitude };
-      map.panTo(pos);
-      map.setZoom(18);
-      markerBus.set(suggestion.site_id);
-    } else {
-      // 處理 Google Place
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ placeId: suggestion.place_id }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          const location = results[0].geometry.location;
-          map.panTo(location);
-          map.setZoom(16);
-        } else {
-          console.error('Geocode was not successful for the following reason: ' + status);
-        }
-      });
-    }
-  };
-  
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && suggestions.length > 0) {
-      e.preventDefault();
-      handleSelect(suggestions[0]);
-    }
-  };
-
-  return (
-    <div className='search-bar'>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={e => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder='搜尋充電站或地點'
-      />
-      {suggestions.length > 0 && (
-        <ul className="suggestions-list">
-          {suggestions.map((suggestion, index) => (
-            <li key={suggestion.isLocal ? suggestion.site_id : suggestion.place_id} onClick={() => handleSelect(suggestion)}>
-              <strong>{suggestion.isLocal ? suggestion.description : suggestion.structured_formatting.main_text}</strong>
-              <small>{suggestion.isLocal ? ' (自訂站點)' : ` ${suggestion.structured_formatting.secondary_text}`}</small>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
-```
-
-### 3. 修改 `AppIndex.jsx` 來使用新的 `SearchBar`
-
-現在，更新您的 `AppIndex.jsx`，移除舊的 `SearchBar` 程式碼，並匯入和使用我們剛剛建立的新元件。
-
-````jsx
-// filepath: c:\Coding Learning\The_Final_Profject\src\pages\mapIndex\AppIndex.jsx
-// ================= Library =============================
-// style
-import '../../styles/scss/map_index.scss'
-
-//React
-import React, { cloneElement, useEffect, useRef } from 'react';
-import axios from 'axios';
-
-// Google Maps
-import {
-  APIProvider,
-  Map,
-  useMap,
-  useAdvancedMarkerRef,
-  AdvancedMarker,
-  Pin,
-  InfoWindow,
-} from '@vis.gl/react-google-maps';
-
-// +++ 匯入新的 SearchBar 元件 +++
-import { SearchBar } from './SearchBar';
-
-
-// ================= Constants ============================
-// ...existing code...
-const markerBus = new MarkerBus();
-
-// =============== Main function ===========================
-function AppIndex() {
-  const [stations, setStations] = React.useState([]);
-  // --- 移除 isGoogleMapsLoaded 狀態 ---
-
-  // ================= Axios fetch =================
-  // all stations
-  useEffect(() => {
-    const getStations = async () => {
-      try {
-        const res = await axios.get('http://localhost:3000/api/stations');
-        setStations(res.data);
-      }
-      catch (error) {
-        console.error(error);
-        return [];
-      }
-    }
-
-    getStations();
-  }, []);
-
-
-  // --- 移除舊的 SearchBar component 和手動載入 script 的 useEffect ---
-
-
-  // ================= App base map =====================
-  const AppBaseMap = () => {
-    // ...existing code...
-    // ...existing code...
-    return (
-      <>
-        {/* +++ 將 SearchBar 移到 Map 內部，這樣才能使用 useMap() hook +++ */}
-        <SearchBar stations={stations} markerBus={markerBus} />
-        <Map
-          style={{ width: '100vw', height: '100vh' }}
-          // ...existing code...
-        >
-          <MarkerWithInfoWindow />
-        </Map>
-
-      </>
-    );
-  };
-
-  // ============= Render zone ================
-  return (
-    <>
-      <APIProvider apiKey={APIkey}
-        region='TW'
-        // +++ 加上 libraries 屬性，讓 APIProvider 幫我們載入 places API +++
-        libraries={['places']}
-      >
-        <AppBaseMap />
-      </APIProvider>
-    </>
-  );
-}
-
-export default AppIndex;
-```
-
-### 總結與說明
-
-1.  **`APIProvider` 載入 API**：我們在 `APIProvider` 中加入了 `libraries={['places']}`。這是 `@vis.gl/react-google-maps` 建議的方式，它會確保在渲染地圖前，Google Maps 的 Places API 已經被正確載入。
-2.  **獨立的 `SearchBar.jsx`**：將 `SearchBar` 邏輯分離到自己的檔案中，讓程式碼更清晰。
-3.  **手動呼叫 Google API**：我們直接使用 `window.google.maps.places.AutocompleteService()` 來獲取建議，完全繞過了有問題的舊套件。
-4.  **合併建議**：程式碼會先過濾您自己的 `stations` 資料，然後再呼叫 Google API，最後將兩種結果合併顯示在同一個列表中。
-5.  **`useDebounce`**：這是一個自訂的 Hook，用來防止使用者每輸入一個字元就觸發一次 API 呼叫，可以節省 API 用量並提升效能。
-6.  **點擊處理**：`handleSelect` 函式會判斷使用者點擊的是自訂站點 (`isLocal: true`) 還是 Google 地點，並執行相應的地圖操作。
-
-這樣就完成了一個現代、高效且功能完整
