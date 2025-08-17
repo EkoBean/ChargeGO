@@ -199,3 +199,73 @@ Google自己出的，把自己的原生API打包成React。
 
 ### Auto Complete doc
 https://github.com/wellyshen/use-places-autocomplete#api
+
+
+
+# 如何使用AutoCompleteSuggestions()
+
+`fetchAutocompleteSuggestions()` 是 Google Maps Places Library 的**靜態方法**，用來取得地點自動完成（autocomplete）建議。
+
+---
+
+### 用法說明
+
+**語法：**
+```js
+const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+```
+
+**參數：**
+- `request` 必須是一個 `AutocompleteRequest` 物件，內容至少要有 `input`（搜尋字串），可以加上 `sessionToken`、`language`、`region`、`locationBias` 等選項。
+
+**回傳值：**
+- 回傳一個 Promise，resolve 後是一個物件 `{ suggestions: Array<AutocompleteSuggestion> }`。
+- 每個 `AutocompleteSuggestion` 代表一個地點建議。
+
+---
+
+### 實際範例
+
+```js
+const request = {
+  input: '台中',
+  sessionToken: sessionToken, // 用於同一搜尋 session
+  language: 'zh-TW',
+  region: 'tw',
+  locationBias: map.getCenter()
+};
+
+const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+// response.suggestions 是一個 AutocompleteSuggestion 陣列
+```
+
+---
+
+### 你可以怎麼用
+
+1. 傳入使用者輸入的字串等參數
+2. 取得建議陣列
+3. 顯示在 UI 上讓使用者選擇
+
+---
+
+**總結：**  
+`fetchAutocompleteSuggestions()` 讓你用 Google Maps API 取得地點自動完成建議，回傳一個建議陣列，適合用在搜尋列自動提示功能。
+
+
+## AutoCompleteSuggestions Request
+```jsx
+const request = {
+  input: '搜尋字串', // 必填，使用者輸入的文字
+  sessionToken: sessionToken, // 建議填入，AutocompleteSessionToken 物件
+  language: 'zh-TW', // optional，回傳結果語言
+  region: 'tw', // optional，地區代碼
+  locationBias: map.getCenter(), // optional，偏好地理位置
+  // 其他可選屬性：
+  // includedPrimaryTypes: ['restaurant', 'gas_station'],
+  // includedRegionCodes: ['TW'],
+  // inputOffset: 文字游標位置
+  // locationRestriction: 限制地理位置
+  // origin: {lat, lng}
+}
+```
