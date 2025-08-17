@@ -1,7 +1,7 @@
 // src/pages/MissionPage.jsx
 
 import React from "react";
-import MissionCard from "../components/MissionCard"; // 導入剛才建立的 MissionCard 元件
+import MissionCard from "./MissionCard"; // 導入剛才建立的 MissionCard 元件
 
 // 這是任務列表頁面，我們可以將它放在 pages 資料夾
 function MissionPage() {

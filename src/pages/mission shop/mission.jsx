@@ -1,5 +1,5 @@
 // style
-import "../../styles/scss/mission.scss";
+// import "../../styles/scss/mission.scss";
 
 //React
 import React, { useEffect, Component } from "react";
