@@ -74,6 +74,34 @@ app.get("/usermission", function (req, res) {
     res.send(JSON.stringify(rows));
   });
 });
+app.post("/usermission/claim", (req, res) => {
+  // 從請求主體中取得 user_mission_id
+  const { user_mission_id } = req.body;
+
+  // 檢查 user_mission_id 是否存在
+  if (!user_mission_id) {
+    return res.status(400).json({ message: "缺少 user_mission_id" });
+  }
+
+  // SQL 語句，將指定 user_mission_id 的 is_claimed 狀態更新為 1
+  const updateQuery = `UPDATE user_missions SET is_claimed = 1 WHERE user_mission_id = ?`;
+
+  conn.query(updateQuery, [user_mission_id], (err, results) => {
+    // 檢查更新是否有錯誤
+    if (err) {
+      console.error("更新任務狀態時發生錯誤:", err);
+      return res.status(500).json({ message: "無法更新任務狀態" });
+    }
+
+    // 檢查是否有任何行受到影響
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "找不到指定的任務" });
+    }
+
+    // 成功回傳訊息
+    res.status(200).json({ message: "任務已成功領取" });
+  });
+});
 // 伺服器啟動
 app.listen(4000, () => {
   console.log("API server running on port 4000");
