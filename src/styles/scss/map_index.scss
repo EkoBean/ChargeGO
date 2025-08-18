@@ -88,6 +88,7 @@ body,
       height: 8px;
 
     }
+
     -webkit-scrollbar-button {
       display: none;
     }
@@ -97,13 +98,21 @@ body,
     ul {
       list-style: none;
       margin: 0;
-      padding: 0.3em 1em;
+      padding: 0.5em 1em;
+
+      li.selected-suggestion {
+        background-color: #f0f0f0;
+        /* 灰色背景 */
+        cursor: pointer;
+        /* 鼠標指針樣式 */
+      }
 
       li {
         padding: 10px 15px;
         cursor: pointer;
         transition: background-color 0.2s ease;
         border-bottom: #ececec 1px solid;
+        border-radius: 5px;
 
         &:hover {
           background-color: #f0f0f0;
@@ -119,10 +128,12 @@ body,
           font-size: 14px;
           color: #b3b3b3;
         }
-        .local-station{
+
+        .local-station {
           color: g.$primary;
           font-weight: bold;
         }
+
       }
     }
   }

@@ -85,6 +85,7 @@ function AppIndex() {
     const [suggestions, setSuggestions] = React.useState([]);
     const [sessionToken, setSessionToken] = React.useState(null);
     const [selectSuggestion, setSelectSuggestion] = React.useState(null);
+    const suggestionRefs = React.useRef([]);
     //================ initial session token =================
     // token是用來避免打字的時候去不斷重新向API要求搜尋 
     useEffect(() => {
@@ -176,8 +177,12 @@ function AppIndex() {
     const handleKeyDown = (e) => {
       if (e.key === 'Enter' && suggestions.length > 0) {
         e.preventDefault();
-        if (suggestions.length > 0 && selectSuggestion == 0) {
+        if (suggestions.length > 0 && !selectSuggestion) {
           handleSelect(suggestions[0]);
+          listBus.set(false);
+        }else if (selectSuggestion !== null && suggestions[selectSuggestion]) {
+          handleSelect(suggestions[selectSuggestion]);
+          listBus.set(false);
         }
       }
       if (e.key === 'ArrowDown') {
@@ -192,20 +197,20 @@ function AppIndex() {
           prev === null || prev <= 0 ? suggestions.length - 1 : prev - 1
         );
       }
-      if (e.key === 'Enter' && suggestions.length > 0) {
-        e.preventDefault();
-        if (selectSuggestion == null) {
-          handleSelect(suggestions[0]);
-        } else {
-          handleSelect(suggestions[selectSuggestion]);
-        }
-      }
     }
-
+    useEffect(() => {
+      if (selectSuggestion !== null && suggestionRefs.current[selectSuggestion]) {
+        suggestionRefs.current[selectSuggestion].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    }, [selectSuggestion]);
 
     // select suggestion option
     const handleSelect = async (suggestion) => {
       setInputValue(suggestion.primaryText);
+      
       setSuggestions([]);
       setListOpen(false);
       if (suggestion.type === 'local') {
@@ -250,13 +255,17 @@ function AppIndex() {
             onChange={(e) => (setInputValue(e.target.value), setListOpen(true))}
             onKeyDown={handleKeyDown}
             onClick={() => (markerBus.clear(), setListOpen(true))}
+            value={inputValue}
           />
         </div>
         {suggestions.length > 0 && listOpen && (
           <div className='suggestions-list'>
             <ul>
-              {suggestions.map((suggestion) => (
-                <li key={suggestion.id} onClick={() => handleSelect(suggestion)} >
+              {suggestions.map((suggestion, index) => (
+                <li key={suggestion.id}
+                  onClick={() => handleSelect(suggestion)}
+                  className={index === selectSuggestion ? 'selected-suggestion' : ''}
+                  ref={(el) => (suggestionRefs.current[index] = el)}>
                   <div className={suggestion.type === 'local' ? 'local-station' : 'google-station' + ' ' + 'suggestion-primary'}>{suggestion.primaryText}</div>
                   <div className="suggestion-secondary">{suggestion.secondaryText}</div>
                 </li>
@@ -362,6 +371,7 @@ function AppIndex() {
         const unsub = markerBus.subscribe(
           // markerBus主程式
           activeId => {
+            console.log(activeId, id);
             const x = activeId === id;
             setActiveMarkerId(x ? id : null);
           }
