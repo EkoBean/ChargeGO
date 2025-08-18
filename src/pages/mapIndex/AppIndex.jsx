@@ -30,7 +30,7 @@ const defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 }
 // ======== MarkerBus  ==========
 // 將對markerID的操作不管在哪裡都將他連結進markerItem裡面
 // 不管在父元件還是在其他地方都可以操作subscribe這個class的物件
-class MarkerBus {
+class Bus {
   constructor() {
     this.current = null;
     this.listeners = new Set();
@@ -50,12 +50,14 @@ class MarkerBus {
     return () => this.listeners.delete(fn);
   }
 }
-const markerBus = new MarkerBus();
+const markerBus = new Bus();
+const listBus = new Bus();
 
 // =============== Main function ===========================
 function AppIndex() {
   const [stations, setStations] = React.useState([]);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = React.useState(false);
+
   // ================= Axios fetch =================
   // all stations
   useEffect(() => {
@@ -76,16 +78,19 @@ function AppIndex() {
 
   // ================= SearchBar component =================
   const SearchBar = () => {
+
     const map = useMap();
     const [inputValue, setInputValue] = React.useState('');
+    const [listOpen, setListOpen] = React.useState(null);
     const [suggestions, setSuggestions] = React.useState([]);
     const [sessionToken, setSessionToken] = React.useState(null);
-    const [listClose, setListClose] = React.useState(true);
+    const [selectSuggestion, setSelectSuggestion] = React.useState(null);
     //================ initial session token =================
     // token是用來避免打字的時候去不斷重新向API要求搜尋 
     useEffect(() => {
       const { AutocompleteSessionToken } = window.google.maps.places;
       setSessionToken(new AutocompleteSessionToken());
+      listBus.subscribe((x) => setListOpen(x));
     }, [isGoogleMapsLoaded])
 
     useEffect(() => {
@@ -128,7 +133,7 @@ function AppIndex() {
           const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
 
           // 建立可用的 googleResults 陣列
-          const googleResults = await Promise.all(
+          const googleResults = (await Promise.all(
             response.suggestions.map(async (suggestion) => {
               try {
                 // 取得 placePrediction (正確的方式)
@@ -153,8 +158,7 @@ function AppIndex() {
                 return null;
               }
             })
-          );
-          console.log('googleResults :>> ', googleResults);
+          )).filter((x) => x !== null);
           setSuggestions([...localResults, ...googleResults]);
         }
         // ========== google search error handling ==============
@@ -170,18 +174,40 @@ function AppIndex() {
 
     // input bar press the enter
     const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && suggestions.length > 0) {
         e.preventDefault();
-        handleSelect(suggestions[0]);
+        if (suggestions.length > 0 && selectSuggestion == 0) {
+          handleSelect(suggestions[0]);
+        }
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectSuggestion(prev =>
+          prev === null || prev >= suggestions.length - 1 ? 0 : prev + 1
+        );
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectSuggestion(prev =>
+          prev === null || prev <= 0 ? suggestions.length - 1 : prev - 1
+        );
+      }
+      if (e.key === 'Enter' && suggestions.length > 0) {
+        e.preventDefault();
+        if (selectSuggestion == null) {
+          handleSelect(suggestions[0]);
+        } else {
+          handleSelect(suggestions[selectSuggestion]);
+        }
       }
     }
+
 
     // select suggestion option
     const handleSelect = async (suggestion) => {
       setInputValue(suggestion.primaryText);
       setSuggestions([]);
-      setListClose(true); 
-      console.log('suggestions :>> ', suggestions);
+      setListOpen(false);
       if (suggestion.type === 'local') {
         const { longitude, latitude, site_id } = suggestion.data;
         const pos = { lat: latitude, lng: longitude };
@@ -201,16 +227,32 @@ function AppIndex() {
       const { AutocompleteSessionToken } = window.google.maps.places;
       setSessionToken(new AutocompleteSessionToken());
     }
+
+    // ================= Escape key handler =================
+    // 監聽Esc鍵，關閉建議列表並清空輸入
+    useEffect(() => {
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          setListOpen(false);
+          document.activeElement.blur();
+          setInputValue('');
+          return handleEscape;
+        }
+      };
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }, [map])
     return (
       <div className='search-bar-container'>
         <div className='search-bar'>
           <input type="text"
             placeholder='搜尋地點'
-            onChange={(e) => (setInputValue(e.target.value), setListClose(false)) }
+            onChange={(e) => (setInputValue(e.target.value), setListOpen(true))}
             onKeyDown={handleKeyDown}
+            onClick={() => (markerBus.clear(), setListOpen(true))}
           />
         </div>
-        {suggestions.length > 0 && !listClose && (
+        {suggestions.length > 0 && listOpen && (
           <div className='suggestions-list'>
             <ul>
               {suggestions.map((suggestion) => (
@@ -354,7 +396,7 @@ function AppIndex() {
     // ============== close InfoWindow on map click ===============
     useEffect(() => {
       if (!map) return;
-      const closeWindow = map.addListener('click', () => markerBus.clear());
+      const closeWindow = map.addListener('click', () => (markerBus.clear(), listBus.set(false)));
       return () => closeWindow.remove();
     }, [map])
 
@@ -388,7 +430,8 @@ function AppIndex() {
       <APIProvider apiKey={APIkey}
         region='TW'
         libraries={['places']}
-        onLoad={() => setIsGoogleMapsLoaded(true)}>
+        onLoad={() => setIsGoogleMapsLoaded(true)}
+      >
         {isGoogleMapsLoaded && (
           <>
             <SearchBar />
