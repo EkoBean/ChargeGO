@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <!-- 會員資料頁面 -->
+    <container id="member-data">
+        <h1 class="text-center">會員資料</h1>
+        <!-- 會員資料內容 -->
+        <div id="member-info" class="mt-4">
+            <!-- 會員頭像 -->
+            <figure class="d-flex justify-content-center">
+                <img src="./memberAvatar/cat.jpg" alt="會員頭像" class="img-fluid w-25 rounded-circle mt-3" id="member-avatar">
+            </figure>
+            <!-- 卡片列 -->
+            <container id="card" class="d-flex flex-wrap justify-content-center mt-4">
+                <!-- 錢包卡片 -->
+                <div id="myWallet" class="card ">
+                    <h5 class="card-header text-center">會員錢包</h5>
+                </div>
+                <!-- 會員積分卡片 -->
+                <div id="myPoint" class="card ">
+                    <h5 class="card-header text-center">會員積分</h5>
+                </div>
+                <!-- 點數商店卡片 -->
+                <div id="Pointshop" class="card">
+                    <h5 class="card-header text-center">點數商店</h5>
+                </div>
+            </container>
+
+            <!-- 會員個人資訊欄 -->
+            <div id="myInfo" class="card">
+                <div class="card-body">
+                    <p class="card-text">會員姓名｜ <span id="member-name">王小明</span></p>
+                    <p class="card-text">電話｜ <span id="member-phone">123456789</span></p>
+                    <p class="card-text">e-mail｜ <span id="member-email">example@example.com</span></p>
+                    <p class="card-text">居住城市｜ <select id="member-city">
+                            <option value="台北市">台北市</option>
+                            <option value="新北市">新北市</option>
+                            <option value="桃園市">桃園市</option>
+                            <option value="台中市">台中市</option>
+                            <option value="台南市">台南市</option>
+                            <option value="高雄市">高雄市</option>
+                        </select></p>
+                </div>
+            </div>
+            <!-- 會員控制按鈕 -->
+            <container id="member-controls" class="d-flex justify-content-center mt-4">
+                <div>
+                    <button class="btn btn-primary" id="edit-btn">修改會員資料</button>
+                </div>
+                <div>
+                    <button class="btn btn-danger" id="delete-btn">會員停權</button>
+                </div>
+            </container>
+
+
+    </container>
+
+</body>
+
+</html>
