@@ -125,6 +125,13 @@ const ApiService = {
     if (value === null || value === undefined || value === '') {
       return undefined;
     }
+    
+    // 若已是數字則直接回傳
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    // 嘗試轉換成數字
     const num = parseFloat(String(value).trim());
     return Number.isNaN(num) ? undefined : num;
   },
@@ -160,25 +167,39 @@ const ApiService = {
   },
 
   async createSite(payload) {
+    console.log('Creating site with payload:', payload);
+
     const body = {
       site_name: String(payload.site_name ?? payload.siteName ?? "").trim(),
       address: String(payload.address ?? "").trim(),
+      longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
+      latitude: this._parseCoordinate(payload.latitude ?? payload.lat),
     };
 
-    // 經緯度改為選填
-    const longitude = this._parseCoordinate(payload.longitude ?? payload.lng);
-    const latitude = this._parseCoordinate(payload.latitude ?? payload.lat);
-    
-    // 只有當兩個都有值時才加入
-    if (longitude !== undefined && latitude !== undefined) {
-      body.longitude = longitude;
-      body.latitude = latitude;
-    }
+    console.log('Normalized body:', body);
 
-    // 只驗證必填欄位
+    // 驗證必填欄位（包含經緯度）
     const errors = [];
     if (!body.site_name) errors.push("站點名稱不能為空");
     if (!body.address) errors.push("地址不能為空");
+    if (body.longitude === undefined || body.longitude === null || Number.isNaN(body.longitude)) {
+      errors.push("經度不能為空且必須為數字");
+    }
+    if (body.latitude === undefined || body.latitude === null || Number.isNaN(body.latitude)) {
+      errors.push("緯度不能為空且必須為數字");
+    }
+
+    // 範圍檢查
+    if (typeof body.longitude === 'number') {
+      if (body.longitude < -180 || body.longitude > 180) {
+        errors.push("經度必須在 -180 到 180 之間");
+      }
+    }
+    if (typeof body.latitude === 'number') {
+      if (body.latitude < -90 || body.latitude > 90) {
+        errors.push("緯度必須在 -90 到 90 之間");
+      }
+    }
 
     if (errors.length > 0) {
       throw new Error(errors.join('; '));

@@ -192,33 +192,70 @@ app.get("/api/orders", (req, res) => {
   });
 });
 
-// 新增站點
+// 新增站點（經緯度必填版）
 app.post("/api/sites", (req, res) => {
   const { site_name, address, longitude, latitude } = req.body;
+  
+  console.log("收到新增站點請求：", req.body);
 
+  // 驗證必填欄位：站點名稱、地址、經緯度
   if (!site_name || !address || typeof longitude === "undefined" || typeof latitude === "undefined") {
-    return res.status(400).json({ message: "缺少必要欄位" });
+    console.log("驗證失敗：缺少必填欄位");
+    return res.status(400).json({ message: "缺少必要欄位：站點名稱、地址、經緯度" });
   }
 
+  // 驗證經緯度格式與範圍
   const lon = parseFloat(longitude);
   const lat = parseFloat(latitude);
+  
   if (Number.isNaN(lon) || Number.isNaN(lat)) {
-    return res.status(400).json({ message: "經緯度格式錯誤" });
+    console.log("經緯度格式錯誤：", { longitude, latitude });
+    return res.status(400).json({ message: "經緯度必須為數字" });
   }
+
+  // 經緯度範圍檢查（符合 DECIMAL(12,8) 格式）
+  if (lon < -180 || lon > 180) {
+    return res.status(400).json({ message: "經度必須在 -180 到 180 之間" });
+  }
+  if (lat < -90 || lat > 90) {
+    return res.status(400).json({ message: "緯度必須在 -90 到 90 之間" });
+  }
+
+  // 檢查小數點精度（最多8位小數）
+  const lonStr = String(lon);
+  const latStr = String(lat);
+  if (lonStr.includes('.') && lonStr.split('.')[1].length > 8) {
+    return res.status(400).json({ message: "經度小數點後最多8位" });
+  }
+  if (latStr.includes('.') && latStr.split('.')[1].length > 8) {
+    return res.status(400).json({ message: "緯度小數點後最多8位" });
+  }
+
+  console.log("準備插入資料：", { site_name, address, lon, lat });
 
   connCharger.query(
     `INSERT INTO charger_site (site_name, address, longitude, latitude)
      VALUES (?, ?, ?, ?)`,
     [site_name, address, lon, lat],
     (err, result) => {
-      if (err) return res.status(500).json({ error: "DB error", code: err.code });
+      if (err) {
+        console.error("插入站點失敗：", err);
+        return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
+      }
+
+      console.log("站點插入成功，ID：", result.insertId);
 
       connCharger.query(
         `SELECT site_id, site_name, address, longitude, latitude
          FROM charger_site WHERE site_id = ?`,
         [result.insertId],
         (e2, rows) => {
-          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
+          if (e2) {
+            console.error("查詢新站點失敗：", e2);
+            return res.status(500).json({ error: "DB error", code: e2.code, message: e2.message });
+          }
+          
+          console.log("回傳新站點資料：", rows[0]);
           res.json(rows[0]);
         }
       );

@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const [statsData, usersData, sitesData, chargersData, ordersData] = await Promise.all([
         ApiService.getDashboardStats(),
         ApiService.getUsers(),
@@ -240,7 +240,7 @@ const AdminDashboard = () => {
   const renderDashboard = () => (
     <div className="dashboard-content">
       <h2>系統總覽</h2>
-      
+
       <div className="stats-grid">
         <div className="stat-card primary">
           <div className="stat-icon">👥</div>
@@ -249,7 +249,7 @@ const AdminDashboard = () => {
             <p>註冊用戶</p>
           </div>
         </div>
-        
+
         <div className="stat-card success">
           <div className="stat-icon">📍</div>
           <div className="stat-info">
@@ -257,7 +257,7 @@ const AdminDashboard = () => {
             <p>服務站點</p>
           </div>
         </div>
-        
+
         <div className="stat-card warning">
           <div className="stat-icon">🔋</div>
           <div className="stat-info">
@@ -265,7 +265,7 @@ const AdminDashboard = () => {
             <p>可用充電器</p>
           </div>
         </div>
-        
+
         <div className="stat-card info">
           <div className="stat-icon">🛒</div>
           <div className="stat-info">
@@ -281,19 +281,19 @@ const AdminDashboard = () => {
           <div className="status-grid">
             <div className="status-item">
               <div className="progress-bar">
-                <div className="progress-fill" style={{width: '85%'}}></div>
+                <div className="progress-fill" style={{ width: '85%' }}></div>
               </div>
               <span>系統運行狀態 85%</span>
             </div>
             <div className="status-item">
               <div className="progress-bar">
-                <div className="progress-fill warning" style={{width: '72%'}}></div>
+                <div className="progress-fill warning" style={{ width: '72%' }}></div>
               </div>
               <span>設備使用率 72%</span>
             </div>
             <div className="status-item">
               <div className="progress-bar">
-                <div className="progress-fill info" style={{width: '91%'}}></div>
+                <div className="progress-fill info" style={{ width: '91%' }}></div>
               </div>
               <span>用戶滿意度 91%</span>
             </div>
@@ -357,7 +357,7 @@ const AdminDashboard = () => {
                   </span>
                 </td>
                 <td>
-                  <button 
+                  <button
                     className="btn small primary"
                     onClick={() => handleViewUser(user)}
                   >
@@ -417,7 +417,7 @@ const AdminDashboard = () => {
             {sites.map(site => {
               const siteChargers = chargers.filter(c => c.site_id === site.site_id);
               const availableCount = siteChargers.filter(c => c.status === 'available').length;
-              
+
               return (
                 <tr key={site.site_id}>
                   <td>{site.site_id}</td>
@@ -492,12 +492,11 @@ const AdminDashboard = () => {
                 <td>{order.site_name}</td>
                 <td>{new Date(order.start_date).toLocaleString()}</td>
                 <td>
-                  <span className={`badge ${
-                    order.order_status === 'completed' ? 'success' : 
+                  <span className={`badge ${order.order_status === 'completed' ? 'success' :
                     order.order_status === 'active' ? 'warning' : 'danger'
-                  }`}>
-                    {order.order_status === 'completed' ? '已完成' : 
-                     order.order_status === 'active' ? '進行中' : '已取消'}
+                    }`}>
+                    {order.order_status === 'completed' ? '已完成' :
+                      order.order_status === 'active' ? '進行中' : '已取消'}
                   </span>
                 </td>
                 <td>
@@ -560,25 +559,25 @@ const AdminDashboard = () => {
       <div className="dashboard-layout">
         <aside className="sidebar">
           <nav className="sidebar-nav">
-            <button 
+            <button
               className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
               onClick={() => setActiveTab('dashboard')}
             >
               📊 總覽
             </button>
-            <button 
+            <button
               className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
               onClick={() => setActiveTab('users')}
             >
               👥 用戶管理
             </button>
-            <button 
+            <button
               className={`nav-item ${activeTab === 'sites' ? 'active' : ''}`}
               onClick={() => setActiveTab('sites')}
             >
               📍 站點管理
             </button>
-            <button 
+            <button
               className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
               onClick={() => setActiveTab('orders')}
             >
@@ -847,13 +846,33 @@ const AdminDashboard = () => {
                     <label>地址</label>
                     <input name="address" value={editSite?.address || ''} onChange={handleSiteFieldChange} />
                   </div>
+
+                  {/* 經緯度限制範圍 */}
                   <div className="form-group">
                     <label>經度</label>
-                    <input name="longitude" value={editSite?.longitude ?? ''} onChange={handleSiteFieldChange} />
+                    <input
+                      type="number"
+                      name="longitude"
+                      step="0.00000001"  // 小數 8 位
+                      min="-180"
+                      max="180"
+                      required
+                      value={editSite?.longitude ?? ''}
+                      onChange={handleSiteFieldChange}
+                    />
                   </div>
                   <div className="form-group">
                     <label>緯度</label>
-                    <input name="latitude" value={editSite?.latitude ?? ''} onChange={handleSiteFieldChange} />
+                    <input
+                      type="number"
+                      name="latitude"
+                      step="0.00000001"
+                      min="-90"
+                      max="90"
+                      required
+                      value={editSite?.latitude ?? ''}
+                      onChange={handleSiteFieldChange}
+                    />
                   </div>
                 </div>
               )}
@@ -905,10 +924,9 @@ const AdminDashboard = () => {
                     <p><strong>開始時間:</strong> {selectedOrder.start_date ? new Date(selectedOrder.start_date).toLocaleString() : '-'}</p>
                     <p>
                       <strong>狀態:</strong>
-                      <span className={`badge ${
-                        selectedOrder.order_status === 'completed' ? 'success' :
+                      <span className={`badge ${selectedOrder.order_status === 'completed' ? 'success' :
                         selectedOrder.order_status === 'active' ? 'warning' : 'danger'
-                      }`}>
+                        }`}>
                         {selectedOrder.order_status}
                       </span>
                     </p>
