@@ -1,6 +1,6 @@
 import express from 'express';
 import mysql from 'mysql';
-import cors from 'cors'; // 若沒安裝 cors，需執行 npm install cors
+import cors from 'cors'; 
 
 const app = express();
 app.use(express.json());
