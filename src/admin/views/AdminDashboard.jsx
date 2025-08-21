@@ -141,16 +141,49 @@ const AdminDashboard = () => {
     setShowSiteModal(true);
   };
 
+  // 共用驗證與格式化
+  const toFixed8 = (n) => {
+    if (n === '' || n === undefined || n === null || isNaN(n)) return '';
+    return Number.parseFloat(n).toFixed(8);
+  };
+  const isValidLng = (v) => v !== '' && !isNaN(v) && v >= -180 && v <= 180;
+  const isValidLat = (v) => v !== '' && !isNaN(v) && v >= -90 && v <= 90;
+
   const handleSiteFieldChange = (e) => {
     const { name, value } = e.target;
-    setEditSite(prev => ({ ...prev, [name]: value }));
+    setEditSite(prev => {
+      let v = value;
+      // 經緯度自動四捨五入到 8 位
+      if (name === 'longitude' || name === 'latitude') {
+        v = value === '' ? '' : toFixed8(value);
+      }
+      return { ...prev, [name]: v };
+    });
   };
 
   const handleSaveSite = async () => {
     if (!editSite) return;
     try {
       setSaving(true);
-      const payload = { site_name: editSite.site_name, address: editSite.address };
+
+      const { site_name, address, longitude, latitude } = editSite;
+
+      // 1) 必填 + 數值 + 範圍
+      if (!isValidLng(longitude) || !isValidLat(latitude)) {
+        throw new Error('經度/緯度為必填，且必須為數字（經度 -180~180；緯度 -90~90）');
+      }
+
+      // 2) 四捨五入/截位到小數 8 位，符合 DECIMAL(12,8)
+      const lng8 = Number(toFixed8(longitude));
+      const lat8 = Number(toFixed8(latitude));
+
+      const payload = {
+        site_name,
+        address,
+        longitude: lng8,
+        latitude: lat8,
+      };
+
       if (creatingSite || !editSite.site_id) {
         const created = await ApiService.createSite(payload);
         setSites(prev => [...prev, created]);
@@ -166,11 +199,12 @@ const AdminDashboard = () => {
       setIsEditingSite(false);
     } catch (err) {
       console.error('Failed to save site:', err);
-      alert('站點儲存失敗，請稍後再試');
+      alert(`站點儲存失敗：${err.message || '請稍後再試'}`);
     } finally {
       setSaving(false);
     }
   };
+
 
   // === 訂單 ===
   const handleViewOrder = (order) => {
