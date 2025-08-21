@@ -13,7 +13,7 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 var connCharger = mysql.createConnection({
   host: "localhost",
   port: 3306,           
-  user: "abuser",
+  user: "root",
   password: "",
   database: "charger_database"
 });
@@ -21,8 +21,8 @@ var connCharger = mysql.createConnection({
 // === DB 連線：bank ===
 var connBank = mysql.createConnection({
   host: "localhost",
-  port: 3306,
-  user: "abuser",
+  port: 3306,  // 改為與 charger_database 相同的連接埠
+  user: "root",
   password: "",
   database: "bank"
 });
@@ -44,13 +44,26 @@ connCharger.connect(function (err) {
     });
   }
 });
+
 connBank.connect(function (err) {
-  if (err) console.error("bank 連線失敗：", err.code);
-  else {
+  if (err) {
+    console.error("bank 連線失敗：", err.code);
+    console.error("可能的原因：");
+    console.error("1. MySQL 服務未在連接埠 3306 上運行");
+    console.error("2. 資料庫 'bank' 不存在");
+    console.error("3. 連接埠 3306 已被 charger_database 佔用");
+    console.error("請確認：");
+    console.error("- SHOW DATABASES; 中是否有 'bank' 資料庫");
+    console.error("- 是否需要建立 bank 資料庫和 credit_card 表");
+  } else {
     console.log("bank 連線成功");
     connBank.query("SELECT COUNT(*) AS cnt FROM credit_card", (e, r) => {
-      if (e) console.error("credit_card 表查詢失敗：", e.code);
-      else console.log("credit_card 表筆數：", r[0].cnt);
+      if (e) {
+        console.error("credit_card 表查詢失敗：", e.code);
+        console.error("可能需要先建立 credit_card 表");
+      } else {
+        console.log("credit_card 表筆數：", r[0].cnt);
+      }
     });
   }
 });
