@@ -6,6 +6,11 @@ $secondary: #f16100;
 $success: #00ff3c;
 $danger: #d65562;
 
+$primary-hover: darken($primary, 10%);
+$secondary-hover: darken($secondary, 10%);
+$success-hover: darken($success, 10%);
+$danger-hover: darken($danger, 10%);
+
 // 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
 @use "../../../node_modules/bootstrap/scss/bootstrap" as bs with ($primary: $primary,
   $secondary: $secondary,
