@@ -1,4 +1,5 @@
-// 顯示和管理充電站及充電器的狀態
+// 顯示和管理充電站及充電器的狀態 系統總覽管理
+
 import React, { Component } from 'react';
 import { Card, Table, Badge, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import ApiService from '../services/api';

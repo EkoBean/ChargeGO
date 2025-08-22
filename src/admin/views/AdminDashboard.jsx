@@ -247,6 +247,7 @@ const AdminDashboard = () => {
           site_id: Number(editOrder.site_id),
           charger_id: Number(editOrder.charger_id) || undefined,
           order_status: editOrder.order_status || 'active',
+          end: editOrder.end || null, // 新增
         };
         await ApiService.createOrder(payload);
         await loadAllData();
@@ -258,6 +259,7 @@ const AdminDashboard = () => {
           site_id: Number(editOrder.site_id),
           charger_id: Number(editOrder.charger_id) || undefined,
           order_status: editOrder.order_status,
+          end: editOrder.end || null, // 新增
         };
         await ApiService.updateOrder(editOrder.order_ID, payload);
         await loadAllData();
@@ -317,7 +319,7 @@ const AdminDashboard = () => {
           <div className="stat-icon">🛒</div>
           <div className="stat-info">
             <h3>{dashboardStats.todayOrders}</h3>
-            <p>今日訂單</p>
+            <p>點數商城訂單</p>
           </div>
         </div>
       </div>
@@ -357,7 +359,7 @@ const AdminDashboard = () => {
               📍 站點管理
             </button>
             <button className="action-btn warning" onClick={() => setActiveTab('orders')}>
-              🛒 訂單管理
+              🛒 點數商城訂單
             </button>
             <button className="action-btn info" onClick={loadAllData}>
               🔄 刷新數據
@@ -527,6 +529,7 @@ const AdminDashboard = () => {
               <th>用戶</th>
               <th>站點</th>
               <th>開始時間</th>
+              <th>結束時間</th> 
               <th>狀態</th>
               <th>操作</th>
             </tr>
@@ -538,6 +541,7 @@ const AdminDashboard = () => {
                 <td>{order.user_name}</td>
                 <td>{order.site_name}</td>
                 <td>{new Date(order.start_date).toLocaleString()}</td>
+                <td>{order.end ? new Date(order.end).toLocaleString() : '-'}</td>
                 <td>
                   <span className={`badge ${
                     order.order_status === '1' || order.order_status === 'completed' ? 'success' :
@@ -971,6 +975,7 @@ const AdminDashboard = () => {
                     <p><strong>用戶:</strong> {selectedOrder.user_name || selectedOrder.uid}</p>
                     <p><strong>站點:</strong> {selectedOrder.site_name || selectedOrder.site_id}</p>
                     <p><strong>開始時間:</strong> {selectedOrder.start_date ? new Date(selectedOrder.start_date).toLocaleString() : '-'}</p>
+                    <p><strong>結束時間:</strong> {selectedOrder.end ? new Date(selectedOrder.end).toLocaleString() : '-'}</p> {/* 新增 */}
                     <p>
                       <strong>狀態:</strong>
                       <span className={`badge ${
@@ -1030,6 +1035,16 @@ const AdminDashboard = () => {
                       <option value="1">已完成</option>
                       <option value="-1">已取消</option>
                     </select>
+                  </div>
+                  <div className="form-group">
+                    <label>結束時間</label>
+                    <input
+                      type="datetime-local"
+                      name="end"
+                      value={editOrder?.end ? editOrder.end.substring(0, 16) : ''}
+                      onChange={handleOrderFieldChange}
+                      disabled={creatingOrder ? false : false}
+                    />
                   </div>
                 </div>
               )}
