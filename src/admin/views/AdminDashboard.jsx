@@ -271,6 +271,19 @@ const AdminDashboard = () => {
     }
   };
 
+  // 新增狀態轉換函數
+  const getOrderStatusText = (status) => {
+    switch (String(status)) {
+      case '-1': return '已取消';
+      case '0': return '進行中';
+      case '1': return '已完成';
+      case 'active': return '進行中';
+      case 'completed': return '已完成';
+      case 'cancelled': return '已取消';
+      default: return status;
+    }
+  };
+
   const renderDashboard = () => (
     <div className="dashboard-content">
       <h2>系統總覽</h2>
@@ -526,11 +539,11 @@ const AdminDashboard = () => {
                 <td>{order.site_name}</td>
                 <td>{new Date(order.start_date).toLocaleString()}</td>
                 <td>
-                  <span className={`badge ${order.order_status === 'completed' ? 'success' :
-                    order.order_status === 'active' ? 'warning' : 'danger'
-                    }`}>
-                    {order.order_status === 'completed' ? '已完成' :
-                      order.order_status === 'active' ? '進行中' : '已取消'}
+                  <span className={`badge ${
+                    order.order_status === '1' || order.order_status === 'completed' ? 'success' :
+                    order.order_status === '0' || order.order_status === 'active' ? 'warning' : 'danger'
+                  }`}>
+                    {getOrderStatusText(order.order_status)}
                   </span>
                 </td>
                 <td>
@@ -804,8 +817,10 @@ const AdminDashboard = () => {
                             <td>{new Date(order.start_date).toLocaleString()}</td>
                             <td>{order.site_name}</td>
                             <td>
-                              <span className={`badge ${order.order_status === 'completed' ? 'success' : 'warning'}`}>
-                                {order.order_status}
+                              <span className={`badge ${
+                                order.order_status === '1' || order.order_status === 'completed' ? 'success' : 'warning'
+                              }`}>
+                                {getOrderStatusText(order.order_status)}
                               </span>
                             </td>
                           </tr>
@@ -958,10 +973,11 @@ const AdminDashboard = () => {
                     <p><strong>開始時間:</strong> {selectedOrder.start_date ? new Date(selectedOrder.start_date).toLocaleString() : '-'}</p>
                     <p>
                       <strong>狀態:</strong>
-                      <span className={`badge ${selectedOrder.order_status === 'completed' ? 'success' :
-                        selectedOrder.order_status === 'active' ? 'warning' : 'danger'
-                        }`}>
-                        {selectedOrder.order_status}
+                      <span className={`badge ${
+                        selectedOrder.order_status === '1' || selectedOrder.order_status === 'completed' ? 'success' :
+                        selectedOrder.order_status === '0' || selectedOrder.order_status === 'active' ? 'warning' : 'danger'
+                      }`}>
+                        {getOrderStatusText(selectedOrder.order_status)}
                       </span>
                     </p>
                   </div>
@@ -1009,10 +1025,10 @@ const AdminDashboard = () => {
                   </div>
                   <div className="form-group">
                     <label>狀態</label>
-                    <select name="order_status" value={editOrder?.order_status || 'active'} onChange={handleOrderFieldChange}>
-                      <option value="active">active</option>
-                      <option value="completed">completed</option>
-                      <option value="cancelled">cancelled</option>
+                    <select name="order_status" value={editOrder?.order_status ?? '0'} onChange={handleOrderFieldChange}>
+                      <option value="0">進行中</option>
+                      <option value="1">已完成</option>
+                      <option value="-1">已取消</option>
                     </select>
                   </div>
                 </div>
