@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import "../../styles/scss/global.scss" 
 const Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
