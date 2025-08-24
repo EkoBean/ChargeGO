@@ -148,26 +148,50 @@ body,
   height: 100vh;
   background-color: transparent;
 
-  .locate-button {
+  .QR-code {
+    position: inherit;
+
+    button {
+      position: inherit;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 130px;
+      background-color: g.$primary;
+      border: none;
+      border-radius: 1.5rem;
+      box-shadow: gray 0px 0px 5px 0px;
+      i{
+        color: black;
+        font-size: 5rem;
+      }
+    }
+  }
+
+  .buttons {
     position: inherit;
     bottom: 2rem;
     right: 2rem;
 
-    width: 2.5rem;
-    height: 2.5rem;
-    background-color: g.$primary;
-    border-radius: 50%;
-    border: none;
+    button {
+      width: 2.5rem;
+      height: 2.5rem;
+      background-color: g.$primary;
+      border-radius: 50%;
+      border: none;
+      margin-bottom: 0.8rem;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-    box-shadow: gray 0px 0px 5px 0px;
+      box-shadow: gray 0px 0px 5px 0px;
 
-    i {
-      color: black;
-      font-size: 1.5rem;
+      i {
+        color: black;
+        font-size: 1.5rem;
+      }
     }
   }
 

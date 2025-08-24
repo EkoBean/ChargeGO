@@ -297,9 +297,14 @@ function AppIndex() {
       }
 
       // =========== current location switch button ==============
-      const LocationButton = () => {
+      const FuncionButton = () => {
+        const buttonlinks = [
+          { icon: 'bi bi-gift-fill', color: 'white', url: '', action: handleLink },
+          { icon: 'bi bi-person-fill', color: 'black', url: '', action: handleLink },
+          { icon: 'bi bi-pin-map', color: 'black', url: '', action: handleLocate },
+        ]
         function handleLocate() {
-          if (!locationRef.current) return null; 
+          if (!locationRef.current) return null;
           const pos = locationRef.current;
           if (!pos) {
             // 沒有位置時可提示或觸發一次 getCurrentPosition
@@ -310,19 +315,29 @@ function AppIndex() {
             map.panTo(pos);
             map.setZoom(17);
           }
-         }
+        }
+
+        function handleLink(url) {
+          window.location.href = url;
+        }
         return (
           <div className='hud-container'>
-
-            <button
-              type="button"
-              name=""
-              id=""
-              className="btn btn-primary locate-button"
-              onClick={handleLocate}
-            >
-              <i className="bi bi-pin-map"></i>
-            </button>
+            <div className="buttons">
+              {
+                buttonlinks.map((button, index) => (
+                  <button type='btn btn-primary'
+                    key={index}
+                    onClick={() => button.action(button.url)}>
+                    <i className={`bi ${button.icon}`} style={{ color: button.color }}></i>
+                  </button>
+                ))
+              }
+            </div>
+            <div className='QR-code'>
+              <button type='btn btn-primary'>
+                <i class="bi bi-qr-code-scan"></i>
+              </button>
+            </div>
 
 
           </div>
@@ -331,7 +346,7 @@ function AppIndex() {
       return (
         <>
           <SearchBar />
-          <LocationButton />
+          <FuncionButton />
         </>
       )
     }
