@@ -81,4 +81,239 @@ Google自己出的，把自己的原生API打包成React。
 3. **Lifecycle Management**：自動管理地圖和元件的生命週期。
 4. **Auto-Mount on Map**：子元件自動掛載到地圖上。
 ---
-<>
+這份文檔主要介紹了如何使用 `@vis.gl/react-google-maps` 提供的工具來與 Google Maps JavaScript API 進行互動。以下是文檔的重點和解釋：
+
+---
+
+### 1. **高層次的地圖創建**
+`@vis.gl/react-google-maps` 提供了一種聲明式的方式來創建地圖和標記。例如，你可以使用 `<APIProvider>` 和 `<Map>` 元件來快速創建地圖，並使用 `<Marker>` 或 `<AdvancedMarker>` 元件來添加標記。
+
+---
+
+### 2. **與 Google Maps API 的低層次互動**
+除了聲明式的地圖創建，這個庫還提供了三種主要方式來與 Google Maps JavaScript API 進行更低層次的互動：
+
+#### **(1) Hooks**
+- **`useMap` Hook**：
+  - 提供對底層 `google.maps.Map` 實例的訪問。
+  - 任何被包裹在 `<APIProvider>` 中的子元件都可以使用這個 Hook 獲取地圖實例。
+  - 例如：
+    ```jsx
+    const map = useMap();
+    useEffect(() => {
+      if (!map) return;
+      // 在這裡與地圖實例進行互動
+    }, [map]);
+    ```
+
+- **`useMapsLibrary` Hook**：
+  - 用於動態加載 Google Maps 的其他庫（例如 Places API、Geocoding API 等）。
+  - 當需要使用這些附加功能時，可以通過這個 Hook 加載相關的庫。
+
+#### **(2) Refs**
+- **`useMarkerRef` 和 `useAdvancedMarkerRef` Hooks**：
+  - 提供對標記實例的訪問。
+  - 例如，`useAdvancedMarkerRef` 可以用來獲取 `google.maps.marker.AdvancedMarkerElement` 實例，從而進一步自訂標記的行為。
+
+#### **(3) 自定義 Hooks**
+- 你可以基於 `useMap` 和 `useMapsLibrary` 創建自己的自定義 Hook，來封裝更複雜的功能。例如，創建一個 `usePlacesService` Hook 來使用 Places API。
+
+---
+
+### 3. **如何使用 Hooks**
+
+#### **`useMap` Hook**
+- 用於獲取地圖實例，並與地圖進行互動。
+- 例如：
+  ```jsx
+  const map = useMap();
+  useEffect(() => {
+    if (!map) return;
+    // 在這裡與地圖 API 進行互動
+  }, [map]);
+  ```
+
+#### **`useMapsLibrary` Hook**
+- 用於動態加載 Google Maps 的附加庫。
+- 例如，使用 Places API：
+  ```jsx
+  const placesLibrary = useMapsLibrary('places');
+  const [placesService, setPlacesService] = useState(null);
+
+  useEffect(() => {
+    if (!placesLibrary || !map) return;
+    setPlacesService(new placesLibrary.PlacesService(map));
+  }, [placesLibrary, map]);
+  ```
+
+#### **自定義 Hook**
+- 你可以將上述邏輯封裝成一個自定義 Hook，例如：
+  ```jsx
+  function usePlacesService() {
+    const map = useMap();
+    const placesLibrary = useMapsLibrary('places');
+    const [placesService, setPlacesService] = useState(null);
+
+    useEffect(() => {
+      if (!placesLibrary || !map) return;
+      setPlacesService(new placesLibrary.PlacesService(map));
+    }, [placesLibrary, map]);
+
+    return placesService;
+  }
+  ```
+
+---
+
+### 4. **如何使用 Refs**
+
+#### **`useMarkerRef` 和 `useAdvancedMarkerRef`**
+- 用於獲取標記實例，並與標記進行互動。
+- 例如：
+  ```jsx
+  const [markerRef, marker] = useMarkerRef();
+
+  useEffect(() => {
+    if (!marker) return;
+    // 在這裡與標記實例進行互動
+  }, [marker]);
+  ```
+
+---
+
+### 5. **動態加載其他 Google Maps API 庫**
+- Google Maps 提供了許多附加功能（例如 Places API、Geocoding API 等），這些功能需要單獨加載。
+- 使用 `useMapsLibrary` Hook 可以動態加載這些庫，並在加載完成後使用它們。
+
+---
+
+### 總結
+
+這份文檔的核心是介紹如何使用 `@vis.gl/react-google-maps` 提供的工具來與 Google Maps API 進行互動。它提供了三種主要方式：
+1. **Hooks**：用於訪問地圖實例和其他附加庫。
+2. **Refs**：用於訪問標記或其他地圖元素的實例。
+3. **自定義 Hooks**：用於封裝更複雜的功能。
+
+#### 要使用變數就用setState
+`const [state, setState] = React.setState()`
+
+### Auto Complete doc
+https://github.com/wellyshen/use-places-autocomplete#api
+
+
+
+# 如何使用AutoCompleteSuggestions()
+
+`fetchAutocompleteSuggestions()` 是 Google Maps Places Library 的**靜態方法**，用來取得地點自動完成（autocomplete）建議。
+
+---
+
+### 用法說明
+
+**語法：**
+```js
+const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+```
+
+**參數：**
+- `request` 必須是一個 `AutocompleteRequest` 物件，內容至少要有 `input`（搜尋字串），可以加上 `sessionToken`、`language`、`region`、`locationBias` 等選項。
+
+**回傳值：**
+- 回傳一個 Promise，resolve 後是一個物件 `{ suggestions: Array<AutocompleteSuggestion> }`。
+- 每個 `AutocompleteSuggestion` 代表一個地點建議。
+
+---
+
+### 實際範例
+
+```js
+const request = {
+  input: '台中',
+  sessionToken: sessionToken, // 用於同一搜尋 session
+  language: 'zh-TW',
+  region: 'tw',
+  locationBias: map.getCenter()
+};
+
+const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+// response.suggestions 是一個 AutocompleteSuggestion 陣列
+```
+
+---
+
+### 你可以怎麼用
+
+1. 傳入使用者輸入的字串等參數
+2. 取得建議陣列
+3. 顯示在 UI 上讓使用者選擇
+
+---
+
+**總結：**  
+`fetchAutocompleteSuggestions()` 讓你用 Google Maps API 取得地點自動完成建議，回傳一個建議陣列，適合用在搜尋列自動提示功能。
+
+
+## AutocompleteSuggestions Request
+```jsx
+const request = {
+  input: '搜尋字串', // 必填，使用者輸入的文字
+  sessionToken: sessionToken, // 建議填入，AutocompleteSessionToken 物件
+  language: 'zh-TW', // optional，回傳結果語言
+  region: 'tw', // optional，地區代碼
+  locationBias: map.getCenter(), // optional，偏好地理位置
+  // 其他可選屬性：
+  // includedPrimaryTypes: ['restaurant', 'gas_station'],
+  // includedRegionCodes: ['TW'],
+  // inputOffset: 文字游標位置
+  // locationRestriction: 限制地理位置
+  // origin: {lat, lng}
+}
+```
+
+## AutocompleteSuggestions Response
+
+
+在 Google Maps Places API 中，`AutocompleteSuggestion` 和 `PlacePrediction` 具有明確的層級關係：
+
+### AutocompleteSuggestion
+- 是 `fetchAutocompleteSuggestions()` 方法回傳的**建議項**
+- 代表一個搜尋結果建議
+- 是一個**容器物件**，內含更多詳細資訊
+
+### PlacePrediction 
+- 是 `AutocompleteSuggestion` 的**子屬性**
+- 可透過 `suggestion.placePrediction` 取得
+- 包含地點的核心資訊，如 `placeId`、`mainText` 等
+- 提供 `toPlace()` 方法轉換為更詳細的 `Place` 物件
+
+### 完整的資料流程
+1. **取得建議列表**：
+   ```js
+   const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+   // response 包含 suggestions 陣列
+   ```
+
+2. **從建議中取得 placePrediction**：
+   ```js
+   const placePrediction = suggestion.placePrediction;
+   ```
+
+3. **轉換為 Place 物件**：
+   ```js
+   const place = placePrediction.toPlace();
+   ```
+
+4. **取得詳細資訊**：
+   ```js
+   await place.fetchFields({
+     fields: ["location", "formattedAddress", "displayName"]
+   });
+   ```
+
+### 為什麼要這樣設計？
+這種設計讓 Google Maps API 可以**分階段提供資訊**：
+- 先快速提供簡單的建議列表 (AutocompleteSuggestion)
+- 只有當使用者選定了某個建議，才需進一步取得詳細資訊 (Place)
+- 這樣既節省資料傳輸量，又能降低 API 計費
+
+這就像是餐廳先給你菜單(AutocompleteSuggestion)，然後你點了菜(placePrediction)，最後才上完整的餐點(Place)。
