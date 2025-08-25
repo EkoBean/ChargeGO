@@ -88,6 +88,7 @@ function AppIndex() {
     const map = useMap();
     const locationRef = React.useRef(null);
     const locationSetterRef = React.useRef(null);
+    const rentWindowRef = React.useRef(null);
     // ================= HUD component =================
     const HudSet = () => {
       // ================= SearchBar component =================
@@ -268,7 +269,7 @@ function AppIndex() {
                 placeholder='搜尋地點'
                 onChange={(e) => (setInputValue(e.target.value), setListOpen(true))}
                 onKeyDown={handleKeyDown}
-                onClick={() => (markerBus.clear(), setListOpen(true))}
+                onClick={() => (markerBus.clear(), setListOpen(true), rentWindowRef.current(false))}
                 value={inputValue}
               />
             </div>
@@ -298,6 +299,15 @@ function AppIndex() {
 
       // =========== current location switch button ==============
       const FuncionButton = () => {
+        const [rentOpen, setRentOpen] = React.useState(null);
+
+        useEffect(() => {
+          rentWindowRef.current = setRentOpen;
+          return () => {
+            rentWindowRef.current = null;
+          };
+        }, [])
+
         const buttonlinks = [
           { icon: 'bi bi-gift-fill', color: 'white', url: '', action: handleLink },
           { icon: 'bi bi-person-fill', color: 'black', url: '', action: handleLink },
@@ -320,6 +330,29 @@ function AppIndex() {
         function handleLink(url) {
           window.location.href = url;
         }
+        function handleRent() {
+          rentWindowRef.current(true);
+          const deviceID = 'A3135D'
+
+          // post to backend
+          axios.post('/api/rent', { deviceID })
+            .then(res => {
+              if (res.data.success) {
+                alert('租借成功');
+              }
+              else{
+                alert('租借失敗，請稍後再試');
+                console.error(res.data.message);
+              }
+            })
+            .catch(err =>{
+              alert('租借失敗，請稍後再試');
+              console.error(err);
+            })
+
+
+        }
+        window
         return (
           <div className='hud-container'>
             <div className="buttons">
@@ -334,10 +367,12 @@ function AppIndex() {
               }
             </div>
             <div className='QR-code'>
-              <button type='btn btn-primary'>
-                <i class="bi bi-qr-code-scan"></i>
+              <button type='btn btn-primary' onClick={handleRent}>
+                <i className="bi bi-qr-code-scan"></i>
               </button>
             </div>
+            {rentOpen ? <div className='rent' style={{ transform: ' translate(-50%, 0%)' }}>this is rent window</div> : <div className='rent' style={{ transform: ' translate(-50%, 100%)' }}>this is rent window</div>}
+
 
 
           </div>
@@ -518,7 +553,7 @@ function AppIndex() {
     // ============== close InfoWindow on map click ===============
     useEffect(() => {
       if (!map) return;
-      const closeWindow = map.addListener('click', () => (markerBus.clear(), listBus.set(false)));
+      const closeWindow = map.addListener('click', () => (markerBus.clear(), listBus.set(false), rentWindowRef.current(false)));
       return () => closeWindow.remove();
     }, [map])
 
