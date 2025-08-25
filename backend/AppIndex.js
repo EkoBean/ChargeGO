@@ -28,14 +28,18 @@ app.listen(3000, () => {
 });
 
 // ================== db query ====================
-    // lookup all stations
+// lookup all stations
 const selectAllStations = `SELECT * from charger_site`;
-    // lookup info window data
+// lookup info window data
 const selectInfoWindow = `
 SELECT cs.site_id, cs.site_name, cs.address, c.charger_id, c.status
 from charger_site as cs
 LEFT JOIN charger as c ON c.site_id = cs.site_id
 WHERE cs.site_id = ?`;
+// rent a charger
+const searchCharger = `SELECT * from charger 
+WHERE charger_id = 'A4960D'`;
+const rentCharger = `UPDATE charger SET status = '1' WHERE charger_id = '?' `;
 
 
 // ================== main API ====================
@@ -61,3 +65,19 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
         res.json(results);
     });
 });
+
+// rent a charger
+app.post('/api/rentCharger', (req, res) => {
+    const deviceID = req.body.deviceID;
+    connection.query(searchCharger, [deviceID], (error, results) => {
+        if (error) {
+            return res.status(500).json({ success: false, message: 'Database query failed' });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: '查無此設備' });
+        }
+    });
+    connection.query()
+
+
+})
