@@ -39,7 +39,7 @@ const mber_Login = () => {
 
     try {
       // 登入 API 呼叫
-      const res = await axios.post("http://localhost:3000/api/mber_login", {
+      const res = await axios.post("http://localhost:3000/mber_login", {
         user_name: form.username,
         password: form.password,
       });

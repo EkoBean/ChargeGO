@@ -220,6 +220,31 @@ const mber_Register = () => {
                 <div className="form-group row mb-3">
                   <label htmlFor="address" className="col-md-3 col-form-label">地址：</label>
                   <div className="col-md-9">
+                    <select name="county" id="county" value={form.county} onChange={handleChange}>
+                      <option value="">選擇縣市</option>
+                      <option value="county1">台北市</option>
+                      <option value="county2">新北市</option>
+                      <option value="county3">基隆市</option>
+                      <option value="county4">桃園市</option>
+                      <option value="county5">新竹縣</option>
+                      <option value="county6">新竹市</option>
+                      <option value="county7">苗栗縣</option>
+                      <option value="county8">台中市</option>
+                      <option value="county9">彰化縣</option>
+                      <option value="county10">南投縣</option>
+                      <option value="county11">雲林縣</option>
+                      <option value="county12">嘉義縣</option>
+                      <option value="county13">嘉義市</option>
+                      <option value="county14">台南市</option>
+                      <option value="county15">高雄市</option>
+                      <option value="county16">屏東縣</option>
+                      <option value="county17">宜蘭縣</option>
+                      <option value="county18">花蓮縣</option>
+                      <option value="county19">台東縣</option>
+                      <option value="county20">連江縣</option>
+                      <option value="county21">澎湖縣</option>
+                      <option value="county22">金門縣</option>
+                    </select>
                     <input
                       className="form-control"
                       id="address"
@@ -227,7 +252,7 @@ const mber_Register = () => {
                       type="text"
                       value={form.address}
                       onChange={handleChange}
-                      placeholder="完整地址"
+                      placeholder="請填完後續地址"
                     />
                   </div>
                 </div>
