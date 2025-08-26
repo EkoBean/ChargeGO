@@ -20,6 +20,9 @@ import {
 // Bootstrap Icons
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+// environment variables
+const API_URL = import.meta.env.VITE_BACKEND_API_URL
+
 
 
 // ================= Constants ============================
@@ -68,7 +71,7 @@ function AppIndex() {
   useEffect(() => {
     const getStations = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/stations');
+        const res = await axios.get(`${API_URL}/api/stations`);
         setStations(res.data);
       }
       catch (error) {
@@ -299,9 +302,10 @@ function AppIndex() {
 
       // =========== current location switch button ==============
       const FuncionButton = () => {
-        const [rentOpen, setRentOpen] = React.useState(null);
-        const [returnBtn, setReturnBtn] = React.useState(false);
 
+        // variables for rent window
+        const [rentOpen, setRentOpen] = React.useState(null);
+        const [returnBtn, setReturnBtn] = React.useState(null);
         useEffect(() => {
           rentWindowRef.current = setRentOpen;
           return () => {
@@ -336,13 +340,15 @@ function AppIndex() {
         // ================ rent button =================
         function handleRent() {
           rentWindowRef.current(true);
-          const deviceID = 'A3135D'
+          console.log('rentOpen :>> ', rentOpen);
+          const deviceID = '2'
 
           // ====== axios post ======
-          axios.post('/api/rent', { deviceID })
+          axios.post(`${API_URL}/api/rent`, { deviceID })
             .then(res => {
               if (res.data.success) {
-                alert('租借成功');
+                setReturnBtn(true); 
+                set
 
               }
               else {
@@ -381,15 +387,10 @@ function AppIndex() {
             <div
               className="rent"
               style={{
-                transform: rentOpen ? 'translate(-50%, 0%)' : 'translate(-50%, -200%)',
-                transition: 'transform 0.3s',
-                position: 'absolute',
-                left: '50%',
-                top: '20%',
-                zIndex: 999,
-              }}
-            >
+                transform: rentOpen ? 'translate(-50%, 0%)' : 'translate(-50%, 100%)',
+              }}>
               this is rent window
+              <button className='btn btn-primary'>歸還裝置</button>
             </div>
 
 
