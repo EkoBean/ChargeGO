@@ -24,7 +24,7 @@ db.connect(err => {
 });
 
 // 取得所有會員資料
-app.get('/api/users', (req, res) => {
+app.get('/users', (req, res) => {
     db.query('SELECT * FROM user', (err, results) => {
         if (err) return res.status(500).json({ error: err });
         res.json(results);
@@ -32,7 +32,7 @@ app.get('/api/users', (req, res) => {
 });
 
 // 取得單一會員資料
-app.get('/api/user/:uid', (req, res) => {
+app.get('/user/:uid', (req, res) => {
     db.query('SELECT * FROM user WHERE uid = ?', [req.params.uid], (err, results) => {
         if (err) return res.status(500).json({ error: err });
         res.json(results[0]);
@@ -40,7 +40,7 @@ app.get('/api/user/:uid', (req, res) => {
 });
 
 // 取得會員訂單
-app.get('/api/user/:uid/orders', (req, res) => {
+app.get('/user/:uid/orders', (req, res) => {
     db.query('SELECT * FROM order_record WHERE uid = ?', [req.params.uid], (err, results) => {
         if (err) return res.status(500).json({ error: err });
         res.json(results);
@@ -48,7 +48,7 @@ app.get('/api/user/:uid/orders', (req, res) => {
 });
 
 // 註冊會員 API
-app.post('/api/mberregister', (req, res) => {
+app.post('/mber_register', (req, res) => {
     const {
         user_name,
         telephone,
@@ -89,7 +89,7 @@ app.post('/api/mberregister', (req, res) => {
 });
 
 // 登入 API
-app.post('/api/mberlogin', (req, res) => {
+app.post('/mber_login', (req, res) => {
     const { user_name, password } = req.body;
     
     if (!user_name || !password) {
@@ -133,7 +133,7 @@ app.post('/api/mberlogin', (req, res) => {
 });
 
 // 檢查是否登入 API (前端可用來驗證登入狀態)
-app.post('/api/check-auth', (req, res) => {
+app.post('/check-auth', (req, res) => {
     const { uid } = req.body;
     
     if (!uid) {
