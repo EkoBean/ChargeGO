@@ -38,8 +38,8 @@ LEFT JOIN charger as c ON c.site_id = cs.site_id
 WHERE cs.site_id = ?`;
 // rent a charger
 const searchCharger = `SELECT * from charger 
-WHERE charger_id = 'A4960D'`;
-const rentCharger = `UPDATE charger SET status = '1' WHERE charger_id = '?' `;
+WHERE charger_id = ?`;
+const rentCharger = `UPDATE charger SET status = '1' WHERE charger_id = ? `;
 
 
 // ================== main API ====================
@@ -67,22 +67,27 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
 });
 
 // rent a charger
-app.post('/api/rentCharger', (req, res) => {
+app.post('./api/rent', (req, res) => {
     const deviceID = req.body.deviceID;
     connection.query(searchCharger, [deviceID], (error, results) => {
         if (error) {
+            console.log('error :>> ', error);
             return res.status(500).json({ success: false, message: 'Database query failed' });
         }
         if (results.length === 0) {
             return res.status(404).json({ success: false, message: '查無此設備' });
         }
+        connection.query(rentCharger, [deviceID], (error2, results2) => {
+            if (error2) {
+                console.log('error2 :>> ', error2);
+                return res.status(500).json({ success: false, message: 'Database query failed' });
+            } else {
+                res.json({ success: true, message: '租借成功' });
+                console.log('results2 :>> ', results2);
+            }
+        })
     });
-    connection.query(rentCharger, [deviceID], (error, results)=>{
-        if(error){
-            return res.status(500).json({ success: false, message: 'Database query failed' });
-        }
-        res.json({ success: true, message: '租借成功' });
-    })
+
 
 
 })
