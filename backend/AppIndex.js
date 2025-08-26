@@ -42,6 +42,7 @@ WHERE charger_id = ?`;
 const rentCharger = `UPDATE charger SET status = '1', site_id = null WHERE charger_id = ? `;
 // return a charger
 const returnCharger = `UPDATE charger SET status = ?, site_id = ? WHERE charger_id = ?`;
+const rentalLog = `INSERT INTO rental_log (charger_id) VALUES (?)`;
 
 
 // ================== main API ====================
@@ -69,8 +70,10 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
 });
 
 // rent a charger
-app.post('/api/rent', (req, res) => {
+app.patch('/api/rent', (req, res) => {
     const deviceID = req.body.deviceID;
+
+    // update the device status
     connection.query(searchCharger, [deviceID], (error, results) => {
         if (error) {
             console.log('error :>> ', error);
@@ -80,7 +83,7 @@ app.post('/api/rent', (req, res) => {
             return res.status(404).json({ success: false, message: '查無此設備' });
         }
         else if (results[0].status == '1') {
-            return res.status(400).json({ success: false, message: '此設備已被租借' });
+            return res.json({ success: true, message: 'renting' });
         }
         connection.query(rentCharger, [deviceID], (error2, results2) => {
             if (error2) {
@@ -97,12 +100,14 @@ app.post('/api/rent', (req, res) => {
     }
     );
 
-
-
+    // establish rental log
+    connection.query(rentalLog, [deviceID])
 })
 
+
+
 // return a charger
-app.post('/api/return', (req, res) => {
+app.patch('/api/return', (req, res) => {
     const { batteryAmount, siteId, deviceId } = req.body;
     const batteryStatus =
         batteryAmount < 30 ? '4' : //低電量(不給借)

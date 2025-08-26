@@ -347,10 +347,15 @@ function AppIndex() {
         function handleRent() {
           rentWindowRef.current(true);
 
-          // ====== axios post ======
-          axios.post(`${API_URL}/api/rent`, { deviceID: deviceId })
+          // ====== axios patch ======
+          axios.patch(`${API_URL}/api/rent`, { deviceID: deviceId })
             .then(res => {
-              if (res.data.success) {
+              if(res.data.message === 'renting'){
+                setRentMessage();
+                setReturnBtn(true);
+                return;
+              }
+              else if (res.data.success) {
                 setReturnBtn(true);
                 setRentMessage('租借成功');
               }
@@ -374,7 +379,7 @@ function AppIndex() {
           // ========================
 
 
-          axios.post(`${API_URL}/api/return`, {siteId, batteryAmount, deviceId })
+          axios.patch(`${API_URL}/api/return`, {siteId, batteryAmount, deviceId })
             .then(res => {
               if (res.data.success) {
                 setReturnBtn(false);
