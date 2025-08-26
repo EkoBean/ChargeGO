@@ -10,14 +10,14 @@ import NavBar from "../components/nav";
 import AppIndex from "./mapIndex/AppIndex";
 import Register from "./membersystem/register";
 import Login from "./membersystem/login";
-import Test from "./mission shop/test";
+import Mission from "./mall/mission";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/AppIndex" element={<AppIndex />} />
-        <Route path="/Test" element={<Test />} />
+        <Route path="/Mission" element={<Mission />} />
         <Route path="/" />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
