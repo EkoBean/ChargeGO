@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+/* 您可以在此添加App特定的樣式，大部分樣式已經在AdminDashboard.css中定義 */
+.admin-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
