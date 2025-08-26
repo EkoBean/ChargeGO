@@ -39,7 +39,9 @@ WHERE cs.site_id = ?`;
 // rent a charger
 const searchCharger = `SELECT * from charger 
 WHERE charger_id = ?`;
-const rentCharger = `UPDATE charger SET status = '1' WHERE charger_id = ? `;
+const rentCharger = `UPDATE charger SET status = '1', site_id = null WHERE charger_id = ? `;
+// return a charger
+const returnCharger = `UPDATE charger SET status = ?, site_id = ? WHERE charger_id = ?`;
 
 
 // ================== main API ====================
@@ -67,7 +69,7 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
 });
 
 // rent a charger
-app.post('./api/rent', (req, res) => {
+app.post('/api/rent', (req, res) => {
     const deviceID = req.body.deviceID;
     connection.query(searchCharger, [deviceID], (error, results) => {
         if (error) {
@@ -77,17 +79,46 @@ app.post('./api/rent', (req, res) => {
         if (results.length === 0) {
             return res.status(404).json({ success: false, message: '查無此設備' });
         }
+        else if (results[0].status == '1') {
+            return res.status(400).json({ success: false, message: '此設備已被租借' });
+        }
         connection.query(rentCharger, [deviceID], (error2, results2) => {
             if (error2) {
                 console.log('error2 :>> ', error2);
                 return res.status(500).json({ success: false, message: 'Database query failed' });
+            } if (results.affectedRows === 0) {
+                // 沒有資料被更新
+                return res.status(404).json({ success: false, message: '資料未變更' });
             } else {
                 res.json({ success: true, message: '租借成功' });
                 console.log('results2 :>> ', results2);
             }
         })
-    });
+    }
+    );
 
 
 
 })
+
+// return a charger
+app.post('/api/return', (req, res) => {
+    const { batteryAmount, siteId, deviceId } = req.body;
+    const batteryStatus =
+        batteryAmount < 30 ? '4' : //低電量(不給借)
+            batteryAmount < 98 ? '3' :  //中電量
+                '2'; //滿電量 
+    connection.query(returnCharger, [batteryStatus, siteId, deviceId], (error, results) => {
+        if (error) {
+            console.log('error :>> ', error);
+            return res.status(500).json({ success: false, message: 'Database query failed' });
+        } if (results.affectedRows === 0) {
+            // 沒有資料被更新
+            return res.status(404).json({ success: false, message: '資料未變更' });
+        }
+        else {
+            res.json({ success: true, message: '歸還成功' });
+            console.log('results :>> ', results);
+        }
+    })
+}); 

@@ -303,9 +303,12 @@ function AppIndex() {
       // =========== current location switch button ==============
       const FuncionButton = () => {
 
-        // variables for rent window
         const [rentOpen, setRentOpen] = React.useState(null);
         const [returnBtn, setReturnBtn] = React.useState(null);
+        const [rentMessage, setRentMessage] = React.useState('');
+
+        // ================================================
+
         useEffect(() => {
           rentWindowRef.current = setRentOpen;
           return () => {
@@ -332,40 +335,60 @@ function AppIndex() {
             map.setZoom(17);
           }
         }
-
         function handleLink(url) {
           window.location.href = url;
         }
 
+        // ================= rent & return function =================
+        // =======假設數值=========
+        const deviceId = '2'
+
         // ================ rent button =================
         function handleRent() {
           rentWindowRef.current(true);
-          console.log('rentOpen :>> ', rentOpen);
-          const deviceID = '2'
 
           // ====== axios post ======
-          axios.post(`${API_URL}/api/rent`, { deviceID })
+          axios.post(`${API_URL}/api/rent`, { deviceID: deviceId })
             .then(res => {
               if (res.data.success) {
-                setReturnBtn(true); 
-                set
-
-              }
-              else {
-                alert('租借失敗，請稍後再試');
-                console.error(res.data.message);
+                setReturnBtn(true);
+                setRentMessage('租借成功');
               }
             })
             .catch(err => {
-              alert('租借失敗，請稍後再試');
-              console.error(err);
+              if (err.response && err.response.data && err.response.data.message) {
+                setRentMessage(err.response.data.message);
+                console.error(err.response.data.message);
+              } else {
+                setRentMessage('租借失敗，請稍後再試');
+                console.error(err);
+              }
             })
+        }
+        // =============== return button =================
+        function handleReturn() {
+
+          // =======假設數值=========
+          const batteryAmount = 30; // 假設電池狀態為 30%
+          const siteId = 1; // 假設歸還站點 ID 為 1
+          // ========================
 
 
+          axios.post(`${API_URL}/api/return`, {siteId, batteryAmount, deviceId })
+            .then(res => {
+              if (res.data.success) {
+                setReturnBtn(false);
+                setRentMessage('歸還成功，感謝使用');
+              }
+            }
+
+            )
+            .catch(err => {
+              console.error(err);
+              setRentMessage('歸還失敗，請稍後再試');
+            })
         }
 
-
-   
         return (
           <div className='hud-container'>
             <div className="buttons">
@@ -389,8 +412,8 @@ function AppIndex() {
               style={{
                 transform: rentOpen ? 'translate(-50%, 0%)' : 'translate(-50%, 100%)',
               }}>
-              this is rent window
-              <button className='btn btn-primary'>歸還裝置</button>
+              {rentMessage && <p>{rentMessage}</p>}
+              {returnBtn && <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button>}
             </div>
 
 
