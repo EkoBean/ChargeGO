@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/global.scss" 
-const mberRegister = () => {
+const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
     username: "",
@@ -72,7 +72,7 @@ const mberRegister = () => {
         credit_card_number: form.credit_card_number,
         credit_card_date: form.credit_card_date
       };
-      const res = await axios.post("http://localhost:3000/api/mberregister", payload);
+      const res = await axios.post("http://localhost:3000/api/mber_register", payload);
       if (res.data?.success) {
         setIsSuccess(true);
         handleClear();
@@ -84,7 +84,7 @@ const mberRegister = () => {
           setCountdown(count);
           if (count <= 0) {
             clearInterval(timer);
-            navigate("/mberlogin");
+            navigate("/mber_login");
           }
         }, 1000);
       } else {
@@ -123,7 +123,7 @@ const mberRegister = () => {
           <hr />
           <button
             className="btn btn-primary"
-            onClick={() => navigate("/mberlogin")}
+            onClick={() => navigate("/mber_login")}
           >
             立即前往登入
           </button>
@@ -331,7 +331,7 @@ const mberRegister = () => {
                 {/* 按鈕 */}
                 <div className="form-group row">
                   <div className="col-md-9 offset-md-3">
-                    <button className="btn btn-primary" id="mberregister" type="submit">
+                    <button className="btn btn-primary" id="mber_register" type="submit">
                       註冊
                     </button>
                     <button
@@ -345,7 +345,7 @@ const mberRegister = () => {
                     <button 
                       className="btn btn-link ms-2"
                       type="button"
-                      onClick={() => navigate("/mberlogin")}
+                      onClick={() => navigate("/mber_login")}
                     >
                       已有帳號？登入
                     </button>
@@ -360,6 +360,6 @@ const mberRegister = () => {
   );
 };
 
-export default mberRegister;
+export default mber_Register;
 
 

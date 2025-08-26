@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const mberLogin = () => {
+const mber_Login = () => {
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -39,7 +39,7 @@ const mberLogin = () => {
 
     try {
       // 登入 API 呼叫
-      const res = await axios.post("http://localhost:3000/api/mberlogin", {
+      const res = await axios.post("http://localhost:3000/api/mber_login", {
         user_name: form.username,
         password: form.password,
       });
@@ -148,7 +148,7 @@ const mberLogin = () => {
                   <button
                     type="button"
                     className="btn btn-link"
-                    onClick={() => navigate("/mberregister")}
+                    onClick={() => navigate("/mber_register")}
                   >
                     註冊新帳號
                   </button>
@@ -169,4 +169,4 @@ const mberLogin = () => {
   );
 };
 
-export default mberLogin;
+export default mber_Login;

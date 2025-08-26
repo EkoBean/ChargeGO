@@ -8,17 +8,17 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // =========== elements ==================
 import NavBar from "../components/nav";
 import AppIndex from "./mapIndex/AppIndex";
-import mberRegister from "./membersystem/mberregister";
-import mberLogin from "./membersystem/mberlogin";
+import Mber_Register from "./membersystem/mber_register";
+import Mber_Login from "./membersystem/mber_login";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<mberRegister />} />
-        <Route path="/mberregister" element={<mberRegister />} />
-        <Route path="/mberlogin" element={<mberLogin />} />
-        <Route path="*" element={<mberRegister />} />
+        <Route path="/" element={<Mber_Register />} />
+        <Route path="/mber_register" element={<Mber_Register />} />
+        <Route path="/mber_login" element={<Mber_Login />} />
+        <Route path="*" element={<Mber_Register />} />
       </Routes>
     </>
   );
