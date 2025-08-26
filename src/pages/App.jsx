@@ -10,17 +10,19 @@ import NavBar from "../components/nav";
 import AppIndex from "./mapIndex/AppIndex";
 import Mber_Register from "./membersystem/mber_register";
 import Mber_Login from "./membersystem/mber_login";
+import Mber_Profile from "./membersystem/mber_profile";
 
 function App() {
   return (
-    <>
+    <Router>
       <Routes>
         <Route path="/" element={<Mber_Register />} />
         <Route path="/mber_register" element={<Mber_Register />} />
         <Route path="/mber_login" element={<Mber_Login />} />
+        <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="*" element={<Mber_Register />} />
       </Routes>
-    </>
+    </Router>
   );
 }
 
