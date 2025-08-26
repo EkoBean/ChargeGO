@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Title</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+
+        <!-- Bootstrap CSS v5.2.1 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+
+    </head>
+
+    <body>
+        <header>
+            <!-- place navbar here -->
+        </header>
+        <main><header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="back.html">後台管理系統</a>
+        </div>
+    </nav>
+</header>
+
+<main class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div class="list-group">
+                <a href="back.html" class="list-group-item list-group-item-action active">使用者管理</a>
+                <a href="order-history.html" class="list-group-item list-group-item-action">訂單歷史紀錄</a>
+                <a href="charging-stations.html" class="list-group-item list-group-item-action">行充站點管理</a>
+                <a href="charging-status.html" class="list-group-item list-group-item-action">行充狀態</a>
+                <a href="employee-login.html" class="list-group-item list-group-item-action">員工登入紀錄</a>
+                <a href="employee-data.html" class="list-group-item list-group-item-action">員工資料</a>
+                <a href="product-management.html" class="list-group-item list-group-item-action">商城商品管理</a>
+                <a href="activities.html" class="list-group-item list-group-item-action">活動</a>
+                <a href="discount-codes.html" class="list-group-item list-group-item-action">折扣碼</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <h3>客戶查詢</h3>
+            <!-- Search Bar -->
+            <form class="row g-3 mb-3">
+                <div class="col-auto">
+                    <input type="text" class="form-control" placeholder="輸入客戶名稱或ID">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-3">搜尋</button>
+                </div>
+            </form>
+
+            <!-- Customer Table -->
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>客戶姓名</th>
+                            <th>Email</th>
+                            <th>電話</th>
+                            <th>密碼</th>
+                            <th>居住縣市</th>
+                            <th>黑名單</th>
+                            <th>代幣數量</th>
+                            <th>積分</th>
+                            <th>碳足跡</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>001</td>
+                            <td>王小明</td>
+                            <td>ming@example.com</td>
+                            <td>0912-345-678</td>
+                            <td>********</td>
+                            <td>台北市</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>1250</td>
+                            <td>3500</td>
+                            <td>2.5kg</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-info" onclick="checkUserHistory('001', '王小明')" title="查看詳情">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" title="編輯">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="刪除">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>002</td>
+                            <td>陳美麗</td>
+                            <td>mei@example.com</td>
+                            <td>0922-888-999</td>
+                            <td>********</td>
+                            <td>高雄市</td>
+                            <td><span class="badge bg-danger">黑名單</span></td>
+                            <td>850</td>
+                            <td>2100</td>
+                            <td>1.8kg</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-info" onclick="checkUserHistory('002', '陳美麗')" title="查看詳情">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" title="編輯">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="刪除">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>003</td>
+                            <td>李志華</td>
+                            <td>lee@example.com</td>
+                            <td>0933-567-890</td>
+                            <td>********</td>
+                            <td>台中市</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>2100</td>
+                            <td>5800</td>
+                            <td>3.2kg</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-info" onclick="checkUserHistory('003', '李志華')" title="查看詳情">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" title="編輯">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="刪除">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- 更多資料列 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <li class="page-item disabled">
+                        <a class="page-link">上一頁</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">下一頁</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+
+<!-- 用戶歷史紀錄模態視窗 -->
+<div class="modal fade" id="userHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">用戶歷史紀錄查詢</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="userName"></h6>
+                <div id="historyContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                        <p>正在查詢歷史紀錄...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" onclick="viewFullHistory()">查看完整歷史</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <footer>
+            <!-- place footer here -->
+        </footer>
+        <!-- Bootstrap JavaScript Libraries -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+            integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+            crossorigin="anonymous"
+        ></script>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+            integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+            crossorigin="anonymous"
+        ></script>
+        
+        <script>
+            // ai模擬的用戶不良紀錄數據
+            const userBadRecords = {
+                '001': [
+                    {
+                        date: '2024-01-10',
+                        time: '14:30',
+                        reason: '行動電源逾期未歸還',
+                        details: '租借行動電源超過24小時未歸還，系統自動記錄違規',
+                        location: '台北車站站點'
+                    }
+                ],
+                '002': [
+                    {
+                        date: '2024-01-05',
+                        time: '09:15',
+                        reason: '惡意損壞設備',
+                        details: '歸還的行動電源外殼破損，充電線被剪斷',
+                        location: '信義商圈站點'
+                    },
+                    {
+                        date: '2024-01-12',
+                        time: '16:45',
+                        reason: '多次逾期未歸還',
+                        details: '連續3次租借行動電源逾期歸還，累計違規次數達到限制',
+                        location: '西門町站點'
+                    }
+                ],
+                '003': [] // 沒有不良紀錄
+            };
+
+            function checkUserHistory(userId, userName) {
+                // 顯示模態視窗
+                const modal = new bootstrap.Modal(document.getElementById('userHistoryModal'));
+                document.getElementById('userName').textContent = `用戶：${userName} (ID: ${userId})`;
+                
+                // 重置內容為載入狀態
+                document.getElementById('historyContent').innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                        <p>正在查詢歷史紀錄...</p>
+                    </div>
+                `;
+                
+                modal.show();
+
+                // 模擬查詢延遲
+                setTimeout(() => {
+                    displayUserHistory(userId);
+                }, 1000);
+            }
+
+            function displayUserHistory(userId) {
+                const badRecords = userBadRecords[userId] || [];
+                const historyContent = document.getElementById('historyContent');
+
+                if (badRecords.length === 0) {
+                    historyContent.innerHTML = `
+                        <div class="alert alert-success" role="alert">
+                            <i class="bi bi-check-circle"></i> 該用戶無不良紀錄，使用狀況良好！
+                        </div>
+                    `;
+                } else {
+                    let content = `
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> 發現 ${badRecords.length} 筆不良紀錄
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>日期時間</th>
+                                        <th>違規原因</th>
+                                        <th>詳細說明</th>
+                                        <th>發生地點</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    badRecords.forEach(record => {
+                        content += `
+                            <tr>
+                                <td>${record.date}<br><small class="text-muted">${record.time}</small></td>
+                                <td><span class="badge bg-danger">${record.reason}</span></td>
+                                <td>${record.details}</td>
+                                <td>${record.location}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    content += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    historyContent.innerHTML = content;
+                }
+            }
+
+            function viewFullHistory() {
+                // 跳轉到訂單歷史頁面
+                window.open('order-history.html', '_blank');
+            }
+        </script>
+    </body>
+</html>
