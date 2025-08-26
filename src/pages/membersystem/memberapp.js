@@ -54,6 +54,7 @@ app.post('/mber_register', (req, res) => {
         telephone,
         email,
         password,
+        country,
         address,
         credit_card_number,
         credit_card_date
@@ -64,22 +65,25 @@ app.post('/mber_register', (req, res) => {
     const wallet = 0;
     const point = 0;
     const total_carbon_footprint = 0;
+    const status = 0;  // 新增狀態欄位，預設為0
 
     db.query(
-        `INSERT INTO user (user_name, telephone, email, password, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             user_name,
             telephone,
             email,
             password,
+            country,
             address,
             blacklist,
             wallet,
             point,
             total_carbon_footprint,
             credit_card_number,
-            credit_card_date
+            credit_card_date,
+            status
         ],
         (err, result) => {
             if (err) return res.status(500).json({ error: err });
@@ -100,7 +104,7 @@ app.post('/mber_login', (req, res) => {
     }
     
     db.query(
-        'SELECT uid, user_name, email, telephone, address, blacklist, wallet, point, total_carbon_footprint FROM user WHERE user_name = ? AND password = ?',
+        'SELECT uid, user_name, email, telephone, country, address, blacklist, wallet, point, total_carbon_footprint, status FROM user WHERE user_name = ? AND password = ?',
         [user_name, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
@@ -116,7 +120,7 @@ app.post('/mber_login', (req, res) => {
             const user = results[0];
             
             // 檢查是否被列入黑名單
-            if (user.blacklist === 1) {
+            if (user.blacklist > 0) {
                 return res.status(403).json({
                     success: false,
                     message: '此帳號已被停用，請聯繫客服'
