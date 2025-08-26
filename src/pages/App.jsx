@@ -14,7 +14,7 @@ import Mber_Profile from "./membersystem/mber_profile";
 
 function App() {
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/" element={<Mber_Register />} />
         <Route path="/mber_register" element={<Mber_Register />} />
@@ -22,7 +22,7 @@ function App() {
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="*" element={<Mber_Register />} />
       </Routes>
-    </Router>
+    </>
   );
 }
 
