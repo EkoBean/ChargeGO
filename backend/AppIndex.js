@@ -77,7 +77,12 @@ app.post('/api/rentCharger', (req, res) => {
             return res.status(404).json({ success: false, message: '查無此設備' });
         }
     });
-    connection.query()
+    connection.query(rentCharger, [deviceID], (error, results)=>{
+        if(error){
+            return res.status(500).json({ success: false, message: 'Database query failed' });
+        }
+        res.json({ success: true, message: '租借成功' });
+    })
 
 
 })
