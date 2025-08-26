@@ -48,7 +48,7 @@ app.get('/api/user/:uid/orders', (req, res) => {
 });
 
 // 註冊會員 API
-app.post('/api/register', (req, res) => {
+app.post('/api/mberregister', (req, res) => {
     const {
         user_name,
         telephone,
@@ -89,7 +89,7 @@ app.post('/api/register', (req, res) => {
 });
 
 // 登入 API
-app.post('/api/login', (req, res) => {
+app.post('/api/mberlogin', (req, res) => {
     const { user_name, password } = req.body;
     
     if (!user_name || !password) {

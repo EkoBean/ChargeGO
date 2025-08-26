@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/global.scss" 
-const Register = () => {
+const mberRegister = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
     username: "",
@@ -72,7 +72,7 @@ const Register = () => {
         credit_card_number: form.credit_card_number,
         credit_card_date: form.credit_card_date
       };
-      const res = await axios.post("http://localhost:3000/api/register", payload);
+      const res = await axios.post("http://localhost:3000/api/mberregister", payload);
       if (res.data?.success) {
         setIsSuccess(true);
         handleClear();
@@ -84,7 +84,7 @@ const Register = () => {
           setCountdown(count);
           if (count <= 0) {
             clearInterval(timer);
-            navigate("/login");
+            navigate("/mberlogin");
           }
         }, 1000);
       } else {
@@ -121,9 +121,9 @@ const Register = () => {
           <h4 className="alert-heading">註冊成功!</h4>
           <p>您的帳戶已成功創建，{countdown} 秒後將自動前往登入頁面。</p>
           <hr />
-          <button 
-            className="btn btn-primary" 
-            onClick={() => navigate("/login")}
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/mberlogin")}
           >
             立即前往登入
           </button>
@@ -331,7 +331,7 @@ const Register = () => {
                 {/* 按鈕 */}
                 <div className="form-group row">
                   <div className="col-md-9 offset-md-3">
-                    <button className="btn btn-primary" id="register" type="submit">
+                    <button className="btn btn-primary" id="mberregister" type="submit">
                       註冊
                     </button>
                     <button
@@ -345,7 +345,7 @@ const Register = () => {
                     <button 
                       className="btn btn-link ms-2"
                       type="button"
-                      onClick={() => navigate("/login")}
+                      onClick={() => navigate("/mberlogin")}
                     >
                       已有帳號？登入
                     </button>
@@ -360,6 +360,6 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default mberRegister;
 
 
