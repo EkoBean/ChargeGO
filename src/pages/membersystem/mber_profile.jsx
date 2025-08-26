@@ -3,7 +3,7 @@ import React from "react";
 import {useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const mberProfile = () => {
+const mber_Profile = () => {
 
     const [user, setUser] = useState(null);
 
@@ -25,4 +25,4 @@ const mberProfile = () => {
 
 }
 
-export default mberProfile;
+export default mber_Profile;
