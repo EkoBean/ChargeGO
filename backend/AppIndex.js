@@ -101,7 +101,7 @@ app.patch('/api/rent', (req, res) => {
     );
 
     // establish rental log
-    connection.query(rentalLog, [deviceID])
+    // connection.query(rentalLog, [deviceID])
 })
 
 
