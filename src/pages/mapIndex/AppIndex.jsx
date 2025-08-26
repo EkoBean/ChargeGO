@@ -300,6 +300,7 @@ function AppIndex() {
       // =========== current location switch button ==============
       const FuncionButton = () => {
         const [rentOpen, setRentOpen] = React.useState(null);
+        const [returnBtn, setReturnBtn] = React.useState(false);
 
         useEffect(() => {
           rentWindowRef.current = setRentOpen;
@@ -308,6 +309,7 @@ function AppIndex() {
           };
         }, [])
 
+        // ================= button links =================
         const buttonlinks = [
           { icon: 'bi bi-gift-fill', color: 'white', url: '', action: handleLink },
           { icon: 'bi bi-person-fill', color: 'black', url: '', action: handleLink },
@@ -330,29 +332,34 @@ function AppIndex() {
         function handleLink(url) {
           window.location.href = url;
         }
+
+        // ================ rent button =================
         function handleRent() {
           rentWindowRef.current(true);
           const deviceID = 'A3135D'
 
-          // post to backend
+          // ====== axios post ======
           axios.post('/api/rent', { deviceID })
             .then(res => {
               if (res.data.success) {
                 alert('租借成功');
+
               }
-              else{
+              else {
                 alert('租借失敗，請稍後再試');
                 console.error(res.data.message);
               }
             })
-            .catch(err =>{
+            .catch(err => {
               alert('租借失敗，請稍後再試');
               console.error(err);
             })
 
 
         }
-        window
+
+
+   
         return (
           <div className='hud-container'>
             <div className="buttons">
@@ -371,7 +378,19 @@ function AppIndex() {
                 <i className="bi bi-qr-code-scan"></i>
               </button>
             </div>
-            {rentOpen ? <div className='rent' style={{ transform: ' translate(-50%, 0%)' }}>this is rent window</div> : <div className='rent' style={{ transform: ' translate(-50%, 100%)' }}>this is rent window</div>}
+            <div
+              className="rent"
+              style={{
+                transform: rentOpen ? 'translate(-50%, 0%)' : 'translate(-50%, -200%)',
+                transition: 'transform 0.3s',
+                position: 'absolute',
+                left: '50%',
+                top: '20%',
+                zIndex: 999,
+              }}
+            >
+              this is rent window
+            </div>
 
 
 
