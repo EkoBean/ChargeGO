@@ -1,31 +1,27 @@
 // ======scss==========
-import '../styles/scss/global.scss'
-import React, { useEffect } from 'react';
+import "../styles/scss/global.scss";
+import React, { useEffect } from "react";
 
 // =========== Routers =================
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // =========== elements ==================
-import NavBar from '../components/nav'
-import AppIndex from './mapIndex/AppIndex'
-import Register from './membersystem/register'
-import Login from './membersystem/login'
-
+import NavBar from "../components/nav";
+import AppIndex from "./mapIndex/AppIndex";
+import mberRegister from "./membersystem/mberregister";
+import mberLogin from "./membersystem/mberlogin";
 
 function App() {
-
   return (
     <>
-        <Routes>
-          <Route path='/' element={<Register />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='*' element={<Register />} />
-        </Routes>
-
+      <Routes>
+        <Route path="/" element={<mberRegister />} />
+        <Route path="/mberregister" element={<mberRegister />} />
+        <Route path="/mberlogin" element={<mberLogin />} />
+        <Route path="*" element={<mberRegister />} />
+      </Routes>
     </>
   );
 }
 
-
-export default App
+export default App;
