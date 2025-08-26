@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 
-class Test extends Component {
+class Mission extends Component {
   state = {
     mission: [],
     loading: false,
@@ -314,4 +314,4 @@ class Test extends Component {
   }
 }
 
-export default Test;
+export default Mission;
