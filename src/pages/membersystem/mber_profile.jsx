@@ -6,6 +6,7 @@ const mber_Profile = () => {
   const [user, setUser] = useState(null);
   const [country, setCountry] = useState("");
   const navigate = useNavigate();
+  const API_BASE = "http://localhost:3000";
 
   // 返回按鈕點擊事件
   const backBtnClick = () => {
@@ -45,9 +46,31 @@ const mber_Profile = () => {
   };
 
   // 處理會員停權
-  const handleDeactivateAccount = () => {
+  const handleDeactivateAccount = async () => {
     if (window.confirm("確定要申請停權帳號嗎？")) {
-      alert("已送出停權申請，客服人員將與您聯繫");
+      try {
+        const response = await fetch(`${API_BASE}/api/user/deactivate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id: Number(user?.uid), status: "1" }),
+        });
+        if (response.ok) {
+          const result = await response.json();
+          const updatedUser = result.user
+            ? result.user
+            : { ...user, status: "1" };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUser(updatedUser);
+          alert("您的會員帳號已停權");
+          navigate("/mber_login"); //停權後導回登入頁
+        } else {
+          alert("停權申請失敗，請稍後再試");
+        }
+      } catch (error) {
+        alert("停權申請失敗，請稍後再試");
+      }
     }
   };
 
@@ -83,7 +106,10 @@ const mber_Profile = () => {
           <h5>信用卡資料</h5>
         </div>
         <div className="rnet-record">
-          <img src="" alt="租借圖片" />
+          {/* 修正：只有有圖片路徑才渲染 img */}
+          {/* <img src="" alt="租借圖片" /> */}
+          {/* 例如： */}
+          {/* {租借圖片路徑 && <img src={租借圖片路徑} alt="租借圖片" />} */}
           <h5>租借紀錄</h5>
         </div>
         <div className="help-center">

@@ -71,7 +71,7 @@ app.post('/mber_register', (req, res) => {
     const wallet = 0;
     const point = 0;
     const total_carbon_footprint = 0;
-    const status = 0;
+    const status = "0";
 
     // 密碼雜湊（10碼）
     const hashed_password = hashPassword(password);
@@ -171,6 +171,32 @@ app.post('/check-auth', (req, res) => {
     });
 });
 
+// 會員停權 API
+app.post('/api/user/deactivate', (req, res) => {
+    const { user_id, status } = req.body;
+    if (!user_id || typeof status === 'undefined') {
+        return res.status(400).json({ success: false, message: '缺少 user_id 或 status' });
+    }
+    // 轉型確保一致
+    const uid = Number(user_id);
+    const statusStr = String(status);
+    db.query(
+        'UPDATE user SET status = ? WHERE uid = ?',
+        [statusStr, uid],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err });
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: '找不到該會員或未更新' });
+            }
+            // 更新後回傳最新會員資料（只回傳必要欄位）
+            db.query('SELECT uid, user_name, status, email, telephone, country, address FROM user WHERE uid = ?', [uid], (err2, results) => {
+                if (err2) return res.status(500).json({ success: false, error: err2 });
+                res.json({ success: true, message: '會員已停權', user: results[0] });
+            });
+        }
+    );
+});
+
 app.get('/', (req, res) => {
   res.send('伺服器連線成功！');
 });
@@ -179,4 +205,4 @@ app.get('/', (req, res) => {
 app.listen(3000, () => {
     console.log('API server running on port 3000');
 });
-   
+

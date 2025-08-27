@@ -52,6 +52,12 @@ const mber_Login = () => {
       });
 
       if (res.data?.success) {
+        // 檢查 status 欄位
+        const status = String(res.data.user?.status);
+        if (status === "1" || status === "-1") {
+          setError("您的會員帳號已停權");
+          return;
+        }
         // 儲存用戶資訊到 localStorage
         localStorage.setItem("user", JSON.stringify(res.data.user));
         alert("登入成功！");
