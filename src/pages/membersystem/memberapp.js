@@ -71,19 +71,19 @@ app.post('/mber_register', (req, res) => {
     const wallet = 0;
     const point = 0;
     const total_carbon_footprint = 0;
-    const status = 0;  // 新增狀態欄位，預設為0
+    const status = 0;
 
-    // 密碼雜湊
+    // 密碼雜湊（10碼）
     const hashed_password = hashPassword(password);
 
     db.query(
-        `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status, hashed_password)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             user_name,
             telephone,
             email,
-            password,
+            hashed_password, // 存雜湊值
             country,
             address,
             blacklist,
@@ -93,7 +93,6 @@ app.post('/mber_register', (req, res) => {
             credit_card_number,
             credit_card_date,
             status,
-            hashed_password
         ],
         (err, result) => {
             if (err) return res.status(500).json({ error: err });
@@ -105,51 +104,36 @@ app.post('/mber_register', (req, res) => {
 // 登入 API
 app.post('/mber_login', (req, res) => {
     const { user_name, password } = req.body;
-    
+
     if (!user_name || !password) {
-        return res.status(400).json({ 
-            success: false, 
-            message: '請提供帳號和密碼' 
+        return res.status(400).json({
+            success: false,
+            message: '請提供帳號和密碼'
         });
     }
-    
-    // 密碼雜湊
-    const hashed_password = hashPassword(password);
 
+    // 不再進行雜湊，直接用前端傳來的雜湊值查詢
     db.query(
-        'SELECT uid, user_name, status, blacklist, hashed_password FROM user WHERE user_name = ? AND password = ?',
+        'SELECT uid, user_name, status, blacklist FROM user WHERE user_name = ? AND password = ?',
         [user_name, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
-            
+
             if (results.length === 0) {
                 return res.status(401).json({
                     success: false,
                     message: '帳號或密碼錯誤'
                 });
             }
-            
-            // 不回傳密碼等敏感資訊
-            const user = results[0];
-            
-            // 檢查 hashed_password 是否一致
-            if (user.hashed_password !== hashed_password) {
-                return res.status(401).json({
-                    success: false,
-                    message: '帳號或密碼錯誤'
-                });
-            }
 
-            // 檢查是否被列入黑名單
+            const user = results[0];
+
             if (user.blacklist > 0) {
                 return res.status(403).json({
                     success: false,
                     message: '此帳號已被停用，請聯繫客服'
                 });
             }
-            
-            // 不回傳 hashed_password
-            delete user.hashed_password;
 
             return res.json({
                 success: true,
@@ -195,3 +179,4 @@ app.get('/', (req, res) => {
 app.listen(3000, () => {
     console.log('API server running on port 3000');
 });
+   

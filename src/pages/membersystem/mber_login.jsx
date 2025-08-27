@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import crypto from "crypto-js"; // 新增
 
 const mber_Login = () => {
   const [form, setForm] = useState({
@@ -38,10 +39,16 @@ const mber_Login = () => {
     }
 
     try {
+      // 密碼雜湊（10碼）
+      const hashedPwd = crypto
+        .SHA256(form.password)
+        .toString(crypto.enc.Hex)
+        .slice(0, 10);
+
       // 登入 API 呼叫
       const res = await axios.post("http://localhost:3000/mber_login", {
         user_name: form.username,
-        password: form.password,
+        password: hashedPwd, // 傳雜湊值
       });
 
       if (res.data?.success) {
