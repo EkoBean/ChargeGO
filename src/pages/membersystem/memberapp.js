@@ -1,6 +1,7 @@
 import express from 'express';
 import mysql from 'mysql';
 import cors from 'cors'; 
+import crypto from 'crypto'; // 新增
 
 const app = express();
 app.use(express.json());
@@ -22,6 +23,11 @@ db.connect(err => {
         console.log('MySQL 連線成功');
     }
 });
+
+// 密碼雜湊函式（SHA256取前10碼）
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex').slice(0, 10);
+}
 
 // 取得所有會員資料
 app.get('/users', (req, res) => {
@@ -67,9 +73,12 @@ app.post('/mber_register', (req, res) => {
     const total_carbon_footprint = 0;
     const status = 0;  // 新增狀態欄位，預設為0
 
+    // 密碼雜湊
+    const hashed_password = hashPassword(password);
+
     db.query(
-        `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status, hashed_password)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             user_name,
             telephone,
@@ -83,7 +92,8 @@ app.post('/mber_register', (req, res) => {
             total_carbon_footprint,
             credit_card_number,
             credit_card_date,
-            status
+            status,
+            hashed_password
         ],
         (err, result) => {
             if (err) return res.status(500).json({ error: err });
@@ -103,8 +113,11 @@ app.post('/mber_login', (req, res) => {
         });
     }
     
+    // 密碼雜湊
+    const hashed_password = hashPassword(password);
+
     db.query(
-        'SELECT uid, user_name, status FROM user WHERE user_name = ? AND password = ?',
+        'SELECT uid, user_name, status, blacklist, hashed_password FROM user WHERE user_name = ? AND password = ?',
         [user_name, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
@@ -119,6 +132,14 @@ app.post('/mber_login', (req, res) => {
             // 不回傳密碼等敏感資訊
             const user = results[0];
             
+            // 檢查 hashed_password 是否一致
+            if (user.hashed_password !== hashed_password) {
+                return res.status(401).json({
+                    success: false,
+                    message: '帳號或密碼錯誤'
+                });
+            }
+
             // 檢查是否被列入黑名單
             if (user.blacklist > 0) {
                 return res.status(403).json({
@@ -127,6 +148,9 @@ app.post('/mber_login', (req, res) => {
                 });
             }
             
+            // 不回傳 hashed_password
+            delete user.hashed_password;
+
             return res.json({
                 success: true,
                 message: '登入成功',
