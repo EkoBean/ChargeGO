@@ -10,6 +10,7 @@ const mber_Register = () => {
     confirmPassword: "",
     email: "",
     telephone: "",
+    county: "", // 新增 county 欄位
     address: "",
     credit_card_number: "",
     credit_card_date: "",
@@ -68,11 +69,12 @@ const mber_Register = () => {
         password: form.password,
         email: form.email,
         telephone: form.telephone,
+        country: form.county, // 傳送 county 作為 country 欄位
         address: form.address,
         credit_card_number: form.credit_card_number,
         credit_card_date: form.credit_card_date
       };
-      const res = await axios.post("http://localhost:3000/api/mber_register", payload);
+      const res = await axios.post("http://localhost:3000/mber_register", payload);
       if (res.data?.success) {
         setIsSuccess(true);
         handleClear();
@@ -103,6 +105,7 @@ const mber_Register = () => {
       confirmPassword: "",
       email: "",
       telephone: "",
+      county: "", // 清空 county
       address: "",
       credit_card_number: "",
       credit_card_date: "",
