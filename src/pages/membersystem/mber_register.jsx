@@ -72,7 +72,8 @@ const mber_Register = () => {
         country: form.county, // 傳送 county 作為 country 欄位
         address: form.address,
         credit_card_number: form.credit_card_number,
-        credit_card_date: form.credit_card_date
+        credit_card_date: form.credit_card_date,
+        status: "0" // 修正為字串型態，符合 enum
       };
       const res = await axios.post("http://localhost:3000/mber_register", payload);
       if (res.data?.success) {
