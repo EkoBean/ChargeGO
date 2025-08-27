@@ -341,16 +341,21 @@ function AppIndex() {
 
         // ================= rent & return function =================
         // =======假設數值=========
-        const deviceId = '2'
+        const deviceId = '2' // 假設裝置ID為2
+        const batteryAmount = 30; // 假設電池狀態為 30%
+        const returnSite = 1; // 假設歸還站點 ID 為 1
+        const uid = '1'; //假設使用者ID為1
+
+        // ========================
 
         // ================ rent button =================
         function handleRent() {
           rentWindowRef.current(true);
 
           // ====== axios patch ======
-          axios.patch(`${API_URL}/api/rent`, { deviceID: deviceId })
+          axios.patch(`${API_URL}/api/rent`, { deviceId, uid })
             .then(res => {
-              if(res.data.message === 'renting'){
+              if (res.data.message === 'renting') {
                 setRentMessage();
                 setReturnBtn(true);
                 return;
@@ -372,22 +377,14 @@ function AppIndex() {
         }
         // =============== return button =================
         function handleReturn() {
-
-          // =======假設數值=========
-          const batteryAmount = 30; // 假設電池狀態為 30%
-          const siteId = 1; // 假設歸還站點 ID 為 1
-          // ========================
-
-
-          axios.patch(`${API_URL}/api/return`, {siteId, batteryAmount, deviceId })
+          axios.patch(`${API_URL}/api/return`, {  returnSite, batteryAmount, deviceId })
             .then(res => {
               if (res.data.success) {
                 setReturnBtn(false);
                 setRentMessage('歸還成功，感謝使用');
               }
             }
-
-            )
+           )
             .catch(err => {
               console.error(err);
               setRentMessage('歸還失敗，請稍後再試');
