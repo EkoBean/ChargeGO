@@ -40,9 +40,11 @@ WHERE cs.site_id = ?`;
 const searchCharger = `SELECT * from charger 
 WHERE charger_id = ?`;
 const rentCharger = `UPDATE charger SET status = '1', site_id = null WHERE charger_id = ? `;
+const rentalLog = `INSERT INTO order_record (uid, start_date, rental_site_id, order_status, charger_id) VALUES (?, ?, ?, '0', ?);
+`;
 // return a charger
 const returnCharger = `UPDATE charger SET status = ?, site_id = ? WHERE charger_id = ?`;
-const rentalLog = `INSERT INTO rental_log (charger_id) VALUES (?)`;
+const returnLog = `UPDATE order_record SET order_status = '1', return_site_id = ?, end = ? WHERE charger_id = ? AND order_status = '0'`;
 
 
 // ================== main API ====================
@@ -71,10 +73,12 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
 
 // rent a charger
 app.patch('/api/rent', (req, res) => {
-    const deviceID = req.body.deviceID;
+    const { deviceId, uid } = req.body || {};
+    const now = new Date();
+    let rentalSite = '';
 
     // update the device status
-    connection.query(searchCharger, [deviceID], (error, results) => {
+    connection.query(searchCharger, [deviceId], (error, results) => {
         if (error) {
             console.log('error :>> ', error);
             return res.status(500).json({ success: false, message: 'Database query failed' });
@@ -85,35 +89,51 @@ app.patch('/api/rent', (req, res) => {
         else if (results[0].status == '1') {
             return res.json({ success: true, message: 'renting' });
         }
-        connection.query(rentCharger, [deviceID], (error2, results2) => {
-            if (error2) {
-                console.log('error2 :>> ', error2);
-                return res.status(500).json({ success: false, message: 'Database query failed' });
-            } if (results.affectedRows === 0) {
-                // 沒有資料被更新
-                return res.status(404).json({ success: false, message: '資料未變更' });
-            } else {
-                res.json({ success: true, message: '租借成功' });
-                console.log('results2 :>> ', results2);
-            }
-        })
+        rentalSite = results[0].site_id;
+        if (rentalSite) {
+            // update the device status
+            connection.query(rentCharger, [deviceId], (errorUpdate, resultUpdate) => {
+                if (errorUpdate) {
+                    console.log('errorUpdate :>> ', errorUpdate);
+                    return res.status(500).json({ success: false, message: 'Database query failed' });
+                } if (results.affectedRows === 0) {
+                    // 沒有資料被更新
+                    return res.status(404).json({ success: false, message: '資料未變更' });
+                }
+                console.log('resultUpdate :>> ', resultUpdate);
+                // insert rental log
+                connection.query(rentalLog, [uid, now, rentalSite, deviceId], (errorLog, resultLog) => {
+                    if (errorLog) {
+                        console.error('errorLog :>> ', errorLog);
+                        return res.status(500).json({ success: false, message: 'DB log establishing failed' });
+                    }
+                    if (resultLog.affectedRows === 0) {
+                        return res.status(404).json({ success: false, message: 'DB log not established' });
+                    }
+                    console.log('resultLog :>> ', resultLog);
+                    return res.json({ success: true, message: 'DB log establishing success.' });
+                })
+
+            })
+        }
     }
     );
 
-    // establish rental log
-    // connection.query(rentalLog, [deviceID])
+
 })
 
 
 
 // return a charger
 app.patch('/api/return', (req, res) => {
-    const { batteryAmount, siteId, deviceId } = req.body;
+    const { batteryAmount, returnSite, deviceId } = req.body;
+    const now = new Date();
     const batteryStatus =
         batteryAmount < 30 ? '4' : //低電量(不給借)
             batteryAmount < 98 ? '3' :  //中電量
                 '2'; //滿電量 
-    connection.query(returnCharger, [batteryStatus, siteId, deviceId], (error, results) => {
+    // ======== update the device status ========
+    connection.query(returnCharger, [batteryStatus, returnSite, deviceId], (error, results) => {
         if (error) {
             console.log('error :>> ', error);
             return res.status(500).json({ success: false, message: 'Database query failed' });
@@ -121,9 +141,15 @@ app.patch('/api/return', (req, res) => {
             // 沒有資料被更新
             return res.status(404).json({ success: false, message: '資料未變更' });
         }
-        else {
-            res.json({ success: true, message: '歸還成功' });
+        // ========= insert return log ========
+        connection.query(returnLog, [returnSite, now, deviceId], (error, results) => {
+            if (error) {
+                console.erroro('error :>> ', error);
+                return res.status(500).json({ success: false, message: 'DB log establishing failed' });
+            }
             console.log('results :>> ', results);
-        }
+            res.json({ success: true, message: '歸還成功' });
+        })
+
     })
 }); 
