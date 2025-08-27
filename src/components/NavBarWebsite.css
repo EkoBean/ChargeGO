@@ -1,6 +1,6 @@
 body {
   background: #ffce00;
-  color: white;
+  /* color: white; */
   margin: 0;
   display: flex;
   justify-content: center;
@@ -15,22 +15,26 @@ body {
   align-items: center;
   padding: 5px;
   width: 100%;
-  max-width: 1200px;
-  justify-content: center; /* 改為置中 */
+  /* 移除 max-width 限制 */
+  /* max-width: 1200px; */
+  justify-content: center;
+  background: none;
 }
 
 .logo {
-  width: 300px;
+  width: 120px;
+  min-width: 80px;
+  max-width: 200px;
   display: flex;
   align-items: center;
   position: absolute;
-  left: 20px; /* 固定在左側 */
+  left: 16px; /* 統一為正值，避免負值 */
   top: 50%;
   transform: translateY(-50%);
 }
 
 .logo img {
-  width: 300px;
+  width: 100%;
   height: auto;
   transition: opacity 0.3s ease;
   cursor: pointer;
@@ -79,7 +83,7 @@ body {
   right: -100%;
   width: 100%;
   height: 100vh;
-  background: rgba(255, 206, 0, 0.95);
+  /* background: rgba(255, 206, 0, 0.95); */
   backdrop-filter: blur(10px);
   flex-direction: column;
   justify-content: center;
@@ -196,6 +200,26 @@ nav {
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
+/* logo 響應式優化 */
+.logo {
+  width: 120px;
+  min-width: 80px;
+  max-width: 200px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 16px; /* 統一為正值，避免負值 */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.logo img {
+  width: 100%;
+  height: auto;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
 /* 桌機 */
 @media (max-width: 1440px) {
   body {
@@ -207,14 +231,14 @@ nav {
   }
 
   .logo {
-    width: 70px;
-    left: -50px;
-    top: 50px;
+    width: 100px;
+    left: 16px; /* 統一為正值 */
+    top: 50%;
     transform: translateY(-50%);
   }
 
   .logo img {
-    width: 100px;
+    width: 100%;
   }
 
   .hamburger {
@@ -311,14 +335,14 @@ nav {
   }
 
   .logo {
-    width: 50px;
-    left: -20px;
-    top: 50px;
+    width: 80px;
+    left: 12px; /* 統一為正值 */
+    top: 50%;
     transform: translateY(-50%);
   }
 
   .logo img {
-    width: 140px;
+    width: 100%;
   }
 
   .hamburger {
@@ -414,14 +438,14 @@ nav {
   }
 
   .logo {
-    width: 100px;
-    left: -80px;
-    top: 90px;
+    width: 60px;
+    left: 8px; /* 統一為正值 */
+    top: 50%;
     transform: translateY(-50%);
   }
 
   .logo img {
-    width: 200px;
+    width: 100%;
   }
 
   .hamburger {
@@ -709,11 +733,13 @@ nav {
   .navbar {
     justify-content: center;
     top: 50px;
+    /* 移除 max-width 限制 */
+    /* max-width: 1200px; */
   }
 
   .logo {
     position: absolute;
-    left: -150px;
+    left: 16px; /* 統一為正值 */
     top: 35px;
     transform: translateY(-50%);
     width: 100px;
