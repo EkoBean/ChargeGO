@@ -1,6 +1,7 @@
 // ======scss==========
 import "../styles/scss/global.scss";
 import React, { useEffect } from "react";
+import WebSite from './ImageWebsite/WebSite';
 
 // =========== Routers =================
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -19,7 +20,7 @@ function App() {
         <Route path="/AppIndex" element={<AppIndex />} />
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
-        <Route path="/" />
+        <Route path="/" element={<WebSite />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<Register />} />
