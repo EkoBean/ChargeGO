@@ -104,7 +104,7 @@ app.post('/mber_login', (req, res) => {
     }
     
     db.query(
-        'SELECT uid, user_name, email, telephone, country, address, blacklist, wallet, point, total_carbon_footprint, status FROM user WHERE user_name = ? AND password = ?',
+        'SELECT uid, user_name, status FROM user WHERE user_name = ? AND password = ?',
         [user_name, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
@@ -146,7 +146,7 @@ app.post('/check-auth', (req, res) => {
             authenticated: false 
         });
     }
-    
+    // localStorage儲存的資料
     db.query('SELECT uid, user_name FROM user WHERE uid = ?', [uid], (err, results) => {
         if (err || results.length === 0) {
             return res.json({ 

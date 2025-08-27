@@ -48,7 +48,7 @@ const mber_Login = () => {
         // 儲存用戶資訊到 localStorage
         localStorage.setItem("user", JSON.stringify(res.data.user));
         alert("登入成功！");
-        navigate("/"); // 導向首頁或會員中心
+        navigate("/mber_profile"); // 導向會員中心
       } else {
         setError(res.data?.message || "登入失敗，請檢查帳號密碼");
       }
