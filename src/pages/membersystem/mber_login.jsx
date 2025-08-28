@@ -38,8 +38,8 @@ const mber_Login = () => {
       return;
     }
 
+    // 密碼雜湊（10碼）
     try {
-      // 密碼雜湊（10碼）
       const hashedPwd = crypto
         .SHA256(form.password)
         .toString(crypto.enc.Hex)
