@@ -197,6 +197,19 @@ app.post('/api/user/deactivate', (req, res) => {
     );
 });
 
+// 取得會員通知資料
+app.get('/user/:uid/notices', (req, res) => {
+    const uid = Number(req.params.uid);
+    db.query(
+        'SELECT * FROM notice WHERE uid = ? ORDER BY notice_date DESC',
+        [uid],
+        (err, results) => {
+            if (err) return res.status(500).json({ error: err });
+            res.json(results);
+        }
+    );
+});
+
 app.get('/', (req, res) => {
   res.send('伺服器連線成功！');
 });

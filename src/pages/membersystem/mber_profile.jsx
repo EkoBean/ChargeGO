@@ -15,7 +15,7 @@ const mber_Profile = () => {
 
   // 通知按鈕點擊事件
   const notifyBtnClick = () => {
-    return () => alert("通知功能即將開放");
+    return () => navigate("/mber_info");
   };
 
   // 頁面載入時從 localStorage 獲取用戶資料
@@ -106,10 +106,7 @@ const mber_Profile = () => {
           <h5>信用卡資料</h5>
         </div>
         <div className="rnet-record">
-          {/* 修正：只有有圖片路徑才渲染 img */}
           {/* <img src="" alt="租借圖片" /> */}
-          {/* 例如： */}
-          {/* {租借圖片路徑 && <img src={租借圖片路徑} alt="租借圖片" />} */}
           <h5>租借紀錄</h5>
         </div>
         <div className="help-center">
