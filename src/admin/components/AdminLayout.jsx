@@ -1,3 +1,4 @@
+//後台管理系統的整體頁面結構
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import '../styles/AdminDashboard.css';
@@ -46,8 +47,21 @@ const AdminLayout = () => {
               to="/settings" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              ⚙️ 系統設定
+              ⚙️ 任務管理
             </NavLink>
+            <NavLink 
+              to="/settings" 
+              className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              ⚙️ 活動發送
+            </NavLink>
+            <NavLink 
+              to="/settings" 
+              className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              ⚙️ 職員操作記錄
+            </NavLink>
+
           </nav>
         </aside>
 

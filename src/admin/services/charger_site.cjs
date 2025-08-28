@@ -190,19 +190,67 @@ app.get("/api/chargers", (req, res) => {
 });
 
 // 訂單清單（order_record + user/charger_site/charger）
+let cachedOrderColumns = null;
+
 app.get("/api/orders", (req, res) => {
-  connCharger.query(`
-    SELECT o.order_ID, o.uid, u.user_name, u.telephone, u.email,
-           o.start_date, o.end, o.site_id, s.site_name, s.address,
-           o.order_status, o.charger_id, c.status AS charger_status
-    FROM order_record o
-    JOIN user u ON o.uid = u.uid
-    JOIN charger_site s ON o.site_id = s.site_id
-    JOIN charger c ON o.charger_id = c.charger_id
-    ORDER BY o.order_ID DESC
-  `, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: "DB error", code: err.code });
-    res.json(rows);
+  const runQueryWithCols = (colNames) => {
+    const pick = candidates => candidates.find(c => colNames.includes(c));
+    // 優先使用 rental_site_id（若沒有再用其他可能欄位）
+    const siteCol = pick(["rental_site_id", "return_site_id", "site_id", "site", "station_id"]);
+    const chargerCol = pick(["charger_id", "chargerId", "charger"]);
+    const uidCol = pick(["uid", "user_id", "userid"]);
+
+    if (!siteCol || !chargerCol || !uidCol) {
+      return res.status(500).json({
+        error: "schema_mismatch",
+        message: "order_record 欄位不包含預期的 site/charger/uid 欄位",
+        columns: colNames
+      });
+    }
+
+    const q = `
+      SELECT o.order_ID,
+             o.${uidCol} AS uid,
+             u.user_name, u.telephone, u.email,
+             o.start_date, o.\`end\` AS \`end\`,
+             o.${siteCol} AS site_id, s.site_name, s.address,
+             o.order_status, o.${chargerCol} AS charger_id,
+             c.status AS charger_status
+      FROM order_record o
+      JOIN user u ON o.${uidCol} = u.uid
+      LEFT JOIN charger_site s ON o.${siteCol} = s.site_id
+      LEFT JOIN charger c ON o.${chargerCol} = c.charger_id
+      ORDER BY o.order_ID DESC
+    `;
+    connCharger.query(q, [], (err2, rows) => {
+      if (err2) {
+        console.error("Error fetching /api/orders:", err2);
+        return res.status(500).json({
+          error: "DB error",
+          code: err2.code,
+          message: err2.message,
+          query: q
+        });
+      }
+      res.json(rows);
+    });
+  };
+
+  if (cachedOrderColumns) {
+    // 使用快取欄位直接查詢
+    return runQueryWithCols(cachedOrderColumns);
+  }
+
+  // 第一次呼叫：查欄位並快取
+  connCharger.query("SHOW COLUMNS FROM order_record", (err, cols) => {
+    if (err) {
+      console.error("SHOW COLUMNS error:", err);
+      return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
+    }
+    const colNames = cols.map(c => c.Field);
+    cachedOrderColumns = colNames; // 快取起來，之後不再查
+    console.log("order_record columns:", colNames);
+    runQueryWithCols(colNames);
   });
 });
 
