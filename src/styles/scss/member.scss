@@ -1,5 +1,5 @@
-@use './global.scss' as g; 
+@use './global.scss' as mb; 
 
 body{
-    background-color: g.$secondary;
+    background-color: mb.$secondary;
 }
