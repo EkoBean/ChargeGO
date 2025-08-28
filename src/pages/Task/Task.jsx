@@ -1,5 +1,5 @@
 import './Task.css';
-import NavbarWebsite from '../NavbarWebsite';
+import NavbarWebsite from '../../components/NavbarWebsite';
 
 export default function Task() {
   // 範例靜態資料
@@ -25,7 +25,20 @@ export default function Task() {
   return (
     <div className="container">
       <NavbarWebsite />
+      {/* 直接放在 container 內，main 外 */}
+      <div className="points-circle-wrapper">
+        <div className="circle points-circle">
+          <span className="points-text">點數</span>
+        </div>
+      </div>
+      <div className="shop-circle-wrapper">
+        <div className="circle shop-circle">
+          <img src="/shop-car.png" alt="shop" className="shop-img" />
+          <span className="shop-text">去逛逛</span>
+        </div>
+      </div>
       <main className="main">
+        {/* 移除 points-shop-row */}
         <h2 className="title">任務</h2>
         <div className="taskList">
           {tasks.length === 0 ? (
