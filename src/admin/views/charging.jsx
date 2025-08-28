@@ -72,7 +72,7 @@ class Charging extends Component {
         // 載入中顯示 Spinner
         if (loading) {
             return (
-                <div className="p-4 d-flex justify-content-center align-items-center" style={{minHeight: '400px'}}>
+                <div className="p-4 d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
                     <div className="text-center">
                         <Spinner animation="border" role="status" className="mb-3" />
                         <p>載入充電站資料中...</p>
@@ -170,7 +170,7 @@ class Charging extends Component {
                                         // 計算該站點的充電器數量與可用數量
                                         const siteChargers = chargers.filter(c => c.site_id === site.site_id);
                                         const availableCount = siteChargers.filter(c => c.status === 'available').length;
-                                        
+
                                         return (
                                             <tr key={site.site_id}>
                                                 <td>{site.site_id}</td>
@@ -184,7 +184,7 @@ class Charging extends Component {
                                                 </td>
                                                 <td>
                                                     {/* 查看詳情與管理按鈕 */}
-                                                    <button 
+                                                    <button
                                                         className="btn btn-sm btn-outline-primary me-2"
                                                         onClick={() => this.handleSiteSelect(site.site_id)}
                                                     >

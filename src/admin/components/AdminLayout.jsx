@@ -43,23 +43,24 @@ const AdminLayout = () => {
             >
               🛒 訂單管理
             </NavLink>
+
             <NavLink 
-              to="/settings" 
+              to="/broadcast" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              ⚙️ 任務管理
+              📣 活動發送
             </NavLink>
             <NavLink 
-              to="/settings" 
+              to="/staff-logs" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              ⚙️ 活動發送
+              🧾 職員操作紀錄
             </NavLink>
             <NavLink 
-              to="/settings" 
+              to="/tasks" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              ⚙️ 職員操作記錄
+              ✅ 任務管理
             </NavLink>
 
           </nav>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminData } from '../context/AdminDataContext';
 import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
-
+//後台「總覽」頁面的 React 元件，負責顯示儀表板統計、系統狀態與快速操作按鈕
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { dashboardStats, loading, error, loadAllData } = useAdminData();
