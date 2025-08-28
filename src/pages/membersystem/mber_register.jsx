@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../../styles/scss/global.scss" 
+import "../../styles/scss/global.scss";
 const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
@@ -44,14 +44,19 @@ const mber_Register = () => {
     if (form.password !== form.confirmPassword) return "密碼與確認密碼不一致";
     if (!form.agreerule) return "請勾選同意使用者規範";
     if (!form.username.trim()) return "帳號必填";
+    if (form.username == form.password) return "帳號密碼不可相同";
+    // 移除 username/email 重複判斷，交由後端
+    if (!form.county.trim()) return "縣市必填";
     if (!form.email.trim()) return "Email 必填";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "Email 格式錯誤";
-    if (form.telephone && form.telephone.length < 8)
-      return "電話格式不正確";
+    if (form.telephone && form.telephone.length < 8) return "電話格式不正確";
     if (form.credit_card_number && form.credit_card_number.length !== 16)
       return "信用卡號需 16 碼數字";
-    if (form.credit_card_date && !/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.credit_card_date))
+    if (
+      form.credit_card_date &&
+      !/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.credit_card_date)
+    )
       return "到期日格式需為 MM/YY";
     return null;
   };
@@ -73,13 +78,16 @@ const mber_Register = () => {
         address: form.address,
         credit_card_number: form.credit_card_number,
         credit_card_date: form.credit_card_date,
-        status: "0" // 修正為字串型態，符合 enum
+        status: "0", // 修正為字串型態，符合 enum
       };
-      const res = await axios.post("http://localhost:3000/mber_register", payload);
+      const res = await axios.post(
+        "http://localhost:3000/mber_register",
+        payload
+      );
       if (res.data?.success) {
         setIsSuccess(true);
         handleClear();
-        
+
         // 倒數計時然後轉跳
         let count = 3;
         const timer = setInterval(() => {
@@ -148,7 +156,9 @@ const mber_Register = () => {
               <form onSubmit={handleSubmit}>
                 {/* 帳號 */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="username" className="col-md-3 col-form-label">帳號：</label>
+                  <label htmlFor="username" className="col-md-3 col-form-label">
+                    帳號：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -163,7 +173,9 @@ const mber_Register = () => {
                 </div>
                 {/* 密碼 */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="password" className="col-md-3 col-form-label">密碼：</label>
+                  <label htmlFor="password" className="col-md-3 col-form-label">
+                    密碼：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -177,7 +189,12 @@ const mber_Register = () => {
                   </div>
                 </div>
                 <div className="form-group row mb-3">
-                  <label htmlFor="confirmPassword" className="col-md-3 col-form-label">確認密碼：</label>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="col-md-3 col-form-label"
+                  >
+                    確認密碼：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -192,7 +209,9 @@ const mber_Register = () => {
                 </div>
                 {/* Email */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="email" className="col-md-3 col-form-label">電子郵件：</label>
+                  <label htmlFor="email" className="col-md-3 col-form-label">
+                    電子郵件：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -207,7 +226,12 @@ const mber_Register = () => {
                 </div>
                 {/* 電話 */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="telephone" className="col-md-3 col-form-label">電話：</label>
+                  <label
+                    htmlFor="telephone"
+                    className="col-md-3 col-form-label"
+                  >
+                    電話：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -222,32 +246,39 @@ const mber_Register = () => {
                 </div>
                 {/* 地址 */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="address" className="col-md-3 col-form-label">地址：</label>
+                  <label htmlFor="address" className="col-md-3 col-form-label">
+                    地址：
+                  </label>
                   <div className="col-md-9">
-                    <select name="county" id="county" value={form.county} onChange={handleChange}>
+                    <select
+                      name="county"
+                      id="county"
+                      value={form.county}
+                      onChange={handleChange}
+                    >
                       <option value="">選擇縣市</option>
-                      <option value="county1">台北市</option>
-                      <option value="county2">新北市</option>
-                      <option value="county3">基隆市</option>
-                      <option value="county4">桃園市</option>
-                      <option value="county5">新竹縣</option>
-                      <option value="county6">新竹市</option>
-                      <option value="county7">苗栗縣</option>
-                      <option value="county8">台中市</option>
-                      <option value="county9">彰化縣</option>
-                      <option value="county10">南投縣</option>
-                      <option value="county11">雲林縣</option>
-                      <option value="county12">嘉義縣</option>
-                      <option value="county13">嘉義市</option>
-                      <option value="county14">台南市</option>
-                      <option value="county15">高雄市</option>
-                      <option value="county16">屏東縣</option>
-                      <option value="county17">宜蘭縣</option>
-                      <option value="county18">花蓮縣</option>
-                      <option value="county19">台東縣</option>
-                      <option value="county20">連江縣</option>
-                      <option value="county21">澎湖縣</option>
-                      <option value="county22">金門縣</option>
+                      <option value="台北市">台北市</option>
+                      <option value="新北市">新北市</option>
+                      <option value="基隆市">基隆市</option>
+                      <option value="桃園市">桃園市</option>
+                      <option value="新竹縣">新竹縣</option>
+                      <option value="新竹市">新竹市</option>
+                      <option value="苗栗縣">苗栗縣</option>
+                      <option value="台中市">台中市</option>
+                      <option value="彰化縣">彰化縣</option>
+                      <option value="南投縣">南投縣</option>
+                      <option value="雲林縣">雲林縣</option>
+                      <option value="嘉義縣">嘉義縣</option>
+                      <option value="嘉義市">嘉義市</option>
+                      <option value="台南市">台南市</option>
+                      <option value="高雄市">高雄市</option>
+                      <option value="屏東縣">屏東縣</option>
+                      <option value="宜蘭縣">宜蘭縣</option>
+                      <option value="花蓮縣">花蓮縣</option>
+                      <option value="台東縣">台東縣</option>
+                      <option value="連江縣">連江縣</option>
+                      <option value="澎湖縣">澎湖縣</option>
+                      <option value="金門縣">金門縣</option>
                     </select>
                     <input
                       className="form-control"
@@ -262,7 +293,12 @@ const mber_Register = () => {
                 </div>
                 {/* 信用卡號 */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="credit_card_number" className="col-md-3 col-form-label">信用卡號：</label>
+                  <label
+                    htmlFor="credit_card_number"
+                    className="col-md-3 col-form-label"
+                  >
+                    信用卡號：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -278,7 +314,12 @@ const mber_Register = () => {
                 </div>
                 {/* 信用卡到期日 */}
                 <div className="form-group row mb-3">
-                  <label htmlFor="credit_card_date" className="col-md-3 col-form-label">信用卡到期日：</label>
+                  <label
+                    htmlFor="credit_card_date"
+                    className="col-md-3 col-form-label"
+                  >
+                    信用卡到期日：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -296,20 +337,31 @@ const mber_Register = () => {
                 <div className="form-group row mb-3" id="capbox">
                   <label className="col-md-3 col-form-label">驗證碼：</label>
                   <div className="col-md-9 d-flex align-items-center">
-                    <span className="me-2 p-2 bg-light border rounded" style={{ fontWeight: "bold" }}>
+                    <span
+                      className="me-2 p-2 bg-light border rounded"
+                      style={{ fontWeight: "bold" }}
+                    >
                       {captchaValue}
                     </span>
                     <button
                       type="button"
                       className="btn btn-sm btn-secondary"
-                      onClick={() => setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000))}
+                      onClick={() =>
+                        setCaptchaValue(
+                          Math.floor(
+                            Math.random() * (999999 - 100000 + 1) + 100000
+                          )
+                        )
+                      }
                     >
                       重新產生
                     </button>
                   </div>
                 </div>
                 <div className="form-group row mb-3">
-                  <label htmlFor="subpwd" className="col-md-3 col-form-label">請輸入驗證碼：</label>
+                  <label htmlFor="subpwd" className="col-md-3 col-form-label">
+                    請輸入驗證碼：
+                  </label>
                   <div className="col-md-9">
                     <input
                       className="form-control"
@@ -360,7 +412,11 @@ const mber_Register = () => {
                 {/* 按鈕 */}
                 <div className="form-group row">
                   <div className="col-md-9 offset-md-3">
-                    <button className="btn btn-primary" id="mber_register" type="submit">
+                    <button
+                      className="btn btn-primary"
+                      id="mber_register"
+                      type="submit"
+                    >
                       註冊
                     </button>
                     <button
@@ -371,7 +427,7 @@ const mber_Register = () => {
                     >
                       清除
                     </button>
-                    <button 
+                    <button
                       className="btn btn-link ms-2"
                       type="button"
                       onClick={() => navigate("/mber_login")}
@@ -390,5 +446,3 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
-
-
