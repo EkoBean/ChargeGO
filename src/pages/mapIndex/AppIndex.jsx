@@ -302,15 +302,21 @@ function AppIndex() {
 
       // =========== current location switch button ==============
       const FuncionButton = () => {
-
         const [rentOpen, setRentOpen] = React.useState(null);
         const [returnBtn, setReturnBtn] = React.useState(null);
+        const [rentalStatus, setRentalStatus] = React.useState(false); // 是否有租借狀態
         const [rentMessage, setRentMessage] = React.useState('');
+        const [startTime, setStartTime] = React.useState(null);
+        const [closeBtn, setCloseBtn] = React.useState(null);
 
-        // ================================================
-
+        // ================ init rent window ref ================
         useEffect(() => {
-          rentWindowRef.current = setRentOpen;
+          rentWindowRef.current = (x) => {
+            setRentOpen(x);
+            if (!x) {
+              setCloseBtn(false);
+            }
+          };
           return () => {
             rentWindowRef.current = null;
           };
@@ -344,25 +350,46 @@ function AppIndex() {
         const deviceId = '2' // 假設裝置ID為2
         const batteryAmount = 30; // 假設電池狀態為 30%
         const returnSite = 1; // 假設歸還站點 ID 為 1
-        const uid = '1'; //假設使用者ID為1
+        const uid = '2'; //假設使用者ID為2
 
         // ========================
+
+        // ================ user check =================
+        useEffect(() => {
+          let mounted = true;
+          axios.get(`${API_URL}/api/checkRental/${uid}`)
+            .then(res => {
+              if (!mounted) return;
+              if (res.data.renting) {
+                const start = res.data.start_date ? new Date(res.data.start_date) : null;
+                if (start) setStartTime(start);
+
+              }
+            })
+            .catch(err => {
+              console.error('checkRental error', err);
+            });
+          return () => { mounted = false; };
+        }, [uid]);
 
         // ================ rent button =================
         function handleRent() {
           rentWindowRef.current(true);
+          console.log('startTime :>> ', startTime);
 
           // ====== axios patch ======
           axios.patch(`${API_URL}/api/rent`, { deviceId, uid })
             .then(res => {
-              if (res.data.message === 'renting') {
-                setRentMessage();
-                setReturnBtn(true);
+              if (startTime) {
+                setRentalStatus(true); 
                 return;
               }
               else if (res.data.success) {
-                setReturnBtn(true);
                 setRentMessage('租借成功');
+                setStartTime(res.data.start_date)
+                setRentalStatus(true);
+                setCloseBtn(true);
+
               }
             })
             .catch(err => {
@@ -375,16 +402,37 @@ function AppIndex() {
               }
             })
         }
+        //=========calculate rent time=========
+        useEffect(() => {
+          if (startTime && rentOpen) {
+            const timer = setInterval(() => {
+              if (startTime) {
+                const now = new Date();
+                let period = now.getTime() - new Date(startTime).getTime();
+                let hours = String(Math.floor(period / (1000 * 60 * 60))).padStart(2, '0');
+                let minutes = String(Math.floor((period % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                let seconds = String(Math.floor((period % (1000 * 60)) / 1000)).padStart(2, '0');
+                period = `${hours}：${minutes}：${seconds}`
+                setRentMessage(`租借中，租借時間 ${period}`);
+                console.log('period :>> ', period);
+              }
+            }, 100)
+            return () => clearInterval(timer);
+          }
+
+        }, [rentOpen, startTime])
         // =============== return button =================
         function handleReturn() {
-          axios.patch(`${API_URL}/api/return`, {  returnSite, batteryAmount, deviceId })
+          axios.patch(`${API_URL}/api/return`, { returnSite, batteryAmount, deviceId })
             .then(res => {
               if (res.data.success) {
                 setReturnBtn(false);
+                setStartTime(null);
+                setRentalStatus(false);
                 setRentMessage('歸還成功，感謝使用');
               }
             }
-           )
+            )
             .catch(err => {
               console.error(err);
               setRentMessage('歸還失敗，請稍後再試');
@@ -410,12 +458,18 @@ function AppIndex() {
               </button>
             </div>
             <div
-              className="rent"
+              className="rent-info"
               style={{
                 transform: rentOpen ? 'translate(-50%, 0%)' : 'translate(-50%, 100%)',
               }}>
               {rentMessage && <p>{rentMessage}</p>}
-              {returnBtn && <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button>}
+              {rentalStatus ?
+                <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button> :
+                <button
+                  className='btn btn-primary'
+                  onClick={() => (rentWindowRef.current(false), setRentMessage(''), setCloseBtn(false))}>
+                  關閉視窗</button>}
+
             </div>
 
 
