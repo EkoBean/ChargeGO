@@ -415,7 +415,7 @@ function AppIndex() {
                 period = `${hours}：${minutes}：${seconds}`
                 setRentMessage(`租借中，租借時間 ${period}`);
                 console.log('period :>> ', period);
-              }
+              } 
             }, 100)
             return () => clearInterval(timer);
           }
@@ -423,7 +423,7 @@ function AppIndex() {
         }, [rentOpen, startTime])
         // =============== return button =================
         function handleReturn() {
-          axios.patch(`${API_URL}/api/return`, { returnSite, batteryAmount, deviceId })
+          axios.patch(`${API_URL}/api/return`, { returnSite, batteryAmount, deviceId, uid })
             .then(res => {
               if (res.data.success) {
                 setReturnBtn(false);

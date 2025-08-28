@@ -43,7 +43,7 @@ const checkUser = `SELECT order_ID, uid,order_status, start_date FROM order_reco
 const rentCharger = `UPDATE charger SET status = '1', site_id = null WHERE charger_id = ? `;
 const rentalLog = `INSERT INTO order_record (uid, start_date, rental_site_id, order_status, charger_id) VALUES (?, ?, ?, '0', ?);
 `;
-const getRentalTime = `SELECT order_ID, uid,order_status, start_date FROM order_record WHERE uid = ? AND order_status = '0' ORDER BY start_date DESC LIMIT 1`;
+const getRentalTime = `SELECT order_ID, uid,order_status, start_date FROM order_record WHERE uid = ? AND order_status = ? ORDER BY start_date DESC LIMIT 1`;
 // return a charger
 const returnCharger = `UPDATE charger SET status = ?, site_id = ? WHERE charger_id = ?`;
 const returnLog = `UPDATE order_record SET order_status = '1', return_site_id = ?, end = ? WHERE charger_id = ? AND order_status = '0'`;
@@ -81,10 +81,10 @@ app.get('/api/checkRental/:uid', (req, res) => {
             console.error('Error fetching user rental status:', error);
             return res.status(500).json({ error: 'DB error checking rental' });
         }
-        if(results.length === 0){
-            return res.json({renting: false})
+        if (results.length === 0) {
+            return res.json({ renting: false })
         }
-        if(results.length > 0){
+        if (results.length > 0) {
             return res.json({
                 renting: true,
                 start_date: results[0].start_date,
@@ -111,13 +111,14 @@ app.patch('/api/rent', (req, res) => {
             return res.status(404).json({ success: false, message: '查無此設備' });
         }
         else if (results[0].status == '1') {
-            connection.query(getRentalTime, [uid], (errorLog, result) => {
+            // already rented
+            connection.query(getRentalTime, [uid, '0'], (errorLog, result) => {
                 if (errorLog) {
                     console.error('errorLog :>> ', errorLog);
                     return res.status(500).json({ success: false, message: 'Rental time get failed.' });
                 }
                 const startDate = new Date(result[0].start_date);
-                return res.json({ success: true, data:startDate });
+                return res.json({ success: true, data: startDate });
             })
         }
         rentalSite = results[0].site_id;
@@ -157,12 +158,14 @@ app.patch('/api/rent', (req, res) => {
 
 // return a charger
 app.patch('/api/return', (req, res) => {
-    const { batteryAmount, returnSite, deviceId } = req.body;
+    const { batteryAmount, returnSite, deviceId, uid } = req.body;
     const now = new Date();
     const batteryStatus =
         batteryAmount < 30 ? '4' : //低電量(不給借)
             batteryAmount < 98 ? '3' :  //中電量
                 '2'; //滿電量 
+
+
     // ======== update the device status ========
     connection.query(returnCharger, [batteryStatus, returnSite, deviceId], (error, results) => {
         if (error) {
@@ -178,8 +181,23 @@ app.patch('/api/return', (req, res) => {
                 console.erroro('error :>> ', error);
                 return res.status(500).json({ success: false, message: 'DB log establishing failed' });
             }
-            console.log('results :>> ', results);
-            res.json({ success: true, message: '歸還成功' });
+            // ========= calculate rental time&money ========
+            connection.query(getRentalTime, [uid, '1'], (err, results) => {
+                if (err) {
+                    console.error('err :>> ', err);
+                    return res.status(500).json({ success: false, message: 'DB get rental time failed. ' });
+                }
+                if (results.length === 0) {
+                    return res.status(404).json({ success: false, message: '查無租借紀錄' });
+                }
+                const startDate = new Date(results[0].start_date);
+                const period = Math.ceil((now - startDate) / (1000 * 60)); // minutes
+                const periodSession = Math.ceil(period / 30); // 30 minutes session
+                const rentalFee = periodSession * 5; // 每30分鐘5元
+                console.log(`租借時間: ${period} 分鐘, 共 ${periodSession} 個半小時時段, 費用: ${rentalFee} 元`);
+                if (rentalFee < 0) return res.status(400).json({ success: false, message: '已歸還，請勿重複歸還' });
+                res.json({ success: true, message: '歸還成功', rentalFee, period });
+            })
         })
 
     })
