@@ -138,12 +138,10 @@ const ApiService = {
 
   _normalizeDateTime(value) {
     if (!value) return null;
-    const s = String(value).trim();
-    if (s.includes('T')) {
-      const [d, t] = s.split('T');
-      return `${d} ${t.length === 5 ? `${t}:00` : t}`;
-    }
-    return s;
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return null;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   },
 
   // 站點 CRUD
@@ -225,8 +223,10 @@ const ApiService = {
       start_date: payload.start_date ? this._normalizeDateTime(payload.start_date) : undefined,
       end: payload.end === '' ? null : this._normalizeDateTime(payload.end),
       site_id: payload.site_id != null ? Number(payload.site_id) : undefined,
+      rental_site_id: typeof payload.rental_site_id !== 'undefined' ? String(payload.rental_site_id) : undefined,
       order_status: payload.order_status,
       charger_id: payload.charger_id != null ? Number(payload.charger_id) : undefined,
+      comment: typeof payload.comment !== 'undefined' ? String(payload.comment) : undefined,
     };
 
     // 移除 undefined 欄位
@@ -245,20 +245,22 @@ const ApiService = {
       uid: Number(payload.uid),
       start_date: this._normalizeDateTime(payload.start_date),
       end: payload.end ? this._normalizeDateTime(payload.end) : null,
-      site_id: Number(payload.site_id),
+      site_id: payload.site_id != null ? Number(payload.site_id) : undefined,
+      rental_site_id: typeof payload.rental_site_id !== 'undefined' ? String(payload.rental_site_id) : (payload.site_id != null ? String(payload.site_id) : undefined),
       order_status: String(payload.order_status ?? "").trim(),
       charger_id: Number(payload.charger_id),
+      comment: typeof payload.comment !== 'undefined' ? String(payload.comment) : undefined,
     };
 
-    // 驗證必填欄位
+    // 驗證必填欄位（放寬：支援 rental_site_id 或 site_id）
     if (!body.uid || Number.isNaN(body.uid)) {
       throw new Error("用戶 ID 不能為空且必須為數字");
     }
     if (!body.start_date) {
       throw new Error("開始時間不能為空");
     }
-    if (!body.site_id || Number.isNaN(body.site_id)) {
-      throw new Error("站點 ID 不能為空且必須為數字");
+    if ((!body.site_id && !body.rental_site_id) || (body.site_id && Number.isNaN(body.site_id))) {
+      throw new Error("站點 ID 不能為空且必須為數字或提供 rental_site_id");
     }
     if (!body.order_status) {
       throw new Error("訂單狀態不能為空");

@@ -17,6 +17,28 @@ const OrderManagement = () => {
     error,
     loadAllData,
   } = useAdminData();
+
+  // debug: 印出 orders sample，確認 order_status 的實際格式（數字或字串）
+  if (Array.isArray(orders) && orders.length > 0) {
+    console.log('OrderManagement orders[0]:', orders[0]);
+  }
+
+  // normalizeOrderStatus：把資料庫 enum（數字，例如 -1/0/1）或字串統一成 'completed' / 'active' / 'cancelled'
+  const normalizeOrderStatus = (order) => {
+    const raw = order?.order_status ?? order?.status ?? "";
+    const s = String(raw).trim();
+    // 數字 enum 映射（根據你提供的 schema）
+    if (s === "-1") return "cancelled";
+    if (s === "0") return "active";
+    if (s === "1") return "completed";
+    // 若後端直接回傳字串
+    const lower = s.toLowerCase();
+    if (lower.includes("cancel")) return "cancelled";
+    if (lower.includes("complete") || lower.includes("done") || lower === "finished") return "completed";
+    if (lower.includes("active") || lower.includes("in_progress") || lower.includes("ongoing")) return "active";
+    return lower || "unknown";
+  };
+
   // 狀態管理：選取的訂單、顯示訂單對話框、編輯訂單狀態、建立訂單狀態、訂單相關充電器、儲存狀態
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -38,22 +60,23 @@ const OrderManagement = () => {
   // 從 API 載入訂單和站點資料
   const loadOrders = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      const [ordersData, sitesData] = await Promise.all([
+      // 優先使用 context 提供的整體載入函式（如果有）
+      if (typeof loadAllData === "function") {
+        await loadAllData();
+        return;
+      }
+
+      // fallback：單獨抓取訂單（避免使用未宣告的 setLoading/setError）
+      const [ordersData] = await Promise.all([
         ApiService.getOrders(),
-        ApiService.getSites(),
       ]);
-      setOrders(ordersData);
+      setOrders(ordersData || []);
     } catch (err) {
-      setError("載入訂單資料失敗");
       console.error("Failed to load orders:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // 當選定站點變更時載入該站點充電器
+  // 當選定站點變更時載入該站點充電器（保留，供新增/編輯 modal 變更時自動載入）
   useEffect(() => {
     const siteId = editOrder?.site_id;
     if (!showOrderModal || !siteId) {
@@ -79,42 +102,85 @@ const OrderManagement = () => {
     }
   };
 
-  // 根據搜尋字串和狀態篩選訂單
+  // 根據搜尋字串和狀態篩選訂單（使用 normalized status）
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.order_ID.toString().includes(searchTerm) ||
-      order.site_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || order.order_status === statusFilter;
+      (order.user_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(order.order_ID || "").includes(searchTerm) ||
+      (order.site_name || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const normalized = normalizeOrderStatus(order);
+    const matchesStatus = statusFilter === "all" || normalized === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  // 訂單統計資料
-  const orderStats = {
-    total: orders.length,
-    completed: orders.filter((o) => o.order_status === "completed").length,
-    active: orders.filter((o) => o.order_status === "active").length,
-    cancelled: orders.filter((o) => o.order_status === "cancelled").length,
-  };
+  // 訂單統計資料（使用 normalizeOrderStatus）
+  const orderStats = orders.reduce(
+    (acc, o) => {
+      const ns = normalizeOrderStatus(o);
+      acc.total++;
+      if (ns === "completed") acc.completed++;
+      else if (ns === "active") acc.active++;
+      else if (ns === "cancelled") acc.cancelled++;
+      else acc.other++;
+      return acc;
+    },
+    { total: 0, completed: 0, active: 0, cancelled: 0, other: 0 }
+  );
 
-  // 查看訂單詳情
+  // 查看訂單詳情（改為把現有欄位預載入 editOrder，並載入站點充電器清單）
   const handleViewOrder = (order) => {
+    const mapped = {
+      ...order,
+      // 對應可能的欄位名稱
+      site_id: order.rental_site_id ?? order.site_id ?? "",
+      charger_id: order.charger_id ?? "",
+      start_date: order.start_date ?? "",
+      end: order.end ?? "",
+      comment: order.comment ?? "",
+    };
     setSelectedOrder(order);
-    setEditOrder(order);
+    setEditOrder(mapped);
     setIsEditingOrder(false);
     setCreatingOrder(false);
     setShowOrderModal(true);
+
+    // 立即載入該站點的 chargers，避免使用者還要重新選站
+    const siteId = mapped.site_id;
+    if (siteId) {
+      ApiService.getSiteChargers(siteId)
+        .then(setOrderSiteChargers)
+        .catch(() => setOrderSiteChargers([]));
+    } else {
+      setOrderSiteChargers([]);
+    }
   };
 
   // 新增訂單
   const handleAddOrder = () => {
     const defaultSite = sites[0]?.site_id || "";
-    const blank = { uid: "", site_id: defaultSite, order_status: "active", charger_id: "" };
+    const blank = {
+      uid: "",
+      site_id: defaultSite,
+      order_status: "0",
+      charger_id: "",
+      comment: "",
+      start_date: "",
+      end: "",
+    };
     setSelectedOrder(blank);
     setEditOrder(blank);
     setIsEditingOrder(true);
     setCreatingOrder(true);
     setShowOrderModal(true);
+
+    // 載入預設站點的充電器（若有）
+    if (defaultSite) {
+      ApiService.getSiteChargers(defaultSite)
+        .then(setOrderSiteChargers)
+        .catch(() => setOrderSiteChargers([]));
+    } else {
+      setOrderSiteChargers([]);
+    }
   };
 
   // 訂單欄位變更處理
@@ -123,8 +189,16 @@ const OrderManagement = () => {
     setEditOrder((prev) => {
       const next = { ...prev, [name]: value };
       if (name === "site_id") {
-        // 切換站點時清空/預選 charger
+        // 切換站點時清空/預選 charger，並立刻載入新站點 chargers
         next.charger_id = "";
+        const sid = value;
+        if (sid) {
+          ApiService.getSiteChargers(sid)
+            .then(setOrderSiteChargers)
+            .catch(() => setOrderSiteChargers([]));
+        } else {
+          setOrderSiteChargers([]);
+        }
       }
       return next;
     });
@@ -135,33 +209,43 @@ const OrderManagement = () => {
     if (!editOrder) return;
     try {
       setSaving(true);
-      if (creatingOrder || !editOrder.order_ID) {
-        const payload = {
-          uid: editOrder.uid,
-          site_id: Number(editOrder.site_id),
-          charger_id: Number(editOrder.charger_id) || undefined,
-          order_status: editOrder.order_status || "active",
-          end: editOrder.end || null,
+
+      // 準備 payload：同時包含 site_id（數字）與 rental_site_id（字串）以相容不同後端 schema
+      const makePayload = (forCreate = false) => {
+        const p = {
+          ...(forCreate ? { uid: editOrder.uid } : {}),
+          site_id: editOrder.site_id !== "" ? Number(editOrder.site_id) : undefined,
+          rental_site_id: editOrder.site_id != null ? String(editOrder.site_id) : undefined,
+          charger_id: editOrder.charger_id ? Number(editOrder.charger_id) : undefined,
+          order_status: editOrder.order_status ?? "0",
+          end: typeof editOrder.end !== "undefined" ? (editOrder.end || null) : undefined,
+          comment: typeof editOrder.comment !== "undefined" ? editOrder.comment : undefined,
         };
+        Object.keys(p).forEach(k => p[k] === undefined && delete p[k]);
+        return p;
+      };
+
+      if (creatingOrder || !editOrder.order_ID) {
+        const payload = makePayload(true);
         await ApiService.createOrder(payload);
-        await loadAllData();
+        if (typeof loadAllData === "function") await loadAllData();
+        else await loadOrders();
         setIsEditingOrder(false);
         setCreatingOrder(false);
         setShowOrderModal(false);
       } else {
-        const payload = {
-          site_id: Number(editOrder.site_id),
-          charger_id: Number(editOrder.charger_id) || undefined,
-          order_status: editOrder.order_status,
-          end: editOrder.end || null,
-        };
+        const payload = makePayload(false);
         await ApiService.updateOrder(editOrder.order_ID, payload);
-        await loadAllData();
+        if (typeof loadAllData === "function") await loadAllData();
+        else await loadOrders();
         setIsEditingOrder(false);
       }
     } catch (err) {
       console.error("Failed to save order:", err);
-      alert("訂單儲存失敗，請稍後再試");
+      if (err?.response) {
+        console.error("API response:", err.response);
+      }
+      alert("訂單儲存失敗，請查看伺服器或 network tab 以取得詳細錯誤訊息");
     } finally {
       setSaving(false);
     }
@@ -179,7 +263,6 @@ const OrderManagement = () => {
     );
   }
 
-  // 載入失敗顯示錯誤訊息
   if (error) {
     return <ErrorScreen message={error} onRetry={loadAllData} />;
   }
@@ -268,11 +351,13 @@ const OrderManagement = () => {
                   <th>訂單ID</th>
                   <th>用戶</th>
                   <th>聯絡方式</th>
-                  <th>站點</th>
+                  <th>租出站</th>
+                  <th>歸還站</th>
                   <th>充電器</th>
                   <th>開始時間</th>
                   <th>結束時間</th>
                   <th>狀態</th>
+                  <th>備註</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -289,11 +374,13 @@ const OrderManagement = () => {
                         <small className="text-muted">{order.email}</small>
                       </div>
                     </td>
-                    <td>{order.site_name}</td>
+                    <td>{order.rental_site_name ?? order.site_name ?? order.rental_site_id ?? "-"}</td>
+                    <td>{order.return_site_name ?? "-"}</td>
                     <td>{order.charger_id}</td>
-                    <td>{new Date(order.start_date).toLocaleString()}</td>
+                    <td>{order.start_date ? new Date(order.start_date).toLocaleString() : "-"}</td>
                     <td>{order.end ? new Date(order.end).toLocaleString() : "-"}</td>
-                    <td>{getStatusBadge(order.order_status)}</td>
+                    <td>{getStatusBadge(normalizeOrderStatus(order))}</td>
+                    <td>{order.comment ?? "-"}</td>
                     <td>
                       <Button variant="outline-primary" size="sm" onClick={() => handleViewOrder(order)}>
                         查看詳情

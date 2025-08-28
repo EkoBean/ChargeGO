@@ -7,6 +7,9 @@ import UserManagement from './views/UserManagement';
 import SiteManagement from './views/SiteManagement';
 import OrderManagement from './views/OrderManagement';
 import SystemSettings from './views/SystemSettings';
+import ActivityBroadcast from './views/ActivityBroadcast'; // 新增 import
+import StaffLogs from './views/StaffLogs';                 // 新增 import
+import TaskManagement from './views/TaskManagement';       // 新增 import
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/AdminDashboard.css';  
 import './App.css';  
@@ -20,6 +23,9 @@ const App = () => (
         <Route path="sites" element={<SiteManagement />} />
         <Route path="orders" element={<OrderManagement />} />
         <Route path="settings" element={<SystemSettings />} />
+        <Route path="broadcast" element={<ActivityBroadcast />} />
+        <Route path="staff-logs" element={<StaffLogs />} />
+        <Route path="tasks" element={<TaskManagement />} />
       </Route>
     </Routes>
   </AdminDataProvider>
