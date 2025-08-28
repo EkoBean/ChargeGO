@@ -66,37 +66,54 @@ app.post('/mber_register', (req, res) => {
         credit_card_date
     } = req.body;
 
-    // 預設值
-    const blacklist = 0;
-    const wallet = 0;
-    const point = 0;
-    const total_carbon_footprint = 0;
-    const status = "0";
-
-    // 密碼雜湊（10碼）
-    const hashed_password = hashPassword(password);
-
+    // 檢查 username 或 email 是否重複
     db.query(
-        `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-            user_name,
-            telephone,
-            email,
-            hashed_password, // 存雜湊值
-            country,
-            address,
-            blacklist,
-            wallet,
-            point,
-            total_carbon_footprint,
-            credit_card_number,
-            credit_card_date,
-            status,
-        ],
-        (err, result) => {
+        'SELECT user_name, email FROM user WHERE user_name = ? OR email = ?',
+        [user_name, email],
+        (err, results) => {
             if (err) return res.status(500).json({ error: err });
-            res.json({ success: true, uid: result.insertId });
+            if (results.length > 0) {
+                if (results[0].user_name === user_name) {
+                    return res.json({ success: false, message: '帳號已被註冊' });
+                }
+                if (results[0].email === email) {
+                    return res.json({ success: false, message: 'Email已被註冊' });
+                }
+            }
+
+            // 預設值
+            const blacklist = 0;
+            const wallet = 0;
+            const point = 0;
+            const total_carbon_footprint = 0;
+            const status = "0";
+
+            // 密碼雜湊（10碼）
+            const hashed_password = hashPassword(password);
+
+            db.query(
+                `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    user_name,
+                    telephone,
+                    email,
+                    hashed_password, // 存雜湊值
+                    country,
+                    address,
+                    blacklist,
+                    wallet,
+                    point,
+                    total_carbon_footprint,
+                    credit_card_number,
+                    credit_card_date,
+                    status,
+                ],
+                (err2, result) => {
+                    if (err2) return res.status(500).json({ error: err2 });
+                    res.json({ success: true, uid: result.insertId });
+                }
+            );
         }
     );
 });
