@@ -1,5 +1,5 @@
 import './Task.css';
-import NavbarWebsite from '../components/NavbarWebsite';
+import NavbarWebsite from '../NavbarWebsite';
 
 export default function Task() {
   // 範例靜態資料
