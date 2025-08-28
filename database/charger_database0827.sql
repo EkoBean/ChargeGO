@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2025-08-25 10:25:34
+-- 產生時間： 2025-08-27 11:41:53
 -- 伺服器版本： 10.4.32-MariaDB
--- PHP 版本： 8.1.25
+-- PHP 版本： 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -57,19 +57,20 @@ INSERT INTO `charger` (`charger_id`, `status`, `site_id`) VALUES
 CREATE TABLE `charger_site` (
   `site_id` varchar(50) NOT NULL COMMENT '站點編號',
   `site_name` varchar(50) NOT NULL COMMENT '站點名稱',
+  `country` varchar(50) NOT NULL COMMENT '縣市',
   `address` varchar(100) NOT NULL COMMENT '地址',
-  `longitude` decimal(12,8) NOT NULL COMMENT '經度',
-  `latitude` decimal(12,8) NOT NULL COMMENT '緯度'
+  `latitude` decimal(12,8) NOT NULL COMMENT '緯度',
+  `longitude` decimal(12,8) NOT NULL COMMENT '經度'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- 傾印資料表的資料 `charger_site`
 --
 
-INSERT INTO `charger_site` (`site_id`, `site_name`, `address`, `longitude`, `latitude`) VALUES
-('1', '7-ELEVEN 鄉林門市', '台中市南屯區大業路177號',120.65122466 ,24.15339982 ),
-('2', '摩斯漢堡 台中大業店', '台中市南屯區大業路182號',120.65091280 ,24.15371920),
-('3', '全家便利商店 台中大進店', '台中市南屯區公益路二段39號\r\n',120.65147523 ,24.15073682 );
+INSERT INTO `charger_site` (`site_id`, `site_name`, `country`, `address`, `latitude`, `longitude`) VALUES
+('1', '7-ELEVEN 鄉林門市', '台中市', '南屯區大業路177號', 24.15339982, 120.65122466),
+('2', '摩斯漢堡 台中大業店', '台中市', '南屯區大業路182號', 24.15371920, 120.65091280),
+('3', '全家便利商店 台中大進店', '台中市', '南屯區公益路二段39號\r\n', 24.15073682, 120.65147523);
 
 -- --------------------------------------------------------
 
@@ -211,7 +212,8 @@ CREATE TABLE `order_record` (
   `start_date` datetime NOT NULL COMMENT '開始日期',
   `end` datetime DEFAULT NULL COMMENT '結束日期\r\n',
   `comment` varchar(100) DEFAULT NULL COMMENT '訂單備註',
-  `site_id` varchar(50) NOT NULL COMMENT '站點編號',
+  `rental_site_id` varchar(50) DEFAULT NULL COMMENT '租借站點編號',
+  `return_site_id` varchar(50) DEFAULT NULL COMMENT '歸還站點編號',
   `order_status` enum('-1','0','1','2') NOT NULL COMMENT '訂單狀態',
   `charger_id` int(10) NOT NULL COMMENT '裝置編號'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -220,28 +222,28 @@ CREATE TABLE `order_record` (
 -- 傾印資料表的資料 `order_record`
 --
 
-INSERT INTO `order_record` (`order_ID`, `uid`, `start_date`, `end`, `comment`, `site_id`, `order_status`, `charger_id`) VALUES
-(1, 1, '2025-08-08 03:54:29', '2025-08-09 09:54:30', '', '1', '1', 9),
-(2, 2, '2025-08-08 04:03:45', NULL, '', '3', '0', 6),
-(3, 3, '2025-08-08 04:04:16', '2025-08-14 10:04:16', '', '2', '-1', 2),
-(4, 1, '2025-07-05 10:00:00', '2025-07-05 10:30:00', '', '1', '1', 9),
-(5, 1, '2025-07-20 15:00:00', '2025-07-20 16:00:00', '', '2', '1', 2),
-(6, 1, '2025-08-01 08:00:00', '2025-08-22 15:45:59', '', '3', '0', 6),
-(7, 1, '2025-08-15 12:00:00', '2025-08-15 13:00:00', '', '1', '1', 9),
-(8, 1, '2025-09-02 18:00:00', '2025-09-02 18:30:00', '', '2', '1', 2),
-(9, 2, '2025-08-10 11:30:00', '2025-08-10 12:00:00', '', '3', '1', 6),
-(10, 2, '2025-08-25 09:00:00', '2025-08-25 09:15:00', '', '1', '1', 9),
-(11, 2, '2025-09-10 20:00:00', '2025-09-10 21:00:00', '', '2', '1', 2),
-(12, 3, '2025-07-01 06:00:00', '2025-07-01 07:00:00', '', '1', '1', 9),
-(13, 3, '2025-07-05 14:00:00', '2025-07-05 14:30:00', '', '2', '1', 2),
-(14, 3, '2025-07-10 16:00:00', '2025-07-10 16:45:00', '', '3', '1', 6),
-(15, 3, '2025-07-15 19:00:00', '2025-07-15 20:00:00', '', '1', '1', 9),
-(16, 3, '2025-08-02 10:00:00', '2025-08-02 10:30:00', '', '2', '1', 2),
-(17, 3, '2025-08-10 12:00:00', '2025-08-10 13:00:00', '', '3', '1', 6),
-(18, 3, '2025-08-20 08:00:00', '2025-08-20 09:00:00', '', '1', '1', 9),
-(19, 3, '2025-09-01 11:00:00', '2025-09-01 12:00:00', '', '2', '1', 2),
-(20, 3, '2025-09-05 15:00:00', NULL, '', '3', '0', 6),
-(21, 3, '2025-09-12 17:00:00', '2025-09-12 17:30:00', '', '1', '-1', 9);
+INSERT INTO `order_record` (`order_ID`, `uid`, `start_date`, `end`, `comment`, `rental_site_id`, `return_site_id`, `order_status`, `charger_id`) VALUES
+(1, 1, '2025-08-08 03:54:29', '2025-08-09 09:54:30', '', '1', '2', '1', 9),
+(2, 2, '2025-08-08 04:03:45', NULL, '', '3', '2', '0', 6),
+(3, 3, '2025-08-08 04:04:16', '2025-08-14 10:04:16', '', '2', '3', '-1', 2),
+(4, 1, '2025-07-05 10:00:00', '2025-07-05 10:30:00', '', '1', '1', '1', 9),
+(5, 1, '2025-07-20 15:00:00', '2025-07-20 16:00:00', '', '2', '2', '1', 2),
+(6, 1, '2025-08-01 08:00:00', '2025-08-22 15:45:59', '', '3', '2', '0', 6),
+(7, 1, '2025-08-15 12:00:00', '2025-08-15 13:00:00', '', '1', '3', '1', 9),
+(8, 1, '2025-09-02 18:00:00', '2025-09-02 18:30:00', '', '2', '1', '1', 2),
+(9, 2, '2025-08-10 11:30:00', '2025-08-10 12:00:00', '', '3', '2', '1', 6),
+(10, 2, '2025-08-25 09:00:00', '2025-08-25 09:15:00', '', '1', '2', '1', 9),
+(11, 2, '2025-09-10 20:00:00', '2025-09-10 21:00:00', '', '2', '3', '1', 2),
+(12, 3, '2025-07-01 06:00:00', '2025-07-01 07:00:00', '', '1', '1', '1', 9),
+(13, 3, '2025-07-05 14:00:00', '2025-07-05 14:30:00', '', '2', '2', '1', 2),
+(14, 3, '2025-07-10 16:00:00', '2025-07-10 16:45:00', '', '3', '2', '1', 6),
+(15, 3, '2025-07-15 19:00:00', '2025-07-15 20:00:00', '', '1', '3', '1', 9),
+(16, 3, '2025-08-02 10:00:00', '2025-08-02 10:30:00', '', '2', '1', '1', 2),
+(17, 3, '2025-08-10 12:00:00', '2025-08-10 13:00:00', '', '3', '2', '1', 6),
+(18, 3, '2025-08-20 08:00:00', '2025-08-20 09:00:00', '', '1', '2', '1', 9),
+(19, 3, '2025-09-01 11:00:00', '2025-09-01 12:00:00', '', '2', '3', '1', 2),
+(20, 3, '2025-09-05 15:00:00', NULL, '', '3', '1', '0', 6),
+(21, 3, '2025-09-12 17:00:00', '2025-09-12 17:30:00', '', '1', '2', '-1', 9);
 
 -- --------------------------------------------------------
 
@@ -255,6 +257,7 @@ CREATE TABLE `user` (
   `telephone` varchar(30) NOT NULL COMMENT '電話',
   `email` varchar(50) NOT NULL COMMENT '電子郵件',
   `password` varchar(50) NOT NULL COMMENT '密碼',
+  `hashed_password` varchar(255) NOT NULL COMMENT '雜湊加密密碼',
   `country` varchar(50) NOT NULL COMMENT '縣市',
   `address` varchar(100) NOT NULL COMMENT '居住縣市',
   `blacklist` tinyint(1) NOT NULL COMMENT '黑名單點數',
@@ -263,17 +266,18 @@ CREATE TABLE `user` (
   `total_carbon_footprint` decimal(10,4) NOT NULL COMMENT '碳足跡',
   `credit_card_number` varchar(16) NOT NULL COMMENT '信用卡號',
   `credit_card_date` varchar(5) NOT NULL COMMENT '信用卡號終止日期',
-  `status` enum('-1','0','1','') NOT NULL COMMENT '使用者帳號狀態 ''-1'' (停權) ''0''(正常) ''1''(自行停權)'
+  `status` enum('-1','0','1') NOT NULL COMMENT '使用者帳號狀態 ''-1'' (停權) ''0''(正常) ''1''(自行停權)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- 傾印資料表的資料 `user`
 --
 
-INSERT INTO `user` (`uid`, `user_name`, `telephone`, `email`, `password`, `country`, `address`, `blacklist`, `wallet`, `point`, `total_carbon_footprint`, `credit_card_number`, `credit_card_date`, `status`) VALUES
-(1, 'testuser1', '0987654321', 'test@gmail.com', '123456', '台中市', '南屯區公益路二段51號18樓', 0, 200, 100, 300.5550, '123456789101112', '12/26', '-1'),
-(2, 'testuser2', '0975738564', 'test2@gmail.com', '123456', '台中市', '西區臺灣大道二段412號', 3, 0, 0, 300.0000, '492900000000000', '11/30', '-1'),
-(3, 'testuser3', '0987654321', 'test3@gmail.com', '123456', '台北市', '松山區民生東路四段133號8樓', 0, 99999, 99999, 0.0000, '340000000000000', '11/27', '-1');
+INSERT INTO `user` (`uid`, `user_name`, `telephone`, `email`, `password`, `hashed_password`, `country`, `address`, `blacklist`, `wallet`, `point`, `total_carbon_footprint`, `credit_card_number`, `credit_card_date`, `status`) VALUES
+(1, 'testuser1', '0987654321', 'test@gmail.com', '123456', '', '台中市', '南屯區公益路二段51號18樓', 0, 200, 100, 300.5550, '123456789101112', '12/26', '0'),
+(2, 'testuser2', '0975738564', 'test2@gmail.com', '123456', '', '台中市', '西區臺灣大道二段412號', 3, 0, 0, 300.0000, '492900000000000', '11/30', '0'),
+(3, 'testuser3', '0987654321', 'test3@gmail.com', '123456', '', '台北市', '松山區民生東路四段133號8樓', 0, 99999, 99999, 0.0000, '340000000000000', '11/27', '0'),
+(5, 'abc123', '0956874519', 'kkk@g.com', '1234', '03ac674216', 'county9', 'XXXXXXXXXX', 0, 0, 0, 0.0000, '1234567891023456', '12/28', '');
 
 -- --------------------------------------------------------
 
@@ -399,8 +403,9 @@ ALTER TABLE `order_record`
   ADD PRIMARY KEY (`order_ID`),
   ADD KEY `uid` (`uid`),
   ADD KEY `device_id` (`charger_id`),
-  ADD KEY `site_id` (`site_id`),
-  ADD KEY `charger_id` (`charger_id`);
+  ADD KEY `site_id` (`rental_site_id`),
+  ADD KEY `charger_id` (`charger_id`),
+  ADD KEY `return_site_id` (`return_site_id`);
 
 --
 -- 資料表索引 `user`
@@ -460,7 +465,7 @@ ALTER TABLE `order_record`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `user`
 --
 ALTER TABLE `user`
-  MODIFY `uid` int(10) NOT NULL AUTO_INCREMENT COMMENT '使用者編號', AUTO_INCREMENT=4;
+  MODIFY `uid` int(10) NOT NULL AUTO_INCREMENT COMMENT '使用者編號', AUTO_INCREMENT=6;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `user_missions`
@@ -500,8 +505,9 @@ ALTER TABLE `notice`
 -- 資料表的限制式 `order_record`
 --
 ALTER TABLE `order_record`
+  ADD CONSTRAINT `fk_rental_site` FOREIGN KEY (`rental_site_id`) REFERENCES `charger_site` (`site_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_return_site` FOREIGN KEY (`return_site_id`) REFERENCES `charger_site` (`site_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `order_record_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `user` (`uid`),
-  ADD CONSTRAINT `order_record_ibfk_2` FOREIGN KEY (`site_id`) REFERENCES `charger_site` (`site_id`),
   ADD CONSTRAINT `order_record_ibfk_3` FOREIGN KEY (`charger_id`) REFERENCES `charger` (`charger_id`);
 
 --
