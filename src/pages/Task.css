@@ -1,0 +1,112 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(180deg, #ffce00 0%, #fffde7 100%);
+  overflow: auto;
+}
+
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 0 0 0;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #7c4d00;
+  margin-bottom: 32px;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.taskCard {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px #ffb30033;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #ffb300;
+}
+
+.taskInfo {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.taskName {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.progressBar {
+  width: 120px;
+  height: 6px;
+  background: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.progress {
+  height: 100%;
+  background: #ffe066;
+  border-radius: 3px;
+}
+
+.progressText {
+  font-size: 1rem;
+  color: #7c4d00;
+}
+
+.rewardSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.deadline {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.point {
+  background: #69f05b;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 1.1rem;
+}
+
+.claimBtn {
+  background: #69f05b;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.claimBtn:hover {
+  background: #4ccf3a;
+}
