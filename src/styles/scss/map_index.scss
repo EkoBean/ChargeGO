@@ -222,5 +222,18 @@ body,
     background-color: g.$primary-hover;
   }
 
+  .return-warning {
+    position: inherit;
+    bottom: 12rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    text-align: center;
+    max-width: 90vw;
+    transition: all 0.2s ease-in-out;
+  }
 
 }

@@ -32,6 +32,8 @@ const mapId = '7ade7c4e6e2cc1087f2619a5'
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 }
 
 
+// Warning time threshold in minutes (e.g., 4320 minutes = 3 days)
+const WARNING_MINUTES = 4320;
 
 // ======== MarkerBus  ==========
 // 將對markerID的操作不管在哪裡都將他連結進markerItem裡面
@@ -307,14 +309,16 @@ function AppIndex() {
         const [rentalStatus, setRentalStatus] = React.useState(false); // 是否有租借狀態
         const [rentMessage, setRentMessage] = React.useState('');
         const [startTime, setStartTime] = React.useState(null);
-        const [closeBtn, setCloseBtn] = React.useState(null);
-
+        const [rentalFee, setRentalFee] = React.useState(null);
+        const [rentalTime, setRentalTime] = React.useState(null);
+        const [returnWarning, setReturnWarning] = React.useState(null);
         // ================ init rent window ref ================
         useEffect(() => {
           rentWindowRef.current = (x) => {
             setRentOpen(x);
             if (!x) {
-              setCloseBtn(false);
+              setRentalFee(null);
+              setRentalTime(null)
             }
           };
           return () => {
@@ -363,6 +367,12 @@ function AppIndex() {
               if (res.data.renting) {
                 const start = res.data.start_date ? new Date(res.data.start_date) : null;
                 if (start) setStartTime(start);
+                setRentalStatus(true);
+                const period = Math.round((new Date().getTime() - start.getTime()) / (1000 * 60));
+
+                if (period > WARNING_MINUTES) {
+                  setReturnWarning(true);
+                }
 
               }
             })
@@ -381,14 +391,13 @@ function AppIndex() {
           axios.patch(`${API_URL}/api/rent`, { deviceId, uid })
             .then(res => {
               if (startTime) {
-                setRentalStatus(true); 
+                setRentalStatus(true);
                 return;
               }
               else if (res.data.success) {
                 setRentMessage('租借成功');
                 setStartTime(res.data.start_date)
                 setRentalStatus(true);
-                setCloseBtn(true);
 
               }
             })
@@ -415,7 +424,7 @@ function AppIndex() {
                 period = `${hours}：${minutes}：${seconds}`
                 setRentMessage(`租借中，租借時間 ${period}`);
                 console.log('period :>> ', period);
-              } 
+              }
             }, 100)
             return () => clearInterval(timer);
           }
@@ -423,19 +432,36 @@ function AppIndex() {
         }, [rentOpen, startTime])
         // =============== return button =================
         function handleReturn() {
+
+
           axios.patch(`${API_URL}/api/return`, { returnSite, batteryAmount, deviceId, uid })
             .then(res => {
               if (res.data.success) {
-                setReturnBtn(false);
+                if (res.data.minusFee) {
+                  alert('歸還金額異常，請聯絡客服');
+                  setRentMessage('歸還金額異常，請聯絡客服 02-48273335');
+                  return;
+                }
+                if (res.data)
+                  // setReturnBtn(false);
                 setStartTime(null);
                 setRentalStatus(false);
+                // ======== calculate rental fee =========
+                setRentalFee(res.data.rentalFee);
+                // ========= calculate rental time =========
+                const minutes = Number(res.data.period) || 0;
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                const hhmm = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+                setRentalTime(hhmm);
                 setRentMessage('歸還成功，感謝使用');
               }
             }
             )
             .catch(err => {
               console.error(err);
-              setRentMessage('歸還失敗，請稍後再試');
+              alert('歸還失敗，請稍後再試');
+              // setRentMessage('歸還失敗，請稍後再試');
             })
         }
 
@@ -464,17 +490,42 @@ function AppIndex() {
               }}>
               {rentMessage && <p>{rentMessage}</p>}
               {rentalStatus ?
-                <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button> :
-                <button
-                  className='btn btn-primary'
-                  onClick={() => (rentWindowRef.current(false), setRentMessage(''), setCloseBtn(false))}>
-                  關閉視窗</button>}
+                (returnWarning ?
+                  (<>
+                    <p style={{ color: 'red' }}>您已超過三天未歸還，請盡速歸還以免影響信用紀錄</p>
+                    <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button>
+                  </>
+                  ) :
+                  (
+                    <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button>
+                  ))
+                :
+                <div>
+                  <p>已歸還，感謝使用</p>
+
+                  <p>使用時間 {rentalTime}</p>
+                  <p>扣款金額 {rentalFee}元</p>
+
+                  <button
+                    className='btn btn-primary'
+                    onClick={() => (rentWindowRef.current(false), setRentMessage(''), setRentalFee(null), setRentalTime(null))}>
+                    關閉視窗</button>
+
+                </div>
+              }
 
             </div>
-
-
-
+            {
+              returnWarning ?
+                <div className='alert alert-danger return-warning'
+                style={{opacity : rentOpen ? 0 : 0.7}}>
+                  <i className="bi bi-exclamation-triangle-fill"></i>
+                  <span>警告</span><br/>
+                  <span>您已超過三天未歸還<br/>請盡速歸還以免影響信用紀錄</span>
+                </div> : null
+            }
           </div>
+
         )
       }
       return (
