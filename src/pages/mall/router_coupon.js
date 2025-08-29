@@ -18,9 +18,8 @@ var pool = mysql.createPool({
   database: "charger_database",
   connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
 });
-// 將連線池的 query 方法轉換成 Promise 版本
-// 這樣所有的路由都可以使用 async/await 語法，程式碼更清晰
 
+//購買,兌換優惠券
 pool.query = util.promisify(pool.query);
 app.post("/buycoupons", async (req, res) => {
   try {
@@ -80,6 +79,92 @@ app.post("/buycoupons", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
+//使用優惠券
+app.post("/usecoupons", async (req, res) => {
+  const { template_id, user_id } = req.body;
+  try {
+    // 取出有效天數
+    const [templates] = await pool.query(
+      "SELECT validity_days FROM coupon_templates WHERE template_id=?",
+      [template_id]
+    );
+    if (!templates[0])
+      return res.status(404).json({ error: "找不到 template" });
+
+    const validity_days = templates[0].validity_days;
+
+    // 新增 coupon 實例
+    const [result] = await pool.query(
+      `INSERT INTO coupons (template_id, user_id, source_type, status, issued_at, expires_at)
+       VALUES (?, ?, 'shop_purchase', 'active', NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
+      [template_id, user_id, validity_days]
+    );
+
+    res.json({ coupon_id: result.insertId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
+// 取得優惠券
+app.get("/mycouponsparam/:user_id", async (req, res) => {
+  const { user_id } = req.params; // <-- 抓路由上的 user_id
+  // console.log("user_id:", user_id);
+
+  try {
+    // 1. 先將過期優惠券改為 expired
+    await pool.query(
+      `UPDATE coupons
+       SET status = 'expired'
+       WHERE user_id = ? AND expires_at < NOW()`,
+      [user_id]
+    );
+
+    // 2. 查詢尚未過期或狀態非 expired 的優惠券
+    const coupons = await pool.query(
+      `SELECT c.coupon_id, c.template_id, c.status, c.expires_at, c.code, t.name
+       FROM coupons c
+       LEFT JOIN coupon_templates t ON c.template_id = t.template_id
+       WHERE c.user_id = ? AND c.status != 'expired'`,
+      [user_id]
+    );
+
+    res.json(coupons);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
+//商品兌換與折扣
+app.post("/redeem/:couponCode", async (req, res) => {
+  const coupon_Code = req.params;
+  console.log("coupon_Code", coupon_Code);
+
+  const coupon_id = coupon_Code.couponCode;
+  console.log("coupon_id", coupon_id);
+
+  console.log(typeof coupon_id);
+  try {
+    const result = await pool.query(
+      `UPDATE coupons
+       SET status = 'used'
+       WHERE coupon_id = ? AND status = 'active'`,
+      [coupon_id]
+    );
+    console.log("result：");
+    console.log(result);
+    console.log("result.affectedRows");
+    console.log(result.affectedRows);
+    if (result.affectedRows > 0) {
+      res.json({ message: "兌換成功" });
+    } else {
+      res.json({ message: "優惠券不存在或已使用" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "資料庫錯誤" });
   }
 });
 const PORT = process.env.PORT || 4002;
