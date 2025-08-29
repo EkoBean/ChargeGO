@@ -18,9 +18,9 @@ const mber_Profile = () => {
     return () => navigate("/mber_info");
   };
 
-  // 頁面載入時從 localStorage 獲取用戶資料
+ 
+  // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    // 取得 user 資料（登入狀態由 session 驗證）
     fetch(`${API_BASE}/check-auth`, {
       method: "POST",
       credentials: "include",
