@@ -18,20 +18,32 @@ const mber_Info = () => {
 
   // 頁面載入時從 localStorage 獲取用戶資料
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      // 取得通知資料
-      fetch(`${API_BASE}/user/${parsedUser.uid}/notices`)
-        .then((res) => res.json())
-        .then((data) => setNotices(data))
-        .catch(() => setNotices([]));
-    } else {
-      // 如果沒有用戶資料，導回登入頁
-      alert("請先登入");
-      navigate("/mber_login");
-    }
+    // 取得 user 資料
+    fetch(`${API_BASE}/check-auth`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+          // 取得通知資料
+          fetch(`${API_BASE}/user/${data.user.uid}/notices`, {
+            credentials: "include"
+          })
+            .then((res) => res.json())
+            .then((data) => setNotices(data))
+            .catch(() => setNotices([]));
+        } else {
+          alert("請先登入");
+          navigate("/mber_login");
+        }
+      })
+      .catch(() => {
+        alert("請先登入");
+        navigate("/mber_login");
+      });
   }, [navigate]);
 
   return (
