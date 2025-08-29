@@ -13,12 +13,12 @@ import AppIndex from "./mapIndex/AppIndex";
 // import Login from "./membersystem/login";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
-import Task from './Task/Task';
+import Login from './Login/Login';
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Task />} />
+        <Route path="/" element={<Login />} />
         <Route path="/AppIndex" element={<AppIndex />} />
         {/* <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route> */}
