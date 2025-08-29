@@ -200,6 +200,7 @@
     .icon {
         width: 24px !important;
         height: 24px !important;
+        transition: 1 ease;
     }
     .icon img,
     .icon svg {
@@ -224,6 +225,10 @@
 }
 
 /* 可根據需要調整 icon 間距與 hover 效果 */
+.icon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s;
+}
+
 .icon:hover {
     filter: brightness(0.95);
     cursor: pointer;
