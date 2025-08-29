@@ -10,7 +10,7 @@ body, html {
 
 // 主容器
 .container {
-  background: linear-gradient(180deg, #FFD600 0%, #FFF6D1 100%);
+  background: linear-gradient(180deg, mb.$primary 0%, #FFF6D1 100%);
   min-height: 600px;
   width: 100%;
   margin: 0 auto;
@@ -117,7 +117,7 @@ body, html {
 .captcha-value {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #FFD600;
+  color: mb.$primary;
   background: #fff;
   border-radius: 8px;
   padding: 4px 16px;
@@ -128,7 +128,7 @@ body, html {
 .captcha-refresh {
   background: none;
   border: none;
-  color: #FFD600;
+  color: mb.$primary;
   font-size: 1rem;
   cursor: pointer;
   font-weight: 500;
