@@ -1,9 +1,9 @@
 import express from 'express';
-import mysql from 'mysql';
 import cors from 'cors';
-import crypto from 'crypto'; // 新增
-import session from 'express-session'; // 新增
-import cookieParser from 'cookie-parser'; // 新增
+import crypto from 'crypto'; 
+import session from 'express-session'; 
+import cookieParser from 'cookie-parser'; 
+import db from './db.js'; // 引入 db.js
 
 const app = express();
 app.use(express.json());
@@ -21,23 +21,6 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 1天
     }
 }));
-
-// MySQL 連線設定
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '', // 請填入你的密碼
-    database: 'charger_database'
-});
-
-// 測試連線
-db.connect(err => {
-    if (err) {
-        console.error('MySQL 連線失敗:', err);
-    } else {
-        console.log('MySQL 連線成功');
-    }
-});
 
 // 密碼雜湊函式（SHA256取前10碼）
 function hashPassword(password) {
@@ -233,6 +216,7 @@ app.get('/user/:uid/notices', (req, res) => {
     );
 });
 
+  
 app.get('/', (req, res) => {
     res.send('伺服器連線成功！');
 });
