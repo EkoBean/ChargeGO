@@ -40,14 +40,22 @@ const mber_Register = () => {
   };
   // 驗證表單有無錯誤
   const validate = () => {
+    // 必填欄位檢查
+    if (!form.username.trim()) return "帳號必填";
+    if (!form.password) return "密碼必填";
+    if (!form.confirmPassword) return "確認密碼必填";
+    if (!form.email.trim()) return "Email 必填";
+    if (!form.telephone.trim()) return "電話必填";
+    if (!form.county.trim()) return "縣市必填";
+    if (!form.address.trim()) return "地址必填";
+    if (!form.credit_card_number.trim()) return "信用卡號必填";
+    if (!form.credit_card_date.trim()) return "信用卡到期日必填";
+    if (!form.subpwd.trim()) return "驗證碼必填";
+    // 其他驗證
     if (form.subpwd !== String(captchaValue)) return "驗證碼錯誤";
     if (form.password !== form.confirmPassword) return "密碼與確認密碼不一致";
     if (!form.agreerule) return "請勾選同意使用者規範";
-    if (!form.username.trim()) return "帳號必填";
     if (form.username == form.password) return "帳號密碼不可相同";
-    // 移除 username/email 重複判斷，交由後端
-    if (!form.county.trim()) return "縣市必填";
-    if (!form.email.trim()) return "Email 必填";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "Email 格式錯誤";
     if (form.telephone && form.telephone.length < 8) return "電話格式不正確";
@@ -82,11 +90,13 @@ const mber_Register = () => {
       };
       const res = await axios.post(
         "http://localhost:3000/mber_register",
-        payload
+        payload,
+        { withCredentials: true }
       );
       if (res.data?.success) {
         setIsSuccess(true);
         handleClear();
+        // 註冊後直接跳頁，會員資料由 /check-auth 取得
 
         // 倒數計時然後轉跳
         let count = 3;
@@ -446,3 +456,4 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
+

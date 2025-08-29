@@ -1,11 +1,26 @@
 import express from 'express';
 import mysql from 'mysql';
-import cors from 'cors'; 
+import cors from 'cors';
 import crypto from 'crypto'; // 新增
+import session from 'express-session'; // 新增
+import cookieParser from 'cookie-parser'; // 新增
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // 啟用跨域支援
+app.use(cookieParser()); // 新增
+app.use(cors({
+    origin: 'http://localhost:5173', // 前端網址
+    credentials: true // 允許跨域帶 cookie
+}));
+app.use(session({
+    secret: 'your_secret_key', // 請改成安全的字串
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 1天
+    }
+}));
 
 // MySQL 連線設定
 const db = mysql.createConnection({
@@ -66,6 +81,8 @@ app.post('/mber_register', (req, res) => {
         credit_card_date
     } = req.body;
 
+
+
     // 檢查 username 或 email 是否重複
     db.query(
         'SELECT user_name, email FROM user WHERE user_name = ? OR email = ?',
@@ -122,16 +139,8 @@ app.post('/mber_register', (req, res) => {
 app.post('/mber_login', (req, res) => {
     const { user_name, password } = req.body;
 
-    if (!user_name || !password) {
-        return res.status(400).json({
-            success: false,
-            message: '請提供帳號和密碼'
-        });
-    }
-
-    // 不再進行雜湊，直接用前端傳來的雜湊值查詢
     db.query(
-        'SELECT uid, user_name, status, blacklist FROM user WHERE user_name = ? AND password = ?',
+        'SELECT uid, user_name, status, blacklist, email, telephone, country, address FROM user WHERE user_name = ? AND password = ?',
         [user_name, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
@@ -152,6 +161,9 @@ app.post('/mber_login', (req, res) => {
                 });
             }
 
+            // 登入成功，將 user 資料存入 session
+            req.session.user = user;
+
             return res.json({
                 success: true,
                 message: '登入成功',
@@ -163,29 +175,19 @@ app.post('/mber_login', (req, res) => {
 
 // 檢查是否登入 API (前端可用來驗證登入狀態)
 app.post('/check-auth', (req, res) => {
-    const { uid } = req.body;
-    
-    if (!uid) {
-        return res.json({ 
-            success: false, 
-            authenticated: false 
-        });
-    }
-    // localStorage儲存的資料
-    db.query('SELECT uid, user_name FROM user WHERE uid = ?', [uid], (err, results) => {
-        if (err || results.length === 0) {
-            return res.json({ 
-                success: false, 
-                authenticated: false 
-            });
-        }
-        
+    // 直接從 session 取得 user
+    if (req.session.user) {
         return res.json({
             success: true,
             authenticated: true,
-            user: results[0]
+            user: req.session.user
         });
-    });
+    } else {
+        return res.json({
+            success: false,
+            authenticated: false
+        });
+    }
 });
 
 // 會員停權 API
@@ -208,6 +210,10 @@ app.post('/api/user/deactivate', (req, res) => {
             // 更新後回傳最新會員資料（只回傳必要欄位）
             db.query('SELECT uid, user_name, status, email, telephone, country, address FROM user WHERE uid = ?', [uid], (err2, results) => {
                 if (err2) return res.status(500).json({ success: false, error: err2 });
+                // 更新 session user 狀態
+                if (req.session.user && req.session.user.uid === uid) {
+                    req.session.user.status = statusStr;
+                }
                 res.json({ success: true, message: '會員已停權', user: results[0] });
             });
         }
@@ -228,7 +234,7 @@ app.get('/user/:uid/notices', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('伺服器連線成功！');
+    res.send('伺服器連線成功！');
 });
 
 // 伺服器啟動

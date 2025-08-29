@@ -20,18 +20,26 @@ const mber_Profile = () => {
 
   // 頁面載入時從 localStorage 獲取用戶資料
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      if (parsedUser.country) {
-        setCountry(parsedUser.country);
-      }
-    } else {
-      // 如果沒有用戶資料，導回登入頁
-      alert("請先登入");
-      navigate("/mber_login");
-    }
+    // 取得 user 資料（登入狀態由 session 驗證）
+    fetch(`${API_BASE}/check-auth`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+          if (data.user.country) setCountry(data.user.country);
+        } else {
+          alert("請先登入");
+          navigate("/mber_login");
+        }
+      })
+      .catch(() => {
+        alert("請先登入");
+        navigate("/mber_login");
+      });
   }, [navigate]);
 
   // 處理城市選擇變更
@@ -54,17 +62,24 @@ const mber_Profile = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({ user_id: Number(user?.uid), status: "1" }),
         });
         if (response.ok) {
-          const result = await response.json();
-          const updatedUser = result.user
-            ? result.user
-            : { ...user, status: "1" };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
-          setUser(updatedUser);
-          alert("您的會員帳號已停權");
-          navigate("/mber_login"); //停權後導回登入頁
+          // 再次取得最新 user 狀態
+          fetch(`${API_BASE}/check-auth`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.authenticated && data.user) {
+                setUser(data.user);
+              }
+              alert("您的會員帳號已停權");
+              navigate("/mber_login");
+            });
         } else {
           alert("停權申請失敗，請稍後再試");
         }

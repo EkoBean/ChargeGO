@@ -27,12 +27,19 @@ const mber_Login = () => {
     e.preventDefault();
     setError("");
 
-    // 驗證
-    if (!form.username || !form.password) {
-      setError("請輸入帳號和密碼");
+    // 必填欄位檢查
+    if (!form.username.trim()) {
+      setError("請輸入帳號");
       return;
     }
-
+    if (!form.password) {
+      setError("請輸入密碼");
+      return;
+    }
+    if (!form.captcha.trim()) {
+      setError("請輸入驗證碼");
+      return;
+    }
     if (form.captcha !== String(captchaValue)) {
       setError("驗證碼錯誤");
       return;
@@ -48,26 +55,26 @@ const mber_Login = () => {
       // 登入 API 呼叫
       const res = await axios.post("http://localhost:3000/mber_login", {
         user_name: form.username,
-        password: hashedPwd, // 傳雜湊值
-      });
+        password: hashedPwd,
+      }, { withCredentials: true });
 
       if (res.data?.success) {
-        // 檢查 status 欄位
         const status = String(res.data.user?.status);
         if (status === "1" || status === "-1") {
           setError("您的會員帳號已停權");
           return;
         }
-        // 儲存用戶資訊到 localStorage
-        localStorage.setItem("user", JSON.stringify(res.data.user));
+        // 登入成功後直接跳頁，會員資料由 /check-auth 取得
         alert("登入成功！");
-        navigate("/mber_profile"); // 導向會員中心
+        navigate("/mber_profile");
       } else {
         setError(res.data?.message || "登入失敗，請檢查帳號密碼");
       }
     } catch (err) {
+      // 加強錯誤處理，顯示後端回傳訊息
+      const serverMsg = err?.response?.data?.message;
+      setError(serverMsg || "系統錯誤，請稍後再試");
       console.error("登入錯誤:", err);
-      setError("系統錯誤，請稍後再試");
     }
   };
   // 重新產生驗證碼
