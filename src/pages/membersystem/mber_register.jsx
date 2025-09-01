@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/global.scss";
+import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import NavBarPhone from "../../components/NavBarPhone";
 const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
@@ -155,300 +157,310 @@ const mber_Register = () => {
   }
   // 註冊表單主要內容
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8">
-          <div className="card">
-            <div className="card-header bg-primary text-white">
-              <h3 className="mb-0">會員註冊</h3>
-            </div>
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                {/* 帳號 */}
-                <div className="form-group row mb-3">
-                  <label htmlFor="username" className="col-md-3 col-form-label">
-                    帳號：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="username"
-                      name="username"
-                      value={form.username}
-                      onChange={handleChange}
-                      required
-                      type="text"
-                    />
-                  </div>
-                </div>
-                {/* 密碼 */}
-                <div className="form-group row mb-3">
-                  <label htmlFor="password" className="col-md-3 col-form-label">
-                    密碼：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="password"
-                      name="password"
-                      value={form.password}
-                      onChange={handleChange}
-                      required
-                      type="password"
-                    />
-                  </div>
-                </div>
-                <div className="form-group row mb-3">
-                  <label
-                    htmlFor="confirmPassword"
-                    className="col-md-3 col-form-label"
-                  >
-                    確認密碼：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={form.confirmPassword}
-                      onChange={handleChange}
-                      required
-                      type="password"
-                    />
-                  </div>
-                </div>
-                {/* Email */}
-                <div className="form-group row mb-3">
-                  <label htmlFor="email" className="col-md-3 col-form-label">
-                    電子郵件：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                {/* 電話 */}
-                <div className="form-group row mb-3">
-                  <label
-                    htmlFor="telephone"
-                    className="col-md-3 col-form-label"
-                  >
-                    電話：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="telephone"
-                      name="telephone"
-                      type="text"
-                      value={form.telephone}
-                      onChange={handleChange}
-                      placeholder="僅數字"
-                    />
-                  </div>
-                </div>
-                {/* 地址 */}
-                <div className="form-group row mb-3">
-                  <label htmlFor="address" className="col-md-3 col-form-label">
-                    地址：
-                  </label>
-                  <div className="col-md-9">
-                    <select
-                      name="county"
-                      id="county"
-                      value={form.county}
-                      onChange={handleChange}
-                    >
-                      <option value="">選擇縣市</option>
-                      <option value="台北市">台北市</option>
-                      <option value="新北市">新北市</option>
-                      <option value="基隆市">基隆市</option>
-                      <option value="桃園市">桃園市</option>
-                      <option value="新竹縣">新竹縣</option>
-                      <option value="新竹市">新竹市</option>
-                      <option value="苗栗縣">苗栗縣</option>
-                      <option value="台中市">台中市</option>
-                      <option value="彰化縣">彰化縣</option>
-                      <option value="南投縣">南投縣</option>
-                      <option value="雲林縣">雲林縣</option>
-                      <option value="嘉義縣">嘉義縣</option>
-                      <option value="嘉義市">嘉義市</option>
-                      <option value="台南市">台南市</option>
-                      <option value="高雄市">高雄市</option>
-                      <option value="屏東縣">屏東縣</option>
-                      <option value="宜蘭縣">宜蘭縣</option>
-                      <option value="花蓮縣">花蓮縣</option>
-                      <option value="台東縣">台東縣</option>
-                      <option value="連江縣">連江縣</option>
-                      <option value="澎湖縣">澎湖縣</option>
-                      <option value="金門縣">金門縣</option>
-                    </select>
-                    <input
-                      className="form-control"
-                      id="address"
-                      name="address"
-                      type="text"
-                      value={form.address}
-                      onChange={handleChange}
-                      placeholder="請填完後續地址"
-                    />
-                  </div>
-                </div>
-                {/* 信用卡號 */}
-                <div className="form-group row mb-3">
-                  <label
-                    htmlFor="credit_card_number"
-                    className="col-md-3 col-form-label"
-                  >
-                    信用卡號：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="credit_card_number"
-                      name="credit_card_number"
-                      type="text"
-                      value={form.credit_card_number}
-                      onChange={handleChange}
-                      maxLength={16}
-                      placeholder="16 碼"
-                    />
-                  </div>
-                </div>
-                {/* 信用卡到期日 */}
-                <div className="form-group row mb-3">
-                  <label
-                    htmlFor="credit_card_date"
-                    className="col-md-3 col-form-label"
-                  >
-                    信用卡到期日：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="credit_card_date"
-                      name="credit_card_date"
-                      type="text"
-                      value={form.credit_card_date}
-                      onChange={handleChange}
-                      placeholder="MM/YY"
-                      maxLength={5}
-                    />
-                  </div>
-                </div>
-                {/* 驗證碼 */}
-                <div className="form-group row mb-3" id="capbox">
-                  <label className="col-md-3 col-form-label">驗證碼：</label>
-                  <div className="col-md-9 d-flex align-items-center">
-                    <span
-                      className="me-2 p-2 bg-light border rounded"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      {captchaValue}
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-secondary"
-                      onClick={() =>
-                        setCaptchaValue(
-                          Math.floor(
-                            Math.random() * (999999 - 100000 + 1) + 100000
-                          )
-                        )
-                      }
-                    >
-                      重新產生
-                    </button>
-                  </div>
-                </div>
-                <div className="form-group row mb-3">
-                  <label htmlFor="subpwd" className="col-md-3 col-form-label">
-                    請輸入驗證碼：
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      id="subpwd"
-                      name="subpwd"
-                      type="text"
-                      value={form.subpwd}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                {/* 條款 & 活動 */}
-                <div className="form-group row mb-3">
-                  <div className="col-md-9 offset-md-3">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="agreerule"
-                        name="agreerule"
-                        checked={form.agreerule}
-                        onChange={handleChange}
-                      />
-                      <label className="form-check-label" htmlFor="agreerule">
-                        同意使用者規範
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div className="form-group row mb-3">
-                  <div className="col-md-9 offset-md-3">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="event"
-                        name="event"
-                        checked={form.event}
-                        onChange={handleChange}
-                      />
-                      <label className="form-check-label" htmlFor="event">
-                        訂閱活動資訊
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                {/* 按鈕 */}
-                <div className="form-group row">
-                  <div className="col-md-9 offset-md-3">
-                    <button
-                      className="btn btn-primary"
-                      id="mber_register"
-                      type="submit"
-                    >
-                      註冊
-                    </button>
-                    <button
-                      className="btn btn-secondary ms-2"
-                      id="clear"
-                      type="button"
-                      onClick={handleClear}
-                    >
-                      清除
-                    </button>
-                    <button
-                      className="btn btn-link ms-2"
-                      type="button"
-                      onClick={() => navigate("/mber_login")}
-                    >
-                      已有帳號？登入
-                    </button>
-                  </div>
-                </div>
-              </form>
+    <div className="register-bg">
+      {/* 手機版專用區塊 */}
+      <ChargegoLogo className="mobile-only-logo" />
+      <div className="register-container">
+        <div className="register-form-section">
+          {/* 返回上頁按鈕 */}
+          <span
+            className="back-icon mobile-only-back"
+            onClick={() => window.history.back()}
+            title="回到上頁"
+          >
+            ◀︎
+          </span>
+          <div className="mobile-arc-bg">
+            <div className="mobile-arc-content">
+              <h2 className="register-title">會員註冊</h2>
             </div>
           </div>
+          <form className="register-form" onSubmit={handleSubmit}>
+            <div className="register-form-row">
+              {/* 帳號 */}
+              <div className="register-input-group">
+                <label htmlFor="username" className="register-label">
+                  帳號：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="register-input"
+                    id="username"
+                    name="username"
+                    value={form.username}
+                    onChange={handleChange}
+                    required
+                    type="text"
+                  />
+                </div>
+              </div>
+              {/* 密碼 */}
+              <div className="register-input-group">
+                <label htmlFor="password" className="register-label">
+                  密碼：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="register-input"
+                    id="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                    type="password"
+                  />
+                </div>
+              </div>
+              {/* 確認密碼 */}
+              <div className="register-input-group">
+                <label
+                  htmlFor="confirmPassword"
+                  className="register-label"
+                >
+                  確認密碼：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="register-input"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    type="password"
+                  />
+                </div>
+              </div>
+              {/* Email */}
+              <div className="register-input-group">
+                <label htmlFor="email" className="register-label">
+                  電子郵件：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="register-input"
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+              {/* 電話 */}
+              <div className="register-input-group">
+                <label htmlFor="telephone" className="register-label">
+                  電話：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="register-input"
+                    id="telephone"
+                    name="telephone"
+                    type="text"
+                    value={form.telephone}
+                    onChange={handleChange}
+                    placeholder="僅數字"
+                  />
+                </div>
+              </div>
+              {/* 地址 */}
+              <div className="register-input-group">
+                <label htmlFor="address" className="register-label">
+                  地址：
+                </label>
+                  <select
+                    className="register-input"
+                    name="county"
+                    id="county"
+                    value={form.county}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">選擇縣市</option>
+                    <option value="台北市">台北市</option>
+                    <option value="新北市">新北市</option>
+                    <option value="基隆市">基隆市</option>
+                    <option value="桃園市">桃園市</option>
+                    <option value="新竹縣">新竹縣</option>
+                    <option value="新竹市">新竹市</option>
+                    <option value="苗栗縣">苗栗縣</option>
+                    <option value="台中市">台中市</option>
+                    <option value="彰化縣">彰化縣</option>
+                    <option value="南投縣">南投縣</option>
+                    <option value="雲林縣">雲林縣</option>
+                    <option value="嘉義縣">嘉義縣</option>
+                    <option value="嘉義市">嘉義市</option>
+                    <option value="台南市">台南市</option>
+                    <option value="高雄市">高雄市</option>
+                    <option value="屏東縣">屏東縣</option>
+                    <option value="宜蘭縣">宜蘭縣</option>
+                    <option value="花蓮縣">花蓮縣</option>
+                    <option value="台東縣">台東縣</option>
+                    <option value="連江縣">連江縣</option>
+                    <option value="澎湖縣">澎湖縣</option>
+                    <option value="金門縣">金門縣</option>
+                  </select>
+              </div>
+              <div className="register-input-group">
+                 <input
+                    className="register-input"
+                    id="address"
+                    name="address"
+                    type="text"
+                    value={form.address}
+                    onChange={handleChange}
+                    placeholder="請填完後續地址"
+                  />
+              </div>
+              {/* 信用卡號 */}
+              <div className="register-input-group">
+                <label
+                  htmlFor="credit_card_number"
+                  className="col-md-3 col-form-label"
+                >
+                  信用卡號：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="form-control"
+                    id="credit_card_number"
+                    name="credit_card_number"
+                    type="text"
+                    value={form.credit_card_number}
+                    onChange={handleChange}
+                    maxLength={16}
+                    placeholder="16 碼"
+                  />
+                </div>
+              </div>
+              {/* 信用卡到期日 */}
+              <div className="register-input-group">
+                <label
+                  htmlFor="credit_card_date"
+                  className="col-md-3 col-form-label"
+                >
+                  信用卡到期日：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="form-control"
+                    id="credit_card_date"
+                    name="credit_card_date"
+                    type="text"
+                    value={form.credit_card_date}
+                    onChange={handleChange}
+                    placeholder="MM/YY"
+                    maxLength={5}
+                  />
+                </div>
+              </div>
+              {/* 驗證碼 */}
+              <div className="register-input-group" id="capbox">
+                <label className="col-md-3 col-form-label">驗證碼：</label>
+                <div className="col-md-9 d-flex align-items-center">
+                  <span
+                    className="captcha-value"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    {captchaValue}
+                  </span>
+                  <button
+                    type="button"
+                    className="captcha-refresh"
+                    onClick={() =>
+                      setCaptchaValue(
+                        Math.floor(
+                          Math.random() * (999999 - 100000 + 1) + 100000
+                        )
+                      )
+                    }
+                  >
+                    重新產生
+                  </button>
+                </div>
+              </div>
+              <div className="register-input-group">
+                <label htmlFor="subpwd" className="col-md-3 col-form-label">
+                  請輸入驗證碼：
+                </label>
+                <div className="col-md-9">
+                  <input
+                    className="form-control"
+                    id="subpwd"
+                    name="subpwd"
+                    type="text"
+                    value={form.subpwd}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+              {/* 條款 & 活動 */}
+              <div className="register-input-group">
+                <div className="col-md-9 offset-md-3">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="agreerule"
+                      name="agreerule"
+                      checked={form.agreerule}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="agreerule">
+                      同意使用者規範
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div className="register-input-group">
+                <div className="col-md-9 offset-md-3">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="event"
+                      name="event"
+                      checked={form.event}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="event">
+                      訂閱活動資訊
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* 按鈕 */}
+            <div className="register-input-group">
+              <div className="col-md-9 offset-md-3">
+                <button
+                  className="correct-btn"
+                  id="mber_register"
+                  type="submit"
+                >
+                  註冊
+                </button>
+                <button
+                  className="leave-btn"
+                  id="clear"
+                  type="button"
+                  onClick={handleClear}
+                >
+                  清除
+                </button>
+                <button
+                  className="alreadyRegistered"
+                  type="button"
+                  onClick={() => navigate("/mber_login")}
+                >
+                  已有帳號？登入
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -456,4 +468,3 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
-
