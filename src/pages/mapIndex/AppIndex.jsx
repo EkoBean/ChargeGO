@@ -390,23 +390,31 @@ function AppIndex() {
           // ====== axios patch ======
           axios.patch(`${API_URL}/api/rent`, { deviceId, uid })
             .then(res => {
-              if (startTime) {
-                setRentalStatus(true);
-                return;
+              if (res.data.success) {
+                if (startTime) {
+                  setRentalStatus(true);
+                  return;
+                }
+                else {
+                  
+                  setRentMessage('租借成功');
+                  setStartTime(res.data.start_date)
+                  setRentalStatus(true);
+                }
               }
-              else if (res.data.success) {
-                setRentMessage('租借成功');
-                setStartTime(res.data.start_date)
-                setRentalStatus(true);
-
+              else{
+                setRentMessage('Unknown issue, please contact support.');
+                setRentalStatus(false);
+                console.warn('Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯' );
               }
             })
             .catch(err => {
-              if (err.response && err.response.data && err.response.data.message) {
-                setRentMessage(err.response.data.message);
-                console.error(err.response.data.message);
+              if (err.response) {
+                const status = err.response.status;
+                if (status === 404) setRentMessage('查無此設備');
+                else if (status === 400) setRentMessage('此設備未正確歸還，請租借他台');
               } else {
-                setRentMessage('租借失敗，請稍後再試');
+                setRentMessage('Database error, please try again later.');
                 console.error(err);
               }
             })
@@ -444,7 +452,7 @@ function AppIndex() {
                 }
                 if (res.data)
                   // setReturnBtn(false);
-                setStartTime(null);
+                  setStartTime(null);
                 setRentalStatus(false);
                 // ======== calculate rental fee =========
                 setRentalFee(res.data.rentalFee);
@@ -518,10 +526,10 @@ function AppIndex() {
             {
               returnWarning ?
                 <div className='alert alert-danger return-warning'
-                style={{opacity : rentOpen ? 0 : 0.7}}>
+                  style={{ opacity: rentOpen ? 0 : 0.7 }}>
                   <i className="bi bi-exclamation-triangle-fill"></i>
-                  <span>警告</span><br/>
-                  <span>您已超過三天未歸還<br/>請盡速歸還以免影響信用紀錄</span>
+                  <span>警告</span><br />
+                  <span>您已超過三天未歸還<br />請盡速歸還以免影響信用紀錄</span>
                 </div> : null
             }
           </div>
