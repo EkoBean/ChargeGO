@@ -81,34 +81,9 @@ app.post("/buycoupons", async (req, res) => {
     res.status(500).json({ error: "資料庫錯誤" });
   }
 });
-//使用優惠券
-app.post("/usecoupons", async (req, res) => {
-  const { template_id, user_id } = req.body;
-  try {
-    // 取出有效天數
-    const [templates] = await pool.query(
-      "SELECT validity_days FROM coupon_templates WHERE template_id=?",
-      [template_id]
-    );
-    if (!templates[0])
-      return res.status(404).json({ error: "找不到 template" });
 
-    const validity_days = templates[0].validity_days;
-
-    // 新增 coupon 實例
-    const [result] = await pool.query(
-      `INSERT INTO coupons (template_id, user_id, source_type, status, issued_at, expires_at)
-       VALUES (?, ?, 'shop_purchase', 'active', NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
-      [template_id, user_id, validity_days]
-    );
-
-    res.json({ coupon_id: result.insertId });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "資料庫錯誤" });
-  }
-});
 // 取得優惠券
+//根據輸入的優惠券
 app.get("/mycouponsparam/:user_id", async (req, res) => {
   const { user_id } = req.params; // <-- 抓路由上的 user_id
   // console.log("user_id:", user_id);
@@ -137,7 +112,8 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
     res.status(500).json({ error: "資料庫錯誤" });
   }
 });
-//商品兌換與折扣
+//商品類兌換折扣券使用
+//功能為跳出QRcode
 app.post("/redeem/:couponCode", async (req, res) => {
   const coupon_Code = req.params;
   console.log("coupon_Code", coupon_Code);
@@ -167,6 +143,39 @@ app.post("/redeem/:couponCode", async (req, res) => {
     res.status(500).json({ message: "資料庫錯誤" });
   }
 });
+
+//結帳時租借優惠券使用
+app.get("/mycoupons/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    // 先更新過期的
+    await pool.query(
+      `UPDATE coupons
+       SET is_expired = 1
+       WHERE user_id = ? AND expires_at < NOW()`,
+      [user_id]
+    );
+
+    // 查詢符合三種 type 的 coupon
+    const coupons = await pool.query(
+      `SELECT c.coupon_id, c.template_id, c.status,c.is_expired, c.expires_at, t.name, t.type
+       FROM coupons c
+       JOIN coupon_templates t ON c.template_id = t.template_id
+       WHERE c.user_id = ?
+         AND t.type IN ('rental_discount', 'free_minutes', 'percent_off')
+         AND c.status = 'active'
+         AND c.is_expired = 0`,
+      [user_id]
+    );
+
+    res.json(coupons);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
+
 const PORT = process.env.PORT || 4002;
 app.listen(PORT, () => {
   console.log(`API server running on port ${PORT}`);
