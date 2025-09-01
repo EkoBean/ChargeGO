@@ -20,6 +20,8 @@ import Promise from "bluebird";
 global.Promise = Promise;
 Promise.promisifyAll(connection);
 
+// db queries import
+import { dbQueries as mapQuery } from './map_dbQuery.js';
 
 //============= mySql DB connect and error handling ==============
 connection.connect((err) => {
@@ -33,43 +35,11 @@ app.listen(3000, () => {
     console.log('click to open http://localhost:3000');
 });
 
-// ================== db query ====================
-// lookup all stations
-const selectAllStations = `SELECT * from charger_site`;
-// lookup info window data
-const selectInfoWindow = `
-SELECT cs.site_id, cs.site_name, cs.address, c.charger_id, c.status
-from charger_site as cs
-LEFT JOIN charger as c ON c.site_id = cs.site_id
-WHERE cs.site_id = ?`;
-// rent a charger
-const searchCharger = `SELECT * from charger 
-WHERE charger_id = ?`;
-const checkUser = `SELECT order_ID, uid,order_status, start_date FROM order_record WHERE uid = ? AND order_status = '0'`
-const checkDeviceOwner = `
-SELECT o.order_ID,o.uid as renterUid, c.charger_id,c.status, o.start_date as cherger_status from charger as c
-LEFT JOIN order_record as o ON c.charger_id = o.charger_id
-WHERE c.charger_id = ? and o.order_status = '0'  
-ORDER BY o.start_date DESC 
-LIMIT 1;
-`;
-const rentCharger = `UPDATE charger SET status = '1', site_id = null WHERE charger_id = ? `;
-const rentalLog = `INSERT INTO order_record (uid, start_date, rental_site_id, order_status, charger_id) VALUES (?, ?, ?, '0', ?);
-`;
-
-// return a charger
-const returnCharger = `UPDATE charger SET status = ?, site_id = ? WHERE charger_id = ?`;
-const returnLog = `UPDATE order_record SET order_status = '1', return_site_id = ?,  end = ?, comment = ? WHERE charger_id = ? AND order_status = '0'`;
-const getRentalTime = `SELECT order_ID, uid,order_status,charger_id, start_date, end  FROM order_record WHERE uid = ? AND order_status = ? AND charger_id = ? ORDER BY end || start_date DESC LIMIT 1;`;
-const overTImeReturn = `UPDATE user SET blacklist = blacklist +1
-WHERE uid = ?; `
-
-
 
 // ================== main API ====================
 // get all stations
 app.get('/api/stations', (req, res) => {
-    connection.query(selectAllStations, (error, results) => {
+    connection.query(mapQuery.selectAllStations, (error, results) => {
         if (error) {
             console.error('Error fetching stations:', error);
             return res.status(500).json({ error: 'Database query failed' });
@@ -81,7 +51,7 @@ app.get('/api/stations', (req, res) => {
 // get info window data
 app.get('/api/infoWindow/:siteId', (req, res) => {
     const siteId = req.params.siteId;
-    connection.query(selectInfoWindow, [siteId], (error, results) => {
+    connection.query(mapQuery.selectInfoWindow, [siteId], (error, results) => {
         if (error) {
             console.error('Error fetching stations:', error);
             return res.status(500).json({ error: 'Database query failed' });
@@ -93,7 +63,7 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
 // check user rental status
 app.get('/api/checkRental/:uid', (req, res) => {
     const uid = req.params.uid;
-    connection.query(checkUser, [uid], (error, results) => {
+    connection.query(mapQuery.checkUser, [uid], (error, results) => {
         if (error) {
             console.error('Error fetching user rental status:', error);
             return res.status(500).json({ error: 'DB error checking rental' });
@@ -118,8 +88,9 @@ app.patch('/api/rent', async (req, res) => {
     const now = new Date();
     try {
         // check if user is renting a device
-        const userCheck = await connection.queryAsync(checkUser, [uid]);
+        const userCheck = await connection.queryAsync(mapQuery.checkUser, [uid]);
         if (userCheck.length > 0) {
+            if (deviceId != userCheck[0].charger_id) return res.status(400).json({ success: false, message: '此帳號已有租借中的設備，無法重複租借' });
             return res.json({
                 renting: true,
                 start_date: userCheck[0].start_date,
@@ -128,7 +99,7 @@ app.patch('/api/rent', async (req, res) => {
         }
 
         // check if device exists
-        const deviceCheck = await connection.queryAsync(searchCharger, [deviceId]);
+        const deviceCheck = await connection.queryAsync(mapQuery.searchCharger, [deviceId]);
         if (!deviceCheck || deviceCheck.length === 0) {
             return res.status(404).json({ success: false, message: '查無此設備' });
         }
@@ -144,7 +115,7 @@ app.patch('/api/rent', async (req, res) => {
         }
         if (deviceCheck[0].status === '1') {
             // check if the device is rented by the current uid
-            const renter = await connection.queryAsync(checkDeviceOwner, [deviceId]);
+            const renter = await connection.queryAsync(mapQuery.checkDeviceOwner, [deviceId]);
             // db query error   
             if (!renter && renter.length == 0) {
                 return res.status(400).json({ success: false, message: 'db query failed to check currently renter' });
@@ -158,13 +129,13 @@ app.patch('/api/rent', async (req, res) => {
         // ========== update device status & insert rental log ==============
         await connection.beginTransactionAsync();
         // change device status to rented
-        const rent = await connection.queryAsync(rentCharger, [deviceId]);
+        const rent = await connection.queryAsync(mapQuery.rentCharger, [deviceId]);
         if (!rent || rent.affectedRows === 0) {
             return res.status(404).json({ success: false, message: '租借失敗' });
         }
         if (!deviceCheck[0].site_id) return res.status(400).json({ success: false, message: '此設備未正確歸還，請租借他台' });
         // insert rental log
-        const rentalLogResult = await connection.queryAsync(rentalLog, [uid, now, deviceCheck[0].site_id, deviceId]);
+        const rentalLogResult = await connection.queryAsync(mapQuery.rentalLog, [uid, now, deviceCheck[0].site_id, deviceId]);
         if (!rentalLogResult || rentalLogResult.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'DB log not established' });
         }
@@ -195,7 +166,7 @@ app.patch('/api/return', async (req, res) => {
                 '2'; //滿電量 
     try {
         // check the rental time
-        const rentalTimeCheck = await connection.queryAsync(getRentalTime, [uid, '0', deviceId])
+        const rentalTimeCheck = await connection.queryAsync(mapQuery.getRentalTime, [uid, '0', deviceId])
         if (!rentalTimeCheck || rentalTimeCheck.length === 0) {
             return res.status(400).json({ success: false, message: '查無租借紀錄，請確認歸還裝置是否正確' });
         }
@@ -218,11 +189,11 @@ app.patch('/api/return', async (req, res) => {
         // ============== update device status & insert return log ==============
         await connection.beginTransactionAsync();
 
-        const deviceBack = await connection.queryAsync(returnCharger, [batteryStatus, returnSite, deviceId]);
+        const deviceBack = await connection.queryAsync(mapQuery.returnCharger, [batteryStatus, returnSite, deviceId]);
         if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗' });
 
 
-        const logBack = await connection.queryAsync(returnLog, [returnSite, now, '', deviceId]);
+        const logBack = await connection.queryAsync(mapQuery.returnLog, [returnSite, now, rentalFee, '', deviceId]);
         if (!logBack || logBack.affectedRows === 0) return res.status(404).json({ success: false, message: 'db log query failed' });
 
 
@@ -246,7 +217,7 @@ app.patch('/api/overtimeReturn', async (req, res) => {
                 '2'; //滿電量 
     try {
         // check the rental time
-        const rentalTimeCheck = await connection.queryAsync(getRentalTime, [uid, '0', deviceId])
+        const rentalTimeCheck = await connection.queryAsync(mapQuery.getRentalTime, [uid, '0', deviceId])
         if (!rentalTimeCheck || rentalTimeCheck.length === 0) {
             return res.status(400).json({ success: false, message: '查無租借紀錄，請確認歸還裝置是否正確' });
         }
@@ -270,13 +241,13 @@ app.patch('/api/overtimeReturn', async (req, res) => {
         // ============== update device status & insert return log ==============
         await connection.beginTransactionAsync();
 
-        const deviceBack = await connection.queryAsync(returnCharger, [batteryStatus, returnSite, deviceId]);
+        const deviceBack = await connection.queryAsync(mapQuery.returnCharger, [batteryStatus, returnSite, deviceId]);
         if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗' });
 
 
-        const logBack = await connection.queryAsync(returnLog, [returnSite, now, 'Overtime return. 逾期歸還', deviceId]);
+        const logBack = await connection.queryAsync(mapQuery.returnLog, [returnSite, now, rentalFee, 'Overtime return. 逾期歸還', deviceId]);
         if (!logBack || logBack.affectedRows === 0) return res.status(404).json({ success: false, message: 'db log query failed' });
-        const overTime = await connection.queryAsync(overTImeReturn, [uid]);
+        const overTime = await connection.queryAsync(mapQuery.overTImeReturn, [uid]);
         if (!overTime || overTime.affectedRows === 0) return res.status(404).json({ success: false, message: 'db blacklist log query failed' });
 
         await connection.commitAsync();
