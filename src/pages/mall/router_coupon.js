@@ -112,7 +112,7 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
     res.status(500).json({ error: "資料庫錯誤" });
   }
 });
-//商品類兌換折扣券使用
+//商品折扣優惠券(禮物箱)
 //功能為跳出QRcode
 app.post("/redeem/:couponCode", async (req, res) => {
   const coupon_Code = req.params;
@@ -144,7 +144,7 @@ app.post("/redeem/:couponCode", async (req, res) => {
   }
 });
 
-//結帳時租借優惠券使用
+//租借折扣優惠券(專門給結帳用)
 app.get("/mycoupons/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
@@ -176,6 +176,88 @@ app.get("/mycoupons/:user_id", async (req, res) => {
   }
 });
 
+// 取得單一優惠券折扣資訊 API
+// 前端使用 GET /coupon-info/:user_id/:coupon_id
+app.get("/coupon-info/:user_id/:coupon_id", async (req, res) => {
+  const { user_id, coupon_id } = req.params;
+
+  try {
+    const results = await pool.query(
+      `SELECT c.coupon_id, t.type, t.value
+       FROM coupons c
+       JOIN coupon_templates t ON c.template_id = t.template_id
+       WHERE c.coupon_id = ?
+         AND c.user_id = ?
+         AND c.status = 'active'
+         AND c.is_expired = 0`,
+      [coupon_id, user_id]
+    );
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "優惠券不存在或不可使用" });
+    }
+
+    const coupon = results[0];
+    let operation;
+    let description;
+
+    switch (coupon.type) {
+      case "rental_discount":
+        operation = "subtract";
+        description = `折抵 ${coupon.value} 元`;
+        break;
+      case "percent_off":
+        operation = "multiply";
+        description = `${coupon.value * 100}% 折扣`;
+        break;
+      case "free_minutes":
+        operation = "free_time";
+        description = `加贈 ${coupon.value} 分鐘`;
+        break;
+      default:
+        operation = "unknown";
+        description = "未知優惠";
+    }
+
+    res.json({
+      coupon_id: coupon.coupon_id,
+      type: coupon.type,
+      value: coupon.value,
+      operation,
+      description,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
+
+// 將優惠券標記為已使用
+app.post("/use-coupon", async (req, res) => {
+  const { coupon_id } = req.body;
+
+  if (!coupon_id) {
+    return res.status(400).json({ error: "缺少 coupon_id" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE coupons
+       SET status = 'used'
+       WHERE coupon_id = ?`,
+      [coupon_id]
+    );
+
+    if (result.affectedRows > 0) {
+      res.json({ message: "優惠券已成功使用", coupon_id });
+    } else {
+      res.status(404).json({ message: "優惠券不存在、已使用或不可用" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
 const PORT = process.env.PORT || 4002;
 app.listen(PORT, () => {
   console.log(`API server running on port ${PORT}`);
