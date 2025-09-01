@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import crypto from "crypto-js"; 
-import '../../styles/scss/member.scss';
+import crypto from "crypto-js";
+import "../../styles/scss/member.scss";
+import NavBarPhone from "../../components/NavBarPhone";
+import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 
 const mber_Login = () => {
   const [form, setForm] = useState({
@@ -43,6 +45,7 @@ const mber_Login = () => {
     }
     if (form.captcha !== String(captchaValue)) {
       setError("驗證碼錯誤");
+      alert("驗證碼錯誤");
       return;
     }
 
@@ -54,10 +57,14 @@ const mber_Login = () => {
         .slice(0, 10);
 
       // 登入 API 呼叫
-      const res = await axios.post("http://localhost:3000/mber_login", {
-        user_name: form.username,
-        password: hashedPwd,
-      }, { withCredentials: true });
+      const res = await axios.post(
+        "http://localhost:3000/mber_login",
+        {
+          user_name: form.username,
+          password: hashedPwd,
+        },
+        { withCredentials: true }
+      );
 
       if (res.data?.success) {
         const status = String(res.data.user?.status);
@@ -84,52 +91,59 @@ const mber_Login = () => {
   };
 
   return (
-    <div className="container" style={{ position: "relative", minHeight: "100vh" }}>
+    <div className="login-bg">
       {/* 閃電背景 */}
-      <div className="bg-lightning"></div>
-      {/* 登入表單區塊 */}
-      <div className="login-box">
-        <h3 className="login-title">會員登入</h3>
-        {error && (
-          <div className="alert" role="alert">
-            {error}
+      <img className="lightning" src="../../../public/lightning.png" />
+      <ChargegoLogo className="mobile-only-logo" />
+      <NavBarPhone  />
+      <div className="login-container">
+        <div className="login-form-section">
+          <span
+            className="back-icon mobile-only-back"
+            onClick={() => window.history.back()}
+            title="回到上頁"
+          >
+            ◀︎
+          </span>
+          <div className="mobile-arc-bg">
+            <div className="mobile-arc-content">
+              <h2 className="login-title">會員登入</h2>
+            </div>
           </div>
-        )}
-        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-          {/* 帳號欄位 */}
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">
-              帳號
-            </label>
+          {/* 登入表單區塊 */}
+          <form className="login-form" onSubmit={handleSubmit}>
+            {/* 帳號欄位 */}
             <input
               type="text"
-              className="form-control"
-              id="username"
               name="username"
+              className="login-input"
+              placeholder="帳號"
               value={form.username}
               onChange={handleChange}
               required
             />
-          </div>
-          {/* 密碼欄位 */}
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
-              密碼
-            </label>
+            {/* 密碼欄位 */}
             <input
               type="password"
-              className="form-control"
-              id="password"
               name="password"
+              className="login-input"
+              placeholder="密碼"
               value={form.password}
               onChange={handleChange}
               required
             />
-          </div>
-          {/* 驗證碼顯示與刷新 */}
-          <div className="form-group">
-            <label className="form-label">驗證碼</label>
+            {/* 忘記密碼 */}
+
+            <button
+              type="button"
+              className="forgot-link"
+              onClick={() => alert("請聯繫客服重設密碼")}
+            >
+              忘記密碼
+            </button>
+            {/* 驗證碼顯示與刷新 */}
             <div className="captcha-row">
+              <span className="captcha-label">驗證碼</span>
               <span className="captcha-value">{captchaValue}</span>
               <button
                 type="button"
@@ -139,51 +153,35 @@ const mber_Login = () => {
                 重新產生
               </button>
             </div>
-          </div>
-          {/* 驗證碼輸入欄位 */}
-          <div className="form-group">
-            <label htmlFor="captcha" className="form-label">
-              請輸入驗證碼
-            </label>
+
+            {/* 驗證碼輸入欄位 */}
             <input
               type="text"
-              className="form-control"
-              id="captcha"
               name="captcha"
+              className="login-input"
+              placeholder="請輸入驗證碼"
               value={form.captcha}
               onChange={handleChange}
               required
             />
-          </div>
-          {/* 登入按鈕 */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <button type="submit" className="btn">
+
+            {/* 登入按鈕 */}
+
+            <button type="submit" className="login-btn">
               登入
             </button>
             <button
               type="button"
-              className="btn"
+              className="register-btn"
               onClick={() => navigate("/mber_register")}
             >
               註冊
             </button>
-          </div>
-          {/* 忘記密碼 */}
-          <div style={{ textAlign: "right", width: "100%", marginTop: "8px" }}>
-            <button
-              type="button"
-              className="forgot-link"
-              onClick={() => alert("請聯繫客服重設密碼")}
-            >
-              忘記密碼
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-      {/* Footer 已移除 */}
     </div>
   );
 };
-
 
 export default mber_Login;

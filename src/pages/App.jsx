@@ -6,8 +6,8 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // =========== elements ==================
-import NavBar from "../components/nav";
-import AppIndex from "./mapIndex/AppIndex";
+
+
 import Mber_Register from "./membersystem/mber_register";
 import Mber_Login from "./membersystem/mber_login";
 import Mber_Profile from "./membersystem/mber_profile";
