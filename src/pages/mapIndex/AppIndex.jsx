@@ -467,9 +467,11 @@ function AppIndex() {
             }
             )
             .catch(err => {
+              if(err.response.status === 400 && err.response.data.overTime){
+                alert('歸還失敗，您已超過七天未歸還，請聯絡客服');
+              }
               console.error(err);
-              alert('歸還失敗，請稍後再試');
-              // setRentMessage('歸還失敗，請稍後再試');
+              setRentMessage(err.response?.data?.message || '連線問題，請再試一次。');
             })
         }
 
