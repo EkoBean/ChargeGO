@@ -14,6 +14,7 @@ import AppIndex from "./mapIndex/AppIndex";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Coupon from "./mall/coupon";
+import CheckoutCoupons from "./mall/checkout_coupon";
 import MemberLogin from "./MemberLogin";
 import NavbarWebsite from "../components/NavbarWebsite";
 import Task from "./Task";
@@ -27,7 +28,7 @@ function App() {
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
-
+        <Route path="/CheckoutCoupons" element={<CheckoutCoupons />}></Route>
         <Route
           path="/"
           element={
