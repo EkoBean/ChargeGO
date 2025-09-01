@@ -1,9 +1,16 @@
 //後台管理系統的整體頁面結構
 import React from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import '../styles/AdminDashboard.css';
 
-const AdminLayout = () => {
+const AdminLayout = ({ children, onLogout }) => {
+  
+  const handleLogout = () => {
+    if (confirm('確定要登出嗎？')) {
+      onLogout();
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <nav className="top-nav">
@@ -13,6 +20,9 @@ const AdminLayout = () => {
         </div>
         <div className="nav-user">
           <span>👤 系統管理員</span>
+          <button className="logout-btn" onClick={handleLogout}>
+            🚪 登出
+          </button>
         </div>
       </nav>
 
@@ -20,7 +30,7 @@ const AdminLayout = () => {
         <aside className="sidebar">
           <nav className="sidebar-nav">
             <NavLink 
-              to="/" 
+              to="/dashboard" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
               📊 總覽
@@ -41,17 +51,16 @@ const AdminLayout = () => {
               to="/orders" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              🛒 訂單管理
+              🛒 點數商城訂單
             </NavLink>
-
             <NavLink 
-              to="/broadcast" 
+              to="/events" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
               📣 活動發送
             </NavLink>
             <NavLink 
-              to="/staff-logs" 
+              to="/employee-log" 
               className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}
             >
               🧾 職員操作紀錄
@@ -62,12 +71,11 @@ const AdminLayout = () => {
             >
               ✅ 任務管理
             </NavLink>
-
           </nav>
         </aside>
 
         <main className="main-content">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

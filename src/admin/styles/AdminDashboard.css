@@ -315,53 +315,28 @@ body {
 }
 
 .action-btn {
-  padding: 0.8rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 12px 24px;
+  margin: 8px 8px 0 0;
+  font-size: 1rem;
   font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: background 0.2s, box-shadow 0.2s;
   cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
 }
 
-.action-btn.primary {
-  background-color: rgba(52, 152, 219, 0.1);
-  color: var(--color-primary);
-}
+.btn-blue   { background: linear-gradient(90deg, #4F8CFF 0%, #6BCBFF 100%); color: #fff; }
+.btn-green  { background: linear-gradient(90deg, #43E97B 0%, #38F9D7 100%); color: #fff; }
+.btn-orange { background: linear-gradient(90deg, #FFB75E 0%, #ED8F03 100%); color: #fff; }
+.btn-gray   { background: linear-gradient(90deg, #ECE9E6 0%, #FFFFFF 100%); color: #333; }
+.btn-purple { background: linear-gradient(90deg, #A770EF 0%, #FDB99B 100%); color: #fff; }
+.btn-teal   { background: linear-gradient(90deg, #43C6AC 0%, #191654 100%); color: #fff; }
+.btn-pink   { background: linear-gradient(90deg, #FFDEE9 0%, #B5FFFC 100%); color: #333; }
 
-.action-btn.primary:hover {
-  background-color: rgba(52, 152, 219, 0.2);
-}
-
-.action-btn.success {
-  background-color: rgba(46, 204, 113, 0.1);
-  color: var(--color-success);
-}
-
-.action-btn.success:hover {
-  background-color: rgba(46, 204, 113, 0.2);
-}
-
-.action-btn.warning {
-  background-color: rgba(243, 156, 18, 0.1);
-  color: var(--color-warning);
-}
-
-.action-btn.warning:hover {
-  background-color: rgba(243, 156, 18, 0.2);
-}
-
-.action-btn.info {
-  background-color: rgba(26, 188, 156, 0.1);
-  color: var(--color-info);
-}
-
-.action-btn.info:hover {
-  background-color: rgba(26, 188, 156, 0.2);
+.action-btn:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  opacity: 0.92;
 }
 
 /* 表格樣式 */
@@ -742,4 +717,15 @@ body {
   .mini-stat {
     min-width: auto;
   }
+}
+
+/* 建議加入到 src/admin/views/AdminDashboard.css 或全域樣式 */
+.btn-large {
+  font-size: 2rem;
+  padding: 24px 0;
+  width: 100%;
+  min-width: 320px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  display: block;
 }

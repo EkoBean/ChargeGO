@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const OrderDetailModal = ({
   order,
@@ -15,6 +15,8 @@ const OrderDetailModal = ({
   onClose,
   getOrderStatusText
 }) => {
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(null);
 
   // 將 charger.status（數字或字串）標準化為語意字串： 'available' | 'occupied' | 'maintenance' | 'preparing' | 'unknown'
   const normalizeChargerStatus = (charger) => {
@@ -31,6 +33,37 @@ const OrderDetailModal = ({
     if (lower.includes('occup') || lower === 'occupied') return 'occupied';
     if (lower.includes('maint') || lower.includes('repair')) return 'maintenance';
     return 'unknown';
+  };
+
+  // 處理訂單狀態變更
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value;
+    const currentStatus = String(editOrder?.order_status ?? "0");
+    
+    // 如果狀態沒有改變，直接更新
+    if (newStatus === currentStatus) {
+      onChange(e);
+      return;
+    }
+    
+    // 顯示確認對話框
+    setPendingStatus(newStatus);
+    setShowStatusConfirm(true);
+  };
+
+  // 確認狀態變更
+  const confirmStatusChange = () => {
+    if (pendingStatus !== null) {
+      onChange({ target: { name: 'order_status', value: pendingStatus } });
+    }
+    setShowStatusConfirm(false);
+    setPendingStatus(null);
+  };
+
+  // 取消狀態變更
+  const cancelStatusChange = () => {
+    setShowStatusConfirm(false);
+    setPendingStatus(null);
   };
 
   return (
@@ -291,7 +324,7 @@ const OrderDetailModal = ({
                     <select 
                       name="order_status" 
                       value={String(editOrder?.order_status ?? "0")} 
-                      onChange={onChange}
+                      onChange={handleStatusChange}
                     >
                       <option value="0">進行中</option>
                       <option value="1">已完成</option>
@@ -349,6 +382,160 @@ const OrderDetailModal = ({
           </div>
         </div>
       </div>
+
+      {/* 狀態變更確認對話框 */}
+      {showStatusConfirm && (
+        <div 
+          className="modal-overlay" 
+          onClick={cancelStatusChange}
+          style={{ 
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            zIndex: 1001
+          }}
+        >
+          <div 
+            className="modal-content" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ 
+              maxWidth: '420px',
+              border: '3px solid #dc3545',
+              boxShadow: '0 10px 40px rgba(220, 53, 69, 0.3)',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #fff 0%, #fff5f5 100%)'
+            }}
+          >
+            <div 
+              className="modal-header"
+              style={{
+                background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+                color: 'white',
+                padding: '16px 20px',
+                borderRadius: '9px 9px 0 0',
+                borderBottom: 'none'
+              }}
+            >
+              <h3 style={{ 
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span style={{
+                  fontSize: '20px',
+                  color: '#ffd700'
+                }}>⚠️</span>
+                警告
+              </h3>
+              <button 
+                className="close-btn" 
+                onClick={cancelStatusChange}
+                style={{
+                  color: 'white',
+                  fontSize: '24px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+              >
+                ×
+              </button>
+            </div>
+            <div 
+              className="modal-body"
+              style={{
+                padding: '24px 20px',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{
+                fontSize: '48px',
+                marginBottom: '16px',
+                color: '#dc3545'
+              }}>
+                🚨
+              </div>
+              <p style={{
+                fontSize: '16px',
+                color: '#333',
+                marginBottom: '24px',
+                fontWeight: '500',
+                lineHeight: '1.5'
+              }}>
+                您即將會更改用戶訂單狀態，是否確定要修改？
+              </p>
+              <div style={{ 
+                display: 'flex', 
+                gap: '12px', 
+                justifyContent: 'center'
+              }}>
+                <button 
+                  className="btn" 
+                  onClick={cancelStatusChange}
+                  style={{
+                    padding: '10px 20px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    borderRadius: '6px',
+                    border: '2px solid #6c757d',
+                    backgroundColor: '#fff',
+                    color: '#6c757d',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    minWidth: '80px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#6c757d';
+                    e.target.style.color = '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#fff';
+                    e.target.style.color = '#6c757d';
+                  }}
+                >
+                  返回
+                </button>
+                <button 
+                  className="btn primary" 
+                  onClick={confirmStatusChange}
+                  style={{
+                    padding: '10px 20px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    borderRadius: '6px',
+                    border: '2px solid #dc3545',
+                    backgroundColor: '#dc3545',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    minWidth: '80px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#c82333';
+                    e.target.style.borderColor = '#c82333';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#dc3545';
+                    e.target.style.borderColor = '#dc3545';
+                  }}
+                >
+                  確定
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
