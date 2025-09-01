@@ -1,19 +1,19 @@
 //後端
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2'); // 確保已引入
+const mysql = require('mysql2');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// 健康檢查（可用來確認伺服器有起來）
+// 健康檢查
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // === DB 連線：charger_database ===
 var connCharger = mysql.createConnection({
   host: "localhost",
-  port: 3306,           
+  port: 3306,
   user: "root",
   password: "",
   database: "charger_database"
@@ -22,7 +22,7 @@ var connCharger = mysql.createConnection({
 // === DB 連線：bank ===
 var connBank = mysql.createConnection({
   host: "localhost",
-  port: 3306,  // 改為與 charger_database 相同的連接埠
+  port: 3306,
   user: "root",
   password: "",
   database: "bank"
@@ -34,10 +34,11 @@ app.listen(3000, () => {
   console.log("「Ctrl + C」可結束伺服器程式.");
 });
 
-// 連線資料庫（開機自檢）
+// 連線 DB（開機檢查）
 connCharger.connect(function (err) {
-  if (err) console.error("charger_database 連線失敗：", err.code);
-  else {
+  if (err) {
+    console.error("charger_database 連線失敗：", err && err.code);
+  } else {
     console.log("charger_database 連線成功");
     connCharger.query("SELECT COUNT(*) AS cnt FROM user", (e, r) => {
       if (e) console.error("user 表查詢失敗：", e.code);
@@ -48,20 +49,12 @@ connCharger.connect(function (err) {
 
 connBank.connect(function (err) {
   if (err) {
-    console.error("bank 連線失敗：", err.code);
-    console.error("可能的原因：");
-    console.error("1. MySQL 服務未在連接埠 3306 上運行");
-    console.error("2. 資料庫 'bank' 不存在");
-    console.error("3. 連接埠 3306 已被 charger_database 佔用");
-    console.error("請確認：");
-    console.error("- SHOW DATABASES; 中是否有 'bank' 資料庫");
-    console.error("- 是否需要建立 bank 資料庫和 credit_card 表");
+    console.error("bank 連線失敗：", err && err.code);
   } else {
     console.log("bank 連線成功");
     connBank.query("SELECT COUNT(*) AS cnt FROM credit_card", (e, r) => {
       if (e) {
         console.error("credit_card 表查詢失敗：", e.code);
-        console.error("可能需要先建立 credit_card 表");
       } else {
         console.log("credit_card 表筆數：", r[0].cnt);
       }
@@ -78,6 +71,8 @@ app.get("/", (req, res) => {
       <li><a href="/api/sites">/api/sites</a>（站點）</li>
       <li><a href="/api/chargers">/api/chargers</a>（行充含站點）</li>
       <li><a href="/api/orders">/api/orders</a>（訂單含關聯）</li>
+      <li><a href="/api/employee_log">/api/employee_log</a>（職員操作紀錄）</li>
+      <li><a href="/api/employees">/api/employees</a>（員工清單）</li>
       <li><a href="/bank/cards">/bank/cards</a>（信用卡清單-遮蔽）</li>
     </ul>
   `);
@@ -96,7 +91,7 @@ app.get("/user/list", (req, res) => {
   });
 });
 
-// 新增：更新使用者資料
+// 更新使用者
 app.put("/user/:uid", (req, res) => {
   const uid = req.params.uid;
   const {
@@ -111,7 +106,6 @@ app.put("/user/:uid", (req, res) => {
 
   const sets = [];
   const params = [];
-
   const add = (col, val) => {
     if (typeof val !== "undefined") {
       sets.push(`${col} = ?`);
@@ -153,7 +147,7 @@ app.put("/user/:uid", (req, res) => {
   );
 });
 
-// 站點清單（charger_site）
+// 站點清單
 app.get("/api/sites", (req, res) => {
   connCharger.query(`
     SELECT site_id, site_name, address, longitude, latitude
@@ -164,7 +158,7 @@ app.get("/api/sites", (req, res) => {
   });
 });
 
-// 某站點的行充（charger）
+// 某站點的行充
 app.get("/api/sites/:id/chargers", (req, res) => {
   connCharger.query(`
     SELECT charger_id, status, site_id
@@ -190,9 +184,6 @@ app.get("/api/chargers", (req, res) => {
 });
 
 // 訂單清單（order_record + user/charger_site/charger）
-let cachedOrderColumns = null;
-
-// --- 固定回傳 /api/orders（使用 rental_site_id / return_site_id）---
 app.get("/api/orders", (req, res) => {
   const q = `
     SELECT o.order_ID,
@@ -219,70 +210,29 @@ app.get("/api/orders", (req, res) => {
   });
 });
 
-// 新增站點（經緯度必填版）
+// 新增站點
 app.post("/api/sites", (req, res) => {
   const { site_name, address, longitude, latitude } = req.body;
-  
-  console.log("收到新增站點請求：", req.body);
-
-  // 驗證必填欄位：站點名稱、地址、經緯度
   if (!site_name || !address || typeof longitude === "undefined" || typeof latitude === "undefined") {
-    console.log("驗證失敗：缺少必填欄位");
     return res.status(400).json({ message: "缺少必要欄位：站點名稱、地址、經緯度" });
   }
-
-  // 驗證經緯度格式與範圍
   const lon = parseFloat(longitude);
   const lat = parseFloat(latitude);
-  
   if (Number.isNaN(lon) || Number.isNaN(lat)) {
-    console.log("經緯度格式錯誤：", { longitude, latitude });
     return res.status(400).json({ message: "經緯度必須為數字" });
   }
-
-  // 經緯度範圍檢查（符合 DECIMAL(12,8) 格式）
-  if (lon < -180 || lon > 180) {
-    return res.status(400).json({ message: "經度必須在 -180 到 180 之間" });
-  }
-  if (lat < -90 || lat > 90) {
-    return res.status(400).json({ message: "緯度必須在 -90 到 90 之間" });
-  }
-
-  // 檢查小數點精度（最多8位小數）
-  const lonStr = String(lon);
-  const latStr = String(lat);
-  if (lonStr.includes('.') && lonStr.split('.')[1].length > 8) {
-    return res.status(400).json({ message: "經度小數點後最多8位" });
-  }
-  if (latStr.includes('.') && latStr.split('.')[1].length > 8) {
-    return res.status(400).json({ message: "緯度小數點後最多8位" });
-  }
-
-  console.log("準備插入資料：", { site_name, address, lon, lat });
-
   connCharger.query(
     `INSERT INTO charger_site (site_name, address, longitude, latitude)
      VALUES (?, ?, ?, ?)`,
     [site_name, address, lon, lat],
     (err, result) => {
-      if (err) {
-        console.error("插入站點失敗：", err);
-        return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
-      }
-
-      console.log("站點插入成功，ID：", result.insertId);
-
+      if (err) return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
       connCharger.query(
         `SELECT site_id, site_name, address, longitude, latitude
          FROM charger_site WHERE site_id = ?`,
         [result.insertId],
         (e2, rows) => {
-          if (e2) {
-            console.error("查詢新站點失敗：", e2);
-            return res.status(500).json({ error: "DB error", code: e2.code, message: e2.message });
-          }
-          
-          console.log("回傳新站點資料：", rows[0]);
+          if (e2) return res.status(500).json({ error: "DB error", code: e2.code, message: e2.message });
           res.json(rows[0]);
         }
       );
@@ -293,9 +243,7 @@ app.post("/api/sites", (req, res) => {
 // 更新站點
 app.put("/api/sites/:site_id", (req, res) => {
   const site_id = req.params.site_id;
-  if (!/^\d+$/.test(String(site_id))) {
-    return res.status(400).json({ message: "invalid site_id" });
-  }
+  if (!/^\d+$/.test(String(site_id))) return res.status(400).json({ message: "invalid site_id" });
 
   const { site_name, address, longitude, latitude } = req.body;
   const sets = [];
@@ -321,9 +269,7 @@ app.put("/api/sites/:site_id", (req, res) => {
     add("latitude", lat);
   }
 
-  if (!sets.length) {
-    return res.status(400).json({ message: "no fields to update" });
-  }
+  if (!sets.length) return res.status(400).json({ message: "no fields to update" });
 
   params.push(site_id);
 
@@ -347,21 +293,7 @@ app.put("/api/sites/:site_id", (req, res) => {
   );
 });
 
-// helper：從 order_record 欄位中挑出 site 欄位名稱
-function pickSiteColumn(cols) {
-  const colNames = cols.map(c => c.Field);
-  const candidates = ["rental_site_id", "return_site_id", "site_id", "site", "station_id"];
-  return candidates.find(c => colNames.includes(c)) || null;
-}
-
-function showOrderColumns(cb) {
-  connCharger.query("SHOW COLUMNS FROM order_record", (err, cols) => {
-    if (err) return cb(err);
-    cb(null, cols.map(c => c.Field));
-  });
-}
-
-// helper: 把各種日期格式（含 ISO 帶 Z）轉為 MySQL DATETIME 格式，無效或空值回傳 null
+// helper: toMySQLDatetime
 function toMySQLDatetime(v) {
   if (v === null || typeof v === "undefined" || v === "") return null;
   const d = new Date(v);
@@ -370,18 +302,15 @@ function toMySQLDatetime(v) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-// 新增訂單（支援 site_id 舊名，永遠寫入 rental_site_id；若有 return_site_id 則寫入 return_site_id）
+// 新增訂單
 app.post("/api/orders", (req, res) => {
   const { uid, start_date, end, site_id, rental_site_id, return_site_id, order_status, charger_id } = req.body;
-
   if (!uid || !start_date || (!site_id && !rental_site_id) || typeof order_status === "undefined" || typeof charger_id === "undefined") {
     return res.status(400).json({ message: "缺少必要欄位 (需 uid, start_date, rental_site 或 site_id, order_status, charger_id)" });
   }
 
   const rentSite = (typeof rental_site_id !== "undefined") ? rental_site_id : site_id;
   const retSite = (typeof return_site_id !== "undefined") ? return_site_id : null;
-
-  // 正規化 end 值為 MySQL DATETIME 或 null
   const endNormalized = toMySQLDatetime(end);
 
   const q = `
@@ -389,155 +318,224 @@ app.post("/api/orders", (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
   connCharger.query(q, [uid, start_date, endNormalized, rentSite, retSite, order_status, charger_id], (err2, result) => {
-    if (err2) {
-      console.error("[ERROR] INSERT order_record failed:", err2);
-      return res.status(500).json({ error: "DB error", code: err2.code, message: err2.message });
-    }
+    if (err2) return res.status(500).json({ error: "DB error", code: err2.code, message: err2.message });
     connCharger.query(`SELECT * FROM order_record WHERE order_ID = ?`, [result.insertId], (e2, rows) => {
-      if (e2) {
-        console.error("[ERROR] SELECT after INSERT failed:", e2);
-        return res.status(500).json({ error: "DB error", code: e2.code, message: e2.message });
-      }
+      if (e2) return res.status(500).json({ error: "DB error", code: e2.code, message: e2.message });
       res.status(201).json(rows[0]);
     });
   });
 });
 
-// --- 統一的 更新訂單 handler（只保留這一個） ---
+// 更新訂單
 app.put("/api/orders/:order_ID", (req, res) => {
-    const order_ID = req.params.order_ID;
-    if (!/^\d+$/.test(String(order_ID))) {
-      return res.status(400).json({ message: "invalid order_ID" });
+  const order_ID = req.params.order_ID;
+  if (!/^\d+$/.test(String(order_ID))) return res.status(400).json({ message: "invalid order_ID" });
+
+  const payload = req.body || {};
+  const sets = [];
+  const params = [];
+  const add = (col, val) => {
+    if (typeof val !== "undefined") {
+      sets.push(`${col} = ?`);
+      params.push(val);
     }
+  };
 
-    const payload = req.body || {};
-    console.log(`[DEBUG] PUT /api/orders/${order_ID} payload:`, payload);
+  if (Object.prototype.hasOwnProperty.call(payload, "uid")) add("uid", payload.uid);
+  if (Object.prototype.hasOwnProperty.call(payload, "start_date")) add("start_date", payload.start_date);
 
-    const sets = [];
-    const params = [];
-    const add = (col, val) => {
-      if (typeof val !== "undefined") {
-        sets.push(`${col} = ?`);
-        params.push(val);
+  if (Object.prototype.hasOwnProperty.call(payload, "end")) {
+    add("`end`", payload.end === null ? null : toMySQLDatetime(payload.end));
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "rental_site_id") ||
+      Object.prototype.hasOwnProperty.call(payload, "site_id")) {
+    const rentVal = Object.prototype.hasOwnProperty.call(payload, "rental_site_id")
+      ? payload.rental_site_id
+      : payload.site_id;
+    add("rental_site_id", rentVal === "" ? null : rentVal);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "return_site_id")) {
+    add("return_site_id", payload.return_site_id === "" ? null : payload.return_site_id);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "order_status")) add("order_status", payload.order_status);
+  if (Object.prototype.hasOwnProperty.call(payload, "charger_id")) {
+    add("charger_id", payload.charger_id === "" ? null : payload.charger_id);
+  }
+
+  if (!sets.length) return res.status(400).json({ message: "no fields to update" });
+
+  params.push(order_ID);
+  const sql = `UPDATE order_record SET ${sets.join(", ")} WHERE order_ID = ?`;
+  connCharger.query(sql, params, (qErr, result) => {
+    if (qErr) return res.status(500).json({ error: "DB_ERROR", message: qErr.message, code: qErr.code });
+    if (result.affectedRows === 0) return res.status(404).json({ message: "order not found" });
+
+    connCharger.query(`SELECT * FROM order_record WHERE order_ID = ?`, [order_ID], (e2, rows) => {
+      if (e2) return res.status(500).json({ error: "DB_ERROR", message: e2.message });
+      res.json(rows[0]);
+    });
+  });
+});
+
+// helper：安全執行 query（包含詳細錯誤日誌）
+function safeQuery(conn, sql, params, res, cb) {
+  if (!conn || typeof conn.query !== 'function') {
+    console.error('[ERROR] DB connection invalid:', conn);
+    return res.status(500).json({ error: 'DB connection invalid' });
+  }
+
+  conn.query(sql, params, (err, rows) => {
+    if (err) {
+      // 先輸出詳細錯誤到 server console（方便除錯）
+      console.error('[DB QUERY ERROR]', {
+        message: err.message,
+        code: err.code,
+        errno: err.errno,
+        sqlMessage: err.sqlMessage,
+        sqlState: err.sqlState,
+      });
+      // 常見情況：資料表不存在 -> 回空陣列避免前端崩潰
+      if (err.code === 'ER_NO_SUCH_TABLE') {
+        console.warn('[WARN] table not found for sql:', sql);
+        return res.json([]);
       }
-    };
-
-    // 只在前端送該欄位時才更新（允許 null）
-    if (Object.prototype.hasOwnProperty.call(payload, "uid")) add("uid", payload.uid);
-    if (Object.prototype.hasOwnProperty.call(payload, "start_date")) add("start_date", payload.start_date);
-
-    if (Object.prototype.hasOwnProperty.call(payload, "end")) {
-      // 允許 null；若給字串則轉成 MySQL DATETIME
-      add("`end`", payload.end === null ? null : toMySQLDatetime(payload.end));
+      // 其餘錯誤回 500（並帶簡短代碼與訊息）
+      return res.status(500).json({ error: 'DB error', code: err.code, message: err.message });
     }
+    cb(rows);
+  });
+}
 
-    // 永遠寫入 rental_site_id（接受 rental_site_id 或舊名 site_id）
-    if (Object.prototype.hasOwnProperty.call(payload, "rental_site_id") ||
-        Object.prototype.hasOwnProperty.call(payload, "site_id")) {
-      const rentVal = Object.prototype.hasOwnProperty.call(payload, "rental_site_id")
-        ? payload.rental_site_id
-        : payload.site_id;
-      add("rental_site_id", rentVal === "" ? null : rentVal);
-    }
-
-    // 若有 return_site_id，寫入 return_site_id（允許設為 null）
-    if (Object.prototype.hasOwnProperty.call(payload, "return_site_id")) {
-      add("return_site_id", payload.return_site_id === "" ? null : payload.return_site_id);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(payload, "order_status")) add("order_status", payload.order_status);
-    if (Object.prototype.hasOwnProperty.call(payload, "charger_id")) {
-      add("charger_id", payload.charger_id === "" ? null : payload.charger_id);
-    }
-
-    if (!sets.length) {
-      return res.status(400).json({ message: "no fields to update" });
-    }
-
-    params.push(order_ID);
-    const sql = `UPDATE order_record SET ${sets.join(", ")} WHERE order_ID = ?`;
-    console.log("[DEBUG] SQL:", sql, "params:", params);
-
-    connCharger.query(sql, params, (qErr, result) => {
-      if (qErr) {
-        console.error("[ERROR] UPDATE order_record failed:", qErr);
-        return res.status(500).json({ error: "DB_ERROR", message: qErr.message, code: qErr.code });
+// ===== 新增/替換：職員操作紀錄（employee_log）API =====
+app.get('/api/employee_log', (req, res) => {
+  connCharger.query('DESCRIBE employee_log', (dErr, cols) => {
+    if (dErr) {
+      if (dErr.code === 'ER_NO_SUCH_TABLE') {
+        console.warn('[WARN] employee_log table missing:', dErr.message);
+        return res.json([]);
       }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "order not found" });
-      }
+      console.error('[ERROR] DESCRIBE employee_log failed:', dErr);
+      return res.status(500).json({ error: 'DB error', code: dErr.code, message: dErr.message });
+    }
 
-      connCharger.query(`SELECT * FROM order_record WHERE order_ID = ?`, [order_ID], (e2, rows) => {
-        if (e2) {
-          console.error("[ERROR] SELECT after update failed:", e2);
-          return res.status(500).json({ error: "DB_ERROR", message: e2.message });
+    const available = new Set((cols || []).map(c => c.Field));
+    const want = ['employee_log_date', 'employee_id', 'log', 'details', 'meta'];
+    const fields = want.filter(f => available.has(f));
+    if (!fields.length) {
+      console.warn('[WARN] no expected columns found in employee_log, returning empty array');
+      return res.json([]);
+    }
+
+    const orderBy = available.has('employee_log_date') ? 'employee_log_date' : fields[0];
+    const sql = `SELECT ${fields.join(', ')} FROM employee_log ORDER BY ${orderBy} DESC LIMIT 1000`;
+    connCharger.query(sql, [], (err, rows) => {
+      if (err) {
+        console.error('[ERROR] GET /api/employee_log failed:', err);
+        // 若欄位錯誤等常見問題，回空陣列避免前端崩潰
+        if (err.code === 'ER_BAD_FIELD_ERROR' || err.code === 'ER_NO_SUCH_TABLE') {
+          return res.json([]);
         }
-        res.json(rows[0]);
-      });
-    });
-});
-
-// ===== bank 區 =====
-
-// 信用卡清單（遮蔽卡號，不回傳 cvc）
-app.get("/bank/cards", (req, res) => {
-  connBank.query(`
-    SELECT bankuser_id, bankuser_name, credit_card_number, credit_card_date
-    FROM credit_card ORDER BY bankuser_id ASC
-  `, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: "DB error", code: err.code });
-
-    // 遮蔽：只露出最後 4 碼
-    const masked = rows.map(r => {
-      const num = String(r.credit_card_number || "");
-      const last4 = num.slice(-4);
-      return {
-        bankuser_id: r.bankuser_id,
-        bankuser_name: r.bankuser_name,
-        credit_card_number_masked: num.length ? `${"*".repeat(Math.max(0, num.length - 4))}${last4}` : "",
-        credit_card_date: r.credit_card_date
-      };
-    });
-    res.json(masked);
-  });
-});
-
-// （可選）依使用者 email 或姓名嘗試對應 bank 卡片（示範）
-// 這裡用 email 查 charger_database.user，再用 credit_card_number 去 bank 佐證是否存在
-app.get("/user/:uid/card/match", (req, res) => {
-  connCharger.query(`
-    SELECT uid, user_name, email, credit_card_number, credit_card_date
-    FROM user WHERE uid = ?
-  `, [req.params.uid], (err, rows) => {
-    if (err) return res.status(500).json({ error: "DB error", code: err.code });
-    if (!rows.length) return res.status(404).json({ message: "user not found" });
-
-    const u = rows[0];
-    if (!u.credit_card_number) return res.json({ uid: u.uid, match: false });
-
-    connBank.query(`
-      SELECT bankuser_id, bankuser_name, credit_card_number, credit_card_date
-      FROM credit_card WHERE credit_card_number = ? LIMIT 1
-    `, [u.credit_card_number], (e2, r2) => {
-      if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
-      if (!r2.length) return res.json({ uid: u.uid, match: false });
-
-      // 僅回遮蔽資訊
-      const num = String(r2[0].credit_card_number || "");
-      const last4 = num.slice(-4);
-      return res.json({
-        uid: u.uid,
-        match: true,
-        bankuser_id: r2[0].bankuser_id,
-        bankuser_name: r2[0].bankuser_name,
-        credit_card_number_masked: `${"*".repeat(Math.max(0, num.length - 4))}${last4}`,
-        credit_card_date: r2[0].credit_card_date
-      });
+        return res.status(500).json({ error: 'DB error', code: err.code, message: err.message });
+      }
+      console.log(`[INFO] /api/employee_log returned ${Array.isArray(rows) ? rows.length : 0} rows`);
+      res.json(Array.isArray(rows) ? rows : []);
     });
   });
 });
 
-// （可選）關閉時優雅斷線
+// 更穩健的員工清單 API：先 DESCRIBE 再選取可用欄位
+app.get('/api/employees', (req, res) => {
+  connCharger.query('DESCRIBE employee', (dErr, cols) => {
+    if (dErr) {
+      if (dErr.code === 'ER_NO_SUCH_TABLE') {
+        console.warn('[WARN] employee table missing:', dErr.message);
+        return res.json([]);
+      }
+      console.error('[ERROR] DESCRIBE employee failed:', dErr);
+      return res.status(500).json({ error: 'DB error', code: dErr.code, message: dErr.message });
+    }
+
+    const available = new Set((cols || []).map(c => c.Field));
+
+    // 決定要選取的欄位：優先對應到 employee_id / employee_name / employee_email
+    const idCandidates = ['employee_id', 'id'];
+    const nameCandidates = ['employee_name', 'name', 'username', 'account'];
+    const emailCandidates = ['employee_email', 'employee_mail', 'email'];
+
+    const pick = (cands) => cands.find(c => available.has(c)) || null;
+
+    const idCol = pick(idCandidates);
+    const nameCol = pick(nameCandidates);
+    const emailCol = pick(emailCandidates);
+
+    // 若三者皆沒找到，則退而求其次選全部欄位
+    let selectParts = [];
+    if (idCol) selectParts.push(`${idCol} AS employee_id`);
+    if (nameCol) selectParts.push(`${nameCol} AS employee_name`);
+    if (emailCol) selectParts.push(`${emailCol} AS employee_email`);
+
+    if (!selectParts.length) {
+      // 若沒有對應欄位，選取所有欄位以便前端可檢視
+      selectParts = ['*'];
+    }
+
+    const select = selectParts.join(', ');
+    const orderBy = idCol ? `${idCol}` : '1';
+
+    const sql = `SELECT ${select} FROM employee ORDER BY ${orderBy} ASC LIMIT 1000`;
+    connCharger.query(sql, [], (err, rows) => {
+      if (err) {
+        console.error('[ERROR] GET /api/employees failed:', err);
+        if (err.code === 'ER_NO_SUCH_TABLE' || err.code === 'ER_BAD_FIELD_ERROR') {
+          return res.json([]);
+        }
+        return res.status(500).json({ error: 'DB error', code: err.code, message: err.message });
+      }
+
+      // 確保回傳的每筆都有三個欄位（若缺欄位以空字串補足）
+      const normalized = (rows || []).map(r => ({
+        employee_id: (r.employee_id !== undefined) ? r.employee_id : (r.id !== undefined ? r.id : null),
+        employee_name: (r.employee_name !== undefined) ? r.employee_name : '',
+        employee_email: (r.employee_email !== undefined) ? r.employee_email : ''
+      }));
+
+      console.log(`[INFO] /api/employees returned ${normalized.length} rows (selected: ${select})`);
+      res.json(normalized);
+    });
+  });
+});
+
+// 設備使用率、訂單完成率、系統運行狀態
+app.get('/api/system-status', (req, res) => {
+  connCharger.query(
+    'SELECT COUNT(*) AS total, SUM(status IN ("1","2","3")) AS used FROM charger',
+    [],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      const total = rows[0].total || 1;
+      const used = rows[0].used || 0;
+      connCharger.query(
+        'SELECT COUNT(*) AS totalOrders, SUM(order_status=2) AS completedOrders FROM order_record',
+        [],
+        (err2, rows2) => {
+          const totalOrders = rows2?.[0]?.totalOrders || 1;
+          const completedOrders = rows2?.[0]?.completedOrders || 0;
+          // 系統運行狀態可根據你的需求計算，這裡暫時寫死 0.85
+          res.json({
+            systemStatus: 0.85,
+            deviceUsage: used / total,
+            orderCompletion: completedOrders / totalOrders,
+          });
+        }
+      );
+    }
+  );
+});
+
+// 關閉時優雅斷線
 process.on("SIGINT", () => {
   console.log("\n關閉連線並結束程式...");
   connCharger.end(() => {
@@ -545,7 +543,7 @@ process.on("SIGINT", () => {
   });
 });
 
-// 處理 DB 錯誤的函式
+// 處理 DB 錯誤的函式（若需要）
 const handleDBError = (res, err) => {
   console.error("DB錯誤:", err);
   return res.status(500).json({ error: "DB error", code: err.code });

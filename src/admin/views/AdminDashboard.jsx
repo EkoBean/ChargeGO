@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminData } from '../context/AdminDataContext';
 import LoadingScreen from '../components/LoadingScreen';
@@ -7,6 +7,20 @@ import ErrorScreen from '../components/ErrorScreen';
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { dashboardStats, loading, error, loadAllData } = useAdminData();
+
+  // 新增系統狀態監控資料
+  const [systemStatus, setSystemStatus] = useState({
+    systemStatus: 0,
+    deviceUsage: 0,
+    orderCompletion: 0,
+  });
+
+  useEffect(() => {
+    // 載入系統狀態監控資料
+    import('../services/api').then(({ default: ApiService }) => {
+      ApiService.getSystemStatus().then(setSystemStatus);
+    });
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -21,7 +35,7 @@ const AdminDashboard = () => {
       <h2>系統總覽</h2>
 
       <div className="stats-grid">
-        <div className="stat-card primary">
+        <div className="stat-card primary" onClick={() => navigate('/users')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">👥</div>
           <div className="stat-info">
             <h3>{dashboardStats.totalUsers}</h3>
@@ -29,7 +43,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card success">
+        <div className="stat-card success" onClick={() => navigate('/sites')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">📍</div>
           <div className="stat-info">
             <h3>{dashboardStats.totalSites}</h3>
@@ -37,7 +51,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card warning">
+        <div className="stat-card warning" onClick={() => navigate('/sites')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">🔋</div>
           <div className="stat-info">
             <h3>{dashboardStats.activeChargers}</h3>
@@ -45,7 +59,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card info">
+        <div className="stat-card info" onClick={() => navigate('/orders')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">🛒</div>
           <div className="stat-info">
             <h3>{dashboardStats.todayOrders}</h3>
@@ -60,21 +74,30 @@ const AdminDashboard = () => {
           <div className="status-grid">
             <div className="status-item">
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: "85%" }}></div>
+                <div
+                  className="progress-fill"
+                  style={{ width: `${Math.round(systemStatus.systemStatus * 100)}%` }}
+                ></div>
               </div>
-              <span>系統運行狀態 85%</span>
+              <span>站點可用率 {Math.round(systemStatus.systemStatus * 100)}%</span>
             </div>
             <div className="status-item">
               <div className="progress-bar">
-                <div className="progress-fill warning" style={{ width: "72%" }}></div>
+                <div
+                  className="progress-fill warning"
+                  style={{ width: `${Math.round(systemStatus.deviceUsage * 100)}%` }}
+                ></div>
               </div>
-              <span>設備使用率 72%</span>
+              <span>設備使用率 {Math.round(systemStatus.deviceUsage * 100)}%</span>
             </div>
             <div className="status-item">
               <div className="progress-bar">
-                <div className="progress-fill info" style={{ width: "91%" }}></div>
+                <div
+                  className="progress-fill info"
+                  style={{ width: `${Math.round(systemStatus.orderCompletion * 100)}%` }}
+                ></div>
               </div>
-              <span>用戶滿意度 91%</span>
+              <span>訂單完成率 {Math.round(systemStatus.orderCompletion * 100)}%</span>
             </div>
           </div>
         </div>
@@ -82,16 +105,29 @@ const AdminDashboard = () => {
         <div className="dashboard-card">
           <h3>快速操作</h3>
           <div className="quick-actions">
-            <button className="action-btn primary" onClick={() => navigate('/users')}>
+            <button className="action-btn btn-blue" onClick={() => navigate('/users')}>
               👥 用戶管理
             </button>
-            <button className="action-btn success" onClick={() => navigate('/sites')}>
+            <button className="action-btn btn-green" onClick={() => navigate('/sites')}>
               📍 站點管理
             </button>
-            <button className="action-btn warning" onClick={() => navigate('/orders')}>
+            <button className="action-btn btn-orange" onClick={() => navigate('/orders')}>
               🛒 點數商城訂單
             </button>
-            <button className="action-btn info" onClick={loadAllData}>
+            <button className="action-btn btn-purple" onClick={() => navigate('/events')}>
+              🎉 活動發送
+            </button>
+            <button className="action-btn btn-teal" onClick={() => navigate('/employee-log')}>
+              📝 職員操作紀錄
+            </button>
+            <button className="action-btn btn-pink" onClick={() => navigate('/tasks')}>
+              📋 任務管理
+            </button>
+            <button
+              className="action-btn btn-gray btn-large"
+              onClick={loadAllData}
+              style={{ gridColumn: "span 2" }}
+            >
               🔄 刷新數據
             </button>
           </div>

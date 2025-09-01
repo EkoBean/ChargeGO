@@ -72,6 +72,15 @@ const ApiService = {
     return this.request('/api/orders');
   },
 
+  // === 新增：職員紀錄 API ===
+  async getEmployeeLogs() {
+    return this.request('/api/employee_log');
+  },
+
+  async getEmployees() {
+    return this.request('/api/employees');
+  },
+
   // 銀行卡片相關 API
   async getBankCards() {
     return this.request('/bank/cards');
@@ -95,8 +104,8 @@ const ApiService = {
       const todayOrders = orders.filter(order => 
         order.start_date && order.start_date.startsWith(today)
       ).length;
-
-      const activeChargers = chargers.filter(c => c.status === 'available').length;
+      //判斷 active 狀態 2:使用中 3:預約中 會顯示在總覽
+      const activeChargers = chargers.filter(c => c.status === '2' || c.status === '3').length;
 
       return {
         totalUsers: users.length,
@@ -216,7 +225,7 @@ const ApiService = {
     }
   },
 
-  // 訂單 CRUD
+  // 訂單 CRUD start_date取今天
   async updateOrder(order_ID, payload) {
     const body = {
       uid: payload.uid != null ? Number(payload.uid) : undefined,
@@ -273,6 +282,10 @@ const ApiService = {
       method: 'POST',
       body: JSON.stringify(body),
     });
+  },
+
+  async getSystemStatus() {
+    return this.request('/api/system-status');
   },
 };
 
