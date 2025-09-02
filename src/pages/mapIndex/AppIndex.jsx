@@ -3,7 +3,7 @@
 import '../../styles/scss/map_index.scss'
 
 //React
-import React, { cloneElement, useEffect, useRef } from 'react';
+import React, { cloneElement, use, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 // Google Maps
@@ -96,6 +96,7 @@ function AppIndex() {
     const rentWindowRef = React.useRef(null);
     // ================= HUD component =================
     const HudSet = () => {
+
       // ================= SearchBar component =================
       const SearchBar = () => {
 
@@ -303,15 +304,19 @@ function AppIndex() {
       }
 
       // =========== current location switch button ==============
-      const FuncionButton = () => {
+      const HudButton = () => {
         const [rentOpen, setRentOpen] = React.useState(null);
-        const [returnBtn, setReturnBtn] = React.useState(null);
         const [rentalStatus, setRentalStatus] = React.useState(false); // 是否有租借狀態
         const [rentMessage, setRentMessage] = React.useState('');
         const [startTime, setStartTime] = React.useState(null);
         const [rentalFee, setRentalFee] = React.useState(null);
         const [rentalTime, setRentalTime] = React.useState(null);
+        // overtime return variables
         const [returnWarning, setReturnWarning] = React.useState(null);
+        const [overtimeReturnWindow, setOvertimeReturnWindow] = React.useState(null); // orvertime return window trigger
+        const [overtimeConfirm, setOvertimeConfirm] = React.useState(null); // confirmation made by user for overtime return
+        const [overtimeFee, setOvertimeFee] = React.useState(null); //overtime fee state
+
         // ================ init rent window ref ================
         useEffect(() => {
           rentWindowRef.current = (x) => {
@@ -358,7 +363,7 @@ function AppIndex() {
 
         // ========================
 
-        // ================ user check =================
+        // ================ user rental check =================
         useEffect(() => {
           let mounted = true;
           axios.get(`${API_URL}/api/checkRental/${uid}`)
@@ -385,7 +390,6 @@ function AppIndex() {
         // ================ rent button =================
         function handleRent() {
           rentWindowRef.current(true);
-          console.log('startTime :>> ', startTime);
 
           // ====== axios patch ======
           axios.patch(`${API_URL}/api/rent`, { deviceId, uid })
@@ -395,26 +399,26 @@ function AppIndex() {
                   setRentalStatus(true);
                   return;
                 }
-                else {
-                  
-                  setRentMessage('租借成功');
-                  setStartTime(res.data.start_date)
-                  setRentalStatus(true);
+                else if (res.data.success === false) {
+                  setRentMessage('Unknown issue, please contact support.');
+                  setRentalStatus(false);
+                  console.warn('Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯');
                 }
-              }
-              else{
-                setRentMessage('Unknown issue, please contact support.');
-                setRentalStatus(false);
-                console.warn('Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯' );
+                else {
+                  setRentMessage('租借成功');
+                  setRentalStatus(true);
+                  setTimeout(() => {
+                    setStartTime(res.data.start_date)
+                  }, 1800);
+                }
               }
             })
             .catch(err => {
               if (err.response) {
-                const status = err.response.status;
-                if (status === 404) setRentMessage('查無此設備');
-                else if (status === 400) setRentMessage('此設備未正確歸還，請租借他台');
+                console.error(err.response?.data?.details || null + err);
+                setRentMessage(err.response?.data?.message || '系統錯誤');
               } else {
-                setRentMessage('Database error, please try again later.');
+                setRentMessage('連線錯誤');
                 console.error(err);
               }
             })
@@ -432,6 +436,7 @@ function AppIndex() {
                 period = `${hours}：${minutes}：${seconds}`
                 setRentMessage(`租借中，租借時間 ${period}`);
                 console.log('period :>> ', period);
+
               }
             }, 100)
             return () => clearInterval(timer);
@@ -439,40 +444,70 @@ function AppIndex() {
 
         }, [rentOpen, startTime])
         // =============== return button =================
-        function handleReturn() {
-
-
-          axios.patch(`${API_URL}/api/return`, { returnSite, batteryAmount, deviceId, uid })
+        function handleReturn(overtimeComfirm) {
+          axios.patch(`${API_URL}/api/return`, { returnSite, batteryAmount, deviceId, uid, overtimeConfirm })
             .then(res => {
               if (res.data.success) {
-                if (res.data.minusFee) {
-                  alert('歸還金額異常，請聯絡客服');
-                  setRentMessage('歸還金額異常，請聯絡客服 02-48273335');
-                  return;
-                }
                 if (res.data)
-                  // setReturnBtn(false);
                   setStartTime(null);
                 setRentalStatus(false);
                 // ======== calculate rental fee =========
                 setRentalFee(res.data.rentalFee);
-                // ========= calculate rental time =========
+                // ========= calculate rental time showing for use the final time =========
                 const minutes = Number(res.data.period) || 0;
                 const hours = Math.floor(minutes / 60);
                 const mins = minutes % 60;
                 const hhmm = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
                 setRentalTime(hhmm);
+                // rest states
                 setRentMessage('歸還成功，感謝使用');
+              } else if (res.data.success === false) {
+                // ======== Overtime return handling =========
+                if (res.data.overtime || returnWarning) {
+                  setOvertimeReturnWindow(true);
+                  setOvertimeFee(res.data.rentalFee);
+                } else {
+                  setRentMessage('Unknown issue, please contact support.');
+                  setRentalStatus(false);
+                  console.warn('Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯');
+                }
               }
             }
             )
             .catch(err => {
-              if(err.response.status === 400 && err.response.data.overTime){
-                alert('歸還失敗，您已超過七天未歸還，請聯絡客服');
-              }
+              // ======== other error handling =========
               console.error(err);
               setRentMessage(err.response?.data?.message || '連線問題，請再試一次。');
             })
+        }
+
+        // ================ overtime returning window =================
+        // wait for overtimeConfirm state update
+        useEffect(() => {
+          if (overtimeConfirm) handleReturn();
+        }, [overtimeConfirm])
+        // main funtion
+        function OvertimeWindow() {
+          function handleOvertime() {
+            setOvertimeConfirm(true);
+            setOvertimeReturnWindow(false);
+          }
+
+          return (
+            <div className='overtime-overlay'>
+
+              <div className='overtime-window'>
+
+                <p className='header'><i className="bi bi-exclamation-triangle-fill"></i>警告</p>
+                <p>您已超過三天未歸還，本次歸還將會扣除 {overtimeFee} 元，且留下帳戶紀錄。</p>
+                <div className='handle-btns'>
+                  <button className='btn btn-primary' onClick={handleOvertime}>確認歸還</button>
+                  <button className='btn btn-primary cancel' onClick={() => setOvertimeReturnWindow(false)}>取消</button>
+                </div>
+
+              </div>
+            </div>
+          )
         }
 
         return (
@@ -525,14 +560,16 @@ function AppIndex() {
               }
 
             </div>
-            {
-              returnWarning ?
-                <div className='alert alert-danger return-warning'
-                  style={{ opacity: rentOpen ? 0 : 0.7 }}>
-                  <i className="bi bi-exclamation-triangle-fill"></i>
-                  <span>警告</span><br />
-                  <span>您已超過三天未歸還<br />請盡速歸還以免影響信用紀錄</span>
-                </div> : null
+            {returnWarning ?
+              <div className='alert alert-danger return-warning'
+                style={{ opacity: rentOpen ? 0 : 0.7 }}>
+                <i className="bi bi-exclamation-triangle-fill"></i>
+                <span>警告</span><br />
+                <span>您已超過三天未歸還<br />請盡速歸還以免影響信用紀錄</span>
+              </div> : null
+            }
+            {overtimeReturnWindow &&
+              <OvertimeWindow />
             }
           </div>
 
@@ -541,7 +578,7 @@ function AppIndex() {
       return (
         <>
           <SearchBar />
-          <FuncionButton />
+          <HudButton />
         </>
       )
     }

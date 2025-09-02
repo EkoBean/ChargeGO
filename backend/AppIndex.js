@@ -118,7 +118,7 @@ app.patch('/api/rent', async (req, res) => {
             const renter = await connection.queryAsync(mapQuery.checkDeviceOwner, [deviceId]);
             // db query error   
             if (!renter && renter.length == 0) {
-                return res.status(400).json({ success: false, message: 'db query failed to check currently renter' });
+                return res.status(400).json({ success: false, message: '連線錯誤', deatils: 'db query failed to check currently renter' });
             }
             // if rented by current uid, return the start date
 
@@ -137,7 +137,7 @@ app.patch('/api/rent', async (req, res) => {
         // insert rental log
         const rentalLogResult = await connection.queryAsync(mapQuery.rentalLog, [uid, now, deviceCheck[0].site_id, deviceId]);
         if (!rentalLogResult || rentalLogResult.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: 'DB log not established' });
+            return res.status(404).json({ success: false, message: '連線失敗', details: 'DB log not established' });
         }
         await connection.commitAsync();
 
@@ -146,7 +146,7 @@ app.patch('/api/rent', async (req, res) => {
     }
     catch (err) {
         console.error('err :>> ', err);
-        return res.status(500).json({ success: false, message: 'rent error' });
+        return res.status(500).json({ success: false, message: '租借錯誤' });
     }
 
 
@@ -158,12 +158,13 @@ app.patch('/api/rent', async (req, res) => {
 // return a charger
 app.patch('/api/return', async (req, res) => {
 
-    const { batteryAmount, returnSite, deviceId, uid } = req.body;
+    const { batteryAmount, returnSite, deviceId, uid, overtimeConfirm } = req.body;
     const now = new Date();
     const batteryStatus =
         batteryAmount < 30 ? '4' : //低電量(不給借)
             batteryAmount < 98 ? '3' :  //中電量
                 '2'; //滿電量 
+    const WARNING_MINUTES = 4320;
     try {
         // check the rental time
         const rentalTimeCheck = await connection.queryAsync(mapQuery.getRentalTime, [uid, '0', deviceId])
@@ -181,20 +182,29 @@ app.patch('/api/return', async (req, res) => {
         // console.log(`租借時間: ${period} 分鐘, 共 ${periodSession} 個半小時時段, 費用: ${rentalFee} 元`);
 
         // ============== prevent minus fee ==============
-        if (rentalFee < 0) return res.status(400).json({ success: false, minusFee: true, message: '租借金額為負數，請聯絡客服' });
+        if (rentalFee < 0) return res.status(400).json({ success: false, minusFee: true, message: '歸還金額異常，請聯絡客服 02-48273335' });
 
         // ============== overtime ==============
-        if (period > 4320) return res.status(400).json({ success: false, overTime: true, message: 'Overtime' });
+        if (period > WARNING_MINUTES && !overtimeConfirm) return res.status(201).json({ success: false, overtime: true, rentalFee, message: '超過三天未歸還，請查閱確認視窗。' });
 
         // ============== update device status & insert return log ==============
         await connection.beginTransactionAsync();
 
         const deviceBack = await connection.queryAsync(mapQuery.returnCharger, [batteryStatus, returnSite, deviceId]);
-        if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗' });
+        if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Returning query error.' });
 
 
-        const logBack = await connection.queryAsync(mapQuery.returnLog, [returnSite, now, rentalFee, '', deviceId]);
-        if (!logBack || logBack.affectedRows === 0) return res.status(404).json({ success: false, message: 'db log query failed' });
+        const logBack = await connection.queryAsync(mapQuery.returnLog, [returnSite,
+            now,
+            rentalFee,
+            period > WARNING_MINUTES ? `Overtime return.逾期未歸還。${Math.floor(period/60)}小時 ${period%60}分鐘` : '',
+            deviceId]);
+        if (!logBack || logBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Log update query error.' });
+
+        if (period > WARNING_MINUTES) {
+            const overTimeLog = await connection.queryAsync(mapQuery.overTImeReturn, [uid]);
+            if (!overTimeLog || overTimeLog.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Overtime blacklist point query error.' });
+        }
 
 
         await connection.commitAsync();
@@ -204,60 +214,6 @@ app.patch('/api/return', async (req, res) => {
     }
     catch (err) {
         console.error('err :>> ', err);
-        return res.status(500).json({ success: false, err, message: 'rent error' });
+        return res.status(500).json({ success: false, err, message: '租借錯誤' });
     }
 });
-
-app.patch('/api/overtimeReturn', async (req, res) => {
-    const { batteryAmount, returnSite, deviceId, uid } = req.body;
-    const now = new Date();
-    const batteryStatus =
-        batteryAmount < 30 ? '4' : //低電量(不給借)
-            batteryAmount < 98 ? '3' :  //中電量
-                '2'; //滿電量 
-    try {
-        // check the rental time
-        const rentalTimeCheck = await connection.queryAsync(mapQuery.getRentalTime, [uid, '0', deviceId])
-        if (!rentalTimeCheck || rentalTimeCheck.length === 0) {
-            return res.status(400).json({ success: false, message: '查無租借紀錄，請確認歸還裝置是否正確' });
-        }
-        if (!rentalTimeCheck[0].start_date) return res.status(400).json({ success: false, message: '查無租借時間，無法歸還' });
-
-
-
-        //========== calculate rental time&money ==========
-        const startDate = new Date(rentalTimeCheck[0].start_date);
-        // console.log('start_date :>> ', startDate);
-        const period = Math.ceil((now - startDate) / (1000 * 60)); // minutes
-        const periodSession = Math.ceil(period / 30); // 30 minutes session
-        const rentalFee = periodSession * 5; // 每30分鐘5元
-        // console.log(`租借時間: ${period} 分鐘, 共 ${periodSession} 個半小時時段, 費用: ${rentalFee} 元`);
-
-        // ============== prevent minus fee ==============
-        if (rentalFee < 0) return res.status(400).json({ success: false, minusFee: true, message: '租借金額為負數，請聯絡客服' });
-
-
-
-        // ============== update device status & insert return log ==============
-        await connection.beginTransactionAsync();
-
-        const deviceBack = await connection.queryAsync(mapQuery.returnCharger, [batteryStatus, returnSite, deviceId]);
-        if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗' });
-
-
-        const logBack = await connection.queryAsync(mapQuery.returnLog, [returnSite, now, rentalFee, 'Overtime return. 逾期歸還', deviceId]);
-        if (!logBack || logBack.affectedRows === 0) return res.status(404).json({ success: false, message: 'db log query failed' });
-        const overTime = await connection.queryAsync(mapQuery.overTImeReturn, [uid]);
-        if (!overTime || overTime.affectedRows === 0) return res.status(404).json({ success: false, message: 'db blacklist log query failed' });
-
-        await connection.commitAsync();
-        // ===================================================
-
-        return res.json({ success: true, message: '歸還成功', rentalFee, period });
-
-    }
-    catch (err) {
-        console.error('err :>> ', err);
-        return res.status(500).json({ success: false, message: 'rent error' });
-    }
-}); 

@@ -236,4 +236,63 @@ body,
     transition: all 0.2s ease-in-out;
   }
 
+
+  .overtime-overlay {
+    position: inherit; // 改為 fixed，覆蓋整個頁面
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(134, 134, 134, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 1200; // 低於視窗
+    pointer-events: auto;
+    
+    display:flex; 
+    justify-content: center;
+    align-items: center;
+
+    .overtime-window {
+      padding: 1rem 2rem;
+      border-radius: 1.3 rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 1rem;
+      text-align: center;
+      max-width: 80vw;
+      background-color: #f0f0f0;
+      border-radius: 1.3rem;
+      transition: all 0.2s ease-in-out;
+      z-index: 1201;
+
+
+
+      .header {
+        color: g.$danger
+      }
+
+      .handle-btns {
+        border: none;
+        outline: none;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+
+        button {
+          color: g.$secondary;
+        }
+
+        button.cancel {
+          color: gray;
+          filter: grayscale(0.9);
+
+        }
+      }
+
+
+
+    }
+
+
+  }
 }
