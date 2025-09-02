@@ -1,7 +1,7 @@
 import React from 'react';
 
-// 站點管理 查看詳細資訊視窗（Modal）
-// 說明：此元件負責顯示單一站點的詳細資料與統計，並提供建立/編輯站點的 UI。
+// 站點管理 查看詳細資訊視窗
+// 顯示單一站點的詳細資料與統計，提供建立/編輯站點。
 const SiteDetailModal = ({
   site,
   editSite,

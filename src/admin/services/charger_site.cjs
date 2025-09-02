@@ -193,7 +193,8 @@ app.get("/api/orders", (req, res) => {
            o.rental_site_id, rs.site_name AS rental_site_name, rs.address AS rental_site_address,
            o.return_site_id, rt.site_name AS return_site_name, rt.address AS return_site_address,
            o.order_status, o.charger_id,
-           c.status AS charger_status
+           c.status AS charger_status,
+           o.comment 
     FROM order_record o
     LEFT JOIN user u ON o.uid = u.uid
     LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
@@ -364,6 +365,9 @@ app.put("/api/orders/:order_ID", (req, res) => {
   if (Object.prototype.hasOwnProperty.call(payload, "charger_id")) {
     add("charger_id", payload.charger_id === "" ? null : payload.charger_id);
   }
+
+  // 讓 comment備注 可以被更新
+  if (Object.prototype.hasOwnProperty.call(payload, "comment")) add("comment", payload.comment);
 
   if (!sets.length) return res.status(400).json({ message: "no fields to update" });
 
@@ -548,3 +552,26 @@ const handleDBError = (res, err) => {
   console.error("DB錯誤:", err);
   return res.status(500).json({ error: "DB error", code: err.code });
 };
+
+// 員工登入
+app.post('/api/employee/login', (req, res) => {
+  const { email, password } = req.body;
+  connCharger.query(
+    'SELECT * FROM employee WHERE employee_email = ? AND password = ?',
+    [email, password],
+    (err, rows) => {
+      if (err) return res.status(500).json({ success: false, message: '資料庫錯誤' });
+      if (rows.length === 0) {
+        return res.status(401).json({ success: false, message: '帳號或密碼錯誤' });
+      }
+      res.json({
+        success: true,
+        employee: {
+          id: rows[0].employee_id,
+          name: rows[0].employee_name,
+          email: rows[0].employee_email
+        }
+      });
+    }
+  );
+});

@@ -687,6 +687,42 @@ body {
   gap: 0.8rem;
 }
 
+/* 地址輸入組合 */
+.address-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.address-input-group input {
+  flex: 1;
+}
+
+/* 輸入提示樣式 */
+.input-hint {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* 表單錯誤訊息 */
+.form-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* 空地圖預覽 */
+.empty-map-placeholder {
+  background-color: #f5f5f5;
+  border: 1px dashed #ccc;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
 /* 響應式樣式 */
 @media (max-width: 768px) {
   .dashboard-layout {
@@ -728,4 +764,11 @@ body {
   margin-top: 8px;
   margin-bottom: 8px;
   display: block;
+}
+/* 因OrderManagement 有bootstrap所以加強顯示 */
+.card-selected {
+  box-shadow: 0 0 0 2px #3498db;
+  border: 2px solid #3498db !important;
+  background-color: #eaf6fd;
+
 }
