@@ -434,8 +434,8 @@ const mber_Register = () => {
               </div>
             </div>
             {/* 按鈕 */}
-            <div className="register-input-group">
-              <div className="col-md-9 offset-md-3">
+            <div className="button-group">
+              <div className="">
                 <button
                   className="correct-btn"
                   id="mber_register"
