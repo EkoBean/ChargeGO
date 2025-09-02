@@ -56,6 +56,7 @@ const SiteManagement = () => {
   const [editSite, setEditSite] = useState(null);
   const [creatingSite, setCreatingSite] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [siteFilter, setSiteFilter] = useState("all");//顯示所有站點
 
   // 共用驗證與格式化
   const toFixed8 = (n) => {
@@ -168,6 +169,17 @@ const SiteManagement = () => {
     }
   };
 
+  // 取得篩選後的站點
+  const filteredSites = sites.filter(site => {
+    if (siteFilter === "all") return true;
+    const siteChargers = chargersArr.filter((c) => String(c.site_id) === String(site.site_id));
+    if (siteFilter === "available") return siteChargers.some(c => normalizeStatus(c) === "available");
+    if (siteFilter === "occupied") return siteChargers.some(c => normalizeStatus(c) === "occupied");
+    if (siteFilter === "maintenance") return siteChargers.some(c => normalizeStatus(c) === "maintenance");
+    if (siteFilter === "preparing") return siteChargers.some(c => normalizeStatus(c) === "preparing");
+    return true;
+  });
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -191,23 +203,43 @@ const SiteManagement = () => {
       </div>
 
       <div className="stats-row">
-        <div className="mini-stat primary">
+        <div
+          className={`mini-stat primary${siteFilter === "all" ? " card-selected" : ""}`}
+          style={{ cursor: "pointer" }}
+          onClick={() => setSiteFilter("all")}
+        >
           <span className="number">{sites.length}</span>
           <span className="label">總站點數</span>
         </div>
-        <div className="mini-stat success">
+        <div
+          className={`mini-stat success${siteFilter === "available" ? " card-selected" : ""}`}
+          style={{ cursor: "pointer" }}
+          onClick={() => setSiteFilter("available")}
+        >
           <span className="number">{counts.available}</span>
           <span className="label">可用充電器</span>
         </div>
-        <div className="mini-stat warning">
+        <div
+          className={`mini-stat warning${siteFilter === "occupied" ? " card-selected" : ""}`}
+          style={{ cursor: "pointer" }}
+          onClick={() => setSiteFilter("occupied")}
+        >
           <span className="number">{counts.occupied}</span>
           <span className="label">使用中</span>
         </div>
-        <div className="mini-stat danger">
+        <div
+          className={`mini-stat danger${siteFilter === "maintenance" ? " card-selected" : ""}`}
+          style={{ cursor: "pointer" }}
+          onClick={() => setSiteFilter("maintenance")}
+        >
           <span className="number">{counts.maintenance}</span>
           <span className="label">維護中</span>
         </div>
-        <div className="mini-stat">
+        <div
+          className={`mini-stat${siteFilter === "preparing" ? " card-selected" : ""}`}
+          style={{ cursor: "pointer" }}
+          onClick={() => setSiteFilter("preparing")}
+        >
           <span className="number">{counts.preparing}</span>
           <span className="label">準備中</span>
         </div>
@@ -226,7 +258,7 @@ const SiteManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {sites.map((site) => {
+            {filteredSites.map((site) => {
               // 轉成字串比較 site_id，避免 number vs string 差異造成過濾失敗
               const siteChargers = chargers.filter((c) => String(c.site_id) === String(site.site_id));
               // 使用 normalizeStatus(c) 判斷是否為 'available'（比直接比對 c.status 更可靠）

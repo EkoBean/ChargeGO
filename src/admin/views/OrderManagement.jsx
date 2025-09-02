@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useAdminData } from "../context/AdminDataContext";
 import { Card, Table, Badge, Button, Form, Row, Col, Alert, Spinner } from "react-bootstrap";
-import LoadingScreen from "../components/LoadingScreen";
-import ErrorScreen from "../components/ErrorScreen";
+import LoadingScreen from "../components/LoadingScreen";// 載入中畫面
+import ErrorScreen from "../components/ErrorScreen";// 錯誤畫面
 import OrderDetailModal from "../components/modals/OrderDetailModal";
+import CreateOrderModal from "../components/modals/CreateOrderModal";
 import ApiService from "../services/api";
 
 // 訂單管理頁面
@@ -41,7 +42,8 @@ const OrderManagement = () => {
 
   // 狀態管理：選取的訂單、顯示訂單對話框、編輯訂單狀態、建立訂單狀態、訂單相關充電器、儲存狀態
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
   const [editOrder, setEditOrder] = useState(null);
   const [creatingOrder, setCreatingOrder] = useState(false);
@@ -79,14 +81,14 @@ const OrderManagement = () => {
   // 當選定站點變更時載入該站點充電器（保留，供新增/編輯 modal 變更時自動載入）
   useEffect(() => {
     const siteId = editOrder?.site_id;
-    if (!showOrderModal || !siteId) {
+    if (!showDetailModal || !siteId) {
       setOrderSiteChargers([]);
       return;
     }
     ApiService.getSiteChargers(siteId)
       .then(setOrderSiteChargers)
       .catch(() => setOrderSiteChargers([]));
-  }, [showOrderModal, editOrder?.site_id]);
+  }, [showDetailModal, editOrder?.site_id]);
 
   // 根據訂單狀態回傳不同顏色的 Badge
   const getStatusBadge = (status) => {
@@ -142,7 +144,7 @@ const OrderManagement = () => {
     setEditOrder(mapped);
     setIsEditingOrder(false);
     setCreatingOrder(false);
-    setShowOrderModal(true);
+    setShowDetailModal(true);
 
     // 立即載入該站點的 chargers，避免使用者還要重新選站
     const siteId = mapped.site_id;
@@ -171,7 +173,7 @@ const OrderManagement = () => {
     setEditOrder(blank);
     setIsEditingOrder(true);
     setCreatingOrder(true);
-    setShowOrderModal(true);
+    setShowCreateModal(true);
 
     // 載入預設站點的充電器（若有）
     if (defaultSite) {
@@ -206,46 +208,54 @@ const OrderManagement = () => {
 
   // 儲存訂單
   const handleSaveOrder = async () => {
-    if (!editOrder) return;
+    setSaving(true);
+    
     try {
-      setSaving(true);
-
-      // 準備 payload：同時包含 site_id（數字）與 rental_site_id（字串）以相容不同後端 schema
-      const makePayload = (forCreate = false) => {
-        const p = {
-          ...(forCreate ? { uid: editOrder.uid } : {}),
-          site_id: editOrder.site_id !== "" ? Number(editOrder.site_id) : undefined,
-          rental_site_id: editOrder.site_id != null ? String(editOrder.site_id) : undefined,
-          charger_id: editOrder.charger_id ? Number(editOrder.charger_id) : undefined,
-          order_status: editOrder.order_status ?? "0",
-          end: typeof editOrder.end !== "undefined" ? (editOrder.end || null) : undefined,
-          comment: typeof editOrder.comment !== "undefined" ? editOrder.comment : undefined,
-        };
-        Object.keys(p).forEach(k => p[k] === undefined && delete p[k]);
-        return p;
-      };
-
-      if (creatingOrder || !editOrder.order_ID) {
-        const payload = makePayload(true);
-        await ApiService.createOrder(payload);
-        if (typeof loadAllData === "function") await loadAllData();
-        else await loadOrders();
-        setIsEditingOrder(false);
-        setCreatingOrder(false);
-        setShowOrderModal(false);
-      } else {
-        const payload = makePayload(false);
-        await ApiService.updateOrder(editOrder.order_ID, payload);
-        if (typeof loadAllData === "function") await loadAllData();
-        else await loadOrders();
-        setIsEditingOrder(false);
+      // 深拷貝訂單資料以進行處理
+      const orderToSave = { ...editOrder };
+      
+      // 確保開始時間存在並格式正確
+      if (!orderToSave.start_date) {
+        throw new Error('開始時間不能為空');
       }
-    } catch (err) {
-      console.error("Failed to save order:", err);
-      if (err?.response) {
-        console.error("API response:", err.response);
+      
+      // 確保日期格式正確 (ISO 字串)
+      if (typeof orderToSave.start_date === 'string' && orderToSave.start_date) {
+        // 確保是有效的 ISO 字串
+        try {
+          new Date(orderToSave.start_date).toISOString();
+        } catch (e) {
+          // 如果不是有效的日期字串，嘗試修正格式
+          console.warn('開始時間格式錯誤，嘗試修正');
+          orderToSave.start_date = new Date(orderToSave.start_date).toISOString();
+        }
       }
-      alert("訂單儲存失敗，請查看伺服器或 network tab 以取得詳細錯誤訊息");
+      
+      // 如果有結束時間，也確保其格式正確
+      if (orderToSave.end) {
+        try {
+          orderToSave.end = new Date(orderToSave.end).toISOString();
+        } catch (e) {
+          console.error('結束時間格式錯誤');
+          throw new Error('結束時間格式錯誤');
+        }
+      }
+      
+      // 執行儲存，並在提交前記錄最終資料
+      console.log('準備儲存的訂單資料:', orderToSave);
+      
+      // 呼叫 API
+      const response = await saveOrderData(orderToSave);
+      console.log('儲存成功:', response);
+      
+      // 關閉模態框
+      setShowCreateModal(false);
+      
+      // 重新載入訂單列表或其他後續處理...
+      
+    } catch (error) {
+      console.error('儲存訂單失敗:', error);
+      alert(`儲存失敗: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -267,20 +277,50 @@ const OrderManagement = () => {
     return <ErrorScreen message={error} onRetry={loadAllData} />;
   }
 
+  function getSiteNameById(siteId) {
+    const site = sites.find(s => String(s.site_id) === String(siteId));
+    return site ? site.site_name : "-";
+  }
+
+  // 開啟新增訂單的 Modal
+  const handleOpenCreateModal = () => {
+    setShowCreateModal(true);
+    
+    // 設定預設值，特別是確保開始時間有效
+    const now = new Date();
+    setEditOrder({
+      order_status: "0", // 預設進行中
+      start_date: now.toISOString(), // 使用 ISO 格式的當前時間
+      site_id: "", // 初始化其他必填欄位
+      uid: "",
+      user_name: "",
+      charger_id: ""
+    });
+  };
+
   return (
     <div className="orders-content">
       {/* 頁面標題與刷新按鈕 */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>訂單管理</h2>
-        <Button variant="outline-primary" onClick={loadOrders}>
-          <i className="fas fa-sync-alt me-2"></i>刷新資料
-        </Button>
+      <div className="content-header">
+        <h2>商城訂單管理</h2>
+        <div>
+          <button className="btn" onClick={loadOrders}>
+            🔄 刷新資料
+          </button>
+          <button className="btn primary" onClick={handleOpenCreateModal}>
+            ➕ 新增訂單
+          </button>
+        </div>
       </div>
 
-      {/* 統計卡片：顯示訂單總數、各狀態數量 */}
+      {/* 統計卡片：顯示訂單總數、各狀態數量（加上 onClick 互動） */}
       <Row className="mb-4">
         <Col md={3}>
-          <Card className="border-0 shadow-sm text-center">
+          <Card
+            className={`border-0 shadow-sm text-center ${statusFilter === "all" ? "card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setStatusFilter("all")}//顯示全部訂單
+          >
             <Card.Body>
               <h3 className="text-primary">{orderStats.total}</h3>
               <p className="mb-0">總訂單數</p>
@@ -288,7 +328,11 @@ const OrderManagement = () => {
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="border-0 shadow-sm text-center">
+          <Card
+            className={`border-0 shadow-sm text-center ${statusFilter === "completed" ? "card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setStatusFilter("completed")}//顯示已完成訂單
+          >
             <Card.Body>
               <h3 className="text-success">{orderStats.completed}</h3>
               <p className="mb-0">已完成</p>
@@ -296,7 +340,11 @@ const OrderManagement = () => {
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="border-0 shadow-sm text-center">
+          <Card
+            className={`border-0 shadow-sm text-center ${statusFilter === "active" ? "card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setStatusFilter("active")}//顯示進行中訂單
+          >
             <Card.Body>
               <h3 className="text-warning">{orderStats.active}</h3>
               <p className="mb-0">進行中</p>
@@ -304,7 +352,11 @@ const OrderManagement = () => {
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="border-0 shadow-sm text-center">
+          <Card
+            className={`border-0 shadow-sm text-center ${statusFilter === "cancelled" ? "card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setStatusFilter("cancelled")}//
+          >
             <Card.Body>
               <h3 className="text-danger">{orderStats.cancelled}</h3>
               <p className="mb-0">已取消</p>
@@ -318,7 +370,7 @@ const OrderManagement = () => {
         <Card.Header className="bg-white">
           <Row className="align-items-center">
             <Col md={4}>
-              <h5 className="mb-0">訂單列表 ({filteredOrders.length})</h5>
+              <h5 className="mb-0">商城訂單列表 ({filteredOrders.length})</h5>
             </Col>
             <Col md={4}>
               {/* 搜尋框：可依訂單ID、用戶、站點搜尋 */}
@@ -395,7 +447,7 @@ const OrderManagement = () => {
       </Card>
 
       {/* 訂單詳情對話框 */}
-      {showOrderModal && selectedOrder && (
+      {showDetailModal && selectedOrder && (
         <OrderDetailModal
           order={selectedOrder}
           editOrder={editOrder}
@@ -412,8 +464,22 @@ const OrderManagement = () => {
           }}
           onSave={handleSaveOrder}
           onChange={handleOrderFieldChange}
-          onClose={() => !saving && setShowOrderModal(false)}
+          onClose={() => !saving && setShowDetailModal(false)}
           getOrderStatusText={getOrderStatusText}
+        />
+      )}
+
+      {/* 新增訂單 Modal */}
+      {showCreateModal && (
+        <CreateOrderModal
+          editOrder={editOrder}
+          saving={saving}
+          sites={sites}
+          siteChargers={orderSiteChargers}
+          onCancel={() => setShowCreateModal(false)}
+          onSave={handleSaveOrder}
+          onChange={handleOrderFieldChange}
+          onClose={() => setShowCreateModal(false)}
         />
       )}
     </div>

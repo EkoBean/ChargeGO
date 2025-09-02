@@ -20,6 +20,7 @@ const UserDetailModal = ({
   onChange, 
   onClose,
   disablePersonalEditing = false,
+  sites = [], // ← 確保有傳入 sites
 }) => {
   // 顯示詳細 JSON 於 console，方便開發除錯（正式上線可移除）
   try {
@@ -30,6 +31,12 @@ const UserDetailModal = ({
   }
 
   const { getOrderStatusText } = useAdminData();
+
+  // 取得站點名稱
+  const getSiteNameById = (siteId) => {
+    const site = sites.find(s => String(s.site_id) === String(siteId));
+    return site ? site.site_name : "-";
+  };
 
   return (
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
@@ -172,15 +179,24 @@ const UserDetailModal = ({
                     />
                   </div>
                   <div className="form-group">
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name="blacklist"
-                        checked={!!editUser?.blacklist}
-                        onChange={onChange}
-                      />
-                      黑名單
-                    </label>
+                    <label>狀態</label>
+                    <select
+                      name="blacklist"
+                      value={editUser?.blacklist ? "blacklist" : "normal"}
+                      onChange={e => {
+                        // 轉換選擇值為 boolean
+                        onChange({
+                          target: {
+                            name: "blacklist",
+                            value: e.target.value === "blacklist"
+                          }
+                        });
+                      }}
+                      disabled={!isEditing}
+                    >
+                      <option value="normal">正常</option>
+                      <option value="blacklist">黑名單</option>
+                    </select>
                   </div>
                   <div className="form-group">
                     <label>碳足跡</label>
@@ -224,7 +240,11 @@ const UserDetailModal = ({
                           })()}
                         </td>
 
-                        <td>{order.site_name}</td>
+                        <td>
+                          {order.order_status === 1 || order.order_status === 0 || order.order_status === -1
+                            ? getSiteNameById(order.rental_site_id)
+                            : getSiteNameById(order.return_site_id)}
+                        </td>
 
                         {/* 顯示訂單狀態 badge（根據 order_status 或文字值） */}
                         <td>

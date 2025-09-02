@@ -4,11 +4,11 @@ import { NavLink, Outlet } from 'react-router-dom';
 import '../styles/AdminDashboard.css';
 
 const AdminLayout = ({ children, onLogout }) => {
-  
+  const employeeName = localStorage.getItem('employeeName') || '系統管理員';
+
   const handleLogout = () => {
-    if (confirm('確定要登出嗎？')) {
-      onLogout();
-    }
+    localStorage.removeItem('employeeName');
+    onLogout();
   };
 
   return (
@@ -19,7 +19,7 @@ const AdminLayout = ({ children, onLogout }) => {
           行動電源租借系統 - 後台管理
         </div>
         <div className="nav-user">
-          <span>👤 系統管理員</span>
+          <span>👤 {employeeName}</span>
           <button className="logout-btn" onClick={handleLogout}>
             🚪 登出
           </button>

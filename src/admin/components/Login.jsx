@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import '../styles/Login.css';
 //員工登入頁面 
 const Login = ({ onLogin }) => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -13,30 +10,29 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      // 這裡可以串接你的登入 API
-      // const response = await ApiService.login(formData);
-      
-      // 暫時用固定帳密示範
-      if (formData.username === 'admin' && formData.password === 'admin123') {
-        localStorage.setItem('adminToken', 'admin_logged_in');
+      const res = await fetch('http://127.0.0.1:3000/api/employee/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('adminToken', 'employee_logged_in');
+        localStorage.setItem('employeeName', data.employee.name);
         onLogin(true);
       } else {
-        setError('帳號或密碼錯誤');
+        setError(data.message || '登入失敗');
       }
     } catch (err) {
-      setError('登入失敗，請稍後再試');
+      setError('伺服器錯誤');
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -49,14 +45,14 @@ const Login = ({ onLogin }) => {
         
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">帳號</label>
+            <label htmlFor="email">信箱</label>
             <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
-              placeholder="請輸入管理員帳號"
+              placeholder="請輸入員工信箱"
               required
             />
           </div>
@@ -86,7 +82,7 @@ const Login = ({ onLogin }) => {
         </form>
         
         <div className="login-footer">
-          <p>預設帳號：admin / 密碼：admin123</p>
+          <p>預設帳號：employee1@gmail.com / 密碼：123456   </p>
         </div>
       </div>
     </div>

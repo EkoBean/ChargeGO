@@ -287,6 +287,84 @@ const ApiService = {
   async getSystemStatus() {
     return this.request('/api/system-status');
   },
+
+  // 假設這是您的 API 呼叫函數
+  async saveOrderData(orderData) {
+    // 複製一份數據進行處理
+    const data = { ...orderData };
+    
+    // 確保關鍵字段存在
+    if (!data.start_date) {
+      throw new Error("開始時間不能為空");
+    }
+    
+    if (!data.uid) {
+      throw new Error("用戶ID不能為空");
+    }
+    
+    if (!data.site_id) {
+      throw new Error("站點不能為空");
+    }
+    
+    if (!data.charger_id) {
+      throw new Error("充電器不能為空");
+    }
+    
+    // 發送請求
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '儲存訂單失敗');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API 錯誤:', error);
+      throw error;
+    }
+  },
+};
+
+// 訂單相關 API 函數
+export const saveOrderData = async (orderData) => {
+  // 檢查必要欄位
+  const requiredFields = ['uid', 'user_name', 'site_id', 'charger_id', 'start_date'];
+  for (const field of requiredFields) {
+    if (!orderData[field]) {
+      throw new Error(`${field === 'start_date' ? '開始時間' : field} 不能為空`);
+    }
+  }
+
+  console.log('發送訂單資料到後端:', orderData);
+
+  try {
+    // 呼叫您的 API 端點
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || '儲存訂單失敗');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API 請求失敗:', error);
+    throw error;
+  }
 };
 
 export default ApiService;

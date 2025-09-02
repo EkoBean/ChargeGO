@@ -14,7 +14,7 @@ import ApiService from "../services/api";
  */
 
 const UserManagement = () => {
-  const { users, setUsers, loading, error, loadAllData } = useAdminData();
+  const { users, sites, setUsers, loading, error, loadAllData } = useAdminData(); // ← 取得資料庫order_record 的個人資料
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -218,7 +218,6 @@ const UserManagement = () => {
           editUser={editUser}
           isEditing={isEditingUser}
           saving={saving}
-          // disablePersonalEditing=true：在 modal 編輯時鎖住姓名/Email/電話/地址（若需要）
           disablePersonalEditing={true}
           onEdit={() => {
             // 進入編輯模式時，確保 editUser 已初始化為 selectedUser 的複本
@@ -233,6 +232,7 @@ const UserManagement = () => {
           onSave={handleSaveUser}
           onChange={handleUserFieldChange}
           onClose={() => !saving && setShowUserModal(false)}
+          sites={sites} // ← 傳入 sites
         />
       )}
     </div>
