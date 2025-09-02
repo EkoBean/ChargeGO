@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../../styles/scss/mber_profile.scss";
+import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import NavBarPhone from "../../components/NavBarPhone";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
@@ -18,16 +21,15 @@ const mber_Profile = () => {
     return () => navigate("/mber_info");
   };
 
- 
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
     fetch(`${API_BASE}/check-auth`, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.authenticated && data.user) {
           setUser(data.user);
           if (data.user.country) setCountry(data.user.country);
@@ -70,10 +72,10 @@ const mber_Profile = () => {
           fetch(`${API_BASE}/check-auth`, {
             method: "POST",
             credentials: "include",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
           })
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
               if (data.authenticated && data.user) {
                 setUser(data.user);
               }
@@ -90,75 +92,84 @@ const mber_Profile = () => {
   };
 
   return (
-    <div className="profile">
-      {/* 會員資料Header */}
-      <div className="title">
-        <img
-          src="./Iconimg/backBtn.svg"
-          alt="返回按鈕"
-          className="back-button"
-          onClick={backBtnClick()}
-        />
-        <h1>會員資料</h1>
+    <div className="mber_info">
+      <ChargegoLogo className="mobile-only-logo" />
+      <NavBarPhone />
+      {/* Header */}
+
+      <span
+        className="back-icon mobile-only-back"
+        onClick={() => window.history.back()}
+        title="回到上頁"
+      >
+        ◀︎
+      </span>
+      <div className="mobile-arc-bg">
+        <div className="mobile-arc-content">
+          <h2 className="mber_info_title">會員資料</h2>
+        </div>
+      </div>
+      <div className="mber_info_header">
         <img
           src="./Iconimg/notify.svg"
           alt="通知按鈕"
-          className="notify-button"
+          className="notify-btn"
           onClick={notifyBtnClick()}
         />
       </div>
-      {/* 會員頭像 */}
-      <div className="avatar">
-        <img
-          src="./Iconimg/Shopping Cart.svg"
-          alt="用戶頭像"
-        />
-      </div>
-      {/* 卡片列 */}
-      <div className="card-list">
-        <div className="myWallet">
-          <img src="./Iconimg/wallet.svg" />
-          <h5>信用卡資料</h5>
+      <div className="mber_info_main">
+        {/* 頭像 */}
+        <div className="avatar">
+          <img src="./Iconimg/user.svg" alt="用戶頭像" />
         </div>
-        <div className="rnet-record">
-          {/* <img src="" alt="租借圖片" /> */}
-          <h5>租借紀錄</h5>
+        {/* 卡片列 */}
+        <div className="mber_info_cards">
+          <div className="card">
+            <img src="./Iconimg/card_wallet.svg" alt="信用卡資料" />
+            <span>信用卡資料</span>
+          </div>
+          <div className="card">
+            <img src="./Iconimg/card_bill.svg" alt="帳單紀錄" />
+            <span>帳單紀錄</span>
+          </div>
+          <div className="card">
+            <img src="./Iconimg/card_help.svg" alt="幫助中心" />
+            <span>幫助中心</span>
+          </div>
         </div>
-        <div className="help-center">
-          <img src="./Iconimg/help.svg" alt="" />
-          <h5>幫助中心</h5>
+        {/* 會員資料區塊 */}
+        <div className="mber_info_profile">
+          <div>
+            <span>會員姓名｜</span>
+            <span>{user?.user_name || "王大明"}</span>
+          </div>
+          <div>
+            <span>電話｜</span>
+            <span>
+              {user?.telephone
+                ? user.telephone.replace(/(\d{2})\d{4}(\d{4})/, "$1****$2")
+                : "09**-****-***"}
+            </span>
+          </div>
+          <div>
+            <span>e-mail｜</span>
+            <span>{user?.email || "gmail@gmail.com"}</span>
+          </div>
+          <div>
+            <span>居住城市｜</span>
+            <select value={country} onChange={handleCountryChange}>
+              <option>台北市</option>
+              <option>新北市</option>
+              <option>桃園市</option>
+              <option>台中市</option>
+              <option>台南市</option>
+              <option>高雄市</option>
+            </select>
+          </div>
         </div>
       </div>
-      {/* 會員個人資訊欄 */}
-      <div className="personal-info">
-        <ul className="info-list">
-          <li>
-            <h5>會員姓名：</h5>
-            <p>{user?.user_name || "尚未設定"}</p>
-          </li>
-          <li>
-            <h5>電話：</h5>
-            <p>{user?.telephone || "尚未設定"}</p>
-          </li>
-          <li>
-            <h5>e-mail：</h5>
-            <p>{user?.email || "尚未設定"}</p>
-          </li>
-          <li>
-            <h5>居住城市：</h5>
-            <p>{country || "尚未設定"}</p>
-          </li>
-          <li>
-            <h5>地址：</h5>
-            <p>{user?.address || "尚未設定"}</p>
-          </li>
-          
-       
-          
-        </ul>
-      </div>
-      {/* 會員資料修改按鈕 */}
-      <div className="edit-button">
+      {/* 按鈕區塊 */}
+      <div className="mber_info_btns">
         <button onClick={handleEditProfile}>修改會員資料</button>
         <button onClick={handleDeactivateAccount}>會員停權</button>
       </div>
