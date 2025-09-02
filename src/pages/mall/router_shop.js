@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
   res.send("API shop is running and ready to go!");
 });
 
-app.get("/coupon", async (req, res) => {
+app.get("/products", async (req, res) => {
   const query = `
  SELECT * FROM coupon_templates;`;
   const results = await pool.query(query);
