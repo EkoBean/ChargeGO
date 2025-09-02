@@ -10,6 +10,11 @@
   overflow: hidden;
 }
 
+.info-container {
+  max-width: 100vw;
+  padding-top: 24px;
+}
+
 .mber_info_title {
   font-family: "Mantou sans", serif;
   font-size: 2rem;
@@ -237,6 +242,12 @@
   .mobile-only {
     display: block;
   }
+
+   .mobile-only-logo {
+    display: block;
+    z-index: 30;
+  }
+
   .mobile-arc-bg {
     width: 100%;
     height: 120px;
@@ -262,3 +273,5 @@
     align-items: center;
   }
 }
+
+
