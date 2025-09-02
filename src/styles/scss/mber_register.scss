@@ -92,11 +92,11 @@
 }
 
 .register-form-row {
-  display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 0;
   width: 100%;
-  justify-content: center;
-  align-items: center;
+  align-items: stretch;
+  justify-content: flex-start;
 }
 
 .register-form-col {
@@ -110,13 +110,15 @@
 .register-input-group {
   position: relative;
   width: 100%;
-  margin-bottom: 0;
+  margin-bottom: 16px; // 與手機版一致
 }
 
 
 
-.register-btn {
-  width: 100%;
+.register-btn,
+.correct-btn,
+.leave-btn {
+  width: 300px; // 與 input 欄位寬度一致
   padding: 12px 0;
   border-radius: 24px;
   border: none;
@@ -287,11 +289,12 @@
     padding-top: 10px;
     padding-bottom: 10px;
   }
+  .register-btn,
   .correct-btn,
   .leave-btn {
+    width: 100%; // 手機版維持全寬
     border-radius: 32px;
     margin-bottom: 12px;
-    width: 80%;
     padding: 16px 0;
     font-size: 1.2rem;
     letter-spacing: 8px;
