@@ -1,5 +1,5 @@
 // ======scss==========
-import "../styles/scss/global.scss";
+// import "../styles/scss/global.scss";
 import React, { useEffect } from "react";
 
 // =========== Routers =================

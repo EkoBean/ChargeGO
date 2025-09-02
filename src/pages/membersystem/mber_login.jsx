@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
-import "../../styles/scss/member.scss";
+import "../../styles/scss/mber_login.scss";
 import NavBarPhone from "../../components/NavBarPhone";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 
@@ -95,7 +95,7 @@ const mber_Login = () => {
       {/* 閃電背景 */}
       <img className="lightning" src="../../../public/lightning.png" />
       <ChargegoLogo className="mobile-only-logo" />
-      <NavBarPhone  />
+      
       <div className="login-container">
         <div className="login-form-section">
           <span

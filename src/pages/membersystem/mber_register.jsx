@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../../styles/scss/global.scss";
+import "../../styles/scss/mber_register.scss";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarPhone from "../../components/NavBarPhone";
 const mber_Register = () => {
