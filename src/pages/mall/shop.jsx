@@ -19,10 +19,10 @@ class Shop extends Component {
   componentDidMount() {
     // 請確認你的 Node.js server 跑在 4001 port
     axios
-      .get("http://localhost:4001/coupon")
+      .get("http://localhost:4001/products")
       .then((res) => {
         // 假設資料表 coupon_templates 欄位包含：
-        // template_id, name, point, image, description, validity_days
+        // template_id, name, point, image, description, validity_days, type
         const formattedData = res.data.map((item) => ({
           id: item.template_id,
           name: item.name,
@@ -33,6 +33,7 @@ class Shop extends Component {
           redemptionMethod: item.description,
           expirationDate: `兌換後${item.validity_days}天內有效`,
           contractDetails: "此折扣券僅限於指定租借服務，詳情請參閱活動條款。",
+          type: item.type, // 新增 type 欄位
           isCoupon: true,
         }));
         this.setState({ products: formattedData });
@@ -78,66 +79,120 @@ class Shop extends Component {
   };
 
   render() {
-    const { userId } = this.state;
+    const {
+      userId,
+      products,
+      selectedProduct,
+      showDetailModal,
+      showSuccessModal,
+    } = this.state;
 
-    const { products, selectedProduct, showDetailModal, showSuccessModal } =
-      this.state;
+    // 分類商品
+    const storeCoupons = products.filter(
+      (p) => p.type === "store_gift" || p.type === "store_discount"
+    );
+    const rentalCoupons = products.filter((p) =>
+      ["rental_discount", "free_minutes", "percent_off"].includes(p.type)
+    );
 
     return (
       <div className="container py-4">
+        {/* User ID 輸入 */}
         <label className="form-label">模擬 User ID</label>
         <input
           type="text"
-          className="form-control"
+          className="form-control mb-4"
           value={userId}
           onChange={this.handleUserChange}
           placeholder="輸入 user_id"
         />
+
         <h2 className="mb-4">點數商城</h2>
-        <div className="row g-3">
-          {products.map((product) => (
-            <div key={product.id} className="col-6 col-md-4 col-xl-3">
-              <div className="card h-100">
-                <img
-                  src={product.image}
-                  className="card-img-top"
-                  alt={product.name}
-                  style={{ objectFit: "cover", height: "120px" }}
-                  onClick={() => this.handleShowDetail(product)}
-                />
-                <div className="card-body d-flex flex-column">
-                  <h6 className="card-title mb-1">{product.name}</h6>
-                  <p className="card-text mb-0">
-                    點數:{" "}
-                    <strong className="text-warning">{product.points}</strong>
-                  </p>
 
-                  {/* 小文字觸發詳細內容 */}
-                  <small
-                    className="text-primary mt-1"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => this.handleShowDetail(product)}
-                  >
-                    查看詳細
-                  </small>
-
-                  <button
-                    className="btn btn-warning btn-sm mt-auto"
-                    onClick={() => {
-                      console.log("兌換按鈕點擊，template_id =", product.id);
-                      // 這裡不開啟詳細資訊，只做兌換
-                      this.handleRedeem(product);
-                    }}
-                  >
-                    兌換
-                  </button>
+        {/* 商家優惠券兌換 - 橫向滑動 */}
+        {storeCoupons.length > 0 && (
+          <>
+            <h4 className="mb-3">商家優惠券兌換</h4>
+            <div className="d-flex overflow-auto pb-2">
+              {storeCoupons.map((p) => (
+                <div
+                  className="card me-3"
+                  key={p.id}
+                  style={{
+                    minWidth: "150px",
+                    height: "200px",
+                    backgroundColor: "#f8f9fa",
+                  }}
+                >
+                  <div className="card-body d-flex flex-column justify-content-between">
+                    <div>
+                      <h6 className="card-title">{p.name}</h6>
+                      <p className="card-text mb-1">
+                        點數: {p.points} <br />
+                      </p>
+                    </div>
+                    <div className="d-flex flex-column gap-1">
+                      <button
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => this.handleShowDetail(p)}
+                      >
+                        詳細
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => this.handleRedeem(p)}
+                      >
+                        兌換
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
-        {/* 商品詳細 Modal */}
+        {/* 租借優惠券兌換 */}
+        {rentalCoupons.length > 0 && (
+          <>
+            <h4 className="mt-4 mb-3">租借優惠券兌換</h4>
+            <div className="d-flex flex-column gap-3">
+              {rentalCoupons.map((p) => (
+                <div className="card shadow-sm" key={p.id}>
+                  <div className="card-body d-flex flex-row justify-content-between align-items-center">
+                    {/* 左側文字資訊 */}
+                    <div>
+                      <h5 className="card-title">{p.name}</h5>
+                      <p className="card-text mb-1">
+                        點數: {p.points} <br />
+                        折扣方式: {p.type} <br />
+                        到期日: {p.expirationDate}
+                      </p>
+                    </div>
+
+                    {/* 右側操作按鈕 */}
+                    <div className="d-flex flex-column gap-2">
+                      <button
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => this.handleShowDetail(p)}
+                      >
+                        詳細
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => this.handleRedeem(p)}
+                      >
+                        兌換
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Modal 部分保持不變 */}
         {showDetailModal && selectedProduct && (
           <div
             className="modal show d-block"
@@ -185,7 +240,6 @@ class Shop extends Component {
           </div>
         )}
 
-        {/* 兌換成功 Modal */}
         {showSuccessModal && selectedProduct && (
           <div
             className="modal show d-block"
