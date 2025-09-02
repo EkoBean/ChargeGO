@@ -1,4 +1,4 @@
-# Logs
+# Logs 不用放Git
 logs
 *.log
 npm-debug.log*
