@@ -333,8 +333,8 @@ function AppIndex() {
 
         // ================= button links =================
         const buttonlinks = [
-          { icon: 'bi bi-gift-fill', color: 'white', url: '', action: handleLink },
-          { icon: 'bi bi-person-fill', color: 'black', url: '', action: handleLink },
+          { icon: 'bi bi-gift-fill', color: 'white', url: './coupon', action: handleLink },
+          { icon: 'bi bi-person-fill', color: 'black', url: './mber_profile', action: handleLink },
           { icon: 'bi bi-pin-map', color: 'black', url: '', action: handleLocate },
         ]
         function handleLocate() {
