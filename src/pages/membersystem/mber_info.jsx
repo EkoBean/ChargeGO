@@ -19,21 +19,20 @@ const mber_Info = () => {
     return () => alert("通知功能即將開放");
   };
 
- 
   useEffect(() => {
     // 取得 user 資料
     fetch(`${API_BASE}/check-auth`, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.authenticated && data.user) {
           setUser(data.user);
           // 取得通知資料
           fetch(`${API_BASE}/user/${data.user.uid}/notices`, {
-            credentials: "include"
+            credentials: "include",
           })
             .then((res) => res.json())
             .then((data) => setNotices(data))
@@ -53,7 +52,11 @@ const mber_Info = () => {
     <div className="mber_info-page">
       <ChargegoLogo />
       <div className="mber_info-header">
-        <img src="./Iconimg/backBtn.svg" className="mber_info-back-btn" onClick={backBtnClick()} />
+        <img
+          src="./Iconimg/backBtn.svg"
+          className="mber_info-back-btn"
+          onClick={backBtnClick()}
+        />
         <NavBarPhone />
       </div>
       <div className="mber_info-avatar">
@@ -63,22 +66,24 @@ const mber_Info = () => {
       </div>
       <div className="mber_info-body">
         <h2>帳戶通知 </h2>
-        {/* 根據通知資料渲染 */}
-        {notices.length === 0 ? (
-          <p>目前沒有通知</p>
-        ) : (
-          notices.map((notice) => (
-            <div className="mber_info-info" key={notice.notice_id}>
-              {/* 可根據資料表顯示 LOGO 或其他欄位 */}
-              {/* <img src="" alt="LOGO" /> */}
-              <h4>{notice.notice_title}</h4>
-              <p>{notice.notice_content}</p>
-              <span>{notice.notice_date}</span>
-              <button className="">查看更多</button>
-              <hr />
-            </div>
-          ))
-        )}
+        <div className="mber_info-section">
+          {/* 根據通知資料渲染 */}
+          {notices.length === 0 ? (
+            <p>目前沒有通知</p>
+          ) : (
+            notices.map((notice) => (
+              <div className="mber_info-info" key={notice.notice_id}>
+                {/* 可根據資料表顯示 LOGO 或其他欄位 */}
+                {/* <img src="" alt="LOGO" /> */}
+                <h4>{notice.notice_title}</h4>
+                <p>{notice.notice_content}</p>
+                <span>{notice.notice_date}</span>
+                <button className="">查看更多</button>
+                <hr />
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
