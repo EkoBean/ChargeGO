@@ -12,6 +12,7 @@ import Mber_Register from "./membersystem/mber_register";
 import Mber_Login from "./membersystem/mber_login";
 import Mber_Profile from "./membersystem/mber_profile";
 import Mber_Info from "./membersystem/mber_info";
+import Task from "./membersystem/Task";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/mber_info" element={<Mber_Info />} />
         <Route path="/mber_login" element={<Mber_Login />} />
         <Route path="/mber_profile" element={<Mber_Profile />} />
+        <Route path="/task" element={<Task />} />
         <Route path="*" element={<Mber_Register />} />
       </Routes>
     </>

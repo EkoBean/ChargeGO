@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import NavBarPhone from "../../components/NavBarPhone";
+// import "../../styles/scss/mber_info.scss";
 
 const mber_Info = () => {
   const [user, setUser] = useState(null);
@@ -48,9 +51,10 @@ const mber_Info = () => {
 
   return (
     <div className="mber_info">
+      <ChargegoLogo />
       <div className="mber_info_header">
         <img src="./Iconimg/backBtn.svg" className="back-btn" onClick={backBtnClick()} />
-        {/* 插入navbar */}
+        <NavBarPhone />
       </div>
       <div className="avatar">
         <h1>{user?.user_name || "會員名稱"}</h1>
