@@ -7,3 +7,173 @@ body,
   margin: 0;
   padding: 0;
 }
+// ==========================
+// 變數區
+// ==========================
+$color-bg-gradient-start: #ffbf00;
+$color-bg-gradient-end: #fffde7;
+$color-main-bg: #fff;
+$color-title: #7c4d00;
+$color-task-name: #333;
+$color-progress-bg: #eee;
+$color-progress-fill: #ffe066;
+$color-progress-text: #7c4d00;
+$color-deadline: #aaa;
+$color-point-bg: #69f05b;
+$color-point-text: #fff;
+$color-claim-btn-bg: #69f05b;
+$color-claim-btn-hover: #664228;
+$color-circle-bg: #fff9e3;
+$color-points-circle: #ffd600;
+$color-shop-circle: #69f05b;
+
+// ==========================
+// 全局樣式
+// ==========================
+// body {
+//   background: linear-gradient(180deg, $color-bg-gradient-start 0%, $color-bg-gradient-end 100%);
+// }
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: relative; // 讓絕對定位以 container 為基準
+}
+
+// ==========================
+// Main
+// ==========================
+.main {
+  background-color: $color-main-bg;
+  border-radius: 30px;
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  top: 200px;
+  padding: 0 30px;
+  z-index: 1; // 讓 main 在 points-shop-row 之下
+}
+
+// ==========================
+// 標題
+// ==========================
+.title {
+  font-family: "Mantou Sans", serif;
+  font-size: 50px;
+  letter-spacing: 15px;
+  font-weight: 100;
+  color: $color-title;
+  margin-top: 100px;
+  margin-bottom: 30px;
+}
+
+// ==========================
+// 任務列表
+// ==========================
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.taskCard {
+  padding: 10px 12px; // 原本 16px 可以縮小一點
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 12px;
+
+  .taskInfo {
+    .taskName {
+      font-size: 16px; // 原本如果是 18px 就縮小
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 14px;
+      margin: 2px 0; // 上下間距縮小
+      line-height: 1.3; // 行距縮小，手機看起來比較緊湊
+      color: #555;
+    }
+  }
+
+  .progressBar {
+    margin-top: 6px; // 進度條和文字之間間隔縮小
+  }
+}
+
+// ==========================
+// 點數 & 去逛逛圓形
+// ==========================
+.points-shop-row {
+  position: static;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.points-circle-wrapper {
+  position: absolute;
+  left: 3vw;
+  top: 120px;
+  z-index: 10;
+
+  .circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.4);
+    background: $color-circle-bg;
+    position: relative;
+
+    &.points-circle {
+      background: $color-points-circle;
+      width: 120px;
+      height: 120px;
+      box-shadow: 3px 2px 10px #ea9f0aa8;
+    }
+
+    .points-text {
+      font-size: 1.3rem;
+      letter-spacing: 6px;
+      font-weight: bold;
+      color: #6b4f1d;
+    }
+  }
+}
+
+.shop-circle-wrapper {
+  position: absolute;
+  left: 8vw;
+  top: 170px;
+  z-index: 10;
+
+  .circle {
+    &.shop-circle {
+      background: $color-shop-circle;
+      width: 160px;
+      height: 160px;
+      box-shadow: 0 2px 8px #b89b2b33;
+    }
+
+    .shop-img {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 6px;
+    }
+
+    .shop-text {
+      font-size: 20px;
+      letter-spacing: 3px;
+      color: #6b4f1d;
+      font-weight: bold;
+    }
+  }
+}

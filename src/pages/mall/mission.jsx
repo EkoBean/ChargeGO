@@ -1,20 +1,20 @@
 import React, { Component } from "react";
 import axios from "axios";
+import "../../styles/scss/mall_index.scss";
 
 class Mission extends Component {
   state = {
     mission: [],
     loading: false,
     error: null,
-    userId: "1", // 預設使用者 ID
-    filterDate: this.getTodayDate(), // 預設為今天，使用自訂方法
+    userId: "1",
+    filterDate: this.getTodayDate(),
   };
 
   componentDidMount() {
     this.fetchMissions();
   }
 
-  // 自訂方法來取得今日日期並格式化
   getTodayDate() {
     const today = new Date();
     const year = today.getFullYear();
@@ -22,48 +22,27 @@ class Mission extends Component {
     const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
-  //任務渲染頁
+
   async fetchMissions() {
     const { userId, filterDate } = this.state;
     this.setState({ loading: true, error: null, mission: [] });
 
     try {
-      // === 第一步: 呼叫更新路由 (POST) ===
-      // 我們使用 POST，因為這是觸發伺服器端動作 (資料更新) 的標準方法
-      // 你也可以使用 GET，但 POST 更符合 RESTful API 的規範
-      const updateResponseFrequency = await axios.post(
-        `http://localhost:4000/update/monthRental`,
-        {
-          userId,
-          filterDate,
-        }
-      );
-      const updateResponseHours = await axios.post(
-        `http://localhost:4000/update/monthHours`,
-        {
-          userId,
-          filterDate,
-        }
-      );
-      console.log("更新路由回應:", updateResponseFrequency.data);
-      // 捕捉非同步請求可能發生的錯誤
+      await axios.post(`http://localhost:4000/update/monthRental`, {
+        userId,
+        filterDate,
+      });
+      await axios.post(`http://localhost:4000/update/monthHours`, {
+        userId,
+        filterDate,
+      });
 
-      // === 第二步: 獲取最新的任務列表 ===
-      // 等待更新完成後，再呼叫獲取任務的路由
       const missionsResponse = await axios.get(
         `http://localhost:4000/mission/${userId}/${filterDate}`
       );
 
-      console.log("任務列表路由回應:", missionsResponse.data);
-      console.log(typeof missionsResponse.data);
-      console.log(Array.isArray(missionsResponse.data));
-      // 檢查回傳資料格式是否正確
       if (Array.isArray(missionsResponse.data)) {
-        console.log("Array scusseed");
-        this.setState({
-          mission: missionsResponse.data,
-          loading: false,
-        });
+        this.setState({ mission: missionsResponse.data, loading: false });
       } else {
         this.setState({
           error: "從伺服器獲得的任務資料格式不正確，預期為陣列。",
@@ -71,7 +50,6 @@ class Mission extends Component {
         });
       }
     } catch (error) {
-      console.error("無法從伺服器獲取任務資料:", error);
       this.setState({
         error: "無法從伺服器獲取任務資料，請檢查後端服務。",
         loading: false,
@@ -79,27 +57,18 @@ class Mission extends Component {
     }
   }
 
-  // 處理任務領取功能 (此為示意，請自行串接後端API)
   handleClaimMission = async (userMissionId) => {
-    console.log(`正在領取任務：${userMissionId}`);
     try {
-      // 發送 POST 請求到後端 API
       const response = await axios.post(
         "http://localhost:4000/usermission/claim",
-        { user_mission_id: userMissionId } // 傳遞要領取的 user_mission_id
+        { user_mission_id: userMissionId }
       );
 
-      // 如果請求成功（狀態碼為 200），重新獲取任務列表以更新畫面
       if (response.status === 200) {
-        console.log(response.data.message);
         this.fetchMissions();
       }
     } catch (error) {
-      console.error("領取任務失敗:", error);
-      // 如果後端回傳錯誤，顯示錯誤訊息，並停止進一步操作
       if (error.response && error.response.data) {
-        // 直接使用 alert 顯示後端回傳的錯誤訊息
-        // 這會避免觸發 setState 並導致任務列表重新渲染
         alert(error.response.data.message);
       } else {
         alert("領取任務時發生錯誤，請稍後再試。");
@@ -114,201 +83,104 @@ class Mission extends Component {
 
   render() {
     const { mission, loading, error, userId, filterDate } = this.state;
-    console.log(mission.length);
-    console.log(mission);
-    return (
-      <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-          我的任務列表
-        </h2>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            marginBottom: "20px",
-            justifyContent: "center",
-            alignItems: "flex-end",
-          }}
-        >
+    return (
+      <div className="container">
+        <h2 className="title">我的任務列表</h2>
+
+        <div className="filter-row">
           <div>
-            <label
-              htmlFor="userId"
-              style={{ display: "block", marginBottom: "5px" }}
-            >
-              使用者 ID
-            </label>
+            <label htmlFor="userId">使用者 ID</label>
             <input
               type="text"
               id="userId"
               value={userId}
               onChange={this.handleInputChange}
-              style={{
-                padding: "8px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
             />
           </div>
           <div>
-            <label
-              htmlFor="filterDate"
-              style={{ display: "block", marginBottom: "5px" }}
-            >
-              篩選日期
-            </label>
+            <label htmlFor="filterDate">篩選日期</label>
             <input
               type="date"
               id="filterDate"
               value={filterDate}
               onChange={this.handleInputChange}
-              style={{
-                padding: "8px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
             />
           </div>
-          <button
-            onClick={() => this.fetchMissions()}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            獲取任務資料
-          </button>
+          <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
         </div>
 
-        {
-          //大括號A
-          loading ? (
-            <div style={{ textAlign: "center", marginTop: "20px" }}>
-              任務資料載入中...
-            </div>
-          ) : error ? (
-            <div
-              style={{ textAlign: "center", color: "red", marginTop: "20px" }}
-            >
-              錯誤: {error}
-            </div>
-          ) : (
-            <div>
-              {mission.length > 0 ? (
-                <ul>
-                  {mission.map((item) => (
-                    <li
-                      key={item.user_mission_id}
-                      style={{ marginBottom: "10px", listStyle: "none" }}
-                    >
-                      <div
-                        style={{
-                          padding: "10px",
-                          border: "1px solid #ccc",
-                          borderRadius: "8px",
-                          backgroundColor: "#f9f9f9",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "5px",
-                        }}
-                      >
-                        <h4 style={{ margin: "0", color: "#333" }}>
-                          {item.title}
-                        </h4>
-                        <p style={{ margin: "0", color: "#666" }}>
-                          {item.description}
-                        </p>
-                        <p style={{ margin: "0", color: "#666" }}>
-                          完成條件：{item.target_value}
-                        </p>
-                        <p style={{ margin: "0", color: "#666" }}>
-                          獎勵點數：{item.reward_points}
-                        </p>
-                        <p style={{ margin: "0", color: "#666" }}>
-                          開始日期：
-                          {new Date(item.mission_start_date).toLocaleDateString(
+        {loading ? (
+          <div className="loading-text">任務資料載入中...</div>
+        ) : error ? (
+          <div className="error-text">錯誤: {error}</div>
+        ) : mission.length > 0 ? (
+          <div className="taskList">
+            {mission.map((item) => {
+              const progressPercent = Math.min(
+                100,
+                (item.current_progress / item.target_value) * 100
+              );
+
+              return (
+                <div className="taskCard" key={item.user_mission_id}>
+                  <div className="taskInfo">
+                    <div className="taskName">{item.title}</div>
+                    <p>{item.description}</p>
+                    <p>完成條件：{item.target_value}</p>
+                    <p>獎勵點數：{item.reward_points}</p>
+                    <p>
+                      開始日期：
+                      {new Date(item.mission_start_date).toLocaleDateString(
+                        "zh-TW"
+                      )}
+                    </p>
+                    <p>
+                      結束日期：
+                      {item.mission_end_date
+                        ? new Date(item.mission_end_date).toLocaleDateString(
                             "zh-TW"
-                          )}
-                        </p>
-                        <p style={{ margin: "0", color: "#666" }}>
-                          結束日期：
-                          {item.mission_end_date
-                            ? new Date(
-                                item.mission_end_date
-                              ).toLocaleDateString("zh-TW")
-                            : "無期限"}
-                        </p>
+                          )
+                        : "無期限"}
+                    </p>
 
-                        {/* 顯示當前進度 */}
-                        <div style={{ marginTop: "10px" }}>
-                          <p style={{ margin: "0", color: "#666" }}>
-                            目前進度：{item.current_progress} /{" "}
-                            {item.target_value}
-                          </p>
-                        </div>
-
-                        {/* 根據任務狀態動態渲染按鈕 */}
-                        <div style={{ marginTop: "10px" }}>
-                          {item.is_completed === 1 && item.is_claimed === 1 ? (
-                            // 狀態: 已完成已領取
-                            <span
-                              style={{ color: "#28a745", fontWeight: "bold" }}
-                            >
-                              已領取
-                            </span>
-                          ) : item.is_completed === 1 &&
-                            item.is_claimed === 0 ? (
-                            // 狀態: 已完成未領取
-                            <button
-                              onClick={() =>
-                                this.handleClaimMission(item.user_mission_id)
-                              }
-                              style={{
-                                padding: "8px 16px",
-                                backgroundColor: "#007bff",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              可領取
-                            </button>
-                          ) : (
-                            // 狀態: 未完成
-                            <button
-                              disabled
-                              style={{
-                                padding: "8px 16px",
-                                backgroundColor: "#6c757d",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "not-allowed",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              未完成
-                            </button>
-                          )}
-                        </div>
+                    <div className="progressBar">
+                      <div
+                        className="progress"
+                        style={{ width: `${progressPercent}%` }}
+                      ></div>
+                      <div className="progressText">
+                        {item.current_progress} / {item.target_value}
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={{ textAlign: "center", marginTop: "20px" }}>
-                  沒有找到任何任務。
-                </p>
-              )}
-            </div>
-          )
-        }
+                    </div>
+                  </div>
+
+                  <div className="rewardSection">
+                    <div className="point">{item.reward_points} 點</div>
+                    {item.is_completed === 1 && item.is_claimed === 0 ? (
+                      <button
+                        className="claimBtn"
+                        onClick={() =>
+                          this.handleClaimMission(item.user_mission_id)
+                        }
+                      >
+                        可領取
+                      </button>
+                    ) : item.is_completed === 1 && item.is_claimed === 1 ? (
+                      <span className="claimed-text">已領取</span>
+                    ) : (
+                      <button className="claimBtn disabled" disabled>
+                        未完成
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="no-mission-text">沒有找到任何任務。</p>
+        )}
       </div>
     );
   }

@@ -99,7 +99,7 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
 
     // 2. 查詢尚未過期或狀態非 expired 的優惠券
     const coupons = await pool.query(
-      `SELECT c.coupon_id, c.template_id, c.status, c.expires_at, c.code, t.name
+      `SELECT c.coupon_id, c.template_id, c.status, c.expires_at, c.code, t.type, t.name
        FROM coupons c
        LEFT JOIN coupon_templates t ON c.template_id = t.template_id
        WHERE c.user_id = ? AND c.status != 'expired'`,
