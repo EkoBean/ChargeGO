@@ -4,7 +4,7 @@
 
 // 手機板專用
 @media (max-width: 480px) {
-  .mber_info {
+  .mber_info-page {
     background: #f4f4f4;
     min-height: 100vh;
     position: relative;
@@ -12,7 +12,7 @@
     overflow-x: hidden;
   }
 
-  .mber_info_header {
+  .mber_info-header {
     width: 100vw;
     height: 220px;
     min-height: 180px;
@@ -28,7 +28,7 @@
     padding: 0 18px;
   }
 
-  .back-btn {
+  .mber_info-back-btn {
     position: absolute;
     left: 18px;
     top: 18px;
@@ -37,7 +37,7 @@
     z-index: 10;
   }
 
-  .avatar {
+  .mber_info-avatar {
     position: absolute;
     top: 60px;
     left: 50%;
@@ -49,7 +49,7 @@
     width: 100vw;
   }
 
-  .avatar img:first-of-type {
+  .mber_info-avatar img:first-of-type {
     width: 90px;
     height: 90px;
     border-radius: 50%;
@@ -59,7 +59,7 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.07);
   }
 
-  .avatar h1 {
+  .mber_info-avatar h1 {
     font-size: 1.25rem;
     font-weight: 700;
     color: #7a5c00;
@@ -68,7 +68,7 @@
     text-align: center;
   }
 
-  .avatar img:last-of-type {
+  .mber_info-avatar img:last-of-type {
     position: absolute;
     right: 28px;
     top: -18px;
@@ -78,7 +78,7 @@
     background: none;
   }
 
-  .infoBody {
+  .mber_info-body {
     width: 90vw;
     max-width: 370px;
     background: #fff;
@@ -94,7 +94,7 @@
     position: relative;
   }
 
-  .infoBody h2 {
+  .mber_info-body h2 {
     color: #a85c00;
     font-size: 1.2rem;
     font-weight: 700;
@@ -104,7 +104,7 @@
     width: 100%;
   }
 
-  .info {
+  .mber_info-info {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -115,7 +115,7 @@
     position: relative;
   }
 
-  .info h4 {
+  .mber_info-info h4 {
     color: #43b300;
     font-size: 1.1rem;
     font-weight: bold;
@@ -125,7 +125,7 @@
     flex-shrink: 0;
   }
 
-  .info p {
+  .mber_info-info p {
     color: #333;
     font-size: 0.95rem;
     margin-bottom: 0;
@@ -136,7 +136,7 @@
     max-width: 120px;
   }
 
-  .info span {
+  .mber_info-info span {
     color: #a85c00;
     font-size: 0.85rem;
     margin-left: 12px;
@@ -145,11 +145,11 @@
     flex-shrink: 0;
   }
 
-  .info button {
+  .mber_info-info button {
     display: none;
   }
 
-  .info hr {
+  .mber_info-info hr {
     width: 100%;
     border: none;
     border-top: 2px solid #43b300;
@@ -158,26 +158,26 @@
     opacity: 0.7;
   }
 
-  .infoBody {
+  .mber_info-body {
     max-height: 320px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #43b300 #fff;
   }
-  .infoBody::-webkit-scrollbar {
+  .mber_info-body::-webkit-scrollbar {
     width: 6px;
   }
-  .infoBody::-webkit-scrollbar-thumb {
+  .mber_info-body::-webkit-scrollbar-thumb {
     background: #43b300;
     border-radius: 8px;
   }
-  .infoBody::-webkit-scrollbar-track {
+  .mber_info-body::-webkit-scrollbar-track {
     background: #fff;
     border-radius: 8px;
   }
 
   // 底部導覽列
-  .mber_info > .NavBarPhone {
+  .mber_info-page > .NavBarPhone {
     position: fixed;
     left: 0;
     bottom: 0;
@@ -189,21 +189,21 @@
 
 // 響應式
 @media (max-width: 900px) {
-  .mber_info_header,
-  .infoBody {
+  .mber_info-header,
+  .mber_info-body {
     max-width: 98vw;
     padding-left: 8vw;
     padding-right: 8vw;
   }
 }
 @media (max-width: 600px) {
-  .infoBody {
+  .mber_info-body {
     padding: 24px 6vw 18px 6vw;
   }
-  .avatar h1 {
+  .mber_info-avatar h1 {
     font-size: 1.1rem;
   }
-  .avatar img:first-of-type {
+  .mber_info-avatar img:first-of-type {
     width: 60px;
     height: 60px;
   }
