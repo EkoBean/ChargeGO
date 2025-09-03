@@ -120,15 +120,35 @@ class Shop extends Component {
                   key={p.id}
                   style={{
                     minWidth: "150px",
+                    maxWidth: "150px", // 🔹 最大寬度固定
                     height: "200px",
+                    maxHeight: "200px", // 🔹 最大高度固定
                     backgroundColor: "#f8f9fa",
+                    overflow: "hidden", // 🔹 超過的文字隱藏
+                    textOverflow: "ellipsis", // 🔹 超過文字加 "..."
                   }}
                 >
                   <div className="card-body d-flex flex-column justify-content-between">
                     <div>
-                      <h6 className="card-title">{p.name}</h6>
-                      <p className="card-text mb-1">
-                        點數: {p.points} <br />
+                      <h6
+                        className="card-title"
+                        style={{
+                          whiteSpace: "nowrap", // 🔹 單行顯示
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {p.name}
+                      </h6>
+                      <p
+                        className="card-text mb-1"
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        點數: {p.points}
                       </p>
                     </div>
                     <div className="d-flex flex-column gap-1">
@@ -156,7 +176,10 @@ class Shop extends Component {
         {rentalCoupons.length > 0 && (
           <>
             <h4 className="mt-4 mb-3">租借優惠券兌換</h4>
-            <div className="d-flex flex-column gap-3">
+            <div
+              className="d-flex flex-column gap-3"
+              style={{ maxHeight: "400px", overflowY: "auto" }}
+            >
               {rentalCoupons.map((p) => (
                 <div className="card shadow-sm" key={p.id}>
                   <div className="card-body d-flex flex-row justify-content-between align-items-center">
