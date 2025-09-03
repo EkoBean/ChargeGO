@@ -123,7 +123,11 @@ class Mission extends Component {
               );
 
               return (
-                <div className="taskCard" key={item.user_mission_id}>
+                <div
+                  className="taskCard"
+                  key={item.user_mission_id}
+                  style={{ padding: "12px" }}
+                >
                   <div className="taskLeft">
                     <div className="taskName">{item.title}</div>
                     <p>
