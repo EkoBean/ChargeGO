@@ -50,25 +50,25 @@ const mber_Info = () => {
   }, [navigate]);
 
   return (
-    <div className="mber_info">
+    <div className="mber_info-page">
       <ChargegoLogo />
-      <div className="mber_info_header">
-        <img src="./Iconimg/backBtn.svg" className="back-btn" onClick={backBtnClick()} />
+      <div className="mber_info-header">
+        <img src="./Iconimg/backBtn.svg" className="mber_info-back-btn" onClick={backBtnClick()} />
         <NavBarPhone />
       </div>
-      <div className="avatar">
+      <div className="mber_info-avatar">
         <h1>{user?.user_name || "會員名稱"}</h1>
         <img src="./Iconimg/user.svg" />
         <img src="./Iconimg/notify.svg" />
       </div>
-      <div className="infoBody">
+      <div className="mber_info-body">
         <h2>帳戶通知 </h2>
         {/* 根據通知資料渲染 */}
         {notices.length === 0 ? (
           <p>目前沒有通知</p>
         ) : (
           notices.map((notice) => (
-            <div className="info" key={notice.notice_id}>
+            <div className="mber_info-info" key={notice.notice_id}>
               {/* 可根據資料表顯示 LOGO 或其他欄位 */}
               {/* <img src="" alt="LOGO" /> */}
               <h4>{notice.notice_title}</h4>
