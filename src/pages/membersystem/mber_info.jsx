@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarPhone from "../../components/NavBarPhone";
-// import "../../styles/scss/mber_info.scss";
+import "../../styles/scss/mber_info.scss";
 
 const mber_Info = () => {
   const [user, setUser] = useState(null);
@@ -19,7 +19,7 @@ const mber_Info = () => {
     return () => alert("通知功能即將開放");
   };
 
-  // 頁面載入時從 localStorage 獲取用戶資料
+ 
   useEffect(() => {
     // 取得 user 資料
     fetch(`${API_BASE}/check-auth`, {
