@@ -3,8 +3,8 @@
     display: none;
 } */
 
-/* 桌機 1440px */
-@media (max-width: 1440px){
+/* 桌機 1980px */
+@media (max-width:1980px){
    .navbar-phone-container {
         display: flex;
         position: fixed;

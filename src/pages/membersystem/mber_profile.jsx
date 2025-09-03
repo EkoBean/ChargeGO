@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/scss/mber_profile.scss";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarPhone from "../../components/NavBarPhone";
+// import NavBarWebsite from "../../components/NavBarWebsite";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
@@ -94,7 +95,8 @@ const mber_Profile = () => {
   return (
     <div className="mber_info">
       <ChargegoLogo className="mobile-only-logo" />
-      <NavBarPhone />
+      {/* <NavBarWebsite /> */}
+      <NavBarPhone className="mobile-only-nav" />
       {/* Header */}
       <div className="info-container">
         <span
@@ -112,7 +114,7 @@ const mber_Profile = () => {
         </div>
         <div className="mber_info_header">
           <img
-            src="./Iconimg/notify.svg"
+            src="/Iconimg/notify.svg"
             alt="通知按鈕"
             className="notify-btn"
             onClick={notifyBtnClick()}
@@ -121,20 +123,20 @@ const mber_Profile = () => {
         <div className="mber_info_main">
           {/* 頭像 */}
           <div className="avatar">
-            <img src="./Iconimg/user.svg" alt="用戶頭像" />
+            <img src="/Iconimg/user.svg" alt="用戶頭像" />
           </div>
           {/* 卡片列 */}
           <div className="mber_info_cards">
             <div className="card">
-              <img src="./Iconimg/card_wallet.svg" alt="信用卡資料" />
+              <img src="/Iconimg/wallet.svg" alt="信用卡資料" />
               <span>信用卡資料</span>
             </div>
             <div className="card">
-              <img src="./Iconimg/card_bill.svg" alt="帳單紀錄" />
-              <span>帳單紀錄</span>
+              <img src="/Iconimg/bill.svg" alt="帳單紀錄" />
+              <span>租借紀錄</span>
             </div>
             <div className="card">
-              <img src="./Iconimg/card_help.svg" alt="幫助中心" />
+              <img src="/Iconimg/help.svg" alt="幫助中心" />
               <span>幫助中心</span>
             </div>
           </div>
