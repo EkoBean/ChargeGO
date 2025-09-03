@@ -14,15 +14,17 @@ import AppIndex from "./mapIndex/AppIndex";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Login from './Login/Login';
+import NavbarWebsite from "../components/NavBarWebsite";
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* <Route path="/" element={<Login />} /> */}
+        <Route path="/" element={<NavbarWebsite />} />
         <Route path="/AppIndex" element={<AppIndex />} />
         {/* <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route> */}
-        {/* <Route path="/" element={<WebSite />} /> */}
+        <Route path="/" element={<WebSite />} />
         {/* <Route path="/register" element={<Register />} /> */}
         {/* <Route path="/login" element={<Login />} />
         <Route path="*" element={<Register />} /> */}
