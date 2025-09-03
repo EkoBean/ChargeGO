@@ -124,39 +124,22 @@ class Mission extends Component {
 
               return (
                 <div className="taskCard" key={item.user_mission_id}>
-                  <div className="taskInfo">
+                  <div className="taskLeft">
                     <div className="taskName">{item.title}</div>
-                    <p>{item.description}</p>
-                    <p>完成條件：{item.target_value}</p>
-                    <p>獎勵點數：{item.reward_points}</p>
                     <p>
-                      開始日期：
-                      {new Date(item.mission_start_date).toLocaleDateString(
-                        "zh-TW"
-                      )}
+                      任務進度：{item.current_progress}/{item.target_value}
                     </p>
-                    <p>
-                      結束日期：
-                      {item.mission_end_date
-                        ? new Date(item.mission_end_date).toLocaleDateString(
-                            "zh-TW"
-                          )
-                        : "無期限"}
-                    </p>
-
-                    <div className="progressBar">
-                      <div
-                        className="progress"
-                        style={{ width: `${progressPercent}%` }}
-                      ></div>
-                      <div className="progressText">
-                        {item.current_progress} / {item.target_value}
-                      </div>
-                    </div>
                   </div>
 
-                  <div className="rewardSection">
-                    <div className="point">{item.reward_points} 點</div>
+                  <div className="taskRight">
+                    <div className="endDate">
+                      {item.mission_end_date
+                        ? `至${new Date(
+                            item.mission_end_date
+                          ).toLocaleDateString("zh-TW")}`
+                        : "無期限"}
+                    </div>
+
                     {item.is_completed === 1 && item.is_claimed === 0 ? (
                       <button
                         className="claimBtn"
@@ -164,7 +147,7 @@ class Mission extends Component {
                           this.handleClaimMission(item.user_mission_id)
                         }
                       >
-                        可領取
+                        領取
                       </button>
                     ) : item.is_completed === 1 && item.is_claimed === 1 ? (
                       <span className="claimed-text">已領取</span>
@@ -173,6 +156,11 @@ class Mission extends Component {
                         未完成
                       </button>
                     )}
+
+                    <div className="point">
+                      <span className="point-icon">P</span>
+                      {item.reward_points}
+                    </div>
                   </div>
                 </div>
               );

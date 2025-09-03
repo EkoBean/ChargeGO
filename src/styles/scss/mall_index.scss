@@ -75,32 +75,91 @@ $color-shop-circle: #69f05b;
 .taskList {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 .taskCard {
-  padding: 10px 12px; // 原本 16px 可以縮小一點
-  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
   background: #fff;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 
-  .taskInfo {
+  .taskLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
     .taskName {
-      font-size: 16px; // 原本如果是 18px 就縮小
+      font-size: 16px;
       font-weight: 600;
-      margin-bottom: 4px;
     }
 
     p {
       font-size: 14px;
-      margin: 2px 0; // 上下間距縮小
-      line-height: 1.3; // 行距縮小，手機看起來比較緊湊
-      color: #555;
+      color: #333;
+      margin: 0;
     }
   }
 
-  .progressBar {
-    margin-top: 6px; // 進度條和文字之間間隔縮小
+  .taskRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 80px;
+
+    .endDate {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .claimBtn {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      background: #00d84a;
+      color: #fff;
+
+      &.disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    }
+
+    .claimed-text {
+      font-size: 14px;
+      color: #999;
+      font-weight: 500;
+    }
+    .point {
+      font-size: 16px;
+      font-weight: 600;
+      color: black;
+      background-color: white; /* ✅ 文字顏色改成白色 */
+
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .point-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #00d84a; // 綠色底
+        color: #fff; // 白色字
+        font-size: 14px;
+        font-weight: bold;
+      }
+    }
   }
 }
 
