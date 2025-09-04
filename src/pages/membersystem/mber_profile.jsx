@@ -133,7 +133,7 @@ const mber_Profile = () => {
               <span>信用卡資料</span>
             </div>
             <div className="card">
-              <img src="/Iconimg/bill.svg" alt="帳單紀錄" />
+              <img src="/Iconimg/bill.svg" alt="帳單紀錄" onClick={() => navigate("/mber_rentRecord")} />
               <span>租借紀錄</span>
             </div>
             <div className="card">

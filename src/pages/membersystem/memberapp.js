@@ -246,6 +246,37 @@ app.get('/', (req, res) => {
     res.send('伺服器連線成功！');
 });
 
+// 取得目前登入會員的租借紀錄（透過 session）
+app.get('/user/session/orders', (req, res) => {
+    if (!req.session.user || !req.session.user.uid) {
+        return res.status(401).json({ success: false, message: '尚未登入' });
+    }
+    const uid = req.session.user.uid;
+    db.query('SELECT * FROM order_record WHERE uid = ?', [uid], (err, results) => {
+        if (err) return res.status(500).json({ success: false, error: err });
+        res.json({ success: true, orders: results });
+    });
+});
+
+// 取得目前登入會員的優惠券（透過 session）
+app.get('/user/session/coupons', (req, res) => {
+    if (!req.session.user || !req.session.user.uid) {
+        return res.status(401).json({ success: false, message: '尚未登入' });
+    }
+    const uid = req.session.user.uid;
+    db.query(
+        `SELECT coupon_id, code, description, usage_count, issued_at, expires_at
+         FROM coupon
+         WHERE user_id = ? AND is_expired = 0 AND status = '0'
+         ORDER BY issued_at DESC`,
+        [uid],
+        (err, results) => {
+            if (err) return res.status(500).json({ error: err });
+            res.json(results);
+        }
+    );
+});
+
 // 伺服器啟動
 app.listen(3000, () => {
     console.log('API server running on port 3000');
