@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import "../../styles/scss/mall_index.scss";
+// import "bootstrap/dist/css/bootstrap.min.css";
 
 class CheckoutCoupons extends Component {
   state = {
