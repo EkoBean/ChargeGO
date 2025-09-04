@@ -136,7 +136,6 @@ function NavbarWebsite() {
 
       {/* navbar */}
       <header className="navbar">
-        {/* logo */}
         <div
           className="logo"
           onMouseEnter={() => setLogoHover(true)}
@@ -145,25 +144,21 @@ function NavbarWebsite() {
           <img
             src={logoHover ? homeBtnHover : homeBtn}
             alt="logo"
-            className={
-              logoHover ? "animate__animated animate__rubberBand" : ""
-            }
+            className={logoHover ? "animate__animated animate__rubberBand" : ""}
           />
         </div>
-
-        {/* 漢堡選單按鈕 */}
-        <button
-          className={`hamburger ${mobileMenuOpen ? "open" : ""}`}
+        {/* 漢堡選單（手機/平板顯示） */}
+        <div
+          className="hamburger"
           onClick={toggleMobileMenu}
-          aria-label="選單"
+          aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
         >
           <span></span>
           <span></span>
           <span></span>
-        </button>
-
-        {/* menu */}
-        <nav className={`menu ${mobileMenuOpen ? "mobile-open" : ""}`}>
+        </div>
+        <nav className={`menu${mobileMenuOpen ? " active" : ""}`}>
           {menuItems.map((item, idx) => (
             <div
               key={idx}

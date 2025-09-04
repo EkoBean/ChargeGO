@@ -3,8 +3,8 @@
     display: none;
 } */
 
-/* 桌機 1440px */
-@media (max-width: 1440px){
+/* xl >= 1200px */
+@media (min-width: 1200px){
    .navbar-phone-container {
         display: flex;
         position: fixed;
@@ -48,8 +48,8 @@
     } 
 }
 
-/* 桌機 1024px */
-@media (max-width: 1024px){
+/* lg >= 992pxpx */
+@media (min-width: 992px){
    .navbar-phone-container {
         display: flex;
         position: fixed;
@@ -92,8 +92,8 @@
     } 
 }
 
-/* 手機響應式顯示 */
-@media (max-width: 600px) {
+/* md >= 768px */
+@media (min-width: 768px) {
     .navbar-phone-container {
         display: flex;
         position: fixed;
@@ -136,7 +136,8 @@
     }
 }
 
-@media (max-width: 414px){
+// sm >= 576px
+@media (min-width: 576px){
    .navbar-phone-container {
         display: flex;
         position: fixed;
@@ -179,8 +180,8 @@
     } 
 }
 
-/* 只有瀏覽器寬度 <= 320px 才會生效 */
-@media (max-width: 320px){
+// xs <576px
+
     .navbar-phone-container {
         display: flex;
         position: fixed;
@@ -200,6 +201,7 @@
     .icon {
         width: 24px !important;
         height: 24px !important;
+        transition: 1 ease;
     }
     .icon img,
     .icon svg {
@@ -221,9 +223,13 @@
         top: 4px;
         right: 4px;
     } 
-}
+
 
 /* 可根據需要調整 icon 間距與 hover 效果 */
+.icon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s;
+}
+
 .icon:hover {
     filter: brightness(0.95);
     cursor: pointer;

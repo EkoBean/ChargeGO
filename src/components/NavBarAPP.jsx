@@ -1,11 +1,14 @@
 import React from 'react';
-import './NavBarPhone.css';
+import '../styles/scss/NavBarAPP.scss';
 
-export default function NavBarPhone() {
+export default function NavBarAPP() {
+    
     return (
         <div className="navbar-phone-container">
             <div className="icon">
+                <a href="">
                 <img id="myprofile" src="../public/myprofile.png" alt="user" />
+                </a>
             </div>
             <div className="icon">
                 <img id="gift" src="../public/gift.png" alt="bell" />
