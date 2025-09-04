@@ -74,6 +74,7 @@ app.get("/", (req, res) => {
       <li><a href="/api/employee_log">/api/employee_log</a>（職員操作紀錄）</li>
       <li><a href="/api/employees">/api/employees</a>（員工清單）</li>
       <li><a href="/bank/cards">/bank/cards</a>（信用卡清單-遮蔽）</li>
+      <li><a href="/api/events">/api/events</a>（活動清單）</li>
     </ul>
   `);
 });
@@ -377,7 +378,7 @@ app.post("/api/orders", (req, res) => {
         LEFT JOIN user u ON o.uid = u.uid
         LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
         LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-        LEFT JOIN charger c ON o.charger_id = c.charger_id
+        LEFT JOIN charger c ON o.charger_id = c.chcharger_id
         WHERE o.order_ID = ?
       `;
       
@@ -587,5 +588,407 @@ app.put("/api/orders/:order_ID", (req, res) => {
       console.log('訂單更新成功:', orderRows[0]);
       res.json(orderRows[0]);
     });
+  });
+});
+
+// 修正獲取所有活動 - 移除可能不存在的 creator_id 欄位
+app.get("/api/events", (req, res) => {
+  console.log('開始查詢活動資料...'); // 加入 debug 日誌
+  
+  connCharger.query(`
+    SELECT e.event_id, 
+           e.event_title, 
+           e.event_content, 
+           e.site_id, 
+           e.event_start_date, 
+           e.event_end_date,
+           IFNULL(s.site_name, '全站活動') as site_name
+    FROM event e
+    LEFT JOIN charger_site s ON e.site_id = s.site_id
+    ORDER BY e.event_id DESC
+  `, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching events:', err);
+      return res.status(500).json({ 
+        error: '獲取活動資料失敗', 
+        details: err.message,
+        code: err.code 
+      });
+    }
+    console.log('成功獲取活動資料, 筆數:', rows.length);
+    console.log('活動資料:', rows);
+    res.json(rows);
+  });
+});
+
+// 修正新增活動 - 移除 creator_id
+app.post("/api/events", (req, res) => {
+  const { event_title, event_content, site_id, event_start_date, event_end_date } = req.body;
+  
+  console.log('接收到新增活動請求:', req.body);
+  
+  // 基本驗證
+  if (!event_title || !event_content || !event_start_date || !event_end_date) {
+    return res.status(400).json({ error: '活動標題、內容和時間為必填欄位' });
+  }
+
+  const query = `
+    INSERT INTO event (event_title, event_content, site_id, event_start_date, event_end_date)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  
+  const values = [event_title, event_content, site_id || null, event_start_date, event_end_date];
+  
+  console.log('執行插入 SQL:', query);
+  console.log('參數:', values);
+  
+  connCharger.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error creating event:', err);
+      return res.status(500).json({ 
+        error: '建立活動失敗', 
+        details: err.message,
+        code: err.code 
+      });
+    }
+    
+    console.log('活動建立成功, ID:', result.insertId);
+    res.status(201).json({
+      event_id: result.insertId,
+      message: '活動建立成功'
+    });
+  });
+});
+
+// 更新活動
+app.put("/api/events/:id", (req, res) => {
+  const eventId = req.params.id;
+  const { event_title, event_content, site_id, event_start_date, event_end_date } = req.body;
+  
+  // 動態生成 SET 子句
+  const sets = [];
+  const params = [];
+  
+  if (event_title !== undefined) {
+    sets.push('event_title = ?');
+    params.push(event_title);
+  }
+  if (event_content !== undefined) {
+    sets.push('event_content = ?');
+    params.push(event_content);
+  }
+  if (site_id !== undefined) {
+    sets.push('site_id = ?');
+    params.push(site_id || null);
+  }
+  if (event_start_date !== undefined) {
+    sets.push('event_start_date = ?');
+    params.push(event_start_date);
+  }
+  if (event_end_date !== undefined) {
+    sets.push('event_end_date = ?');
+    params.push(event_end_date);
+  }
+  
+  if (!sets.length) {
+    return res.status(400).json({ error: '請提供至少一個要更新的欄位' });
+  }
+  
+  params.push(eventId);
+  
+  connCharger.query(`
+    UPDATE event SET ${sets.join(', ')} WHERE event_id = ?
+  `, params, (err, result) => {
+    if (err) {
+      console.error('Error updating event:', err);
+      return res.status(500).json({ error: '更新活動失敗' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '找不到要更新的活動' });
+    }
+    res.json({ message: '活動更新成功' });
+  });
+});
+
+// 刪除活動
+app.delete("/api/events/:id", (req, res) => {
+  const eventId = req.params.id;
+  
+  connCharger.query('DELETE FROM event WHERE event_id = ?', [eventId], (err, result) => {
+    if (err) {
+      console.error('Error deleting event:', err);
+      return res.status(500).json({ error: '刪除活動失敗' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '找不到要刪除的活動' });
+    }
+    res.json({ message: '活動刪除成功' });
+  });
+});
+
+// 新增：發送活動給用戶的 API
+app.post("/api/events/:id/send", (req, res) => {
+  const eventId = req.params.id;
+  const { targetUsers } = req.body; // 'all' 或 [uid1, uid2, ...]
+  
+  console.log(`準備發送活動 ${eventId} 給用戶:`, targetUsers);
+  
+  // 先獲取活動詳情
+  connCharger.query(
+    'SELECT * FROM event WHERE event_id = ?',
+    [eventId],
+    (err, eventResult) => {
+      if (err || eventResult.length === 0) {
+        return res.status(404).json({ error: '活動不存在' });
+      }
+      
+      const event = eventResult[0];
+      
+      // 根據目標用戶類型獲取用戶列表
+      let userQuery = '';
+      let userParams = [];
+      
+      if (targetUsers === 'all') {
+        userQuery = 'SELECT uid FROM user WHERE blacklist = 0'; // 排除黑名單用戶
+      } else if (Array.isArray(targetUsers)) {
+        userQuery = `SELECT uid FROM user WHERE uid IN (${targetUsers.map(() => '?').join(',')}) AND blacklist = 0`;
+        userParams = targetUsers;
+      } else {
+        return res.status(400).json({ error: '無效的目標用戶參數' });
+      }
+      
+      // 獲取目標用戶
+      connCharger.query(userQuery, userParams, (err, users) => {
+        if (err) {
+          console.error('獲取用戶列表失敗:', err);
+          return res.status(500).json({ error: '獲取用戶列表失敗' });
+        }
+        
+        if (users.length === 0) {
+          return res.status(400).json({ error: '沒有找到符合條件的用戶' });
+        }
+        
+        // 準備插入通知的資料
+        const notices = users.map(user => [
+          user.uid,
+          event.event_title,
+          event.event_content,
+          new Date() // notice_date
+        ]);
+        
+        // 批次插入通知
+        const insertQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
+        
+        connCharger.query(insertQuery, [notices], (err, result) => {
+          if (err) {
+            console.error('插入通知失敗:', err);
+            return res.status(500).json({ error: '發送活動失敗' });
+          }
+          
+          console.log(`成功發送活動給 ${users.length} 位用戶`);
+          res.json({
+            message: `活動已成功發送給 ${users.length} 位用戶`,
+            sentCount: users.length,
+            insertedNotices: result.affectedRows
+          });
+        });
+      });
+    }
+  );
+});
+
+// 新增：獲取用戶列表 API（用於選擇發送對象）
+app.get("/api/users/active", (req, res) => {
+  connCharger.query(`
+    SELECT uid, user_name, email, telephone
+    FROM user 
+    WHERE blacklist = 0
+    ORDER BY uid ASC
+  `, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching active users:', err);
+      return res.status(500).json({ error: '獲取用戶列表失敗' });
+    }
+    res.json(rows);
+  });
+});
+
+// ===== bank 區 =====
+
+// 信用卡清單（遮蔽卡號）
+app.get("/bank/cards", (req, res) => {
+  connBank.query(`
+    SELECT card_id, 
+           CONCAT(SUBSTR(card_number, 1, 4), ' **** **** ', SUBSTR(card_number, -4)) AS masked_card_number,
+           expiry_date, holder_name, bank_name
+    FROM credit_card ORDER BY card_id ASC
+  `, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "DB error", code: err.code });
+    res.json(rows);
+  });
+});
+
+// ===== 職員操作紀錄 =====
+
+// 職員操作紀錄清單
+app.get("/api/employee_log", (req, res) => {
+  connCharger.query(`
+    SELECT log_id, employee_id, action, target_table, target_id, 
+           old_values, new_values, timestamp
+    FROM employee_log 
+    ORDER BY timestamp DESC
+    LIMIT 100
+  `, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "DB error", code: err.code });
+    res.json(rows);
+  });
+});
+
+// 員工清單
+app.get("/api/employees", (req, res) => {
+  connCharger.query(`
+    SELECT employee_id, employee_name, employee_email, role, created_at
+    FROM employee
+    ORDER BY employee_id ASC
+  `, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "DB error", code: err.code });
+    res.json(rows);
+  });
+});
+
+// 新增站點
+app.post("/api/sites", (req, res) => {
+  const { site_name, address, longitude, latitude } = req.body;
+  
+  if (!site_name || !address) {
+    return res.status(400).json({ error: '站點名稱和地址為必填欄位' });
+  }
+
+  const query = `
+    INSERT INTO charger_site (site_name, address, longitude, latitude)
+    VALUES (?, ?, ?, ?)
+  `;
+  
+  const values = [
+    site_name, 
+    address, 
+    longitude || null, 
+    latitude || null
+  ];
+  
+  connCharger.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error creating site:', err);
+      return res.status(500).json({ 
+        error: '建立站點失敗', 
+        details: err.message,
+        code: err.code 
+      });
+    }
+    
+    res.status(201).json({
+      site_id: result.insertId,
+      message: '站點建立成功'
+    });
+  });
+});
+
+// 更新站點
+app.put("/api/sites/:id", (req, res) => {
+  const siteId = req.params.id;
+  const { site_name, address, longitude, latitude } = req.body;
+  
+  const sets = [];
+  const params = [];
+  
+  if (site_name !== undefined) {
+    sets.push('site_name = ?');
+    params.push(site_name);
+  }
+  if (address !== undefined) {
+    sets.push('address = ?');
+    params.push(address);
+  }
+  if (longitude !== undefined) {
+    sets.push('longitude = ?');
+    params.push(longitude);
+  }
+  if (latitude !== undefined) {
+    sets.push('latitude = ?');
+    params.push(latitude);
+  }
+  
+  if (!sets.length) {
+    return res.status(400).json({ error: '請提供至少一個要更新的欄位' });
+  }
+  
+  params.push(siteId);
+  
+  connCharger.query(`
+    UPDATE charger_site SET ${sets.join(', ')} WHERE site_id = ?
+  `, params, (err, result) => {
+    if (err) {
+      console.error('Error updating site:', err);
+      return res.status(500).json({ error: '更新站點失敗' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '找不到要更新的站點' });
+    }
+    res.json({ message: '站點更新成功' });
+  });
+});
+
+// 刪除站點
+app.delete("/api/sites/:id", (req, res) => {
+  const siteId = req.params.id;
+  
+  // 先檢查是否有相關的充電器
+  connCharger.query(
+    'SELECT COUNT(*) as charger_count FROM charger WHERE site_id = ?',
+    [siteId],
+    (err, countResult) => {
+      if (err) {
+        return res.status(500).json({ error: '檢查相關充電器失敗' });
+      }
+      
+      if (countResult[0].charger_count > 0) {
+        return res.status(400).json({ 
+          error: '無法刪除站點，該站點下還有充電器' 
+        });
+      }
+      
+      // 刪除站點
+      connCharger.query(
+        'DELETE FROM charger_site WHERE site_id = ?', 
+        [siteId], 
+        (deleteErr, result) => {
+          if (deleteErr) {
+            console.error('Error deleting site:', deleteErr);
+            return res.status(500).json({ error: '刪除站點失敗' });
+          }
+          if (result.affectedRows === 0) {
+            return res.status(404).json({ error: '找不到要刪除的站點' });
+          }
+          res.json({ message: '站點刪除成功' });
+        }
+      );
+    }
+  );
+});
+
+// 錯誤處理中間件
+app.use((error, req, res, next) => {
+  console.error('Unhandled error:', error);
+  res.status(500).json({ 
+    error: 'Internal server error', 
+    message: error.message 
+  });
+});
+
+// 404 處理
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not Found', 
+    message: `Route ${req.method} ${req.path} not found` 
   });
 });

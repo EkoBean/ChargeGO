@@ -12,7 +12,6 @@ import OrderManagement from './views/OrderManagement';
 import ActivityBroadcast from './views/ActivityBroadcast';
 import StaffLogs from './views/StaffLogs';
 import TaskManagement from './views/TaskManagement';
-import SystemSettings from './views/SystemSettings';
 
 import './App.css';
 import './styles/AdminDashboard.css';
@@ -52,7 +51,7 @@ function App() {
       <AdminLayout onLogout={handleLogout}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<AdminDashboard />} /> 
           <Route path="/users" element={<UserManagement />} />
           <Route path="/sites" element={<SiteManagement />} />
           <Route path="/chargers" element={<SiteManagement />} />
@@ -60,7 +59,6 @@ function App() {
           <Route path="/events" element={<ActivityBroadcast />} />
           <Route path="/employee-log" element={<StaffLogs />} />
           <Route path="/tasks" element={<TaskManagement />} />
-          <Route path="/settings" element={<SystemSettings />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AdminLayout>
