@@ -216,6 +216,15 @@ app.get('/user/:uid/notices', (req, res) => {
     );
 });
 
+// 取得所有優惠券資料 API
+// 前端可用於顯示所有 coupon（直立式排列）
+// GET /api/coupons
+app.get('/api/coupons', (req, res) => {
+    db.query('SELECT * FROM coupon ORDER BY issued_at DESC', (err, results) => {
+        if (err) return res.status(500).json({ error: err });
+        res.json(results);
+    });
+});
   
 app.get('/', (req, res) => {
     res.send('伺服器連線成功！');
