@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
-import NavBarPhone from "../../components/NavBarPhone";
+import NavBarAPP from "../../components/NavBarAPP";
 import "../../styles/scss/mber_info.scss";
 
 const mber_Info = () => {
@@ -57,7 +57,7 @@ const mber_Info = () => {
           className="mber_info-back-btn"
           onClick={backBtnClick()}
         />
-        <NavBarPhone />
+        <NavBarAPP />
       </div>
       <div className="mber_info-avatar">
         <h1>{user?.user_name || "會員名稱"}</h1>

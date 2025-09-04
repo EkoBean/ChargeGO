@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/mber_register.scss";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
-import NavBarPhone from "../../components/NavBarPhone";
+import NavBarAPP from "../../components/NavBarAPP"; 
 const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
@@ -160,6 +160,7 @@ const mber_Register = () => {
     <div className="register-bg">
       {/* 手機版專用區塊 */}
       <ChargegoLogo className="mobile-only-logo" />
+      <NavBarAPP />
       <div className="register-container">
         <div className="register-form-section">
           {/* 返回上頁按鈕 */}

@@ -225,6 +225,22 @@ app.get('/api/coupons', (req, res) => {
         res.json(results);
     });
 });
+
+// 取得某會員的優惠券資料
+app.get('/user/:uid/coupons', (req, res) => {
+    const uid = Number(req.params.uid);
+    db.query(
+        `SELECT coupon_id, code, description, usage_count, issued_at, expires_at
+         FROM coupon
+         WHERE user_id = ? AND is_expired = 0 AND status = '0'
+         ORDER BY issued_at DESC`,
+        [uid],
+        (err, results) => {
+            if (err) return res.status(500).json({ error: err });
+            res.json(results);
+        }
+    );
+});
   
 app.get('/', (req, res) => {
     res.send('伺服器連線成功！');

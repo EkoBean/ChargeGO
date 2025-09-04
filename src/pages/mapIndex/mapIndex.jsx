@@ -3,12 +3,8 @@
 import '../../styles/scss/map_index.scss'
 
 //React
-<<<<<<< HEAD:src/pages/mapIndex/AppIndex.jsx
-import React, { useEffect, Component } from 'react';
-=======
 import React, { cloneElement, use, useEffect, useRef } from 'react';
 import axios from 'axios';
->>>>>>> main:src/pages/mapIndex/mapIndex.jsx
 
 //map style option
 import mapOptions from '../mapOptions.json';
@@ -19,13 +15,10 @@ import { APIProvider, Map, Pin, AdvancedMarker } from '@vis.gl/react-google-maps
 // environment variables
 const API_URL = import.meta.env.VITE_BACKEND_API_URL
 
-<<<<<<< HEAD:src/pages/mapIndex/AppIndex.jsx
-=======
 // testing compoenet
 import NavBarAPP from '../../components/NavBarAPP';
 
 // ================= Constants ============================
->>>>>>> main:src/pages/mapIndex/mapIndex.jsx
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
 const mapId = '7ade7c4e6e2cc1087f2619a5'
 const defaultCenter = { lat: 25.033964, lng: 121.564468 }
@@ -35,19 +28,12 @@ const defaultCenter = { lat: 25.033964, lng: 121.564468 }
 const WARNING_MINUTES = 4320;
 
 // =============== Main function ===========================
-<<<<<<< HEAD:src/pages/mapIndex/AppIndex.jsx
-function AppIndex() {
-=======
 function MapIndex() {
   const [stations, setStations] = React.useState([]);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = React.useState(false);
->>>>>>> main:src/pages/mapIndex/mapIndex.jsx
 
   // ======== Base Map =============
 
-<<<<<<< HEAD:src/pages/mapIndex/AppIndex.jsx
-  const AppBaseMap = () => {
-=======
 
   // ================= Axios fetch =================
   // all stations
@@ -736,7 +722,6 @@ function MapIndex() {
     }, [map])
 
 
->>>>>>> main:src/pages/mapIndex/mapIndex.jsx
     return (
       <APIProvider apiKey={APIkey}>
         <Map
@@ -763,9 +748,6 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-<<<<<<< HEAD:src/pages/mapIndex/AppIndex.jsx
-      <AppBaseMap />
-=======
       <NavBarAPP />
       <APIProvider apiKey={APIkey}
         region='TW'
@@ -778,7 +760,6 @@ function MapIndex() {
           </>
         )}
       </APIProvider>
->>>>>>> main:src/pages/mapIndex/mapIndex.jsx
     </>
   )
 };

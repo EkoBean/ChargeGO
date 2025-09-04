@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const mber_RentRecord = () => {
 
+const navigate = useNavigate();
+const API_BASE="http://localhost:3000";
 
 return(
     <div>

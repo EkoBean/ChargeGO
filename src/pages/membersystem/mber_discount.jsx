@@ -1,85 +1,91 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import crypto from "crypto-js";
-import NavBarPhone from "../../components/NavBarPhone";
+import NavBarAPP from "../../components/NavBarAPP";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import "../../styles/scss/mber_discount.scss"; // 新增引入 SCSS
 
 const Mber_discount = () => {
   const [coupons, setCoupons] = useState([]);
+  const [uid, setUid] = useState(null);
+  const [points, setPoints] = useState(0); // 新增點數
   const API_BASE = "http://localhost:3000";
   const navigate = useNavigate();
+
   useEffect(() => {
-    // 請將 '/api/coupons' 換成你的後端 API 路徑
     axios
-      .get(`${API_BASE}/api/coupons`)
-      .then((res) => setCoupons(res.data))
-      .catch((err) => setCoupons([]));
+      .post(`${API_BASE}/check-auth`, {}, { withCredentials: true })
+      .then((res) => {
+        if (res.data?.authenticated && res.data.user?.uid) {
+          setUid(res.data.user.uid);
+        } else {
+          setUid(null);
+          setCoupons([]);
+        }
+      })
+      .catch(() => {
+        setUid(null);
+        setCoupons([]);
+      });
   }, []);
+
+  useEffect(() => {
+    if (!uid) return;
+    axios
+      .get(`${API_BASE}/user/${uid}/coupons`)
+      .then((res) => setCoupons(res.data))
+      .catch(() => setCoupons([]));
+    // 取得點數
+    axios
+      .get(`${API_BASE}/user/${uid}/points`)
+      .then((res) => setPoints(res.data.points || 0))
+      .catch(() => setPoints(0));
+  }, [uid]);
 
   return (
     <div className="mber_discount">
-      <NavBarPhone />
-      <ChargegoLogo />
-      <h2>目前持有優惠券</h2>
-      <div className="coupon_container">
+      {/* 上方區塊 */}
+      <NavBarAPP />
+      <div className="discount-header">
+        {/* LOGO 置頂 */}
+        <div className="chargego-logo-top">
+          <ChargegoLogo />
+        </div>
         <span
-          className="back-icon mobile-only-back"
+          className="back-icon"
           onClick={() => window.history.back()}
           title="回到上頁"
         >
           ◀︎
         </span>
-        {/* 直立式排列顯示優惠券 */}
+        <div className="header-flex">
+          <span className="point-circle">P</span>
+          <span className="point-title">點數</span>
+          <span className="bell-icon">
+            <img src="/gift.png" alt="bell" />
+          </span>
+        </div>
+        <div className="point-value">{points}</div>
+        <div className="coupon-title">目前持有優惠券</div>
+      </div>
+      {/* 優惠券列表 */}
+      <div className="coupon-list">
         {coupons.length === 0 ? (
-          <div>尚未持有優惠券</div>
+          <div className="no-coupon">尚未持有優惠券</div>
         ) : (
           coupons.map((coupon) => (
-            <div
-              key={coupon.coupon_id}
-              className="coupon_card"
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "12px",
-                marginBottom: "16px",
-                background: "#f9f9f9",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-              }}
-            >
-              <div>
-                <b>優惠券ID：</b>
-                {coupon.coupon_id}
+            <div key={coupon.coupon_id} className="coupon-card">
+              <div className="coupon-code">
+                {coupon.code || coupon.coupon_id}
               </div>
-              <div>
-                <b>範本ID：</b>
-                {coupon.template_id}
+              <div className="coupon-desc">
+                {coupon.description || "前1小時租借免費"}
               </div>
-              <div>
-                <b>使用者ID：</b>
-                {coupon.user_id}
+              <div className="coupon-usage">
+                使用次數 {coupon.usage_count || 1}
               </div>
-              <div>
-                <b>優惠券代碼：</b>
-                {coupon.code || "無"}
-              </div>
-              <div>
-                <b>來源類型：</b>
-                {coupon.source_type}
-              </div>
-              <div>
-                <b>狀態：</b>
-                {coupon.status}
-              </div>
-              <div>
-                <b>發放時間：</b>
-                {coupon.issued_at}
-              </div>
-              <div>
-                <b>到期時間：</b>
-                {coupon.expires_at}
+              <div className="coupon-expire">
+                {coupon.expires_at ? `到期日：${coupon.expires_at}` : ""}
               </div>
             </div>
           ))
