@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/scss/NavBarAPP.scss';
 
-export default function NavBarPhone() {
+export default function NavBarAPP() {
     
     return (
         <div className="navbar-phone-container">
