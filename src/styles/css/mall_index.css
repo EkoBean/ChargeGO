@@ -11884,5 +11884,186 @@ body {
     padding: 0 15px;
   }
 }
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
-/*# sourceMappingURL=global.css.map */
+.container {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: relative;
+}
+
+.main {
+  background-color: #fff;
+  border-radius: 30px;
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  top: 200px;
+  padding: 0 30px;
+  z-index: 1;
+}
+
+.title {
+  font-family: "Mantou Sans", serif;
+  font-size: 50px;
+  letter-spacing: 15px;
+  font-weight: 100;
+  color: #7c4d00;
+  margin-top: 100px;
+  margin-bottom: 30px;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+}
+
+.taskCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 6px;
+}
+.taskCard .taskLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.taskCard .taskLeft .taskName {
+  font-size: 16px;
+  font-weight: 600;
+}
+.taskCard .taskLeft p {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+.taskCard .taskRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 80px;
+}
+.taskCard .taskRight .endDate {
+  font-size: 12px;
+  color: #999;
+}
+.taskCard .taskRight .claimBtn {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  background: #00d84a;
+  color: #fff;
+}
+.taskCard .taskRight .claimBtn.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.taskCard .taskRight .claimed-text {
+  font-size: 14px;
+  color: #999;
+  font-weight: 500;
+}
+.taskCard .taskRight .point {
+  font-size: 16px;
+  font-weight: 600;
+  color: black;
+  background-color: white; /* ✅ 文字顏色改成白色 */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.taskCard .taskRight .point .point-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #00d84a;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.points-shop-row {
+  position: static;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.points-circle-wrapper {
+  position: absolute;
+  left: 3vw;
+  top: 120px;
+  z-index: 10;
+}
+.points-circle-wrapper .circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.4);
+  background: #fff9e3;
+  position: relative;
+}
+.points-circle-wrapper .circle.points-circle {
+  background: #ffd600;
+  width: 120px;
+  height: 120px;
+  box-shadow: 3px 2px 10px rgba(234, 159, 10, 0.6588235294);
+}
+.points-circle-wrapper .circle .points-text {
+  font-size: 1.3rem;
+  letter-spacing: 6px;
+  font-weight: bold;
+  color: #6b4f1d;
+}
+
+.shop-circle-wrapper {
+  position: absolute;
+  left: 8vw;
+  top: 170px;
+  z-index: 10;
+}
+.shop-circle-wrapper .circle.shop-circle {
+  background: #69f05b;
+  width: 160px;
+  height: 160px;
+  box-shadow: 0 2px 8px rgba(184, 155, 43, 0.2);
+}
+.shop-circle-wrapper .circle .shop-img {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 6px;
+}
+.shop-circle-wrapper .circle .shop-text {
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: #6b4f1d;
+  font-weight: bold;
+}
+
+/*# sourceMappingURL=mall_index.css.map */
