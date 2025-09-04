@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/mber_profile.scss";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
-import NavBarPhone from "../../components/NavBarPhone";
+import NavBarAPP from "../../components/NavBarAPP";
 // import NavBarWebsite from "../../components/NavBarWebsite";
 
 const mber_Profile = () => {
@@ -94,9 +94,9 @@ const mber_Profile = () => {
 
   return (
     <div className="mber_info">
-      <ChargegoLogo className="mobile-only-logo" />
+      
       {/* <NavBarWebsite /> */}
-      <NavBarPhone className="mobile-only-nav" />
+      <NavBarAPP className="mobile-only-nav" />
       {/* Header */}
       <div className="info-container">
         <span
@@ -109,6 +109,7 @@ const mber_Profile = () => {
 
         <div className="mobile-arc-bg">
           <div className="mobile-arc-content">
+            <ChargegoLogo className="mobile-only-logo" />
             <h2 className="mber_info_title">會員資料</h2>
           </div>
         </div>

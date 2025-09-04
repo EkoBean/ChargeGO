@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import "../../styles/scss/mber_login.scss";
-import NavBarPhone from "../../components/NavBarPhone";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 
 const mber_Login = () => {
@@ -94,10 +93,9 @@ const mber_Login = () => {
     <div className="login-bg">
       {/* 閃電背景 */}
       <img className="lightning" src="../../../public/lightning.png" />
-      <ChargegoLogo className="mobile-only-logo" />
-      
       <div className="login-container">
         <div className="login-form-section">
+          {/* 返回按鈕移到最上方 */}
           <span
             className="back-icon mobile-only-back"
             onClick={() => window.history.back()}
@@ -105,13 +103,21 @@ const mber_Login = () => {
           >
             ◀︎
           </span>
+          {/* header區塊：arc+logo+標題 */}
           <div className="mobile-arc-bg">
             <div className="mobile-arc-content">
+              <ChargegoLogo className="login-logo" />
               <h2 className="login-title">會員登入</h2>
             </div>
           </div>
           {/* 登入表單區塊 */}
           <form className="login-form" onSubmit={handleSubmit}>
+            {/* 錯誤訊息顯示 */}
+            {error && (
+              <div className="login-error-message">
+                {error}
+              </div>
+            )}
             {/* 帳號欄位 */}
             <input
               type="text"
@@ -133,7 +139,6 @@ const mber_Login = () => {
               required
             />
             {/* 忘記密碼 */}
-
             <button
               type="button"
               className="forgot-link"
@@ -153,7 +158,6 @@ const mber_Login = () => {
                 重新產生
               </button>
             </div>
-
             {/* 驗證碼輸入欄位 */}
             <input
               type="text"
@@ -164,9 +168,7 @@ const mber_Login = () => {
               onChange={handleChange}
               required
             />
-
             {/* 登入按鈕 */}
-
             <button type="submit" className="login-btn">
               登入
             </button>
