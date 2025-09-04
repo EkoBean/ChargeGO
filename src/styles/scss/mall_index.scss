@@ -111,7 +111,7 @@ $color-shop-circle: #69f05b;
     gap: 6px;
     min-width: 80px;
 
-    .endDate {
+    .Date {
       font-size: 12px;
       color: #999;
     }
@@ -127,7 +127,7 @@ $color-shop-circle: #69f05b;
       color: #fff;
 
       &.disabled {
-        background: #ccc;
+        background: #ccc !important;
         cursor: not-allowed;
       }
     }
@@ -158,6 +158,188 @@ $color-shop-circle: #69f05b;
         color: #fff; // 白色字
         font-size: 14px;
         font-weight: bold;
+      }
+    }
+  }
+}
+// ==========================
+// 商店兌換券購買列表
+// ==========================
+.storeCouponList {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  gap: 12px;
+
+  // 隱藏 scrollbar（可選）
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.storeCouponCard {
+  flex: 0 0 auto; // 固定寬度，不被壓縮
+  min-width: 150px;
+  max-width: 150px;
+  height: 200px;
+  max-height: 200px;
+
+  border-radius: 12px;
+  background: #f8f9fa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+
+  .couponTop {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .couponName {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .couponPoints {
+      font-size: 13px;
+      color: #333;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .couponActions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .btn-detail {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+
+      &:hover {
+        background: #f1f1f1;
+      }
+    }
+
+    .btn-redeem {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      background: #00d84a;
+      color: #fff;
+
+      &:hover {
+        background: #00b63f;
+      }
+
+      &.disabled {
+        background: #ccc !important;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+// ==========================
+// 租借兌換券購買列表
+// ==========================
+.rentalCouponList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 6px; // 預留空間避免文字被捲軸蓋住
+
+  // 捲軸樣式（可選）
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+}
+
+.rentalCouponCard {
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .couponInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .couponName {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .couponDetails {
+      font-size: 14px;
+      color: #333;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .couponActions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 80px;
+
+    .btn-detail {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+
+      &:hover {
+        background: #f1f1f1;
+      }
+    }
+
+    .btn-redeem {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      background: #00d84a;
+      color: #fff;
+
+      &:hover {
+        background: #00b63f;
+      }
+
+      &.disabled {
+        background: #ccc !important;
+        cursor: not-allowed;
       }
     }
   }

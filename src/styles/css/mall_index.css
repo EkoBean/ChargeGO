@@ -11925,14 +11925,13 @@ body,
   display: flex;
   flex-direction: column;
   gap: 12px;
-  
 }
 
 .taskCard {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 8px;
+  padding: 12px;
   border-radius: 12px;
   background: #fff;
   margin-bottom: 6px;
@@ -11958,7 +11957,7 @@ body,
   gap: 6px;
   min-width: 80px;
 }
-.taskCard .taskRight .endDate {
+.taskCard .taskRight .Date {
   font-size: 12px;
   color: #999;
 }
@@ -11973,7 +11972,7 @@ body,
   color: #fff;
 }
 .taskCard .taskRight .claimBtn.disabled {
-  background: #ccc;
+  background: #ccc !important;
   cursor: not-allowed;
 }
 .taskCard .taskRight .claimed-text {
@@ -12001,6 +12000,159 @@ body,
   color: #fff;
   font-size: 14px;
   font-weight: bold;
+}
+
+.storeCouponList {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  gap: 12px;
+}
+.storeCouponList::-webkit-scrollbar {
+  display: none;
+}
+
+.storeCouponCard {
+  flex: 0 0 auto;
+  min-width: 150px;
+  max-width: 150px;
+  height: 200px;
+  max-height: 200px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+}
+.storeCouponCard .couponTop {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.storeCouponCard .couponTop .couponName {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.storeCouponCard .couponTop .couponPoints {
+  font-size: 13px;
+  color: #333;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.storeCouponCard .couponActions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.storeCouponCard .couponActions .btn-detail {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+.storeCouponCard .couponActions .btn-detail:hover {
+  background: #f1f1f1;
+}
+.storeCouponCard .couponActions .btn-redeem {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  background: #00d84a;
+  color: #fff;
+}
+.storeCouponCard .couponActions .btn-redeem:hover {
+  background: #00b63f;
+}
+.storeCouponCard .couponActions .btn-redeem.disabled {
+  background: #ccc !important;
+  cursor: not-allowed;
+}
+
+.rentalCouponList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.rentalCouponList::-webkit-scrollbar {
+  width: 6px;
+}
+.rentalCouponList::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.rentalCouponCard {
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.rentalCouponCard .couponInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rentalCouponCard .couponInfo .couponName {
+  font-size: 16px;
+  font-weight: 600;
+}
+.rentalCouponCard .couponInfo .couponDetails {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+.rentalCouponCard .couponActions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 80px;
+}
+.rentalCouponCard .couponActions .btn-detail {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+.rentalCouponCard .couponActions .btn-detail:hover {
+  background: #f1f1f1;
+}
+.rentalCouponCard .couponActions .btn-redeem {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  background: #00d84a;
+  color: #fff;
+}
+.rentalCouponCard .couponActions .btn-redeem:hover {
+  background: #00b63f;
+}
+.rentalCouponCard .couponActions .btn-redeem.disabled {
+  background: #ccc !important;
+  cursor: not-allowed;
 }
 
 .points-shop-row {

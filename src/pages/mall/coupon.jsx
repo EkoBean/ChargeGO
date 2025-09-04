@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import "../../styles/scss/mall_index.scss";
 
 const Coupon = () => {
   const userId = 2;
@@ -82,55 +81,61 @@ const Coupon = () => {
         </ul>
 
         {/* 🔹 Tabs 內容 */}
-        <div className="mt-3">
+        <div className="taskList mt-3">
           {/* 商家優惠券 */}
           {activeTab === "store" && (
             <>
-              {storeCoupons.length === 0 ? (
-                <p className="text-muted">目前沒有商家優惠券</p>
-              ) : (
-                storeCoupons.map((coupon) => (
-                  <div
-                    key={coupon.id}
-                    className="card rounded-3 shadow-sm p-3 mb-3"
-                  >
-                    <div className="card-body p-0 d-flex justify-content-between align-items-center">
-                      <div>
+              {
+                //沒有商家優惠券
+                storeCoupons.length === 0 ? (
+                  <p className="text-muted">目前沒有商家優惠券</p>
+                ) : (
+                  //有商家優惠券
+                  storeCoupons.map((coupon) => (
+                    <div
+                      key={coupon.id}
+                      className="taskCard rounded-3 shadow-sm p-3 mb-3"
+                    >
+                      <div className="taskLeft">
                         <h5 className="fw-bold mb-0">{coupon.title}</h5>
                         <small className="text-muted">
                           有效期至：
                           {new Date(coupon.expiresAt).toLocaleDateString()}
                         </small>
                       </div>
-                      <button
-                        className={`btn ${
-                          coupon.isUsed ? "btn-secondary" : "btn-primary"
-                        } rounded-pill fw-bold`}
-                        disabled={coupon.isUsed}
-                        onClick={() => handleCouponClick(coupon)}
-                      >
-                        {coupon.isUsed ? "已使用" : "領取"}
-                      </button>
+                      <div className="taskRight">
+                        <button
+                          className={`btn ${
+                            coupon.isUsed ? "disabled" : "claimBtn"
+                          } rounded-pill fw-bold`}
+                          disabled={coupon.isUsed}
+                          onClick={() => handleCouponClick(coupon)}
+                        >
+                          {coupon.isUsed ? "已使用" : "領取"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )
+              }
             </>
           )}
 
           {/* 租借優惠券 */}
           {activeTab === "rental" && (
             <>
-              {rentalCoupons.length === 0 ? (
-                <p className="text-muted">目前沒有租借優惠券</p>
-              ) : (
-                rentalCoupons.map((coupon) => (
-                  <div
-                    key={coupon.id}
-                    className="card rounded-3 shadow-sm p-3 mb-3"
-                  >
-                    <div className="card-body p-0 d-flex justify-content-between align-items-center">
-                      <div>
+              {
+                //沒有租借優惠券
+                rentalCoupons.length === 0 ? (
+                  <p className="text-muted">目前沒有租借優惠券</p>
+                ) : (
+                  //有租借優惠券
+                  rentalCoupons.map((coupon) => (
+                    <div
+                      key={coupon.id}
+                      className="taskCard rounded-3 shadow-sm p-3 mb-3"
+                    >
+                      <div className="taskLeft">
                         <h5 className="fw-bold mb-0">{coupon.title}</h5>
                         <small className="text-muted">
                           有效期至：
@@ -138,17 +143,19 @@ const Coupon = () => {
                         </small>
                       </div>
                       {/* 租借優惠券只顯示使用狀態 */}
-                      <span
-                        className={`fw-bold ${
-                          coupon.isUsed ? "text-secondary" : "text-success"
-                        }`}
-                      >
-                        {coupon.isUsed ? "已使用" : "未使用"}
-                      </span>
+                      <div className="taskRight">
+                        {coupon.isUsed === false ? (
+                          <button className="claimBtn disabled" disabled>
+                            未使用
+                          </button>
+                        ) : coupon.isUsed === true ? (
+                          <span className="claimed-text">已使用</span>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )
+              }
             </>
           )}
         </div>

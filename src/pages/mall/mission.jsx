@@ -28,17 +28,17 @@ class Mission extends Component {
     this.setState({ loading: true, error: null, mission: [] });
 
     try {
-      await axios.post(`http://localhost:4000/update/monthRental`, {
+      await axios.post(`http://localhost:4002/update/monthRental`, {
         userId,
         filterDate,
       });
-      await axios.post(`http://localhost:4000/update/monthHours`, {
+      await axios.post(`http://localhost:4002/update/monthHours`, {
         userId,
         filterDate,
       });
 
       const missionsResponse = await axios.get(
-        `http://localhost:4000/mission/${userId}/${filterDate}`
+        `http://localhost:4002/mission/${userId}/${filterDate}`
       );
 
       if (Array.isArray(missionsResponse.data)) {
@@ -60,7 +60,7 @@ class Mission extends Component {
   handleClaimMission = async (userMissionId) => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/usermission/claim",
+        "http://localhost:4002/usermission/claim",
         { user_mission_id: userMissionId }
       );
 
