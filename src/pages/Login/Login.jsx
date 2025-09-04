@@ -1,7 +1,7 @@
 import React from 'react';
-import './Login.css';
+import '../../styles/scss/Login.module.scss';
 import NavBarAPP from '../../components/NavBarAPP';
-import ChargegoLogo from '../../components/ChargegoLogo/ChargegoLogo';
+// import ChargegoLogo from '../../components/ChargegoLogo/ChargegoLogo';
 
 export default function Login() {
     return (

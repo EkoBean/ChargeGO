@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/scss/NavBarAPP.scss';
+import styles from '../styles/scss/NavBarAPP.module.scss';
 
 export default function NavBarAPP() {
     

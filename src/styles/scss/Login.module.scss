@@ -1,3 +1,5 @@
+@use './global.module.scss' as *;
+
 .login-bg {
   min-height: 100vh;
   background: linear-gradient(to bottom, #FFD600 0%, #FFF9E3 100%);

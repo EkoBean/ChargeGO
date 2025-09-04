@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './WebSite.css';
+import styles from '../../styles/scss/WebSite.module.scss';
 
 const WebSite = () => {
   const logoSectionRef = useRef(null);
