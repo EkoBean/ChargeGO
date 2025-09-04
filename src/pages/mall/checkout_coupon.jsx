@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "../../styles/scss/mall_index.scss";
 
 class CheckoutCoupons extends Component {
   state = {
@@ -198,21 +198,29 @@ class CheckoutCoupons extends Component {
         {error && <p className="text-danger">{error}</p>}
 
         {/* 優惠券卡片清單 */}
-        <div className="d-flex flex-column gap-3">
+        <div className="taskList">
           {coupons.length > 0
             ? coupons.map((c) => (
-                <div className="card shadow-sm" key={c.coupon_id}>
-                  <div className="card-body">
+                <div className="taskCard shadow-sm" key={c.coupon_id}>
+                  <div className="taskLeft">
                     <h5 className="card-title">{c.name}</h5>
                     <h6 className="card-subtitle mb-2 text-muted">
                       {this.getTypeName(c.type)}
                     </h6>
                     <p className="card-text">
-                      截止日期: {c.expires_at} <br />
-                      狀態: {c.status} {c.is_expired ? "(已過期)" : ""}
+                      截止日期:{" "}
+                      {new Date(c.expires_at).toLocaleDateString("zh-TW", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })}
+                      {/* 狀態: {c.status} {c.is_expired ? "(已過期)" : ""} */}
                     </p>
+                  </div>
+                  <div className="taskRight">
+                    {" "}
                     <button
-                      className="btn btn-success btn-sm"
+                      className="claimBtn"
                       onClick={() => this.useCoupon(c.coupon_id)}
                     >
                       使用

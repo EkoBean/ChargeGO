@@ -61,13 +61,17 @@ class Shop extends Component {
 
     console.log("立即兌換按鈕點擊，template_id =", product.id);
     axios
-      .post("http://localhost:4002/buycoupons", {
+      .post("http://localhost:4001/buycoupons", {
         template_id: product.id,
         user_id: userId,
       })
       .then((res) => {
         console.log("新增成功:", res.data);
-        this.setState({ showDetailModal: false, showSuccessModal: true });
+        this.setState({
+          selectedProduct: product, // 🔹 這裡要更新
+          showDetailModal: false,
+          showSuccessModal: true,
+        });
       })
       .catch((err) => {
         console.error("新增失敗:", err);
@@ -113,58 +117,26 @@ class Shop extends Component {
         {storeCoupons.length > 0 && (
           <>
             <h4 className="mb-3">商家優惠券兌換</h4>
-            <div className="d-flex overflow-auto pb-2">
+            <div className="storeCouponList">
               {storeCoupons.map((p) => (
-                <div
-                  className="card me-3"
-                  key={p.id}
-                  style={{
-                    minWidth: "150px",
-                    maxWidth: "150px", // 🔹 最大寬度固定
-                    height: "200px",
-                    maxHeight: "200px", // 🔹 最大高度固定
-                    backgroundColor: "#f8f9fa",
-                    overflow: "hidden", // 🔹 超過的文字隱藏
-                    textOverflow: "ellipsis", // 🔹 超過文字加 "..."
-                  }}
-                >
-                  <div className="card-body d-flex flex-column justify-content-between">
-                    <div>
-                      <h6
-                        className="card-title"
-                        style={{
-                          whiteSpace: "nowrap", // 🔹 單行顯示
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {p.name}
-                      </h6>
-                      <p
-                        className="card-text mb-1"
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        點數: {p.points}
-                      </p>
-                    </div>
-                    <div className="d-flex flex-column gap-1">
-                      <button
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() => this.handleShowDetail(p)}
-                      >
-                        詳細
-                      </button>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => this.handleRedeem(p)}
-                      >
-                        兌換
-                      </button>
-                    </div>
+                <div className="storeCouponCard" key={p.id}>
+                  <div className="couponTop">
+                    <h6 className="couponName">{p.name}</h6>
+                    <p className="couponPoints">點數: {p.points}</p>
+                  </div>
+                  <div className="couponActions">
+                    <button
+                      className="btn-detail"
+                      onClick={() => this.handleShowDetail(p)}
+                    >
+                      詳細
+                    </button>
+                    <button
+                      className="btn-redeem"
+                      onClick={() => this.handleRedeem(p)}
+                    >
+                      兌換
+                    </button>
                   </div>
                 </div>
               ))}
@@ -176,38 +148,34 @@ class Shop extends Component {
         {rentalCoupons.length > 0 && (
           <>
             <h4 className="mt-4 mb-3">租借優惠券兌換</h4>
-            <div
-              className="d-flex flex-column gap-3"
-              style={{ maxHeight: "400px", overflowY: "auto" }}
-            >
+            {/* 兌換券內容 */}
+            <div className="rentalCouponList">
               {rentalCoupons.map((p) => (
-                <div className="card shadow-sm" key={p.id}>
-                  <div className="card-body d-flex flex-row justify-content-between align-items-center">
-                    {/* 左側文字資訊 */}
-                    <div>
-                      <h5 className="card-title">{p.name}</h5>
-                      <p className="card-text mb-1">
-                        點數: {p.points} <br />
-                        折扣方式: {p.type} <br />
-                        到期日: {p.expirationDate}
-                      </p>
-                    </div>
+                <div className="rentalCouponCard" key={p.id}>
+                  {/* 左側文字資訊 */}
+                  <div className="couponInfo">
+                    <h5 className="couponName">{p.name}</h5>
+                    <p className="couponDetails">
+                      點數: {p.points} <br />
+                      折扣方式: {p.type} <br />
+                      到期日: {p.expirationDate}
+                    </p>
+                  </div>
 
-                    {/* 右側操作按鈕 */}
-                    <div className="d-flex flex-column gap-2">
-                      <button
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() => this.handleShowDetail(p)}
-                      >
-                        詳細
-                      </button>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => this.handleRedeem(p)}
-                      >
-                        兌換
-                      </button>
-                    </div>
+                  {/* 右側操作按鈕 */}
+                  <div className="couponActions">
+                    <button
+                      className="btn-detail"
+                      onClick={() => this.handleShowDetail(p)}
+                    >
+                      詳細
+                    </button>
+                    <button
+                      className="btn-redeem"
+                      onClick={() => this.handleRedeem(p)}
+                    >
+                      兌換
+                    </button>
                   </div>
                 </div>
               ))}
@@ -215,7 +183,8 @@ class Shop extends Component {
           </>
         )}
 
-        {/* Modal 部分保持不變 */}
+        {/* 詳細內容 */}
+
         {showDetailModal && selectedProduct && (
           <div
             className="modal show d-block"
