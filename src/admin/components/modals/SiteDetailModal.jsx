@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // 站點管理 查看詳細資訊視窗
 // 顯示單一站點的詳細資料與統計，提供建立/編輯站點。
@@ -14,13 +14,72 @@ const SiteDetailModal = ({
   onChange,
   onClose,
   // 新增 stats prop，來自 SiteManagement 計算
-  stats = { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 }
+  stats = { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 },
+  chargers = [] // 父元件需傳入該站點所有充電器資料
 }) => {
-  // UI 結構說明：
-  // - overlay（最外層）：點擊 overlay 即關閉 modal（但 saving 時禁止關閉）
-  // - modal-content：實際內容，阻止點擊事件冒泡以免觸發 overlay 的關閉
-  // - header：顯示標題與操作按鈕（編輯 / 取消 / 儲存 / 關閉）
-  // - body：分成基本資訊、站點統計、位置預覽三個區塊（視 isEditing / creating 決定顯示方式）
+  const [activeStat, setActiveStat] = useState(null);
+  const [isLoadingGeo, setIsLoadingGeo] = useState(false);
+  const [geoError, setGeoError] = useState("");
+
+  // 狀態轉中文
+  const statusText = (status) => {
+    switch (Number(status)) {
+      case -1: return "故障";
+      case 0: return "進廠維修";
+      case 1: return "出租中";
+      case 2: return "代租借,滿電";
+      case 3: return "待租借,30%-99%";
+      case 4: return "準備中,<30%";
+      default: return "未知";
+    }
+  };
+
+  // 根據點擊的類型過濾充電器
+  const getChargersByType = (type) => {
+    switch (type) {
+      case 'total':
+        return chargers;
+      case 'available':
+        return chargers.filter(c => [2, 3].includes(Number(c.status)));
+      case 'occupied':
+        return chargers.filter(c => Number(c.status) === 1);
+      case 'maintenance':
+        return chargers.filter(c => [-1, 0].includes(Number(c.status)));
+      case 'todayOrders':
+        return chargers.filter(c => c.todayOrder); // 根據你的 todayOrder 欄位
+      default:
+        return [];
+    }
+  };
+
+  const selectedSiteChargers = chargers.filter(c => c.site_id === site.site_id);
+
+  // 地址查詢經緯度
+  const handleGeocode = async () => {
+    if (!editSite?.address) {
+      setGeoError("請先輸入地址");
+      return;
+    }
+    setIsLoadingGeo(true);
+    setGeoError("");
+    // 缺少 API 金鑰
+    try {
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(editSite.address)}&key=AIzaSyDfRu8ufAyaAXeGZnUDIjUOXEsTE3d1KM4`
+      );
+      const data = await res.json();
+      if (data.status === "OK" && data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry.location;
+        onChange({ target: { name: "latitude", value: lat } });
+        onChange({ target: { name: "longitude", value: lng } });
+      } else {
+        setGeoError("查無經緯度，請確認地址正確");
+      }
+    } catch (e) {
+      setGeoError("查詢失敗，請稍後再試");
+    }
+    setIsLoadingGeo(false);
+  };
 
   return (
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
@@ -28,7 +87,7 @@ const SiteDetailModal = ({
       {/* 內容區：阻止事件冒泡以避免點擊內容區也關閉 modal */}
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          {/* 標題：建立時顯示 "新增站點"，否則顯示站點名稱 */}
+          {/* 標題： "新增站點"，否則顯示站點名稱 */}
           <h3>
             {creating ? "新增站點" : `站點詳情 - ${site.site_name}`}
           </h3>
@@ -105,14 +164,25 @@ const SiteDetailModal = ({
 
                   <div className="form-group form-col-2">
                     <label>地址 <span className="required">*</span></label>
-                    <input
-                      type="text"
-                      name="address"
-                      value={editSite?.address || ""}
-                      onChange={onChange}
-                      placeholder="請輸入站點地址"
-                      required
-                    />
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input
+                        type="text"
+                        name="address"
+                        value={editSite?.address || ""}
+                        onChange={onChange}
+                        placeholder="請輸入站點地址"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="btn small"
+                        onClick={handleGeocode}
+                        disabled={isLoadingGeo}
+                      >
+                        {isLoadingGeo ? "查詢中..." : "查詢經緯度"}
+                      </button>
+                    </div>
+                    {geoError && <div style={{ color: "#d32f2f", fontSize: 12 }}>{geoError}</div>}
                   </div>
 
                   <div className="form-group">
@@ -148,40 +218,75 @@ const SiteDetailModal = ({
               )}
             </div>
 
-            {/* 站點統計區塊（僅在不是建立流程時顯示）：
+            {/* 站點統計區塊：
                 - stats 由父元件計算並傳入，包含總充電器、可用、使用中、今日訂單數 */}
             {!creating && (
               <div className="detail-section">
                 <h4>站點統計</h4>
-                <div className="stats-mini-grid">
-                  <div className="mini-stat success">
+                <div className="stats-mini-grid centered">
+                  <div
+                    className="mini-stat success"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setActiveStat('total')}
+                  >
                     <span className="number">{stats.totalChargers}</span>
                     <span className="label">總充電器</span>
                   </div>
-                  <div className="mini-stat primary">
+                  <div
+                    className="mini-stat primary"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setActiveStat('available')}
+                  >
                     <span className="number">{stats.available}</span>
                     <span className="label">可用充電器</span>
                   </div>
-                  <div className="mini-stat warning">
+                  <div
+                    className="mini-stat warning"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setActiveStat('occupied')}
+                  >
                     <span className="number">{stats.occupied}</span>
                     <span className="label">使用中</span>
                   </div>
-                  <div className="mini-stat info">
+                  <div
+                    className="mini-stat info"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setActiveStat('todayOrders')}
+                  >
                     <span className="number">{stats.todayOrders}</span>
                     <span className="label">今日訂單數</span>
                   </div>
                 </div>
+                {/* 點擊後顯示充電器清單 */}
+                {activeStat && (
+                  <div className="charger-list">
+                    <h5>
+                      {activeStat === 'total' && '全部充電器'}
+                      {activeStat === 'available' && '可用充電器'}
+                      {activeStat === 'occupied' && '使用中充電器'}
+                      {activeStat === 'maintenance' && '維護中充電器'}
+                      {activeStat === 'todayOrders' && '今日訂單充電器'}
+                    </h5>
+                    <ul>
+                      {getChargersByType(activeStat).map((c) => (
+                        <li key={c.charger_id || c.id}>
+                          行動充電器 {c.charger_id || c.id}（狀態：{statusText(c.status)}）
+                        </li>
+                      ))}
+                      {getChargersByType(activeStat).length === 0 && <li>無資料</li>}
+                    </ul>
+                    <button className="btn small" onClick={() => setActiveStat(null)}>關閉</button>
+                  </div>
+                )}
               </div>
             )}
-
-            {/* 位置預覽：使用 Google Static Map API 顯示地圖快照（注意：需替換 YOUR_API_KEY）
-                - 若要避免依賴外部 key，可改成使用內建地圖或不顯示預覽 */}
             {!creating && !isEditing && (
               <div className="detail-section">
                 <h4>位置預覽</h4>
                 <div className="map-preview">
+                  {/* google 金鑰 */}
                   <img 
-                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${site.latitude},${site.longitude}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${site.latitude},${site.longitude}&key=YOUR_API_KEY`} 
+                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${site.latitude},${site.longitude}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${site.latitude},${site.longitude}&key=AIzaSyDfRu8ufAyaAXeGZnUDIjUOXEsTE3d1KM4`} 
                     alt="站點位置地圖" 
                   />
                 </div>

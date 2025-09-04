@@ -294,8 +294,8 @@ const SiteManagement = () => {
           isEditing={isEditingSite}
           creating={creatingSite}
           saving={saving}
-          // 傳入我們剛計算好的統計（若無則 fallback 為 0）
           stats={editSite?._stats ?? { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 }}
+          chargers={chargers.filter(c => String(c.site_id) === String(selectedSite.site_id))} // <--- 傳入該站點充電器資料
           onEdit={() => setIsEditingSite(true)}
           onCancel={() => {
             setEditSite(selectedSite);
