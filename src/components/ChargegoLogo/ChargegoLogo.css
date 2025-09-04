@@ -1,0 +1,35 @@
+.logo {
+  width: 220px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50px;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.logo img {
+  width: 220px;
+  height: auto;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.mobile-only-logo {
+  display: none;
+}
+
+.mobile-only-back {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only-logo {
+    display: block;
+  }
+
+  .mobile-only-back {
+    display: inline;
+  }
+}
