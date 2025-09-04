@@ -14,16 +14,12 @@ import AppIndex from "./mapIndex/AppIndex";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Login from './Login/Login';
-<<<<<<< HEAD
-import NavbarWebsite from "../components/NavBarWebsite";
-=======
 import Coupon from "./mall/coupon";
 import CheckoutCoupons from "./mall/checkout_coupon";
 import MemberLogin from "./MemberLogin";
 import NavbarWebsite from "../components/NavbarWebsite";
 import Task from "./Task";
 
->>>>>>> 2b727fd355963d6bc4e87fbf41773dc92a3832e1
 function App() {
   return (
     <>
@@ -31,11 +27,6 @@ function App() {
         {/* <Route path="/" element={<Login />} /> */}
         <Route path="/" element={<NavbarWebsite />} />
         <Route path="/AppIndex" element={<AppIndex />} />
-<<<<<<< HEAD
-        {/* <Route path="/Mission" element={<Mission />} />
-        <Route path="/Shop" element={<Shop />}></Route> */}
-        <Route path="/" element={<WebSite />} />
-=======
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
@@ -48,7 +39,6 @@ function App() {
             </>
           }
         />
->>>>>>> 2b727fd355963d6bc4e87fbf41773dc92a3832e1
         {/* <Route path="/register" element={<Register />} /> */}
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/MemberLogin" element={<MemberLogin />} />

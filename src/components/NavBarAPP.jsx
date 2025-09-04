@@ -2,10 +2,13 @@ import React from 'react';
 import './NavBarAPP.scss';
 
 export default function NavBarPhone() {
+    
     return (
         <div className="navbar-phone-container">
             <div className="icon">
+                <a href="">
                 <img id="myprofile" src="../public/myprofile.png" alt="user" />
+                </a>
             </div>
             <div className="icon">
                 <img id="gift" src="../public/gift.png" alt="bell" />
