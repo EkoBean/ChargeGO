@@ -10,35 +10,72 @@ const CreateOrderModal = ({
   onChange,
   onClose,
 }) => {
-  // 將 charger.status 標準化為語意字串
+  // 修正充電器狀態判斷邏輯
   const normalizeChargerStatus = (charger) => {
     const raw = charger?.status ?? charger?.charger_status ?? '';
     const s = String(raw).trim();
     const n = Number(s);
-    // DB 定義對應
+    
+    // 首先檢查資料庫是否已有進行中的訂單
+    const isRented = charger?.is_rented === true || 
+                     charger?.is_rented === 1 || 
+                     charger?.is_rented === '1' ||
+                     charger?.current_renter != null || // 加入這個檢查
+                     charger?.current_order_id != null; // 加入這個檢查
+    
+    if (isRented) {
+        return 'occupied';
+    }
+    
+    // 再檢查充電器本身的狀態
     if (n === -1 || n === 0) return 'maintenance';
     if (n === 1) return 'occupied';
     if (n === 2 || n === 3) return 'available';
     if (n === 4) return 'preparing';
+    
+    // 字串狀態的檢查
     const lower = s.toLowerCase();
+    if (lower.includes('rent') || lower.includes('occup') || lower === 'occupied') return 'occupied';
     if (lower.includes('avail') || lower === 'available') return 'available';
-    if (lower.includes('occup') || lower === 'occupied') return 'occupied';
     if (lower.includes('maint') || lower.includes('repair')) return 'maintenance';
+    if (lower.includes('prep')) return 'preparing';
+    
     return 'unknown';
   };
 
-  // 新增一個驗證函數
+  // 修正驗證函數 - 根據訂單狀態動態驗證
   const validateForm = () => {
     const errors = {};
+    const status = editOrder?.order_status || "0";
     
+    // 基本必填欄位
     if (!editOrder?.uid) errors.uid = '用戶ID不能為空';
-    if (!editOrder?.user_name) errors.user_name = '用戶名稱不能為空';
-    if (!editOrder?.site_id) errors.site_id = '請選擇站點';
+    if (!editOrder?.rental_site_id) errors.rental_site_id = '請選擇租借站點';
     if (!editOrder?.charger_id) errors.charger_id = '請選擇充電器';
     if (!editOrder?.start_date) errors.start_date = '開始時間不能為空';
     
+    // 檢查選擇的充電器是否可用
+    if (editOrder?.charger_id) {
+      const selectedCharger = siteChargers.find(c => String(c.charger_id) === String(editOrder.charger_id));
+      if (selectedCharger) {
+        const chargerStatus = normalizeChargerStatus(selectedCharger);
+        if (chargerStatus !== 'available') {
+          errors.charger_id = '所選充電器目前不可用，請選擇其他充電器';
+        }
+      }
+    }
+    
+    // 根據訂單狀態決定其他必填欄位
+    if (status === "1" || status === "-1") { // 已完成或已取消
+      if (!editOrder?.return_site_id) errors.return_site_id = '訂單已完成/取消，請選擇歸還站點';
+      if (!editOrder?.end) errors.end = '訂單已完成/取消，請填寫結束時間';
+    }
+    
     return errors;
   };
+
+  // 判斷是否需要顯示歸還相關欄位
+  const needReturnFields = editOrder?.order_status === "1" || editOrder?.order_status === "-1";
 
   return (
     <div className="modal-overlay" onClick={() => !saving && onClose()}>
@@ -62,7 +99,7 @@ const CreateOrderModal = ({
               }} 
               disabled={saving}
             >
-              {saving ? "儲存中..." : "儲存"}
+              {saving ? "建立中..." : "建立訂單"}
             </button>
             <button className="close-btn" onClick={() => !saving && onClose()}>
               ×
@@ -83,34 +120,47 @@ const CreateOrderModal = ({
                 <div className="form-group">
                   <label>用戶ID <span style={{ color: '#dc3545' }}>*</span></label>
                   <input
-                    type="text"
+                    type="number"
                     name="uid"
                     value={editOrder?.uid || ""}
                     onChange={onChange}
                     placeholder="請輸入用戶ID"
                     required
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: 8,
+                      border: '1px solid #e3e8ee',
+                      minHeight: 38,
+                      background: '#fff'
+                    }}
                   />
                 </div>
-                
-                {/* 用戶名稱 */}
+
+                {/* 用戶名稱（自動帶入） */}
                 <div className="form-group">
-                  <label>用戶名稱 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <label>用戶名稱</label>
                   <input
                     type="text"
-                    name="user_name"
                     value={editOrder?.user_name || ""}
-                    onChange={onChange}
-                    placeholder="請輸入用戶名稱"
-                    required
+                    disabled
+                    placeholder="輸入用戶ID後自動帶入"
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: 8,
+                      border: '1px solid #e3e8ee',
+                      minHeight: 38,
+                      backgroundColor: '#f7fafd',
+                      color: editOrder?.user_name ? '#333' : '#999'
+                    }}
                   />
                 </div>
                 
-                {/* 選擇站點 */}
+                {/* 租借站點 */}
                 <div className="form-group">
-                  <label>選擇站點 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <label>租借站點 <span style={{ color: '#dc3545' }}>*</span></label>
                   <select 
-                    name="site_id" 
-                    value={editOrder?.site_id || ""} 
+                    name="rental_site_id"  
+                    value={editOrder?.rental_site_id || ""} 
                     onChange={onChange}
                     style={{
                       padding: '10px 14px',
@@ -121,7 +171,7 @@ const CreateOrderModal = ({
                     }}
                     required
                   >
-                    <option value="">-- 選擇站點 --</option>
+                    <option value="">-- 選擇租借站點 --</option>
                     {sites.map(site => (
                       <option key={site.site_id} value={site.site_id}>
                         {site.site_name}
@@ -150,9 +200,39 @@ const CreateOrderModal = ({
                     <option value="1">已完成</option>
                     <option value="-1">已取消</option>
                   </select>
+                  <small style={{ color: '#6c757d', fontSize: '12px' }}>
+                    {needReturnFields ? '已完成/取消需填寫歸還站點和結束時間' : '進行中只需填寫租借站點和開始時間'}
+                  </small>
                 </div>
 
-                {/* 選擇充電器 */}
+                {/* 歸還站點 - 根據狀態決定是否顯示和必填 */}
+                {needReturnFields && (
+                  <div className="form-group">
+                    <label>歸還站點 <span style={{ color: '#dc3545' }}>*</span></label>
+                    <select 
+                      name="return_site_id"  
+                      value={editOrder?.return_site_id || ""} 
+                      onChange={onChange}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        minHeight: 38,
+                        background: '#fff'
+                      }}
+                      required={needReturnFields}
+                    >
+                      <option value="">-- 選擇歸還站點 --</option>
+                      {sites.map(site => (
+                        <option key={site.site_id} value={site.site_id}>
+                          {site.site_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* 選擇充電器 - 修正狀態顯示和可選性 */}
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label>選擇充電器 <span style={{ color: '#dc3545' }}>*</span></label>
                   <div
@@ -169,14 +249,16 @@ const CreateOrderModal = ({
                     }}
                   >
                     {siteChargers.length === 0 && (
-                      <div style={{ padding: 12, color: '#666' }}>此站目前沒有行動電源資料。</div>
+                      <div style={{ padding: 12, color: '#666', textAlign: 'center' }}>
+                        請先選擇租借站點以載入充電器
+                      </div>
                     )}
 
                     {siteChargers.map((charger) => {
                       const cs = normalizeChargerStatus(charger);
                       const isCurrent = String(charger.charger_id) === String(editOrder?.charger_id);
                       const available = cs === 'available';
-                      const disabled = !available && !isCurrent;
+                      const disabled = !available; // 只有可用的充電器才能選擇
 
                       const model = charger.model || charger.device_model || charger.name || charger.charger_name || `行動電源`;
                       const idLabel = charger.charger_code || charger.serial_number || charger.charger_id;
@@ -184,20 +266,48 @@ const CreateOrderModal = ({
                       const battery = charger.battery_percent ?? charger.battery ?? null;
                       const pd = charger.pd_watt || charger.pd || charger.output || '';
 
-                      const statusLabel =
-                        cs === 'available' ? '可用' :
-                        cs === 'occupied' ? `使用中（預計 ${charger.available_at || '未知'} 可用）` :
-                        (cs === 'maintenance' || cs === 'preparing') ? '維修/準備中' : '未知';
+                      // 修正狀態標籤顯示
+                      const statusLabel = (() => {
+                        switch (cs) {
+                          case 'available':
+                            return '✅ 可租借';
+                          case 'occupied':
+                            // 檢查是否有租借者資訊
+                            const renterInfo = charger.current_renter || charger.rented_by;
+                            const expectedReturn = charger.expected_return || charger.available_at;
+                            if (renterInfo) {
+                              return `🚫 租借中（租借者: ${renterInfo}）`;
+                            } else if (expectedReturn) {
+                              return `🚫 租借中（預計 ${expectedReturn} 歸還）`;
+                            }
+                            return '🚫 租借中';
+                          case 'maintenance':
+                            return '🔧 維修中';
+                          case 'preparing':
+                            return '⚙️ 準備中';
+                          default:
+                            return '❓ 狀態未知';
+                        }
+                      })();
 
-                      const dotColor = available ? '#28a745' : cs === 'occupied' ? '#fd7e14' : '#6c757d';
+                      const dotColor = (() => {
+                        switch (cs) {
+                          case 'available': return '#28a745'; // 綠色
+                          case 'occupied': return '#dc3545';   // 紅色
+                          case 'maintenance': return '#6c757d'; // 灰色
+                          case 'preparing': return '#fd7e14';   // 橘色
+                          default: return '#6c757d';           // 預設灰色
+                        }
+                      })();
+
                       const textColor = disabled ? '#8a8f95' : '#212529';
-                      const bg = isCurrent ? '#f0fff4' : '#fff';
-                      const border = isCurrent ? '#c7f0d0' : '#ececec';
+                      const bg = isCurrent ? '#f0fff4' : (disabled ? '#f8f9fa' : '#fff');
+                      const border = isCurrent ? '#c7f0d0' : (disabled ? '#dee2e6' : '#ececec');
 
                       const labelParts = [];
                       if (idLabel) labelParts.push(`#${idLabel}`);
                       if (capacity) labelParts.push(`${capacity}mAh`);
-                      if (battery !== null && battery !== '') labelParts.push(`${battery}%`);
+                      if (battery !== null && battery !== '') labelParts.push(`電量 ${battery}%`);
                       if (pd) labelParts.push(`PD ${pd}W`);
                       const leftText = labelParts.join('　');
 
@@ -210,7 +320,10 @@ const CreateOrderModal = ({
                           aria-disabled={disabled}
                           disabled={disabled}
                           onClick={() => {
-                            if (disabled) return;
+                            if (disabled) {
+                              alert('此充電器目前不可租借，請選擇其他充電器');
+                              return;
+                            }
                             onChange({ target: { name: 'charger_id', value: charger.charger_id } });
                           }}
                           className="charger-list-item"
@@ -220,41 +333,67 @@ const CreateOrderModal = ({
                             justifyContent: 'space-between',
                             gap: 12,
                             width: '100%',
-                            padding: '10px',
+                            padding: '12px',
                             marginBottom: 8,
                             borderRadius: 8,
-                            border: `1px solid ${border}`,
+                            border: `2px solid ${border}`,
                             background: bg,
                             color: textColor,
                             cursor: disabled ? 'not-allowed' : 'pointer',
-                            textAlign: 'left'
+                            textAlign: 'left',
+                            opacity: disabled ? 0.7 : 1,
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!disabled) {
+                              e.target.style.borderColor = dotColor;
+                              e.target.style.backgroundColor = available ? '#f8fff9' : bg;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.borderColor = border;
+                            e.target.style.backgroundColor = bg;
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                             <span
                               aria-hidden
                               style={{
-                                width: 10,
-                                height: 10,
-                                borderRadius: 10,
+                                width: 12,
+                                height: 12,
+                                borderRadius: 12,
                                 background: dotColor,
                                 display: 'inline-block',
                                 marginRight: 4,
+                                boxShadow: `0 0 0 2px ${dotColor}20`
                               }}
                             />
-                            <div style={{ lineHeight: 1 }}>
-                              <div style={{ fontWeight: 600 }}>{model} <span style={{ color: '#666', fontWeight: 500 }}>（編號:{idLabel}）</span></div>
-                              <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>{leftText}</div>
+                            <div style={{ lineHeight: 1.3 }}>
+                              <div style={{ fontWeight: 600, fontSize: '15px' }}>
+                                {model} 
+                                <span style={{ color: '#666', fontWeight: 400, marginLeft: '8px' }}>
+                                  （編號: {idLabel}）
+                                </span>
+                              </div>
+                              {leftText && (
+                                <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>
+                                  {leftText}
+                                </div>
+                              )}
                             </div>
                           </div>
 
-                          <div style={{ marginLeft: 12, textAlign: 'right', minWidth: 160 }}>
+                          <div style={{ marginLeft: 12, textAlign: 'right', minWidth: 180 }}>
                             <span
                               className="badge"
                               style={{
-                                background: 'transparent',
-                                color: disabled ? '#8a8f95' : dotColor,
-                                fontWeight: 700,
+                                background: disabled ? '#f8f9fa' : `${dotColor}15`,
+                                color: dotColor,
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                border: `1px solid ${dotColor}40`
                               }}
                             >
                               {statusLabel}
@@ -264,27 +403,21 @@ const CreateOrderModal = ({
                       );
                     })}
 
-                    {siteChargers.every((c) => normalizeChargerStatus(c) !== 'available') &&
-                      !(editOrder?.charger_id && siteChargers.some((c) => String(c.charger_id) === String(editOrder.charger_id))) && (
-                      <div style={{ padding: 12, textAlign: 'center', color: '#666' }}>
-                        <div style={{ marginBottom: 8, fontWeight: 700 }}>目前無可用行動電源</div>
-                        <div>
-                          <button
-                            type="button"
-                            className="btn"
-                            onClick={() => { onClose(); window.alert('請前往查看其他站點'); }}
-                            style={{ marginRight: 8 }}
-                          >
-                            查看其他站點
-                          </button>
-                          <button
-                            type="button"
-                            className="btn primary"
-                            onClick={() => { window.alert('已登記通知（示範）'); }}
-                          >
-                            通知我
-                          </button>
-                        </div>
+                    {/* 顯示可用充電器統計 */}
+                    {siteChargers.length > 0 && (
+                      <div style={{ 
+                        padding: '12px', 
+                        borderTop: '1px solid #e6e6e6', 
+                        marginTop: '8px', 
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '0 0 6px 6px',
+                        color: '#6c757d',
+                        fontSize: '13px',
+                        textAlign: 'center'
+                      }}>
+                        共 {siteChargers.length} 台充電器，
+                        可租借: {siteChargers.filter(c => normalizeChargerStatus(c) === 'available').length} 台，
+                        租借中: {siteChargers.filter(c => normalizeChargerStatus(c) === 'occupied').length} 台
                       </div>
                     )}
                   </div>
@@ -292,7 +425,7 @@ const CreateOrderModal = ({
 
                 {/* 備註 */}
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>備註 (comment)</label>
+                  <label>備註</label>
                   <textarea
                     name="comment"
                     value={editOrder?.comment || ""}
@@ -318,7 +451,7 @@ const CreateOrderModal = ({
               <h4>時間資訊</h4>
               <div className="form-grid" style={{ 
                 display: 'grid', 
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: needReturnFields ? '1fr 1fr' : '1fr',
                 gap: '20px' 
               }}>
                 <div className="form-group">
@@ -326,42 +459,78 @@ const CreateOrderModal = ({
                   <input 
                     type="datetime-local" 
                     name="start_date"
-                    value={editOrder?.start_date ? new Date(editOrder.start_date).toISOString().slice(0, 16) : ""} 
+                    value={editOrder?.start_date ? 
+                      new Date(new Date(editOrder.start_date).getTime() - new Date().getTimezoneOffset() * 60000)
+                        .toISOString().slice(0, 16) : ""} 
                     onChange={(e) => {
-                      // 確保日期被正確解析
                       const dateValue = e.target.value;
                       if (dateValue) {
-                        try {
-                          // 將 datetime-local 轉換為 ISO 格式
-                          const dateObj = new Date(dateValue);
-                          console.log('選擇的開始時間:', dateObj.toISOString());
-                          onChange({
-                            target: {
-                              name: 'start_date',
-                              value: dateObj.toISOString() // 存儲為 ISO 格式
-                            }
-                          });
-                        } catch (error) {
-                          console.error('日期解析錯誤:', error);
-                        }
+                        // 轉換為 ISO 格式但保持本地時區
+                        const localDate = new Date(dateValue);
+                        onChange({
+                          target: {
+                            name: 'start_date',
+                            value: localDate.toISOString()
+                          }
+                        });
                       } else {
-                        onChange(e); // 如果為空值，正常傳遞
+                        onChange(e);
                       }
                     }}
                     required
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: 8,
+                      border: '1px solid #e3e8ee',
+                      minHeight: 38,
+                      background: '#fff',
+                      width: '100%'
+                    }}
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label>結束時間</label>
-                  <input 
-                    type="datetime-local" 
-                    name="end"
-                    value={editOrder?.end ? new Date(editOrder.end).toISOString().slice(0, 16) : ""} 
-                    onChange={onChange}
-                  />
-                  <small style={{ color: '#6c757d' }}>可選填，未填寫表示進行中</small>
-                </div>
+                {/* 結束時間 - 根據狀態決定是否顯示和必填 */}
+                {needReturnFields && (
+                  <div className="form-group">
+                    <label>結束時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                    <input 
+                      type="datetime-local" 
+                      name="end"
+                      value={editOrder?.end ? 
+                        new Date(new Date(editOrder.end).getTime() - new Date().getTimezoneOffset() * 60000)
+                          .toISOString().slice(0, 16) : ""} 
+                      onChange={(e) => {
+                        const dateValue = e.target.value;
+                        if (dateValue) {
+                          const localDate = new Date(dateValue);
+                          onChange({
+                            target: {
+                              name: 'end',
+                              value: localDate.toISOString()
+                            }
+                          });
+                        } else {
+                          onChange(e);
+                        }
+                      }}
+                      required={needReturnFields}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        minHeight: 38,
+                        background: '#fff',
+                        width: '100%'
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {!needReturnFields && (
+                  <small style={{ color: '#6c757d', gridColumn: '1 / -1' }}>
+                    進行中的訂單無需填寫結束時間和歸還站點
+                  </small>
+                )}
               </div>
             </div>
           </div>

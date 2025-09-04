@@ -129,9 +129,9 @@ const OrderDetailModal = ({
                   gridTemplateColumns: '1fr 1fr',
                   gap: '20px' 
                 }}>
-                  {/* 站點（不可編輯） */}
+                  {/* 租借站點（不可編輯） */}
                   <div className="form-group">
-                    <label>站點</label>
+                    <label>租借站點</label>
                     <div
                       style={{
                         padding: '10px 14px',
@@ -145,9 +145,54 @@ const OrderDetailModal = ({
                         alignItems: 'center'
                       }}
                     >
-                      {sites.find(s => String(s.site_id) === String(editOrder?.site_id))?.site_name || "-"}
+                      {sites.find(s => String(s.site_id) === String(editOrder?.rental_site_id))?.site_name || "-"}
                     </div>
                   </div>
+
+                  {/* 歸還站點（可編輯） - 根據訂單狀態決定是否顯示 */}
+                  {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? (
+                    <div className="form-group">
+                      <label>歸還站點 <span style={{ color: '#dc3545' }}>*</span></label>
+                      <select 
+                        name="return_site_id"
+                        value={editOrder?.return_site_id || ""}
+                        onChange={onChange}
+                        style={{
+                          padding: '10px 14px',
+                          borderRadius: 8,
+                          border: '1px solid #e3e8ee',
+                          minHeight: 38,
+                          background: '#fff'
+                        }}
+                        required
+                      >
+                        <option value="">-- 選擇歸還站點 --</option>
+                        {sites.map(site => (
+                          <option key={site.site_id} value={site.site_id}>
+                            {site.site_name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div className="form-group">
+                      <label>歸還站點</label>
+                      <div
+                        style={{
+                          padding: '10px 14px',
+                          background: '#f0f0f0',
+                          borderRadius: 8,
+                          border: '1px solid #e3e8ee',
+                          color: '#666',
+                          minHeight: 38,
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        進行中訂單無需歸還站點
+                      </div>
+                    </div>
+                  )}
 
                   {/* 充電器（不可編輯） */}
                   <div className="form-group">
@@ -196,11 +241,17 @@ const OrderDetailModal = ({
                       <option value="1">已完成</option>
                       <option value="-1">已取消</option>
                     </select>
+                    <small style={{ color: '#6c757d', fontSize: '12px', display: 'block', marginTop: '4px' }}>
+                      {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? 
+                        '已完成/取消需填寫歸還站點和結束時間' : 
+                        '進行中只需要基本資訊'
+                      }
+                    </small>
                   </div>
 
                   {/* 備註 */}
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                    <label>備註 (comment)</label>
+                    <label>備註</label>
                     <textarea
                       name="comment"
                       value={editOrder?.comment || ""}
@@ -238,27 +289,69 @@ const OrderDetailModal = ({
               ) : (
                 <div className="form-grid" style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: '1fr 1fr',
+                  gridTemplateColumns: editOrder?.order_status === "0" ? '1fr' : '1fr 1fr',
                   gap: '20px' 
                 }}>
                   <div className="form-group">
                     <label>開始時間</label>
                     <input 
                       type="datetime-local" 
-                      value={editOrder?.start_date ? new Date(editOrder.start_date).toISOString().slice(0, 16) : ""} 
+                      value={editOrder?.start_date ? 
+                        new Date(new Date(editOrder.start_date).getTime() - new Date().getTimezoneOffset() * 60000)
+                          .toISOString().slice(0, 16) : ""} 
                       disabled 
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        background: '#f7fafd',
+                        color: '#666',
+                        minHeight: 38
+                      }}
                     />
                   </div>
                   
-                  <div className="form-group">
-                    <label>結束時間 {!editOrder?.end && "(未結束)"}</label>
-                    <input 
-                      type="datetime-local" 
-                      name="end"
-                      value={editOrder?.end ? new Date(editOrder.end).toISOString().slice(0, 16) : ""} 
-                      onChange={onChange}
-                    />
-                  </div>
+                  {/* 結束時間 - 只有已完成或已取消才顯示 */}
+                  {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") && (
+                    <div className="form-group">
+                      <label>結束時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                      <input 
+                        type="datetime-local" 
+                        name="end"
+                        value={editOrder?.end ? 
+                          new Date(new Date(editOrder.end).getTime() - new Date().getTimezoneOffset() * 60000)
+                            .toISOString().slice(0, 16) : ""} 
+                        onChange={(e) => {
+                          const dateValue = e.target.value;
+                          if (dateValue) {
+                            const localDate = new Date(dateValue);
+                            onChange({
+                              target: {
+                                name: 'end',
+                                value: localDate.toISOString()
+                              }
+                            });
+                          } else {
+                            onChange(e);
+                          }
+                        }}
+                        required
+                        style={{
+                          padding: '10px 14px',
+                          borderRadius: 8,
+                          border: '1px solid #e3e8ee',
+                          background: '#fff',
+                          minHeight: 38
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  {editOrder?.order_status === "0" && (
+                    <small style={{ color: '#6c757d', gridColumn: '1 / -1' }}>
+                      進行中的訂單無需填寫結束時間
+                    </small>
+                  )}
                 </div>
               )}
             </div>

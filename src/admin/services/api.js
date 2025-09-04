@@ -231,11 +231,12 @@ const ApiService = {
       uid: payload.uid != null ? Number(payload.uid) : undefined,
       start_date: payload.start_date ? this._normalizeDateTime(payload.start_date) : undefined,
       end: payload.end === '' ? null : this._normalizeDateTime(payload.end),
-      site_id: payload.site_id != null ? Number(payload.site_id) : undefined,
-      rental_site_id: typeof payload.rental_site_id !== 'undefined' ? String(payload.rental_site_id) : undefined,
+      rental_site_id: payload.rental_site_id != null ? Number(payload.rental_site_id) : undefined, // 改這裡
+      return_site_id: payload.return_site_id != null ? Number(payload.return_site_id) : undefined, // 新增這裡
       order_status: payload.order_status,
       charger_id: payload.charger_id != null ? Number(payload.charger_id) : undefined,
       comment: typeof payload.comment !== 'undefined' ? String(payload.comment) : undefined,
+      total_amount: payload.total_amount != null ? Number(payload.total_amount) : undefined, // 新增這裡
     };
 
     // 移除 undefined 欄位
@@ -249,39 +250,83 @@ const ApiService = {
     });
   },
 
+  // 獲取單個用戶資訊 - 加強錯誤處理
+  async getUserById(uid) {
+    console.log('API: 查詢用戶 ID:', uid, typeof uid); // 加入 debug 日誌
+    
+    if (!uid) {
+      throw new Error('用戶ID不能為空');
+    }
+    
+    try {
+      const result = await this.request(`/api/users/${uid}`);
+      console.log('API: 查詢用戶成功:', result); // 加入 debug 日誌
+      return result;
+    } catch (error) {
+      console.error('API: 查詢用戶失敗:', error);
+      
+      // 提供更友善的錯誤訊息
+      if (error.status === 404) {
+        throw new Error('用戶不存在');
+      } else if (error.status >= 500) {
+        throw new Error('伺服器錯誤，請稍後再試');
+      }
+      
+      throw error;
+    }
+  },
+
+  // 訂單 CRUD - 修正新增訂單（這個要改）
   async createOrder(payload) {
+    console.log('Creating order with payload:', payload);
+
+    // 驗證必填欄位 - 修正為 rental_site_id
+    const errors = [];
+    if (!payload.uid || Number.isNaN(Number(payload.uid))) {
+      errors.push("用戶 ID 不能為空且必須為數字");
+    }
+    if (!payload.start_date) {
+      errors.push("開始時間不能為空");
+    }
+    if (!payload.rental_site_id || Number.isNaN(Number(payload.rental_site_id))) { // 改這裡
+      errors.push("租借站點不能為空且必須為數字");
+    }
+    if (payload.order_status === undefined || payload.order_status === null || payload.order_status === '') {
+      errors.push("訂單狀態不能為空");
+    }
+    if (!payload.charger_id || Number.isNaN(Number(payload.charger_id))) {
+      errors.push("充電器不能為空且必須為數字");
+    }
+
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+
     const body = {
       uid: Number(payload.uid),
       start_date: this._normalizeDateTime(payload.start_date),
       end: payload.end ? this._normalizeDateTime(payload.end) : null,
-      site_id: payload.site_id != null ? Number(payload.site_id) : undefined,
-      rental_site_id: typeof payload.rental_site_id !== 'undefined' ? String(payload.rental_site_id) : (payload.site_id != null ? String(payload.site_id) : undefined),
-      order_status: String(payload.order_status ?? "").trim(),
+      rental_site_id: Number(payload.rental_site_id), // 改這裡
+      return_site_id: payload.return_site_id ? Number(payload.return_site_id) : null, // 新增這裡
+      order_status: String(payload.order_status),
       charger_id: Number(payload.charger_id),
-      comment: typeof payload.comment !== 'undefined' ? String(payload.comment) : undefined,
+      comment: payload.comment || null,
+      total_amount: payload.total_amount || 0 // 新增這裡
     };
 
-    // 驗證必填欄位（放寬：支援 rental_site_id 或 site_id）
-    if (!body.uid || Number.isNaN(body.uid)) {
-      throw new Error("用戶 ID 不能為空且必須為數字");
-    }
-    if (!body.start_date) {
-      throw new Error("開始時間不能為空");
-    }
-    if ((!body.site_id && !body.rental_site_id) || (body.site_id && Number.isNaN(body.site_id))) {
-      throw new Error("站點 ID 不能為空且必須為數字或提供 rental_site_id");
-    }
-    if (!body.order_status) {
-      throw new Error("訂單狀態不能為空");
-    }
-    if (!body.charger_id || Number.isNaN(body.charger_id)) {
-      throw new Error("充電器 ID 不能為空且必須為數字");
-    }
+    console.log('Normalized order body:', body);
 
-    return this.request(`/api/orders`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    try {
+      const result = await this.request(`/api/orders`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      console.log('Order created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create order:', error);
+      throw error;
+    }
   },
 
   async getSystemStatus() {
@@ -302,17 +347,17 @@ const ApiService = {
       throw new Error("用戶ID不能為空");
     }
     
-    if (!data.site_id) {
-      throw new Error("站點不能為空");
+    if (!data.rental_site_id) { // 改這裡
+      throw new Error("租借站點不能為空");
     }
     
     if (!data.charger_id) {
       throw new Error("充電器不能為空");
     }
     
-    // 發送請求
+    // 發送請求 - 修正 URL
     try {
-      const response = await fetch('/api/orders', {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, { // 加入完整 URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -335,19 +380,24 @@ const ApiService = {
 
 // 訂單相關 API 函數
 export const saveOrderData = async (orderData) => {
-  // 檢查必要欄位
-  const requiredFields = ['uid', 'user_name', 'site_id', 'charger_id', 'start_date'];
+  // 修正必要欄位檢查
+  const requiredFields = ['uid', 'rental_site_id', 'charger_id', 'start_date']; // 改這裡
   for (const field of requiredFields) {
     if (!orderData[field]) {
-      throw new Error(`${field === 'start_date' ? '開始時間' : field} 不能為空`);
+      const fieldName = {
+        'uid': '用戶ID',
+        'rental_site_id': '租借站點', // 改這裡
+        'charger_id': '充電器',
+        'start_date': '開始時間'
+      }[field] || field;
+      throw new Error(`${fieldName} 不能為空`);
     }
   }
 
   console.log('發送訂單資料到後端:', orderData);
 
   try {
-    // 呼叫您的 API 端點
-    const response = await fetch('/api/orders', {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

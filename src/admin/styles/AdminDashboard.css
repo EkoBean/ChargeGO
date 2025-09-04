@@ -444,6 +444,20 @@ body {
 .mini-stat.danger .number { color: var(--color-danger); }
 .mini-stat.info .number { color: var(--color-info); }
 
+/* 讓統計卡片置中 */
+.stats-mini-grid.centered {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.charger-list {
+  margin-top: 16px;
+  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 8px;
+}
+
 /* 加載和錯誤畫面 */
 .loading-screen, .error-screen {
   height: 100%;
@@ -755,7 +769,6 @@ body {
   }
 }
 
-/* 建議加入到 src/admin/views/AdminDashboard.css 或全域樣式 */
 .btn-large {
   font-size: 2rem;
   padding: 24px 0;

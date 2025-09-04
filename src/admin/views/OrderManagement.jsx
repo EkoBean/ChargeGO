@@ -62,19 +62,26 @@ const OrderManagement = () => {
   // 從 API 載入訂單和站點資料
   const loadOrders = async () => {
     try {
-      // 優先使用 context 提供的整體載入函式（如果有）
-      if (typeof loadAllData === "function") {
-        await loadAllData();
-        return;
-      }
-
-      // fallback：單獨抓取訂單（避免使用未宣告的 setLoading/setError）
-      const [ordersData] = await Promise.all([
-        ApiService.getOrders(),
-      ]);
-      setOrders(ordersData || []);
-    } catch (err) {
-      console.error("Failed to load orders:", err);
+      console.log('載入訂單列表...');
+      const ordersData = await ApiService.getOrders();
+      console.log('訂單載入成功，數量:', ordersData.length);
+      
+      // 確保前端也按 order_ID 降序排序（雙重保險）
+      const sortedOrders = ordersData.sort((a, b) => {
+        const orderIdA = parseInt(a.order_ID) || 0;
+        const orderIdB = parseInt(b.order_ID) || 0;
+        return orderIdB - orderIdA; // 降序：大的在前面
+      });
+      
+      console.log('訂單排序後:', sortedOrders.slice(0, 5).map(o => ({ 
+        order_ID: o.order_ID, 
+        start_date: o.start_date 
+      })));
+      
+      setOrders(sortedOrders);
+    } catch (error) {
+      console.error('載入訂單失敗:', error);
+      alert('載入訂單失敗: ' + error.message);
     }
   };
 
@@ -129,69 +136,156 @@ const OrderManagement = () => {
     { total: 0, completed: 0, active: 0, cancelled: 0, other: 0 }
   );
 
-  // 查看訂單詳情（改為把現有欄位預載入 editOrder，並載入站點充電器清單）
+  // 儲存編輯後的訂單資料
+  const handleSaveEditOrder = async () => {
+    const status = editOrder?.order_status || "0";
+    
+    console.log('準備儲存編輯的訂單，當前 editOrder:', editOrder);
+    
+    // 基本必填欄位驗證
+    const errors = [];
+    if (!editOrder.uid) errors.push('用戶ID');
+    if (!editOrder.start_date) errors.push('開始時間');
+    if (!editOrder.rental_site_id) errors.push('租借站點');
+    if (!editOrder.charger_id) errors.push('充電器');
+    
+    // 根據訂單狀態追加驗證
+    if (status === "1" || status === "-1") { // 已完成或已取消
+      if (!editOrder.return_site_id) errors.push('歸還站點');
+      if (!editOrder.end) errors.push('結束時間');
+    }
+    
+    if (errors.length > 0) {
+      alert(`請填寫所有必要欄位: ${errors.join(', ')}`);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // 準備更新資料
+      const updateData = {
+        uid: Number(editOrder.uid),
+        start_date: editOrder.start_date,
+        end: (status === "1" || status === "-1") ? editOrder.end : null,
+        rental_site_id: Number(editOrder.rental_site_id),
+        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? Number(editOrder.return_site_id) : null,
+        order_status: status,
+        charger_id: Number(editOrder.charger_id),
+        comment: editOrder.comment || '',
+        total_amount: editOrder.total_amount || 0
+      };
+      
+      console.log('準備傳送的更新資料:', updateData);
+      
+      // 呼叫更新 API
+      const updatedOrder = await ApiService.updateOrder(selectedOrder.order_ID, updateData);
+      console.log('訂單更新成功:', updatedOrder);
+      
+      // 更新訂單列表
+      setOrders(prev => prev.map(order => 
+        order.order_ID === selectedOrder.order_ID ? updatedOrder : order
+      ));
+      
+      // 關閉編輯模式
+      setIsEditingOrder(false);
+      setShowDetailModal(false);
+      setEditOrder(null);
+      setSelectedOrder(null);
+      
+      alert('訂單更新成功！');
+      
+      // 重新載入訂單列表
+      await loadOrders();
+      
+    } catch (error) {
+      console.error('更新訂單失敗:', error);
+      alert(`更新訂單失敗: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 查看訂單詳情 - 修正欄位對應
   const handleViewOrder = (order) => {
     const mapped = {
       ...order,
-      // 對應可能的欄位名稱
-      site_id: order.rental_site_id ?? order.site_id ?? "",
-      charger_id: order.charger_id ?? "",
-      start_date: order.start_date ?? "",
-      end: order.end ?? "",
-      comment: order.comment ?? "",
+      rental_site_id: order.rental_site_id || "", // 使用正確欄位名稱
+      return_site_id: order.return_site_id || "",
+      charger_id: order.charger_id || "",
+      start_date: order.start_date || "",
+      end: order.end || "",
+      comment: order.comment || "",
+      user_name: order.user_name || "",
+      total_amount: order.total_amount || 0,
     };
+    
+    console.log('查看訂單詳情:', mapped);
+    
     setSelectedOrder(order);
     setEditOrder(mapped);
     setIsEditingOrder(false);
     setCreatingOrder(false);
     setShowDetailModal(true);
 
-    // 立即載入該站點的 chargers，避免使用者還要重新選站
-    const siteId = mapped.site_id;
+    // 載入該站點的充電器
+    const siteId = mapped.rental_site_id;
     if (siteId) {
+      console.log('載入站點充電器:', siteId);
       ApiService.getSiteChargers(siteId)
-        .then(setOrderSiteChargers)
-        .catch(() => setOrderSiteChargers([]));
+        .then(chargers => {
+          console.log('載入充電器成功:', chargers);
+          setOrderSiteChargers(chargers);
+        })
+        .catch(error => {
+          console.error('載入充電器失敗:', error);
+          setOrderSiteChargers([]);
+        });
     } else {
       setOrderSiteChargers([]);
     }
   };
 
-  // 新增訂單
+  // 新增訂單 - 修正欄位名稱
   const handleAddOrder = () => {
     const defaultSite = sites[0]?.site_id || "";
     const blank = {
       uid: "",
-      site_id: defaultSite,
+      rental_site_id: defaultSite, 
+      return_site_id: "", 
       order_status: "0",
       charger_id: "",
       comment: "",
-      start_date: "",
+      start_date: new Date().toISOString().slice(0, 16),
       end: "",
     };
+    
     setSelectedOrder(blank);
     setEditOrder(blank);
     setIsEditingOrder(true);
     setCreatingOrder(true);
     setShowCreateModal(true);
 
-    // 載入預設站點的充電器（若有）
     if (defaultSite) {
       ApiService.getSiteChargers(defaultSite)
         .then(setOrderSiteChargers)
         .catch(() => setOrderSiteChargers([]));
-    } else {
-      setOrderSiteChargers([]);
     }
   };
 
-  // 訂單欄位變更處理
+  // 訂單欄位變更處理 - 修正欄位名稱
   const handleOrderFieldChange = (e) => {
     const { name, value } = e.target;
+    
+    // 如果是用戶ID欄位，使用特殊處理函數
+    if (name === 'uid') {
+      handleUserIdChange(e);
+      return;
+    }
+    
     setEditOrder((prev) => {
       const next = { ...prev, [name]: value };
-      if (name === "site_id") {
-        // 切換站點時清空/預選 charger，並立刻載入新站點 chargers
+      if (name === "rental_site_id") { // 改為 rental_site_id
+        // 切換站點時清空充電器選項
         next.charger_id = "";
         const sid = value;
         if (sid) {
@@ -206,56 +300,95 @@ const OrderManagement = () => {
     });
   };
 
-  // 儲存訂單
-  const handleSaveOrder = async () => {
-    setSaving(true);
+  // 新增：處理用戶ID變更時自動帶入用戶名稱
+  const handleUserIdChange = async (e) => {
+    const { name, value } = e.target;
     
+    // 更新用戶ID
+    setEditOrder(prev => ({ ...prev, [name]: value, user_name: '' }));
+    
+    // 如果輸入的是有效的用戶ID，嘗試獲取用戶資訊
+    if (name === 'uid' && value && /^\d+$/.test(value)) {
+      try {
+        const user = await ApiService.getUserById(Number(value));
+        setEditOrder(prev => ({ ...prev, user_name: user.user_name }));
+      } catch (error) {
+        console.error('獲取用戶資訊失敗:', error);
+        setEditOrder(prev => ({ ...prev, user_name: '用戶不存在' }));
+      }
+    }
+  };
+
+  // 儲存訂單 - 修正驗證邏輯
+  const handleSaveOrder = async () => {
+    const status = editOrder?.order_status || "0";
+    
+    console.log('準備儲存訂單，當前 editOrder:', editOrder);
+    
+    // 基本必填欄位驗證
+    const errors = [];
+    if (!editOrder.uid) errors.push('用戶ID');
+    if (!editOrder.start_date) errors.push('開始時間');
+    if (!editOrder.rental_site_id) errors.push('租借站點');
+    if (!editOrder.charger_id) errors.push('充電器');
+    
+    // 根據訂單狀態追加驗證
+    if (status === "1" || status === "-1") { // 已完成或已取消
+      if (!editOrder.return_site_id) errors.push('歸還站點');
+      if (!editOrder.end) errors.push('結束時間');
+    }
+    
+    if (errors.length > 0) {
+      alert(`請填寫所有必要欄位: ${errors.join(', ')}`);
+      return;
+    }
+
+    setSaving(true);
     try {
-      // 深拷貝訂單資料以進行處理
-      const orderToSave = { ...editOrder };
+      // 準備資料
+      const orderData = {
+        uid: Number(editOrder.uid),
+        start_date: editOrder.start_date,
+        end: (status === "1" || status === "-1") ? editOrder.end : null, // 只有完成/取消時才傳送結束時間
+        rental_site_id: Number(editOrder.rental_site_id),
+        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? Number(editOrder.return_site_id) : null, // 只有完成/取消時才傳送歸還站點
+        order_status: status,
+        charger_id: Number(editOrder.charger_id),
+        comment: editOrder.comment || '',
+        total_amount: editOrder.total_amount || 0
+      };
       
-      // 確保開始時間存在並格式正確
-      if (!orderToSave.start_date) {
-        throw new Error('開始時間不能為空');
-      }
+      console.log('準備傳送的訂單資料:', orderData);
       
-      // 確保日期格式正確 (ISO 字串)
-      if (typeof orderToSave.start_date === 'string' && orderToSave.start_date) {
-        // 確保是有效的 ISO 字串
-        try {
-          new Date(orderToSave.start_date).toISOString();
-        } catch (e) {
-          // 如果不是有效的日期字串，嘗試修正格式
-          console.warn('開始時間格式錯誤，嘗試修正');
-          orderToSave.start_date = new Date(orderToSave.start_date).toISOString();
-        }
-      }
+      const savedOrder = await ApiService.createOrder(orderData);
+      console.log('訂單建立成功:', savedOrder);
       
-      // 如果有結束時間，也確保其格式正確
-      if (orderToSave.end) {
-        try {
-          orderToSave.end = new Date(orderToSave.end).toISOString();
-        } catch (e) {
-          console.error('結束時間格式錯誤');
-          throw new Error('結束時間格式錯誤');
-        }
-      }
-      
-      // 執行儲存，並在提交前記錄最終資料
-      console.log('準備儲存的訂單資料:', orderToSave);
-      
-      // 呼叫 API
-      const response = await saveOrderData(orderToSave);
-      console.log('儲存成功:', response);
+      // 將新訂單添加到列表最前面
+      setOrders(prev => {
+        const updatedOrders = [savedOrder, ...prev];
+        // 重新按 order_ID 排序確保順序正確
+        return updatedOrders.sort((a, b) => {
+          const orderIdA = parseInt(a.order_ID) || 0;
+          const orderIdB = parseInt(b.order_ID) || 0;
+          return orderIdB - orderIdA;
+        });
+      });
       
       // 關閉模態框
       setShowCreateModal(false);
+      setShowDetailModal(false);
+      setIsEditingOrder(false);
+      setCreatingOrder(false);
+      setEditOrder(null);
       
-      // 重新載入訂單列表或其他後續處理...
+      alert('訂單建立成功！');
+      
+      // 重新載入訂單列表
+      await loadOrders();
       
     } catch (error) {
       console.error('儲存訂單失敗:', error);
-      alert(`儲存失敗: ${error.message}`);
+      alert(`儲存訂單失敗: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -282,20 +415,25 @@ const OrderManagement = () => {
     return site ? site.site_name : "-";
   }
 
-  // 開啟新增訂單的 Modal
+  // 開啟新增訂單的 Modal - 修正預設值
   const handleOpenCreateModal = () => {
     setShowCreateModal(true);
     
-    // 設定預設值，特別是確保開始時間有效
     const now = new Date();
     setEditOrder({
-      order_status: "0", // 預設進行中
-      start_date: now.toISOString(), // 使用 ISO 格式的當前時間
-      site_id: "", // 初始化其他必填欄位
       uid: "",
       user_name: "",
-      charger_id: ""
+      start_date: now.toISOString(), // 使用完整的 ISO 格式
+      end: "",
+      rental_site_id: "", // 確保使用正確欄位名稱
+      return_site_id: "", 
+      order_status: "0", // 預設為進行中
+      charger_id: "",
+      comment: "",
+      total_amount: 0,
     });
+    
+    setOrderSiteChargers([]);
   };
 
   return (
@@ -452,19 +590,22 @@ const OrderManagement = () => {
           order={selectedOrder}
           editOrder={editOrder}
           isEditing={isEditingOrder}
-          creating={creatingOrder}
           saving={saving}
           sites={sites}
           siteChargers={orderSiteChargers}
           onEdit={() => setIsEditingOrder(true)}
           onCancel={() => {
-            setEditOrder(selectedOrder);
             setIsEditingOrder(false);
-            setCreatingOrder(false);
+            setEditOrder({ ...selectedOrder });
           }}
-          onSave={handleSaveOrder}
+          onSave={handleSaveEditOrder} // 使用正確的函數名
           onChange={handleOrderFieldChange}
-          onClose={() => !saving && setShowDetailModal(false)}
+          onClose={() => {
+            setShowDetailModal(false);
+            setIsEditingOrder(false);
+            setSelectedOrder(null);
+            setEditOrder(null);
+          }}
           getOrderStatusText={getOrderStatusText}
         />
       )}
