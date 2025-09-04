@@ -10,6 +10,8 @@ const defaultOptions = {
 const ApiService = {
   async request(endpoint, options = {}) {
     try {
+      console.log('發送 API 請求:', `${API_BASE_URL}${endpoint}`); // 加入 debug
+    
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...defaultOptions,
         ...options,
@@ -20,10 +22,14 @@ const ApiService = {
       });
 
       const responseText = await response.text();
+      console.log('API 回應狀態:', response.status); // 加入 debug
+      console.log('API 回應內容:', responseText); // 加入 debug
+    
       let data;
       try {
         data = responseText ? JSON.parse(responseText) : null;
       } catch (e) {
+        console.error('JSON 解析失敗:', e);
         data = responseText;
       }
 
@@ -375,6 +381,91 @@ const ApiService = {
       console.error('API 錯誤:', error);
       throw error;
     }
+  },
+
+  // 活動相關 API - 新增這些方法
+  async getEvents() {
+    return this.request('/api/events');
+  },
+
+  async getEventById(eventId) {
+    return this.request(`/api/events/${eventId}`);
+  },
+
+  async createEvent(payload) {
+    console.log('Creating event with payload:', payload);
+
+    const body = {
+      event_title: String(payload.event_title || "").trim(),
+      event_content: String(payload.event_content || "").trim(),
+      site_id: payload.site_id || null,
+      event_start_date: payload.event_start_date,
+      event_end_date: payload.event_end_date
+    };
+
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.event_title) errors.push("活動標題不能為空");
+    if (!body.event_content) errors.push("活動內容不能為空");
+    if (!body.event_start_date) errors.push("開始時間不能為空");
+    if (!body.event_end_date) errors.push("結束時間不能為空");
+
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+
+    console.log('Normalized event body:', body);
+
+    try {
+      const result = await this.request(`/api/events`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      console.log('Event created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create event:', error);
+      throw error;
+    }
+  },
+
+  async updateEvent(eventId, payload) {
+    const body = {
+      event_title: payload.event_title,
+      event_content: payload.event_content,
+      site_id: payload.site_id || null,
+      event_start_date: payload.event_start_date,
+      event_end_date: payload.event_end_date
+    };
+
+    // 移除 undefined 欄位
+    Object.keys(body).forEach(key => 
+      body[key] === undefined && delete body[key]
+    );
+
+    return this.request(`/api/events/${eventId}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  },
+
+  async deleteEvent(eventId) {
+    return this.request(`/api/events/${eventId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // 發送活動給用戶
+  async sendEventToUsers(eventId, targetUsers) {
+    return this.request(`/api/events/${eventId}/send`, {
+      method: 'POST',
+      body: JSON.stringify({ targetUsers }),
+    });
+  },
+
+  // 獲取活躍用戶列表
+  async getActiveUsers() {
+    return this.request('/api/users/active');
   },
 };
 
