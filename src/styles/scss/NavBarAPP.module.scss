@@ -1,0 +1,257 @@
+@use './global.module.scss' as g;
+// variable
+$breakpoints: (
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px
+);
+$icon-sizes: (
+    base: 30px,
+    sm: 36px,
+    md: 40px,
+    lg: 48px
+);
+
+
+// xs <576px
+
+.navbar-phone-container {
+
+    display: flex;
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80vw;
+    height: 50px;
+    background: g.$primary;
+    border-radius: 32px;
+    box-shadow: 0 4px 24px 0 #d6f7a8;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 9999;
+
+}
+
+.icon {
+    // width: 24px !important;
+    // height: 24px !important;
+    transition: 1 ease;
+}
+
+.icon img,
+.icon svg {
+    width: map-get($icon-sizes, base);
+    height: map-get($icon-sizes, base);
+    position: relative;
+    top: -5px;
+}
+
+.icon img#map {
+    width: map-get($icon-sizes, base) * 1.5;
+    height: map-get($icon-sizes, base) * 1.5;
+    position: relative;
+    top: -8px;
+}
+
+.navbar-phone-notification {
+    width: 22px;
+    height: 22px;
+    font-size: 1em;
+    top: 4px;
+    right: 4px;
+}
+
+
+/* 可根據需要調整 icon 間距與 hover 效果 */
+.icon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s;
+}
+
+.icon:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+
+
+
+
+
+// sm >= 576px
+@media (min-width: 576px) {
+    .navbar-phone-container {
+        position: sticky;
+        top: 0px;
+        left: 50%;
+        transform: translateX(0%);
+        width: 100vw;
+
+        background: g.$primary;
+        border-radius: 0 0 50% 50%;
+        box-shadow: 0 4px 24px 0 #d6f7a8;
+        padding: 2rem;
+        padding-top: 2.7rem;
+        padding-bottom: 3.1rem;
+
+        // flex option
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+
+
+
+        .icon img,
+        .icon svg {
+            margin: 0.5rem;
+            width: map-get($icon-sizes, sm);
+            height: map-get($icon-sizes, sm);
+            position: relative;
+            top: -2px;
+        }
+
+        .icon img#map {
+            width: map-get($icon-sizes, sm) * 1.5;
+            height: map-get($icon-sizes, sm) * 1.5;
+            position: relative;
+            top: -8px;
+            /* 只調整 map icon 垂直位置 */
+        }
+
+        .navbar-phone-notification {
+            width: 22px;
+            height: 22px;
+            font-size: 1em;
+            top: 4px;
+            right: 4px;
+        }
+    }
+
+}
+
+
+/* md >= 768px */
+@media (min-width: 768px) {
+    .navbar-phone-container {
+
+        transform: translateX(-50%);
+        width: 96vw;
+        max-width: 450px;
+        height: 70px;
+        background: #f7d447;
+        border-radius: 32px;
+        box-shadow: 0 4px 24px 0 #d6f7a8;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 1000;
+    }
+    .icon {
+        width: 40px;
+        height: 40px;
+    }
+    .icon img,
+    .icon svg {
+        width: 40px;
+        height: 40px;
+        position: relative;
+        top: -5px;
+    }
+    .icon img#map {
+        width: 62px;
+        height: 62px;
+        position: relative;
+        top: -15px; /* 只調整 map icon 垂直位置 */
+    }
+    .navbar-phone-notification {
+        width: 22px;
+        height: 22px;
+        font-size: 1em;
+        top: 4px;
+        right: 4px;
+    }
+}
+
+
+// /* lg >= 992pxpx */
+// @media (min-width: 992px){
+//    .navbar-phone-container {
+
+//         transform: translateX(-50%);
+//         width: 90vw;
+//         max-width: 800px;
+//         height: 100px;
+//         background: #f7d447;
+//         border-radius: 45px;
+//         box-shadow: 0 4px 24px 0 #d6f7a8;
+//         align-items: center;
+//         justify-content: space-around;
+//         z-index: 1000;
+//     }
+//     .icon {
+//         width: 40px;
+//         height: 40px;
+//     }
+//     .icon img,
+//     .icon svg {
+//         width: 60px;
+//         height: 60px;
+//         position: relative;
+//         top: -10px;
+//     }
+//     .icon img#map {
+//         width: 90px;
+//         height: 90px;
+//         position: relative;
+//         top: -25px; /* 只調整 map icon 垂直位置 */
+//     }
+//     .navbar-phone-notification {
+//         width: 22px;
+//         height: 22px;
+//         font-size: 1em;
+//         top: 4px;
+//         right: 4px;
+//     } 
+// }
+
+/* xl >= 1200px */
+// @media (min-width: 1200px){
+//    .navbar-phone-container {
+//         transform: translateX(-50%);
+//         width: 90vw;
+//         max-width: 800px;
+//         height: 100px;
+//         background: #f7d447;
+//         border-radius: 50px;
+//         box-shadow: 0 4px 24px 0 #d6f7a8;
+//         align-items: center;
+//         justify-content: space-around;
+//         z-index: 1000;
+//     }
+//     .icon {
+//         width: 40px;
+//         height: 40px;
+//     }
+//     .icon img,
+//     .icon svg {
+//         width: 60px;
+//         height: 60px;
+//          position: relative;
+//         top: -15px; /* 位置微調，可依需求調整數值 */
+//     }
+
+//     .icon img#map {
+//         width: 90px;
+//         height: 90px;
+//         position: relative;
+//         top: -30px; /* 只調整 map icon 垂直位置 */
+//     }
+//     .navbar-phone-notification {
+//         width: 22px;
+//         height: 22px;
+//         font-size: 1em;
+//         top: 4px;
+//         right: 4px;
+//     } 
+// }

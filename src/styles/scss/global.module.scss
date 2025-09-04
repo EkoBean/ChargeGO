@@ -5,7 +5,6 @@ $primary: #f0be52;
 $secondary: #f16100;
 $success: #00ff3c;
 $danger: #d65562;
-
 $primary-hover: darken($primary, 10%);
 $secondary-hover: darken($secondary, 10%);
 $success-hover: darken($success, 10%);
@@ -32,33 +31,5 @@ body {
   line-height: 1.6;
 }
 
-// 自訂按鈕樣式
-.btn-custom {
-  background-color: #ff6b6b;
-  border-color: #ff6b6b;
-  color: white;
 
-  &:hover {
-    background-color: #ff5252;
-    border-color: #ff5252;
-  }
-}
-
-// 自訂卡片樣式
-.card-custom {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-
-  .card-header {
-    background-color: bs.$primary;
-    color: white;
-    border-radius: 10px 10px 0 0;
-  }
-}
-
-// 響應式設計範例
-@media (max-width: 768px) {
-  .container {
-    padding: 0 15px;
-  }
-}
+// ==============================================
