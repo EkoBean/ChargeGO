@@ -22,6 +22,7 @@ import Coupon from "./mall/coupon";
 import CheckoutCoupons from "./mall/coupon";
 import NavbarWebsite from "../components/NavbarWebsite";
 import Task from "./membersystem/Task";
+import Mber_RentRecord from "./membersystem/mber_rentRecord";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="/mber_info" element={<Mber_info />} />
         <Route path="/Mber_discount" element={<Mber_discount />} />
+        <Route path="/mber_rentRecord" element={<Mber_RentRecord />} />
         {/* <Route path="/register" element={<Register />} /> */}
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/mber_login" element={<Mbre_login />} />

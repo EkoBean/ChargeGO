@@ -31,8 +31,9 @@ const Mber_discount = () => {
 
   useEffect(() => {
     if (!uid) return;
+    // 取得優惠券（改用 session API，不需傳 uid）
     axios
-      .get(`${API_BASE}/user/${uid}/coupons`)
+      .get(`${API_BASE}/user/session/coupons`, { withCredentials: true })
       .then((res) => setCoupons(res.data))
       .catch(() => setCoupons([]));
     // 取得點數
