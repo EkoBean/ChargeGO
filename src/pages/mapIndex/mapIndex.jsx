@@ -62,7 +62,7 @@ const markerBus = new Bus();
 const listBus = new Bus();
 
 // =============== Main function ===========================
-function AppIndex() {
+function MapIndex() {
   const [stations, setStations] = React.useState([]);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = React.useState(false);
 
@@ -798,4 +798,4 @@ function AppIndex() {
   );
 }
 
-export default AppIndex;
+export default MapIndex;
