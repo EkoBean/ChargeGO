@@ -8,7 +8,7 @@ import { Routes, Route } from "react-router-dom";
 
 // =========== elements ==================
 import NavBar from "../components/nav";
-import AppIndex from "./mapIndex/AppIndex";
+import MapIndex from "./mapIndex/mapIndex";
 // import Register from "./membersystem/register";
 // import Login from "./membersystem/login";
 import Mission from "./mall/mission";
@@ -26,7 +26,7 @@ function App() {
       <Routes>
         {/* <Route path="/" element={<Login />} /> */}
         <Route path="/" element={<NavbarWebsite />} />
-        <Route path="/AppIndex" element={<AppIndex />} />
+        <Route path="/MapIndex" element={<MapIndex />} />
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
