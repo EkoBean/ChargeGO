@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css'; 
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminDataProvider } from './context/AdminDataContext';
@@ -13,8 +12,10 @@ import ActivityBroadcast from './views/ActivityBroadcast';
 import StaffLogs from './views/StaffLogs';
 import TaskManagement from './views/TaskManagement';
 
-import './App.css';
-import './styles/AdminDashboard.css';
+// 先載入 Bootstrap，再載入自定義樣式，確保自定義樣式優先
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import '../styles/scss/adminstyle/frontend.scss';
+import '../styles/scss/adminstyle/AdminDashboard.scss';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -50,6 +51,7 @@ function App() {
     <AdminDataProvider>
       <AdminLayout onLogout={handleLogout}>
         <Routes>
+          {/*/dashboard 管理員儀表板 */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<AdminDashboard />} /> 
           <Route path="/users" element={<UserManagement />} />

@@ -1,7 +1,7 @@
 //後台管理系統的整體頁面結構
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import '../styles/AdminDashboard.css';
+import '../../styles/scss/adminstyle/AdminDashboard.scss';
 
 const AdminLayout = ({ children, onLogout }) => {
   const employeeName = localStorage.getItem('employeeName') || '系統管理員';

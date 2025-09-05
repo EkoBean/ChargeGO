@@ -13,7 +13,8 @@
   --color-sidebar-active: #3498db;
 }
 
-/* 基本樣式 */
+/* 基本樣式 - 註解掉全域標籤選擇器，避免影響整個專案 */
+/*
 body {
   font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--color-text);
@@ -21,6 +22,7 @@ body {
   margin: 0;
   padding: 0;
 }
+*/
 
 /* 佈局 */
 .admin-dashboard {
@@ -29,7 +31,7 @@ body {
   min-height: 100vh;
 }
 
-.top-nav {
+.admin-top-nav {
   background-color: white;
   border-bottom: 1px solid var(--color-border);
   display: flex;
@@ -40,7 +42,7 @@ body {
   z-index: 10;
 }
 
-.nav-brand {
+.admin-nav-brand {
   font-weight: 600;
   font-size: 1.2rem;
   display: flex;
@@ -48,44 +50,44 @@ body {
   gap: 8px;
 }
 
-.nav-icon {
+.admin-nav-icon {
   font-size: 1.4rem;
 }
 
-.nav-user {
+.admin-nav-user {
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.dashboard-layout {
+.admin-dashboard-layout {
   display: flex;
   flex: 1;
   height: calc(100vh - 60px);
 }
 
-.sidebar {
+.admin-sidebar {
   width: 220px;
   background-color: var(--color-sidebar-bg);
   color: white;
   overflow-y: auto;
 }
 
-.main-content {
+.admin-main-content {
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;
 }
 
 /* 導航 */
-.sidebar-nav {
+.admin-sidebar-nav {
   display: flex;
   flex-direction: column;
   padding: 1rem 0;
 }
 
-.nav-item {
+.admin-nav-item {
   color: white;
   text-decoration: none;
   padding: 0.8rem 1.5rem;
@@ -96,25 +98,25 @@ body {
   border-left: 3px solid transparent;
 }
 
-.nav-item:hover {
+.admin-nav-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
   border-left-color: var(--color-primary);
 }
 
-.nav-item.active {
+.admin-nav-item.admin-active {
   background-color: rgba(52, 152, 219, 0.2);
   border-left-color: var(--color-primary);
 }
 
 /* 儀表板統計卡片 */
-.stats-grid {
+.admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.stat-card {
+.admin-stat-card {
   background-color: white;
   border-radius: 8px;
   padding: 1.2rem;
@@ -124,7 +126,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.stat-icon {
+.admin-stat-icon {
   font-size: 2rem;
   width: 60px;
   height: 60px;
@@ -135,42 +137,42 @@ body {
   background-color: rgba(52, 152, 219, 0.1);
 }
 
-.stat-info h3 {
+.admin-stat-info h3 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
-.stat-info p {
+.admin-stat-info p {
   margin: 4px 0 0;
   font-size: 0.9rem;
   opacity: 0.8;
 }
 
 /* 色彩樣式 */
-.primary { color: var(--color-primary); }
-.success { color: var(--color-success); }
-.warning { color: var(--color-warning); }
-.danger { color: var(--color-danger); }
-.info { color: var(--color-info); }
+.admin-primary { color: var(--color-primary); }
+.admin-success { color: var(--color-success); }
+.admin-warning { color: var(--color-warning); }
+.admin-danger { color: var(--color-danger); }
+.admin-info { color: var(--color-info); }
 
-.stat-card.primary .stat-icon { background-color: rgba(52, 152, 219, 0.1); }
-.stat-card.success .stat-icon { background-color: rgba(46, 204, 113, 0.1); }
-.stat-card.warning .stat-icon { background-color: rgba(243, 156, 18, 0.1); }
-.stat-card.info .stat-icon { background-color: rgba(26, 188, 156, 0.1); }
+.admin-stat-card.admin-primary .admin-stat-icon { background-color: rgba(52, 152, 219, 0.1); }
+.admin-stat-card.admin-success .admin-stat-icon { background-color: rgba(46, 204, 113, 0.1); }
+.admin-stat-card.admin-warning .admin-stat-icon { background-color: rgba(243, 156, 18, 0.1); }
+.admin-stat-card.admin-info .admin-stat-icon { background-color: rgba(26, 188, 156, 0.1); }
 
 /* 主要內容樣式 */
-.dashboard-content h2,
-.users-content h2,
-.sites-content h2,
-.orders-content h2,
-.settings-content h2 {
+.admin-dashboard-content h2,
+.admin-users-content h2,
+.admin-sites-content h2,
+.admin-orders-content h2,
+.admin-settings-content h2 {
   margin-top: 0;
   margin-bottom: 1.5rem;
   font-weight: 600;
 }
 
-.content-header {
+.admin-content-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -178,20 +180,20 @@ body {
 }
 
 /* 儀表板網格 */
-.dashboard-grid {
+.admin-dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
-.dashboard-card {
+.admin-dashboard-card {
   background-color: white;
   border-radius: 8px;
   padding: 1.2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.dashboard-card h3 {
+.admin-dashboard-card h3 {
   margin-top: 0;
   margin-bottom: 1rem;
   font-size: 1.2rem;
@@ -199,122 +201,122 @@ body {
 }
 
 /* 進度條 */
-.status-grid {
+.admin-status-grid {
   display: grid;
   gap: 1rem;
 }
 
-.status-item {
+.admin-status-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.status-item span {
+.admin-status-item span {
   font-size: 0.9rem;
 }
 
-.progress-bar {
+.admin-progress-bar {
   height: 8px;
   background-color: #eee;
   border-radius: 4px;
   overflow: hidden;
 }
 
-.progress-fill {
+.admin-progress-fill {
   height: 100%;
   background-color: var(--color-primary);
   border-radius: 4px;
 }
 
-.progress-fill.warning {
+.admin-progress-fill.admin-warning {
   background-color: var(--color-warning);
 }
 
-.progress-fill.info {
+.admin-progress-fill.admin-info {
   background-color: var(--color-info);
 }
 
 /* 快速操作按鈕 */
-.quick-actions {
+.admin-quick-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.8rem;
 }
 
 /* 按鈕樣式 */
-.btn {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #f5f5f5;
-  color: var(--color-text);
+.admin-btn {
+  padding: 0.6rem 1.2rem !important;
+  border: none !important;
+  border-radius: 4px !important;
+  background-color: #f5f5f5 !important;
+  color: var(--color-text) !important;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s !important;
 }
 
-.btn:hover {
+.admin-btn:hover {
   background-color: #e5e5e5;
 }
 
-.btn.small {
+.admin-btn.admin-small {
   padding: 0.3rem 0.8rem;
   font-size: 0.85rem;
 }
 
-.btn.primary {
+.admin-btn.admin-primary {
   background-color: var(--color-primary);
   color: white;
 }
 
-.btn.primary:hover {
+.admin-btn.admin-primary:hover {
   background-color: #2980b9;
 }
 
-.btn.success {
+.admin-btn.admin-success {
   background-color: var(--color-success);
   color: white;
 }
 
-.btn.success:hover {
+.admin-btn.admin-success:hover {
   background-color: #27ae60;
 }
 
-.btn.warning {
+.admin-btn.admin-warning {
   background-color: var(--color-warning);
   color: white;
 }
 
-.btn.warning:hover {
+.admin-btn.admin-warning:hover {
   background-color: #e67e22;
 }
 
-.btn.info {
+.admin-btn.admin-info {
   background-color: var(--color-info);
   color: white;
 }
 
-.btn.info:hover {
+.admin-btn.admin-info:hover {
   background-color: #16a085;
 }
 
-.btn.danger {
+.admin-btn.admin-danger {
   background-color: var(--color-danger);
   color: white;
 }
 
-.btn.danger:hover {
+.admin-btn.admin-danger:hover {
   background-color: #c0392b;
 }
 
-.btn:disabled {
+.admin-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.action-btn {
+.admin-action-btn {
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
@@ -326,26 +328,26 @@ body {
   cursor: pointer;
 }
 
-.btn-blue   { background: linear-gradient(90deg, #4F8CFF 0%, #6BCBFF 100%); color: #fff; }
-.btn-green  { background: linear-gradient(90deg, #43E97B 0%, #38F9D7 100%); color: #fff; }
-.btn-orange { background: linear-gradient(90deg, #FFB75E 0%, #ED8F03 100%); color: #fff; }
-.btn-gray   { background: linear-gradient(90deg, #ECE9E6 0%, #FFFFFF 100%); color: #333; }
-.btn-purple { background: linear-gradient(90deg, #A770EF 0%, #FDB99B 100%); color: #fff; }
-.btn-teal   { background: linear-gradient(90deg, #43C6AC 0%, #191654 100%); color: #fff; }
-.btn-pink   { background: linear-gradient(90deg, #FFDEE9 0%, #B5FFFC 100%); color: #333; }
+.admin-btn-blue   { background: linear-gradient(90deg, #4F8CFF 0%, #6BCBFF 100%); color: #fff; }
+.admin-btn-green  { background: linear-gradient(90deg, #43E97B 0%, #38F9D7 100%); color: #fff; }
+.admin-btn-orange { background: linear-gradient(90deg, #FFB75E 0%, #ED8F03 100%); color: #fff; }
+.admin-btn-gray   { background: linear-gradient(90deg, #ECE9E6 0%, #FFFFFF 100%); color: #333; }
+.admin-btn-purple { background: linear-gradient(90deg, #A770EF 0%, #FDB99B 100%); color: #fff; }
+.admin-btn-teal   { background: linear-gradient(90deg, #43C6AC 0%, #191654 100%); color: #fff; }
+.admin-btn-pink   { background: linear-gradient(90deg, #FFDEE9 0%, #B5FFFC 100%); color: #333; }
 
-.action-btn:hover {
+.admin-action-btn:hover {
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   opacity: 0.92;
 }
 
 /* 表格樣式 */
-.table-container {
+.admin-table-container {
   overflow-x: auto;
   margin-bottom: 2rem;
 }
 
-.data-table {
+.admin-data-table {
   width: 100%;
   border-collapse: collapse;
   background-color: white;
@@ -353,29 +355,29 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.data-table th,
-.data-table td {
+.admin-data-table th,
+.admin-data-table td {
   padding: 0.8rem 1rem;
   text-align: left;
 }
 
-.data-table th {
+.admin-data-table th {
   background-color: #f9fafb;
   font-weight: 500;
   color: #6b7280;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.data-table tr {
+.admin-data-table tr {
   border-bottom: 1px solid #e5e7eb;
 }
 
-.data-table tr:last-child {
+.admin-data-table tr:last-child {
   border-bottom: none;
 }
 
 /* 標籤樣式 */
-.badge {
+.admin-badge {
   display: inline-block;
   padding: 0.25rem 0.6rem;
   border-radius: 9999px;
@@ -384,40 +386,40 @@ body {
   text-align: center;
 }
 
-.badge.primary {
+.admin-badge.admin-primary {
   background-color: rgba(52, 152, 219, 0.1);
   color: var(--color-primary);
 }
 
-.badge.success {
+.admin-badge.admin-success {
   background-color: rgba(46, 204, 113, 0.1);
   color: var(--color-success);
 }
 
-.badge.warning {
+.admin-badge.admin-warning {
   background-color: rgba(243, 156, 18, 0.1);
   color: var(--color-warning);
 }
 
-.badge.danger {
+.admin-badge.admin-danger {
   background-color: rgba(231, 76, 60, 0.1);
   color: var(--color-danger);
 }
 
-.badge.info {
+.admin-badge.admin-info {
   background-color: rgba(26, 188, 156, 0.1);
   color: var(--color-info);
 }
 
 /* 迷你統計 */
-.stats-row {
+.admin-stats-row {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
 
-.mini-stat {
+.admin-mini-stat {
   background-color: white;
   border-radius: 8px;
   padding: 0.8rem 1.2rem;
@@ -428,30 +430,30 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.mini-stat .number {
+.admin-mini-stat .admin-number {
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.mini-stat .label {
+.admin-mini-stat .admin-label {
   font-size: 0.8rem;
   opacity: 0.8;
 }
 
-.mini-stat.primary .number { color: var(--color-primary); }
-.mini-stat.success .number { color: var(--color-success); }
-.mini-stat.warning .number { color: var(--color-warning); }
-.mini-stat.danger .number { color: var(--color-danger); }
-.mini-stat.info .number { color: var(--color-info); }
+.admin-mini-stat.admin-primary .admin-number { color: var(--color-primary); }
+.admin-mini-stat.admin-success .admin-number { color: var(--color-success); }
+.admin-mini-stat.admin-warning .admin-number { color: var(--color-warning); }
+.admin-mini-stat.admin-danger .admin-number { color: var(--color-danger); }
+.admin-mini-stat.admin-info .admin-number { color: var(--color-info); }
 
 /* 讓統計卡片置中 */
-.stats-mini-grid.centered {
+.admin-stats-mini-grid.admin-centered {
   display: flex;
   justify-content: center;
   gap: 24px;
 }
 
-.charger-list {
+.admin-charger-list {
   margin-top: 16px;
   background: #f8f8f8;
   padding: 12px;
@@ -459,7 +461,7 @@ body {
 }
 
 /* 加載和錯誤畫面 */
-.loading-screen, .error-screen {
+.admin-loading-screen, .admin-error-screen {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -469,31 +471,31 @@ body {
   text-align: center;
 }
 
-.loading-spinner {
+.admin-loading-spinner {
   border: 3px solid rgba(0, 0, 0, 0.1);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 1s linear infinite;
+  animation: admin-spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
-@keyframes spin {
+@keyframes admin-spin {
   to { transform: rotate(360deg); }
 }
 
-.error-message {
+.admin-error-message {
   max-width: 400px;
 }
 
-.error-message h3 {
+.admin-error-message h3 {
   margin-top: 0;
   color: var(--color-danger);
 }
 
 /* 模態框樣式 */
-.modal-overlay {
+.admin-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -506,7 +508,7 @@ body {
   z-index: 100;
 }
 
-.modal-content {
+.admin-modal-content {
   background-color: white;
   border-radius: 8px;
   width: 90%;
@@ -516,7 +518,7 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.modal-header {
+.admin-modal-header {
   padding: 1.2rem;
   border-bottom: 1px solid var(--color-border);
   display: flex;
@@ -524,13 +526,13 @@ body {
   align-items: center;
 }
 
-.modal-header h3 {
+.admin-modal-header h3 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
-.modal-header .close-btn {
+.admin-modal-header .admin-close-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -539,95 +541,95 @@ body {
   margin-left: 1rem;
 }
 
-.modal-body {
+.admin-modal-body {
   padding: 1.2rem;
 }
 
-.modal-table {
+.admin-modal-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
 
-.modal-table th, .modal-table td {
+.admin-modal-table th, .admin-modal-table td {
   padding: 0.5rem;
   border-bottom: 1px solid var(--color-border);
   text-align: left;
 }
 
-.modal-table th {
+.admin-modal-table th {
   font-weight: 500;
   color: #6b7280;
 }
 
 /* 表單樣式 */
-.form-grid {
+.admin-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.form-group {
+.admin-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.form-col-2 {
+.admin-form-col-2 {
   grid-column: span 2;
 }
 
-.form-group label {
+.admin-form-group label {
   font-size: 0.9rem;
   font-weight: 500;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.admin-form-group input,
+.admin-form-group select,
+.admin-form-group textarea {
   padding: 0.6rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.admin-form-group input:focus,
+.admin-form-group select:focus,
+.admin-form-group textarea:focus {
   border-color: var(--color-primary);
   outline: none;
 }
 
-.form-group input:disabled,
-.form-group select:disabled,
-.form-group textarea:disabled {
+.admin-form-group input:disabled,
+.admin-form-group select:disabled,
+.admin-form-group textarea:disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
 }
 
-.form-actions {
+.admin-form-actions {
   margin-top: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.save-success {
+.admin-save-success {
   color: var(--color-success);
   font-size: 0.9rem;
 }
 
-.required {
+.admin-required {
   color: var(--color-danger);
 }
 
 /* 設置頁面 */
-.settings-container {
+.admin-settings-container {
   max-width: 900px;
 }
 
-.setting-card {
+.admin-setting-card {
   background-color: white;
   border-radius: 8px;
   padding: 1.2rem;
@@ -635,52 +637,52 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.setting-card h3 {
+.admin-setting-card h3 {
   margin-top: 0;
   margin-bottom: 1rem;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
-.checkbox {
+.admin-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
 }
 
-.checkbox input {
+.admin-checkbox input {
   width: 16px;
   height: 16px;
 }
 
 /* 詳情區塊 */
-.detail-section {
+.admin-detail-section {
   background-color: #f9fafb;
   padding: 1.2rem;
   border-radius: 8px;
   margin-bottom: 1.2rem;
 }
 
-.detail-section:last-child {
+.admin-detail-section:last-child {
   margin-bottom: 0;
 }
 
-.detail-section h4 {
+.admin-detail-section h4 {
   margin-top: 0;
   margin-bottom: 1rem;
   font-size: 1.1rem;
   font-weight: 500;
 }
 
-.user-details p, 
-.site-details p, 
-.order-details p {
+.admin-user-details p, 
+.admin-site-details p, 
+.admin-order-details p {
   margin: 0.5rem 0;
 }
 
 /* 地圖預覽 */
-.map-preview {
+.admin-map-preview {
   width: 100%;
   height: 300px;
   background-color: #eee;
@@ -688,31 +690,34 @@ body {
   overflow: hidden;
 }
 
-.map-preview img {
+/* 註解掉全域標籤選擇器，避免影響整個專案 */
+/*
+.admin-map-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+*/
 
 /* 迷你統計網格 */
-.stats-mini-grid {
+.admin-stats-mini-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 0.8rem;
 }
 
 /* 地址輸入組合 */
-.address-input-group {
+.admin-address-input-group {
   display: flex;
   gap: 10px;
 }
 
-.address-input-group input {
+.admin-address-input-group input {
   flex: 1;
 }
 
 /* 輸入提示樣式 */
-.input-hint {
+.admin-input-hint {
   display: block;
   font-size: 12px;
   color: #666;
@@ -720,14 +725,14 @@ body {
 }
 
 /* 表單錯誤訊息 */
-.form-error {
+.admin-form-error {
   color: #d32f2f;
   font-size: 12px;
   margin-top: 4px;
 }
 
 /* 空地圖預覽 */
-.empty-map-placeholder {
+.admin-empty-map-placeholder {
   background-color: #f5f5f5;
   border: 1px dashed #ccc;
   height: 200px;
@@ -739,37 +744,37 @@ body {
 
 /* 響應式樣式 */
 @media (max-width: 768px) {
-  .dashboard-layout {
+  .admin-dashboard-layout {
     flex-direction: column;
   }
   
-  .sidebar {
+  .admin-sidebar {
     width: 100%;
     max-height: 300px;
   }
   
-  .quick-actions {
+  .admin-quick-actions {
     grid-template-columns: 1fr;
   }
   
-  .form-grid {
+  .admin-form-grid {
     grid-template-columns: 1fr;
   }
   
-  .form-col-2 {
+  .admin-form-col-2 {
     grid-column: auto;
   }
   
-  .stats-row {
+  .admin-stats-row {
     flex-direction: column;
   }
   
-  .mini-stat {
+  .admin-mini-stat {
     min-width: auto;
   }
 }
 
-.btn-large {
+.admin-btn-large {
   font-size: 2rem;
   padding: 24px 0;
   width: 100%;
@@ -778,10 +783,10 @@ body {
   margin-bottom: 8px;
   display: block;
 }
+
 /* 因OrderManagement 有bootstrap所以加強顯示 */
-.card-selected {
+.admin-card-selected {
   box-shadow: 0 0 0 2px #3498db;
   border: 2px solid #3498db !important;
   background-color: #eaf6fd;
-
 }
