@@ -9,7 +9,7 @@ const addCreditcard = () => {
   return (
     <div className={styles.mber_addCreditcard}>
       <h2>新增信用卡</h2>
-      <form>
+      <form className={styles.addCreditcardForm}>
         <div>
           <label>卡號</label>
           <input type="text" placeholder="請輸入卡號" />
@@ -24,8 +24,10 @@ const addCreditcard = () => {
           <label>CVV</label>
           <input type="text" placeholder="請輸入 CVV" />
         </div>
-        <button type="submit">新增信用卡</button>
-        <button type="button">取消</button>
+        <div className={styles.formButtons}>
+          <button type="submit">新增信用卡</button>
+          <button type="button">取消</button>
+        </div>
       </form>
     </div>
   );
