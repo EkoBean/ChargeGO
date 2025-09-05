@@ -1,4 +1,4 @@
-@use "./global.scss" as mb;
+@use "./tokens.module.scss" as mb;
 
 .login-bg {
   height: 100vh; // 直接設為視窗高度，避免背景過長

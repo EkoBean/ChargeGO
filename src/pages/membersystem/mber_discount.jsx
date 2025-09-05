@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBarAPP from "../../components/NavBarAPP";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import styles from "../../styles/scss/mber_discount.module.scss"; // 改用 module
 
 const Mber_discount = () => {
@@ -49,9 +48,6 @@ const Mber_discount = () => {
       <NavBarAPP />
       <div className={styles.discountHeader}>
         {/* LOGO 置頂 */}
-        <div className={styles.chargegoLogoTop}>
-          <ChargegoLogo />
-        </div>
         <span
           className={styles["back-icon"] + " " + styles["mobile-only-back"]}
           onClick={() => window.history.back()}

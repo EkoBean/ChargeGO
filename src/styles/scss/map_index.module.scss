@@ -1,15 +1,6 @@
-@use './global.scss' as g;
+@use "./tokens.module.scss" as g;
 
 $search-bar-radius: 1.4rem;
-
-
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 #search-bar {
   position: fixed;
@@ -23,7 +14,6 @@ body,
 
 // google map infowindow styles
 .gm-style-iw {
-
   .site-name {
     font-size: 1.2rem;
     font-weight: bold;
@@ -87,14 +77,11 @@ body,
     &::-webkit-scrollbar {
       width: 8px;
       height: 8px;
-
     }
 
     -webkit-scrollbar-button {
       display: none;
     }
-
-
 
     ul {
       list-style: none;
@@ -134,7 +121,6 @@ body,
           color: g.$primary;
           font-weight: bold;
         }
-
       }
     }
   }
@@ -189,7 +175,6 @@ body,
     padding: 2rem 1.5rem 1rem 1.5rem;
     z-index: 1100;
     transition: transform 0.3s ease-in-out;
-
   }
 
   .buttons {
@@ -236,7 +221,6 @@ body,
     transition: all 0.2s ease-in-out;
   }
 
-
   .overtime-overlay {
     position: inherit; // 改為 fixed，覆蓋整個頁面
     top: 0;
@@ -248,8 +232,8 @@ body,
     -webkit-backdrop-filter: blur(2px);
     z-index: 1200; // 低於視窗
     pointer-events: auto;
-    
-    display:flex; 
+
+    display: flex;
     justify-content: center;
     align-items: center;
 
@@ -265,10 +249,8 @@ body,
       transition: all 0.2s ease-in-out;
       z-index: 1201;
 
-
-
       .header {
-        color: g.$danger
+        color: g.$danger;
       }
 
       .handle-btns {
@@ -285,14 +267,8 @@ body,
         button.cancel {
           color: gray;
           filter: grayscale(0.9);
-
         }
       }
-
-
-
     }
-
-
   }
 }

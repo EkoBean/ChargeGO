@@ -1,6 +1,7 @@
-body {
-  background: linear-gradient(180deg, #ffbf00 0%, #fffde7 100%);
-}
+// body {
+//   background: linear-gradient(180deg, #ffbf00 0%, #fffde7 100%);
+// }
+// 請勿使用全域指定標籤
 
 .container {
   width: 100vw;
@@ -23,7 +24,7 @@ body {
 }
 
 .title {
-  font-family: 'Mantou Sans', serif;
+  font-family: "Mantou Sans", serif;
   font-size: 50px;
   letter-spacing: 15px;
   font-weight: 100;
@@ -113,7 +114,7 @@ body {
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition:  0.2s;
+  transition: 0.2s;
 }
 
 .claimBtn:hover {

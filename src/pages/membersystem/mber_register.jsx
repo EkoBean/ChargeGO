@@ -380,9 +380,7 @@ const mber_Register = () => {
                   className={styles["captcha-refresh"]}
                   onClick={() =>
                     setCaptchaValue(
-                      Math.floor(
-                        Math.random() * (999999 - 100000 + 1) + 100000
-                      )
+                      Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
                     )
                   }
                 >
@@ -414,7 +412,10 @@ const mber_Register = () => {
                     checked={form.agreerule}
                     onChange={handleChange}
                   />
-                  <label className={styles["form-check-label"]} htmlFor="agreerule">
+                  <label
+                    className={styles["form-check-label"]}
+                    htmlFor="agreerule"
+                  >
                     同意使用者規範
                   </label>
                 </div>
@@ -468,4 +469,5 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
+
 
