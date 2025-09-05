@@ -1,4 +1,6 @@
-@use "./global.module.scss" as mb;
+@use "./tokens.module.scss" as mb;
+
+
 
 // 手機板專用
 @media (max-width: 480px) {
@@ -54,7 +56,7 @@
     background: #e6ffe6;
     border: 4px solid #fff;
     margin-bottom: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
   }
 
   .mber_info-avatar h1 {

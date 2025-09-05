@@ -1,4 +1,6 @@
-@use "./global.module.scss" as mb;
+@use "./tokens.module.scss" as mb;
+
+
 
 .register-bg {
   min-height: 100vh;
@@ -23,6 +25,8 @@
   z-index: 1;
 }
 
+
+
 .register-container {
   width: 100%;
   max-width: 500px;
@@ -34,6 +38,8 @@
   align-items: center;
   z-index: 2;
 }
+
+
 
 .register-form-section {
   background: rgba(255, 255, 255, 0);
@@ -48,6 +54,7 @@
   align-items: center;
 }
 
+
 .register-title {
   text-align: center;
   font-family: "Mantou sans", serif;
@@ -57,6 +64,8 @@
   margin-bottom: 24px;
   letter-spacing: 2px;
 }
+
+
 
 .register-arrow {
   background: linear-gradient(90deg, #6b4f1d 0%, #ffd600 100%);
@@ -68,6 +77,8 @@
   -webkit-text-fill-color: transparent;
 }
 
+
+
 .register-form {
   display: flex;
   flex-direction: column;
@@ -76,6 +87,8 @@
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
+  
+
 }
 
 .register-form-row {
@@ -97,8 +110,13 @@
 .register-input-group {
   position: relative;
   width: 100%;
-  margin-bottom: 16px; // 與手機版一致
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
+
+
 
 .register-btn,
 .correct-btn,
@@ -122,21 +140,26 @@
   transform: scale(1.2);
 }
 
+
+
+
 .register-label {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  margin-bottom: 6px;
   color: #6b4f1d;
   font-size: 1.1rem;
-  pointer-events: none;
   font-weight: bold;
   letter-spacing: 2px;
-  width: 280px;
+  width: auto;
+  pointer-events: none;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .register-input {
-  padding-left: 80px;
+  padding-left: 18px;
   padding-right: 18px;
   padding-top: 12px;
   padding-bottom: 12px;
@@ -146,28 +169,16 @@
   background: #fff;
   margin-bottom: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  width: 300px; /* 或 100%，依需求調整 */
-}
-
-.register-input#email {
-  padding-left: 120px;
-}
-
-.register-input#confirm-password {
-  padding-left: 120px;
-}
-
-.register-input#city {
-  width: 300px;
-  padding-left: 120px;
+  width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  display: block;
-  margin: 0;
 }
 
-.register-input:focus + .register-label,
-.register-input:not(:placeholder-shown) + .register-label {
-  color: #6b4f1d;
+.register-input#email,
+.register-input#confirm-password,
+.register-input#city {
+  padding-left: 18px;
+  width: 100%;
 }
 
 .register-checkbox-group {
@@ -221,7 +232,7 @@
   .mobile-only {
     display: block;
   }
-
+ 
   .register-container {
     max-width: 100vw;
     padding-top: 24px;
@@ -229,11 +240,13 @@
   .register-form-section {
     max-width: 80vw;
     padding: 0 8px;
+    
   }
   .register-form {
     max-width: 100vw;
     width: 100%;
     gap: 12px;
+   
   }
   .register-form-row {
     flex-direction: column;
@@ -255,9 +268,9 @@
     display: block;
   }
   .register-label {
-    left: 16px;
     font-size: 1rem;
-    width: 120px;
+    width: auto;
+    margin-bottom: 4px;
   }
   .register-input,
   .register-input#city,
@@ -266,7 +279,7 @@
     width: 100%;
     min-width: 0;
     font-size: 1rem;
-    padding-left: 100px;
+    padding-left: 18px;
     padding-right: 12px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -341,4 +354,12 @@
 .back-icon:hover {
   color: #ffd600;
   transform: scaleX(1.2);
+
+  padding: 8px 16px;
+  transition: 0.2s ease;
 }
+.back-icon:hover {
+  color: #ffd600;
+  transform: scaleX(1.2);
+}
+

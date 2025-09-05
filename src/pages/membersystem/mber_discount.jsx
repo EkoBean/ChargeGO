@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBarAPP from "../../components/NavBarAPP";
-import ChargegoLogo from "../../components/ChargegoLogo";
-import "../../styles/scss/mber_discount.scss"; // 新增引入 SCSS
+import styles from "../../styles/scss/mber_discount.module.scss"; // 改用 module
 
 const Mber_discount = () => {
   const [coupons, setCoupons] = useState([]);
@@ -44,48 +43,45 @@ const Mber_discount = () => {
   }, [uid]);
 
   return (
-    <div className="mber_discount">
+    <div className={styles.mber_discount}>
       {/* 上方區塊 */}
       <NavBarAPP />
-      <div className="discount-header">
+      <div className={styles.discountHeader}>
         {/* LOGO 置頂 */}
-        <div className="chargego-logo-top">
-          <ChargegoLogo />
-        </div>
         <span
-          className="back-icon"
+          className={styles.backIcon}
           onClick={() => window.history.back()}
           title="回到上頁"
         >
           ◀︎
         </span>
-        <div className="header-flex">
-          <span className="point-circle">P</span>
-          <span className="point-title">點數</span>
-          <span className="bell-icon">
+        <div className={styles.headerFlex}>
+          <span className={styles.pointCircle}>P</span>
+          <span className={styles.pointTitle}>點數</span>
+          <span className={styles.bellIcon}>
             <img src="/gift.png" alt="bell" />
           </span>
         </div>
-        <div className="point-value">{points}</div>
-        <div className="coupon-title">目前持有優惠券</div>
+        <div className={styles.pointValue}>{points}</div>
+        <div className={styles.couponTitle}>目前持有優惠券</div>
       </div>
       {/* 優惠券列表 */}
-      <div className="coupon-list">
+      <div className={styles.couponList}>
         {coupons.length === 0 ? (
-          <div className="no-coupon">尚未持有優惠券</div>
+          <div className={styles.noCoupon}>尚未持有優惠券</div>
         ) : (
           coupons.map((coupon) => (
-            <div key={coupon.coupon_id} className="coupon-card">
-              <div className="coupon-code">
+            <div key={coupon.coupon_id} className={styles.couponCard}>
+              <div className={styles.couponCode}>
                 {coupon.code || coupon.coupon_id}
               </div>
-              <div className="coupon-desc">
+              <div className={styles.couponDesc}>
                 {coupon.description || "前1小時租借免費"}
               </div>
-              <div className="coupon-usage">
+              <div className={styles.couponUsage}>
                 使用次數 {coupon.usage_count || 1}
               </div>
-              <div className="coupon-expire">
+              <div className={styles.couponExpire}>
                 {coupon.expires_at ? `到期日：${coupon.expires_at}` : ""}
               </div>
             </div>

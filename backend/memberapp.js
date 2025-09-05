@@ -277,6 +277,16 @@ app.get('/user/session/coupons', (req, res) => {
     );
 });
 
+// 取得會員點數 API
+app.get('/user/:uid/points', (req, res) => {
+    const uid = Number(req.params.uid);
+    db.query('SELECT point FROM user WHERE uid = ?', [uid], (err, results) => {
+        if (err) return res.status(500).json({ error: err });
+        if (results.length === 0) return res.status(404).json({ error: '找不到會員' });
+        res.json({ points: results[0].point });
+    });
+});
+
 // 伺服器啟動
 app.listen(3000, () => {
     console.log('API server running on port 3000');

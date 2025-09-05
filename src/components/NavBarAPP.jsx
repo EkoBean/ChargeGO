@@ -2,28 +2,23 @@ import React from 'react';
 import styles from '../styles/scss/NavBarAPP.module.scss';
 
 export default function NavBarAPP() {
-    const navigateTo = (path) => {
-        window.location.href = `/${path}`;
-    }
+
+    const icons = [
+        { id: styles.myprofile, src: '/myprofile.png', alt: 'user' },
+        { id: styles.gift, src: '/gift.png', alt: 'bell' },
+        { id: styles.map, src: '/map.png', alt: 'energy' },
+        { id: styles.CustomerService, src: '/customer service.png', alt: 'chat' },
+        { id: styles.points, src: '/points.png', alt: 'parking' }
+    ];
     return (
-        <div className="navbar-phone-container">
-            <div className="icon" onClick={() => navigateTo("mber_profile")}>
-                <img id="myprofile" src="../public/myprofile.png" alt="user" />
-               
-            </div>
-            <div className="icon" onClick={() => navigateTo("mber_discount")}>
-                <img id="gift" src="../public/gift.png" alt="bell" />
-                {/* <span className="navbar-phone-notification">1</span> */}
-            </div>
-            <div className="icon" onClick={() => navigateTo("map")}>
-                <img id="map" src="../public/map.png" alt="energy" />
-            </div>
-            <div className="icon" onClick={() => navigateTo("CustomerService")}>
-                <img id="CustomerService" src="../public/customer service.png" alt="chat" />
-            </div>
-            <div className="icon" onClick={() => navigateTo("Task")}>
-                <img id="points" src="/../public/points.png" alt="parking" />
-            </div>
-        </div>
+        <div className={`${styles.navbarPhoneContainer}`}>
+            {icons.map((icon) => (
+                <div key={icon.id} className={`${styles.icon}`}>
+                    <a href="">
+                        <img id={icon.id} src={icon.src} alt={icon.alt} />
+                    </a>
+                </div>
+            ))}
+        </div >
     );
 }
