@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/mber_profile.scss";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import ChargegoLogo from "../../components/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 // import NavBarWebsite from "../../components/NavBarWebsite";
 
@@ -94,7 +94,6 @@ const mber_Profile = () => {
 
   return (
     <div className="mber_info">
-      
       {/* <NavBarWebsite /> */}
       <NavBarAPP className="mobile-only-nav" />
       {/* Header */}
@@ -133,7 +132,11 @@ const mber_Profile = () => {
               <span>信用卡資料</span>
             </div>
             <div className="card">
-              <img src="/Iconimg/bill.svg" alt="帳單紀錄" onClick={() => navigate("/mber_rentRecord")} />
+              <img
+                src="/Iconimg/bill.svg"
+                alt="帳單紀錄"
+                onClick={() => navigate("/mber_rentRecord")}
+              />
               <span>租借紀錄</span>
             </div>
             <div className="card">

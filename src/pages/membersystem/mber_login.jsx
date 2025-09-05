@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import "../../styles/scss/mber_login.scss";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import ChargegoLogo from "../../components/ChargegoLogo";
 
 const mber_Login = () => {
   const [form, setForm] = useState({
@@ -113,11 +113,7 @@ const mber_Login = () => {
           {/* 登入表單區塊 */}
           <form className="login-form" onSubmit={handleSubmit}>
             {/* 錯誤訊息顯示 */}
-            {error && (
-              <div className="login-error-message">
-                {error}
-              </div>
-            )}
+            {error && <div className="login-error-message">{error}</div>}
             {/* 帳號欄位 */}
             <input
               type="text"

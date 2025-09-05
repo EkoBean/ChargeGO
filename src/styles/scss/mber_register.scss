@@ -1,6 +1,4 @@
-@use "./global.scss" as mb;
-
-
+@use "./global.module.scss" as mb;
 
 .register-bg {
   min-height: 100vh;
@@ -25,8 +23,6 @@
   z-index: 1;
 }
 
-
-
 .register-container {
   width: 100%;
   max-width: 500px;
@@ -38,8 +34,6 @@
   align-items: center;
   z-index: 2;
 }
-
-
 
 .register-form-section {
   background: rgba(255, 255, 255, 0);
@@ -54,7 +48,6 @@
   align-items: center;
 }
 
-
 .register-title {
   text-align: center;
   font-family: "Mantou sans", serif;
@@ -64,8 +57,6 @@
   margin-bottom: 24px;
   letter-spacing: 2px;
 }
-
-
 
 .register-arrow {
   background: linear-gradient(90deg, #6b4f1d 0%, #ffd600 100%);
@@ -77,8 +68,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-
-
 .register-form {
   display: flex;
   flex-direction: column;
@@ -87,8 +76,6 @@
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
-  
-
 }
 
 .register-form-row {
@@ -113,8 +100,6 @@
   margin-bottom: 16px; // 與手機版一致
 }
 
-
-
 .register-btn,
 .correct-btn,
 .leave-btn {
@@ -136,9 +121,6 @@
   background: #ffc107;
   transform: scale(1.2);
 }
-
-
-
 
 .register-label {
   position: absolute;
@@ -239,7 +221,7 @@
   .mobile-only {
     display: block;
   }
- 
+
   .register-container {
     max-width: 100vw;
     padding-top: 24px;
@@ -247,13 +229,11 @@
   .register-form-section {
     max-width: 80vw;
     padding: 0 8px;
-    
   }
   .register-form {
     max-width: 100vw;
     width: 100%;
     gap: 12px;
-   
   }
   .register-form-row {
     flex-direction: column;
@@ -362,4 +342,3 @@
   color: #ffd600;
   transform: scaleX(1.2);
 }
-

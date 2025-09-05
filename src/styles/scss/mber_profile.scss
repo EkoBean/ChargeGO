@@ -1,4 +1,4 @@
-@use "./global.scss" as mb;
+@use "./global.module.scss" as mb;
 
 .mber_info {
   min-height: 100vh;
@@ -243,7 +243,7 @@
     display: block;
   }
 
-   .mobile-only-logo {
+  .mobile-only-logo {
     display: block;
     z-index: 30;
   }
@@ -273,5 +273,3 @@
     align-items: center;
   }
 }
-
-

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import ChargegoLogo from "../../components/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 import "../../styles/scss/mber_info.scss";
 

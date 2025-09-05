@@ -1,6 +1,5 @@
-import '../../styles/scss/Task.module.module.scss';
-import NavbarWebsite from '../../components/NavbarWebsite';
-
+import "../../styles/scss/Task.module.scss";
+import NavbarWebsite from "../../components/NavbarWebsite";
 
 export default function Task() {
   // 範例靜態資料
@@ -11,7 +10,7 @@ export default function Task() {
       progress: 1,
       total: 4,
       deadline: "2025-09-28",
-      point: 2
+      point: 2,
     },
     {
       id: 2,
@@ -19,8 +18,8 @@ export default function Task() {
       progress: 1,
       total: 1,
       deadline: "2025-09-30",
-      point: 1
-    }
+      point: 1,
+    },
   ];
 
   return (
@@ -45,14 +44,16 @@ export default function Task() {
           {tasks.length === 0 ? (
             <div>載入中...</div>
           ) : (
-            tasks.map(task => (
+            tasks.map((task) => (
               <div className="taskCard" key={task.id}>
                 <div className="taskInfo">
                   <span className="taskName">{task.name}</span>
                   <div className="progressBar">
                     <div
                       className="progress"
-                      style={{ width: `${(task.progress / task.total) * 100}%` }}
+                      style={{
+                        width: `${(task.progress / task.total) * 100}%`,
+                      }}
                     ></div>
                   </div>
                   <span className="progressText">

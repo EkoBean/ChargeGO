@@ -48,21 +48,24 @@ app.post("/buycoupons", async (req, res) => {
     if (templaterows.length === 0) {
       return res.status(404).json({ error: "找不到 coupon_template" });
     }
-
-    const validity_days = templaterows[0].validity_days;
-    const coupon_point = templaterows[0].point; // 保留 point 作為價格資訊（但不扣點）
-
+    // 建立從後端擷取優惠券模板截止日期與消耗點數
+    const validity_days = templaterows.validity_days;
+    const coupon_point = templaterows.point; // 保留 point 作為價格資訊（但不扣點）
+    console.log(" templaterows.validity_days", templaterows.validity_days);
+    console.log("templaterows.point", templaterows.point);
+    console.log("validity_days", validity_days);
+    console.log("coupon_point", coupon_point);
     // 新增 coupon
-    const [couponResult] = await pool.query(
+    const couponResult = await pool.query(
       `INSERT INTO coupons (template_id, user_id, source_type, status, issued_at, expires_at)
        VALUES (?, ?, 'shop_purchase', 'active', NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
       [template_id, user_id, validity_days]
     );
-
+    console.log("couponResult", couponResult);
     const coupon_id = couponResult.insertId;
-
+    console.log("coupon_id", coupon_id);
     // 新增 shop_orders
-    const [orderResult] = await pool.query(
+    const orderResult = await pool.query(
       `INSERT INTO shop_orders
         (user_id, template_id, price, coupon_id, order_status)
        VALUES (?, ?, ?, ?, 'completed')`,
@@ -70,7 +73,15 @@ app.post("/buycoupons", async (req, res) => {
     );
 
     const order_id = orderResult.insertId;
+    //使用者點數減少
 
+    const pointsDeduct = await pool.query(
+      `UPDATE user
+        SET point = point - ?
+        WHERE uid = ?;`,
+      [coupon_point, user_id]
+    );
+    console.log("ponitDeduct", pointsDeduct);
     // 回傳
     res.json({
       success: true,
@@ -84,9 +95,7 @@ app.post("/buycoupons", async (req, res) => {
   }
 });
 
-// 後端新增 /checkpoints
-
-// GET /checkpoints?user_id=123&template_id=456
+//檢查用戶點數餘額是否足夠
 app.get("/checkpoints", async (req, res) => {
   try {
     const { user_id, template_id } = req.query;
