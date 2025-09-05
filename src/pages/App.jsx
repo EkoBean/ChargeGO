@@ -36,7 +36,9 @@ function App() {
         <Route path="/Task" element={<Task />} />
 
         {/* membersystem */}
-        <Route path="/mber-login" element={<Mbre_login />} />
+        <Route path="/" element={<Mbre_login />} />
+        <Route path="/mber_login" element={<Mbre_login />} />
+        <Route path="/mber_register" element={<Mber_register />} />
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="/mber_info" element={<Mber_info />} />
         <Route path="/Mber_discount" element={<Mber_discount />} />
