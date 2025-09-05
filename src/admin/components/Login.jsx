@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import '../styles/Login.css';
+import '../../styles/scss/adminstyle/AdminLogin.scss';
+
 //員工登入頁面 
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
