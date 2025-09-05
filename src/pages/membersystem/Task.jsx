@@ -1,5 +1,5 @@
 import '../../styles/scss/Task.module.scss';
-import NavbarWebsite from '../../components/NavbarWebsite';
+// import NavbarWebsite from '../../components/NavbarWebsite';
 
 
 export default function Task() {
@@ -25,7 +25,7 @@ export default function Task() {
 
   return (
     <div className="container">
-      <NavbarWebsite />
+      {/* <NavbarWebsite /> */}
       {/* 直接放在 container 內，main 外 */}
       <div className="points-circle-wrapper">
         <div className="circle points-circle">
