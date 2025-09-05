@@ -2,27 +2,24 @@ import React from 'react';
 import styles from '../styles/scss/NavBarAPP.module.scss';
 
 export default function NavBarAPP() {
-    
+
+    const icons = [
+        { id: styles.myprofile, src: '/myprofile.png', alt: 'user', text: '會員中心' },
+        { id: styles.gift, src: '/gift.png', alt: 'bell', text: '持有優惠卷' },
+        { id: styles.map, src: '/map.png', alt: 'map', text: '回到地圖' },
+        { id: styles.CustomerService, src: '/customer service.png', alt: 'chat', text: '聯絡客服' },
+        { id: styles.points, src: '/points.png', alt: 'parking', text: '點數商城' },
+    ];
     return (
-        <div className="navbar-phone-container">
-            <div className="icon">
-                <a href="">
-                <img id="myprofile" src="../public/myprofile.png" alt="user" />
-                </a>
-            </div>
-            <div className="icon">
-                <img id="gift" src="../public/gift.png" alt="bell" />
-                {/* <span className="navbar-phone-notification">1</span> */}
-            </div>
-            <div className="icon">
-                <img id="map" src="../public/map.png" alt="energy" />
-            </div>
-            <div className="icon">
-                <img id="CustomerService" src="../public/customer service.png" alt="chat" />
-            </div>
-            <div className="icon">
-                <img id="points" src="/../public/points.png" alt="parking" />
-            </div>
-        </div>
+        <div className={`${styles.navbarPhoneContainer}`}>
+            {icons.map((icon) => (
+                <div key={icon.id} id={icon.id} className={`${styles.icon}`}>
+                    <a href="">
+                        <img src={icon.src} alt={icon.alt} />
+                        <p className='d-none d-md-block text-center'>{icon.text}</p>
+                    </a>
+                </div>
+            ))}
+        </div >
     );
 }

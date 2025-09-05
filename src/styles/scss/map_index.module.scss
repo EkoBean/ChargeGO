@@ -1,15 +1,7 @@
-@use './global.module.scss' as g;
+@use './tokens.module.scss' as g;
 
 $search-bar-radius: 1.4rem;
 
-
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 #search-bar {
   position: fixed;
