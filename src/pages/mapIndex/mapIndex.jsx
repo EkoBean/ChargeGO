@@ -1,6 +1,10 @@
+// teser
+import NavBarAPP from '../../components/NavBarAPP';
+
 // ================= Library =============================
 // style
-import '../../styles/scss/map_index.module.scss'
+import styles from '../../styles/scss/map_index.module.scss';
+
 
 //React
 import React, { cloneElement, use, useEffect, useRef } from 'react';
