@@ -6,17 +6,16 @@ import WebSite from "./ImageWebsite/WebSite";
 import { Routes, Route } from "react-router-dom";
 
 // =========== elements ==================
-import NavBar from "../components/nav";
 import MapIndex from "./mapIndex/mapIndex";
 // import Register from "./membersystem/register";
 // import Login from "./membersystem/login";
+import NavbarWebsite from "../components/NavbarWebsite";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Login from './Login/Login';
 import Coupon from "./mall/coupon";
 import CheckoutCoupons from "./mall/checkout_coupon";
 import MemberLogin from "./membersystem/login";
-import NavbarWebsite from "../components/NavBarWebsite";
 
 function App() {
   return (
