@@ -39,14 +39,15 @@
   padding: 10px;
 }
 
-nav {
-  display: flex;
-  gap: 10px; /* 減少間距讓對齊效果更明顯 */
-  position: relative;
-  filter: url(#goo);
-  align-items: center; /* 垂直置中對齊 */
-  justify-content: center; /* 整個導覽列置中 */
-}
+// nav {
+//   display: flex;
+//   gap: 10px; /* 減少間距讓對齊效果更明顯 */
+//   position: relative;
+//   filter: url(#goo);
+//   align-items: center; /* 垂直置中對齊 */
+//   justify-content: center; /* 整個導覽列置中 */
+// }
+// 請勿使用全域指定標籤
 
 .menu-item {
   font-family: "akagi-pro", sans-serif;
