@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import ChargegoLogo from "../../components/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 const mber_Register = () => {
   // 註冊表單狀態

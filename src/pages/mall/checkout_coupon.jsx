@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-// import "bootstrap/dist/css/bootstrap.min.css";
+import styles from "../../styles/scss/mall_index.module.scss"; // 新增匯入
 
 class CheckoutCoupons extends Component {
   state = {
@@ -131,11 +131,11 @@ class CheckoutCoupons extends Component {
     } = this.state;
 
     return (
-      <div className="container mt-4">
+      <div className={styles.container + " mt-4"}>
         <h2>結帳租借優惠券</h2>
 
         {/* 搜尋區塊 */}
-        <div className="mb-3 d-flex align-items-center flex-wrap">
+        <div className={"mb-3 d-flex align-items-center flex-wrap"}>
           <label className="me-2">User ID:</label>
           <input
             type="text"
@@ -198,11 +198,14 @@ class CheckoutCoupons extends Component {
         {error && <p className="text-danger">{error}</p>}
 
         {/* 優惠券卡片清單 */}
-        <div className="taskList">
+        <div className={styles.taskList}>
           {coupons.length > 0
             ? coupons.map((c) => (
-                <div className="taskCard shadow-sm" key={c.coupon_id}>
-                  <div className="taskLeft">
+                <div
+                  className={styles.taskCard + " shadow-sm"}
+                  key={c.coupon_id}
+                >
+                  <div className={styles.taskLeft}>
                     <h5 className="card-title">{c.name}</h5>
                     <h6 className="card-subtitle mb-2 text-muted">
                       {this.getTypeName(c.type)}
@@ -214,13 +217,11 @@ class CheckoutCoupons extends Component {
                         month: "2-digit",
                         day: "2-digit",
                       })}
-                      {/* 狀態: {c.status} {c.is_expired ? "(已過期)" : ""} */}
                     </p>
                   </div>
-                  <div className="taskRight">
-                    {" "}
+                  <div className={styles.taskRight}>
                     <button
-                      className="claimBtn"
+                      className={styles.claimBtn}
                       onClick={() => this.useCoupon(c.coupon_id)}
                     >
                       使用

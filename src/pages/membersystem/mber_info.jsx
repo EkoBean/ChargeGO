@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBarAPP from "../../components/NavBarAPP";
-import "../../styles/scss/mber_info.scss";
+import "../../styles/scss/mber_info.module.scss";
 
 const mber_Info = () => {
   const [user, setUser] = useState(null);

@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-// import "bootstrap/dist/css/bootstrap.min.css";
-// import "bootstrap-icons/font/bootstrap-icons.css";
-import "../../styles/scss/mall_index.module.scss";
+import styles from "../../styles/scss/mall_index.module.scss"; // 新增匯入
 
 class Shop extends Component {
   state = {
@@ -130,7 +128,7 @@ class Shop extends Component {
     );
 
     return (
-      <div className="container py-4">
+      <div className={styles.container + " py-4"}>
         <label className="form-label">模擬 User ID</label>
         <input
           type="text"
@@ -146,22 +144,22 @@ class Shop extends Component {
         {storeCoupons.length > 0 && (
           <>
             <h4 className="mb-3">商家優惠券兌換</h4>
-            <div className="storeCouponList">
+            <div className={styles.storeCouponList}>
               {storeCoupons.map((p) => (
-                <div className="storeCouponCard" key={p.id}>
-                  <div className="couponTop">
-                    <h6 className="couponName">{p.name}</h6>
-                    <p className="couponPoints">點數: {p.points}</p>
+                <div className={styles.storeCouponCard} key={p.id}>
+                  <div className={styles.couponTop}>
+                    <h6 className={styles.couponName}>{p.name}</h6>
+                    <p className={styles.couponPoints}>點數: {p.points}</p>
                   </div>
-                  <div className="couponActions">
+                  <div className={styles.couponActions}>
                     <button
-                      className="btn-detail"
+                      className={styles["btn-detail"]}
                       onClick={() => this.handleShowDetail(p)}
                     >
                       詳細
                     </button>
                     <button
-                      className="btn-redeem"
+                      className={styles["btn-redeem"]}
                       onClick={() => this.handleRedeem(p)}
                     >
                       兌換
@@ -177,26 +175,26 @@ class Shop extends Component {
         {rentalCoupons.length > 0 && (
           <>
             <h4 className="mt-4 mb-3">租借優惠券兌換</h4>
-            <div className="rentalCouponList">
+            <div className={styles.rentalCouponList}>
               {rentalCoupons.map((p) => (
-                <div className="rentalCouponCard" key={p.id}>
-                  <div className="couponInfo">
-                    <h5 className="couponName">{p.name}</h5>
-                    <p className="couponDetails">
+                <div className={styles.rentalCouponCard} key={p.id}>
+                  <div className={styles.couponInfo}>
+                    <h5 className={styles.couponName}>{p.name}</h5>
+                    <p className={styles.couponDetails}>
                       點數: {p.points} <br />
                       折扣方式: {p.type} <br />
                       到期日: {p.expirationDate}
                     </p>
                   </div>
-                  <div className="couponActions">
+                  <div className={styles.couponActions}>
                     <button
-                      className="btn-detail"
+                      className={styles["btn-detail"]}
                       onClick={() => this.handleShowDetail(p)}
                     >
                       詳細
                     </button>
                     <button
-                      className="btn-redeem"
+                      className={styles["btn-redeem"]}
                       onClick={() => this.handleRedeem(p)}
                     >
                       兌換
