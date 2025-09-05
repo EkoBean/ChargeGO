@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 // import "bootstrap/dist/css/bootstrap.min.css";
 // import "bootstrap-icons/font/bootstrap-icons.css";
+import "../../styles/scss/mall_index";
 
 class Shop extends Component {
   state = {
@@ -18,11 +19,13 @@ class Shop extends Component {
     this.setState({ userId: val });
     localStorage.setItem("userId", val);
   };
-
+  // 抓後端資料並且格式化
   componentDidMount() {
     axios
       .get("http://localhost:4001/products")
       .then((res) => {
+        // 格式化資料存放變數
+
         const formattedData = res.data.map((item) => ({
           id: item.template_id,
           name: item.name,
@@ -36,6 +39,9 @@ class Shop extends Component {
           type: item.type,
           isCoupon: true,
         }));
+        console.log(formattedData);
+        //將格式化資料傳進state
+
         this.setState({ products: formattedData });
       })
       .catch((err) => console.error("抓取後端資料失敗:", err));
