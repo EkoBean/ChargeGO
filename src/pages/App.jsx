@@ -19,10 +19,16 @@ import CheckoutCoupons from "./mall/coupon";
 import Task from "./membersystem/Task";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
 
+// index
+import WebSite from './ImageWebsite/WebSite'
+
 function App() {
   return (
     <>
       <Routes>
+        {/* index */}
+        <Route path="/" element={<WebSite />} />
+
         {/* map index */}
         <Route path="/MapIndex" element={<MapIndex />} />
 
