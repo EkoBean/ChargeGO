@@ -2,25 +2,26 @@ import React from 'react';
 import styles from '../styles/scss/NavBarAPP.module.scss';
 
 export default function NavBarAPP() {
-    
+    const navigateTo = (path) => {
+        window.location.href = `/${path}`;
+    }
     return (
         <div className="navbar-phone-container">
-            <div className="icon">
-                <a href="">
+            <div className="icon" onClick={() => navigateTo("mber_profile")}>
                 <img id="myprofile" src="../public/myprofile.png" alt="user" />
-                </a>
+               
             </div>
-            <div className="icon">
+            <div className="icon" onClick={() => navigateTo("mber_discount")}>
                 <img id="gift" src="../public/gift.png" alt="bell" />
                 {/* <span className="navbar-phone-notification">1</span> */}
             </div>
-            <div className="icon">
+            <div className="icon" onClick={() => navigateTo("map")}>
                 <img id="map" src="../public/map.png" alt="energy" />
             </div>
-            <div className="icon">
+            <div className="icon" onClick={() => navigateTo("CustomerService")}>
                 <img id="CustomerService" src="../public/customer service.png" alt="chat" />
             </div>
-            <div className="icon">
+            <div className="icon" onClick={() => navigateTo("Task")}>
                 <img id="points" src="/../public/points.png" alt="parking" />
             </div>
         </div>

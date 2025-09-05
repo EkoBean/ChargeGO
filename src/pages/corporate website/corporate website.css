@@ -1,0 +1,462 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    overflow-x: hidden;
+    background-color: #ffce00;
+    min-height: 200vh;
+    padding-top: 80px; /* 為固定導航欄預留空間 */
+}
+
+.content {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+}
+
+.logo-section {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 3;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 1s ease;
+}
+
+.logo-section.show {
+    opacity: 1;
+    visibility: visible;
+    animation: logoRise 1.5s ease-out;
+}
+
+/* 添加箭頭圖片樣式 */
+.arrow {
+    position: relative;
+    width: 100vw;
+    max-width: 1000px;
+    min-width: 250px;
+    margin-bottom: 1rem;
+    left: -10vw;
+    top: -1vw;
+    opacity: 1;
+    transform: scale(1);
+    display: block;
+    transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+}
+
+@keyframes arrowAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* 響應式調整 */
+@media (max-width: 1200px) {
+    .logo {
+        font-size: 4.5rem;
+    }
+    
+    .tagline {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px; /* 移動端調整 */
+    }
+    
+    .arrow {
+        width: 300vw;
+        max-width: 750px;
+        left: -30vw;
+        min-width: 300px;
+    }
+    
+    .logo {
+        font-size: 3.5rem;
+    }
+    
+    .tagline {
+        font-size: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .content-section {
+        padding: 3rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 60px; /* 小屏幕調整 */
+    }
+    
+    .arrow {
+        width: 50vw;
+        max-width: 150px;
+        left: -15vw;
+        min-width: 50px;
+    }
+    
+    .logo {
+        font-size: 2.5rem;
+    }
+    
+    .tagline {
+        font-size: 1.2rem;
+        margin-top: 1rem;
+    }
+    
+    .content-section {
+        padding: 2rem 1rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .arrow {
+        width: 80vw;
+        max-width: 100px;
+        left: -12vw;
+        min-width: 80px;
+    }
+    
+    .logo {
+        font-size: 2rem;
+    }
+    
+    .tagline {
+        font-size: 1rem;
+    }
+}
+
+@keyframes logoRise {
+    0% {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+}
+
+.logo {
+    font-family: "akagi-pro", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 5rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.gradient-logo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 5rem;
+    font-weight: 900;
+    font-family: "akagi-pro", sans-serif;
+    background: linear-gradient(270deg, #FFCC00, #FFFFFF, #FFCC00, #FFFFFF, #FFCC00);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 3s ease infinite;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.gradient-logo.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 當gradient-logo顯示時隱藏原本的logo文字 */
+.logo.hide-text .logo-Charge,
+.logo.hide-text .logo-G,
+.logo.hide-text .logo-O {
+    opacity: 0 !important;
+    visibility: hidden;
+}
+
+.logo-Charge {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-200px);
+    vertical-align: baseline;
+    /* 移除自動動畫 */
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.logo-G {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(300px) scale(1.5);
+    vertical-align: baseline;
+    /* 移除自動動畫 */
+}
+
+.logo-O {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(400px) scale(1.5);
+    vertical-align: baseline;
+    /* 移除自動動畫 */
+}
+
+.tagline {
+    position: relative;
+    width: 100vw;
+    max-width: none;
+    height: auto;
+    margin-top: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    display: block;
+    object-fit: contain;
+    z-index: 30;
+}
+
+.content-section {
+    margin-top: 100vh;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #fff;
+}
+
+/* 引入 Animate.css 或自定義 rubberBand 動畫 */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+/* 自定義 rubberBand 動畫變體 */
+@keyframes rubberBand {
+  from {
+    transform: scale3d(1, 1, 1);
+  }
+
+  30% {
+    transform: scale3d(1.25, 0.75, 1);
+  }
+
+  40% {
+    transform: scale3d(0.75, 1.25, 1);
+  }
+
+  50% {
+    transform: scale3d(1.15, 0.85, 1);
+  }
+
+  65% {
+    transform: scale3d(0.95, 1.05, 1);
+  }
+
+  75% {
+    transform: scale3d(1.05, 0.95, 1);
+  }
+
+  to {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.animate__rubberBand {
+  animation-name: rubberBand;
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+/* 自定義 flash 動畫 */
+@keyframes flash {
+  from,
+  50%,
+  to {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+}
+
+.animate__flash {
+  animation-name: flash;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+}
+
+/* 自定義 bounce 動畫 */
+@keyframes bounce {
+  from,
+  20%,
+  53%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    transform: translate3d(0, 0, 0);
+  }
+
+  40%,
+  43% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translate3d(0, -10px, 0) scale(1.1);
+  }
+
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translate3d(0, -5px, 0) scale(1.05);
+  }
+
+  80% {
+    transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  90% {
+    transform: translate3d(0, -2px, 0) scale(1.02);
+  }
+}
+
+.animate__bounce {
+  animation-name: bounce;
+  animation-duration: 1.2s;
+  animation-fill-mode: both;
+}
+
+/* SVG 路徑動畫樣式 */
+.cls-4 {
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 3000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.cls-4.animate {
+    opacity: 1;
+    animation: drawPath 2s ease-in-out forwards;
+}
+
+/* 為每個路徑設定不同的動畫延遲 - 按照畫面中從左到右的順序 */
+.cls-4.animate:nth-child(1) {
+    animation-delay: 1.8s; /* M1995.08 - 最右邊 */
+}
+
+.cls-4.animate:nth-child(2) {
+    animation-delay: 1.5s; /* M1776.77 - 右邊 */
+}
+
+.cls-4.animate:nth-child(3) {
+    animation-delay: 1.2s; /* M1463.23 - 中右 */
+}
+
+.cls-4.animate:nth-child(4) {
+    animation-delay: 0.9s; /* M1382.84 - 中間 */
+}
+
+.cls-4.animate:nth-child(5) {
+    animation-delay: 0.6s; /* M980.97 - 中左 */
+}
+
+.cls-4.animate:nth-child(6) {
+    animation-delay: 0.3s; /* M726.79 - 左中 */
+}
+
+.cls-4.animate:nth-child(7) {
+    animation-delay: 0.15s; /* M367.83 - 左邊 */
+}
+
+.cls-4.animate:nth-child(8) {
+    animation-delay: 0s; /* M14.82 - 最左邊 */
+}
+
+@keyframes drawPath {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+#yellowLine {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    margin-top: 1rem;
+    z-index: 40;
+    max-width: 1980px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 50%;
+    pointer-events: none;
+}
+
+/* yellowLine 響應式調整 */
+@media (max-width: 1200px) {
+    #yellowLine {
+        max-width: 800px;
+        top: 50%;
+    }
+    
+    .cls-4 {
+        stroke-width: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    #yellowLine {
+        max-width: 600px;
+        top: 50%;
+        margin-top: 0.8rem;
+    }
+    
+    .cls-4 {
+        stroke-width: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    #yellowLine {
+        max-width: 400px;
+        top: 50%;
+        margin-top: 0.2rem;
+    }
+    
+    .cls-4 {
+        stroke-width: 14px;
+    }
+}
+
+@media (max-width: 320px) {
+    #yellowLine {
+        max-width: 300px;
+        top: -20%;
+        margin-top: 0.3rem;
+    }
+    
+    .cls-4 {
+        stroke-width: 12px;
+    }
+}

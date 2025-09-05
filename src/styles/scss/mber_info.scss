@@ -1,0 +1,210 @@
+@use "./global.scss" as mb;
+
+
+
+// 手機板專用
+@media (max-width: 480px) {
+  .mber_info-page {
+    background: #f4f4f4;
+    min-height: 100vh;
+    position: relative;
+    width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .mber_info-header {
+    width: 100vw;
+    height: 220px;
+    min-height: 180px;
+    background: linear-gradient(120deg, #ffe259 0%, #ffa751 100%);
+    border-radius: 0 0 80px 80px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(255, 167, 81, 0.15);
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0 18px;
+  }
+
+  .mber_info-back-btn {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    width: 38px;
+    height: 38px;
+    z-index: 10;
+  }
+
+  .mber_info-avatar {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    width: 100vw;
+  }
+
+  .mber_info-avatar img:first-of-type {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #e6ffe6;
+    border: 4px solid #fff;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  }
+
+  .mber_info-avatar h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #7a5c00;
+    margin-bottom: 0;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  .mber_info-avatar img:last-of-type {
+    position: absolute;
+    right: 28px;
+    top: -18px;
+    width: 38px;
+    height: 38px;
+    display: block;
+    background: none;
+  }
+
+  .mber_info-body {
+    width: 90vw;
+    max-width: 370px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(255, 167, 81, 0.18);
+    margin: 0 auto;
+    margin-top: 120px;
+    padding: 24px 18px 18px 18px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .mber_info-body h2 {
+    color: #a85c00;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    letter-spacing: 2px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .mber_info-info {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    position: relative;
+  }
+
+  .mber_info-info h4 {
+    color: #43b300;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+    margin-right: 12px;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .mber_info-info p {
+    color: #333;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  .mber_info-info span {
+    color: #a85c00;
+    font-size: 0.85rem;
+    margin-left: 12px;
+    min-width: 70px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .mber_info-info button {
+    display: none;
+  }
+
+  .mber_info-info hr {
+    width: 100%;
+    border: none;
+    border-top: 2px solid #43b300;
+    margin-top: 8px;
+    margin-bottom: 0;
+    opacity: 0.7;
+  }
+
+  .mber_info-body {
+    max-height: 320px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #43b300 #fff;
+  }
+  .mber_info-body::-webkit-scrollbar {
+    width: 6px;
+  }
+  .mber_info-body::-webkit-scrollbar-thumb {
+    background: #43b300;
+    border-radius: 8px;
+  }
+  .mber_info-body::-webkit-scrollbar-track {
+    background: #fff;
+    border-radius: 8px;
+  }
+
+  // 底部導覽列
+  .mber_info-page > .NavBarPhone {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    z-index: 99;
+    background: none;
+  }
+}
+
+// 響應式
+@media (max-width: 900px) {
+  .mber_info-header,
+  .mber_info-body {
+    max-width: 98vw;
+    padding-left: 8vw;
+    padding-right: 8vw;
+  }
+}
+@media (max-width: 600px) {
+  .mber_info-body {
+    padding: 24px 6vw 18px 6vw;
+  }
+  .mber_info-avatar h1 {
+    font-size: 1.1rem;
+  }
+  .mber_info-avatar img:first-of-type {
+    width: 60px;
+    height: 60px;
+  }
+}

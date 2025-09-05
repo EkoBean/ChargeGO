@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2025-08-27 11:41:53
+-- 產生時間： 2025-08-27 14:30:30
 -- 伺服器版本： 10.4.32-MariaDB
 -- PHP 版本： 8.2.12
 
@@ -256,8 +256,7 @@ CREATE TABLE `user` (
   `user_name` varchar(30) NOT NULL COMMENT '姓名',
   `telephone` varchar(30) NOT NULL COMMENT '電話',
   `email` varchar(50) NOT NULL COMMENT '電子郵件',
-  `password` varchar(50) NOT NULL COMMENT '密碼',
-  `hashed_password` varchar(255) NOT NULL COMMENT '雜湊加密密碼',
+  `password` varchar(255) NOT NULL COMMENT '雜湊加密密碼',
   `country` varchar(50) NOT NULL COMMENT '縣市',
   `address` varchar(100) NOT NULL COMMENT '居住縣市',
   `blacklist` tinyint(1) NOT NULL COMMENT '黑名單點數',
@@ -273,11 +272,11 @@ CREATE TABLE `user` (
 -- 傾印資料表的資料 `user`
 --
 
-INSERT INTO `user` (`uid`, `user_name`, `telephone`, `email`, `password`, `hashed_password`, `country`, `address`, `blacklist`, `wallet`, `point`, `total_carbon_footprint`, `credit_card_number`, `credit_card_date`, `status`) VALUES
-(1, 'testuser1', '0987654321', 'test@gmail.com', '123456', '', '台中市', '南屯區公益路二段51號18樓', 0, 200, 100, 300.5550, '123456789101112', '12/26', '0'),
-(2, 'testuser2', '0975738564', 'test2@gmail.com', '123456', '', '台中市', '西區臺灣大道二段412號', 3, 0, 0, 300.0000, '492900000000000', '11/30', '0'),
-(3, 'testuser3', '0987654321', 'test3@gmail.com', '123456', '', '台北市', '松山區民生東路四段133號8樓', 0, 99999, 99999, 0.0000, '340000000000000', '11/27', '0'),
-(5, 'abc123', '0956874519', 'kkk@g.com', '1234', '03ac674216', 'county9', 'XXXXXXXXXX', 0, 0, 0, 0.0000, '1234567891023456', '12/28', '');
+INSERT INTO `user` (`uid`, `user_name`, `telephone`, `email`, `password`, `country`, `address`, `blacklist`, `wallet`, `point`, `total_carbon_footprint`, `credit_card_number`, `credit_card_date`, `status`) VALUES
+(1, 'testuser1', '0987654321', 'test@gmail.com', '123456', '台中市', '南屯區公益路二段51號18樓', 0, 200, 100, 300.5550, '123456789101112', '12/26', '0'),
+(2, 'testuser2', '0975738564', 'test2@gmail.com', '123456', '台中市', '西區臺灣大道二段412號', 3, 0, 0, 300.0000, '492900000000000', '11/30', '0'),
+(3, 'testuser3', '0987654321', 'test3@gmail.com', '123456', '台北市', '松山區民生東路四段133號8樓', 0, 99999, 99999, 0.0000, '340000000000000', '11/27', '0'),
+(8, 'abc123', '0956874519', 'kkk@g.com', '03ac674216', '嘉義縣', 'XXXXXXXXXX', 0, 0, 0, 0.0000, '1234567891023456', '12/28', '');
 
 -- --------------------------------------------------------
 
@@ -465,7 +464,7 @@ ALTER TABLE `order_record`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `user`
 --
 ALTER TABLE `user`
-  MODIFY `uid` int(10) NOT NULL AUTO_INCREMENT COMMENT '使用者編號', AUTO_INCREMENT=6;
+  MODIFY `uid` int(10) NOT NULL AUTO_INCREMENT COMMENT '使用者編號', AUTO_INCREMENT=9;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `user_missions`
