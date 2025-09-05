@@ -1,0 +1,50 @@
+// ==============================================
+// 直接定義變數（或用 @import 匯入 tokens.module.scss）
+// ==============================================
+$primary: #ffce00;
+$secondary: #f16100;
+$success: #00ff3c;
+$danger: #d65562;
+$brown: #6C4023;
+
+// ==============================================
+// 匯入 Bootstrap (使用 @use)
+// ==============================================
+@use './tokens.module.scss' as *;
+
+// 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
+@use "../../../node_modules/bootstrap/scss/bootstrap" as bs with (
+  $primary: $primary,
+  $secondary: $secondary,
+  $success: $success,
+  $danger: $danger,
+);
+
+
+// ==============================================
+// 自訂樣式
+// ==============================================
+$font-family-base: 'Arial', 'Microsoft JhengHei', sans-serif;
+$font-size-base: 1rem;
+
+// 全域樣式
+body {
+  font-family: $font-family-base;
+  line-height: 1.6;
+  background: #ffce00;
+
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+a{
+  color: $brown;
+  text-decoration: none;
+}
+
+// ==============================================
