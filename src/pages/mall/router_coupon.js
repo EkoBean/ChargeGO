@@ -18,70 +18,8 @@ var pool = mysql.createPool({
   database: "charger_database",
   connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
 });
-
-//購買,兌換優惠券
+// ⭐ 把 pool.query 包成 async/await 可用的 Promise 版本
 pool.query = util.promisify(pool.query);
-app.post("/buycoupons", async (req, res) => {
-  try {
-    console.log("前端送的 template_id:", req.body.template_id);
-
-    const { template_id, user_id } = req.body;
-
-    // 取出 template 的 validity_days
-    const [templates] = await pool.query(
-      "SELECT validity_days FROM coupon_templates WHERE template_id = ?",
-      [template_id]
-    );
-    console.log(templates);
-    if (templates.length === 0) {
-      return res.status(404).json({ error: "找不到 coupon_template" });
-    }
-    console.log("templates[0].validity_days");
-    console.log(templates.validity_days);
-
-    const validity_days = templates.validity_days;
-    console.log("validity_days");
-    console.log(validity_days);
-    // expires_at = NOW() + validity_days
-    const result = await pool.query(
-      `INSERT INTO coupons (template_id, user_id, source_type, status, issued_at, expires_at)
-       VALUES (?, ?, 'shop_purchase', 'active', NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
-      [template_id, user_id, validity_days]
-    );
-    console.log("SQL 查詢結果:", result);
-    if (!result || result.length === 0) {
-      return res.status(404).json({ error: "找不到對應的 coupon template" });
-    }
-    const coupon_id = result.insertId;
-    //將花費點數儲存
-    const price = await pool.query(
-      `SELECT c.coupon_id, c.template_id, t.point
-   FROM coupons c
-   JOIN coupon_templates t ON c.template_id = t.template_id
-   WHERE c.coupon_id = ?`,
-      [coupon_id]
-    );
-    console.log(price);
-    // 3. 新增 shop_orders
-    const orderResult = await pool.query(
-      `INSERT INTO shop_orders
-        (user_id, template_id, price, coupon_id, order_status)
-       VALUES (?, ?, ?, ?, 'completed')`,
-      [user_id, template_id, price, coupon_id]
-    );
-    const order_id = orderResult.insertId;
-    // 4. 回傳
-    res.json({
-      message: "優惠券與訂單新增成功",
-      coupon_id,
-      order_id,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "資料庫錯誤" });
-  }
-});
-
 // 取得優惠券
 //根據輸入的優惠券
 app.get("/mycouponsparam/:user_id", async (req, res) => {
