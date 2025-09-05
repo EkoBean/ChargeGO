@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/scss/mber_register.scss";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
-import NavBarAPP from "../../components/NavBarAPP"; 
+import ChargegoLogo from "../../components/ChargegoLogo";
+import NavBarAPP from "../../components/NavBarAPP";
 const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
@@ -214,10 +214,7 @@ const mber_Register = () => {
               </div>
               {/* 確認密碼 */}
               <div className="register-input-group">
-                <label
-                  htmlFor="confirmPassword"
-                  className="register-label"
-                >
+                <label htmlFor="confirmPassword" className="register-label">
                   確認密碼：
                 </label>
                 <div className="col-md-9">
@@ -271,49 +268,49 @@ const mber_Register = () => {
                 <label htmlFor="address" className="register-label">
                   地址：
                 </label>
-                  <select
-                    className="register-input"
-                    name="county"
-                    id="county"
-                    value={form.county}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">選擇縣市</option>
-                    <option value="台北市">台北市</option>
-                    <option value="新北市">新北市</option>
-                    <option value="基隆市">基隆市</option>
-                    <option value="桃園市">桃園市</option>
-                    <option value="新竹縣">新竹縣</option>
-                    <option value="新竹市">新竹市</option>
-                    <option value="苗栗縣">苗栗縣</option>
-                    <option value="台中市">台中市</option>
-                    <option value="彰化縣">彰化縣</option>
-                    <option value="南投縣">南投縣</option>
-                    <option value="雲林縣">雲林縣</option>
-                    <option value="嘉義縣">嘉義縣</option>
-                    <option value="嘉義市">嘉義市</option>
-                    <option value="台南市">台南市</option>
-                    <option value="高雄市">高雄市</option>
-                    <option value="屏東縣">屏東縣</option>
-                    <option value="宜蘭縣">宜蘭縣</option>
-                    <option value="花蓮縣">花蓮縣</option>
-                    <option value="台東縣">台東縣</option>
-                    <option value="連江縣">連江縣</option>
-                    <option value="澎湖縣">澎湖縣</option>
-                    <option value="金門縣">金門縣</option>
-                  </select>
+                <select
+                  className="register-input"
+                  name="county"
+                  id="county"
+                  value={form.county}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">選擇縣市</option>
+                  <option value="台北市">台北市</option>
+                  <option value="新北市">新北市</option>
+                  <option value="基隆市">基隆市</option>
+                  <option value="桃園市">桃園市</option>
+                  <option value="新竹縣">新竹縣</option>
+                  <option value="新竹市">新竹市</option>
+                  <option value="苗栗縣">苗栗縣</option>
+                  <option value="台中市">台中市</option>
+                  <option value="彰化縣">彰化縣</option>
+                  <option value="南投縣">南投縣</option>
+                  <option value="雲林縣">雲林縣</option>
+                  <option value="嘉義縣">嘉義縣</option>
+                  <option value="嘉義市">嘉義市</option>
+                  <option value="台南市">台南市</option>
+                  <option value="高雄市">高雄市</option>
+                  <option value="屏東縣">屏東縣</option>
+                  <option value="宜蘭縣">宜蘭縣</option>
+                  <option value="花蓮縣">花蓮縣</option>
+                  <option value="台東縣">台東縣</option>
+                  <option value="連江縣">連江縣</option>
+                  <option value="澎湖縣">澎湖縣</option>
+                  <option value="金門縣">金門縣</option>
+                </select>
               </div>
               <div className="register-input-group">
-                 <input
-                    className="register-input"
-                    id="address"
-                    name="address"
-                    type="text"
-                    value={form.address}
-                    onChange={handleChange}
-                    placeholder="請填完後續地址"
-                  />
+                <input
+                  className="register-input"
+                  id="address"
+                  name="address"
+                  type="text"
+                  value={form.address}
+                  onChange={handleChange}
+                  placeholder="請填完後續地址"
+                />
               </div>
               {/* 信用卡號 */}
               <div className="register-input-group">

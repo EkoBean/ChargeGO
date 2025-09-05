@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBarAPP from "../../components/NavBarAPP";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import ChargegoLogo from "../../components/ChargegoLogo";
 import "../../styles/scss/mber_discount.scss"; // 新增引入 SCSS
 
 const Mber_discount = () => {

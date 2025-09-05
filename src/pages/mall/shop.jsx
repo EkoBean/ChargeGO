@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 // import "bootstrap/dist/css/bootstrap.min.css";
 // import "bootstrap-icons/font/bootstrap-icons.css";
-import "../../styles/scss/mall_index";
+import "../../styles/scss/map_index.module.scss";
 
 class Shop extends Component {
   state = {

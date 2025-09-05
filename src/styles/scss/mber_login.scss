@@ -1,4 +1,4 @@
-@use "./global.scss" as mb;
+@use "./global.module.scss" as mb;
 
 .login-bg {
   height: 100vh; // 直接設為視窗高度，避免背景過長
@@ -10,13 +10,12 @@
   z-index: 0;
 }
 
-
 .lightning {
   position: fixed;
   left: 0;
   top: 0;
   height: 100vh;
-  max-height: 100vh; 
+  max-height: 100vh;
   width: auto;
   max-width: 60vw;
   display: flex;
@@ -35,8 +34,6 @@
   align-items: center;
   z-index: 2;
 }
-
-
 
 .login-logo {
   font-size: 2.5rem;
@@ -72,7 +69,6 @@
   padding-top: 0; // 取消多餘的padding-top
 }
 
-
 .login-title {
   text-align: center;
   font-family: "Mantou sans", serif;
@@ -84,8 +80,6 @@
   margin-top: 8px;
 }
 
-
-
 .login-arrow {
   background: linear-gradient(90deg, #6b4f1d 0%, #ffd600 100%);
   font-size: 23px;
@@ -95,7 +89,6 @@
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
-
 
 .login-form {
   display: flex;
@@ -190,9 +183,7 @@
   .login-form-section {
     max-width: 100vw;
     padding: 0 8px;
-   
   }
-
 
   .login-form {
     max-width: 100vw;
@@ -348,7 +339,8 @@
   color: #ffb006;
 }
 
-.forgot-link, .alreadyRegistered {
+.forgot-link,
+.alreadyRegistered {
   background: none;
   border: none;
   color: #6b4f1d;
@@ -359,16 +351,7 @@
   transition: 0.2s;
 }
 
-.forgot-link:hover, .alreadyRegistered:hover {
+.forgot-link:hover,
+.alreadyRegistered:hover {
   color: #ffb006;
 }
-
-
-
-
-
-
-
-
-
-
