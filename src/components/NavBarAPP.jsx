@@ -4,12 +4,12 @@ import styles from '../styles/scss/NavBarAPP.module.scss';
 export default function NavBarAPP() {
 
     const icons = [
-        { id: 'myprofile', src: '/myprofile.png', alt: 'user' },
-        { id: 'gift', src: '/gift.png', alt: 'bell' },
-        { id: 'map', src: '/map.png', alt: 'energy' },
-        { id: 'CustomerService', src: '/customer service.png', alt: 'chat' },
-        { id: 'points', src: '/points.png', alt: 'parking' }
-    ]
+        { id: styles.myprofile, src: '/myprofile.png', alt: 'user' },
+        { id: styles.gift, src: '/gift.png', alt: 'bell' },
+        { id: styles.map, src: '/map.png', alt: 'energy' },
+        { id: styles.CustomerService, src: '/customer service.png', alt: 'chat' },
+        { id: styles.points, src: '/points.png', alt: 'parking' }
+    ];
     return (
         <div className={`${styles.navbarPhoneContainer}`}>
             {icons.map((icon) => (
