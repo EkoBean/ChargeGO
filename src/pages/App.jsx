@@ -22,14 +22,6 @@ function App() {
         <Routes>
           <Route path='/AppIndex' element={<AppIndex />} />
         </Routes>
-      <div id='div1'>
-      </div>
-      <ul>
-        <li>1</li>
-        <li>1</li>
-        <li>1</li>
-        <li>1</li>
-      </ul>
 
     </>
   );
