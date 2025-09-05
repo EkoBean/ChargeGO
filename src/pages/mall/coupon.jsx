@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import styles from "../../styles/scss/mall_index.module.scss"; // 新增匯入
 
 const Coupon = () => {
   const userId = 2;
@@ -58,7 +57,7 @@ const Coupon = () => {
 
   return (
     <div className="d-flex">
-      <main className="container flex-grow-1 py-4">
+      <main className={styles.container + " flex-grow-1 py-4"}>
         <h2 className="mb-4">兌換券</h2>
 
         {/* 🔹 Tabs 導覽 (用 React 控制 activeTab) */}
@@ -82,73 +81,87 @@ const Coupon = () => {
         </ul>
 
         {/* 🔹 Tabs 內容 */}
-        <div className="mt-3">
+        <div className={styles.taskList + " mt-3"}>
           {/* 商家優惠券 */}
           {activeTab === "store" && (
             <>
-              {storeCoupons.length === 0 ? (
-                <p className="text-muted">目前沒有商家優惠券</p>
-              ) : (
-                storeCoupons.map((coupon) => (
-                  <div
-                    key={coupon.id}
-                    className="card rounded-3 shadow-sm p-3 mb-3"
-                  >
-                    <div className="card-body p-0 d-flex justify-content-between align-items-center">
-                      <div>
+              {
+                //沒有商家優惠券
+                storeCoupons.length === 0 ? (
+                  <p className="text-muted">目前沒有商家優惠券</p>
+                ) : (
+                  //有商家優惠券
+                  storeCoupons.map((coupon) => (
+                    <div
+                      key={coupon.id}
+                      className={
+                        styles.taskCard + " rounded-3 shadow-sm p-3 mb-3"
+                      }
+                    >
+                      <div className={styles.taskLeft}>
                         <h5 className="fw-bold mb-0">{coupon.title}</h5>
                         <small className="text-muted">
                           有效期至：
                           {new Date(coupon.expiresAt).toLocaleDateString()}
                         </small>
                       </div>
-                      <button
-                        className={`btn ${
-                          coupon.isUsed ? "btn-secondary" : "btn-primary"
-                        } rounded-pill fw-bold`}
-                        disabled={coupon.isUsed}
-                        onClick={() => handleCouponClick(coupon)}
-                      >
-                        {coupon.isUsed ? "已使用" : "領取"}
-                      </button>
+                      <div className={styles.taskRight}>
+                        <button
+                          className={`btn ${
+                            coupon.isUsed ? "disabled" : styles.claimBtn
+                          } rounded-pill fw-bold`}
+                          disabled={coupon.isUsed}
+                          onClick={() => handleCouponClick(coupon)}
+                        >
+                          {coupon.isUsed ? "已使用" : "領取"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )
+              }
             </>
           )}
 
           {/* 租借優惠券 */}
           {activeTab === "rental" && (
             <>
-              {rentalCoupons.length === 0 ? (
-                <p className="text-muted">目前沒有租借優惠券</p>
-              ) : (
-                rentalCoupons.map((coupon) => (
-                  <div
-                    key={coupon.id}
-                    className="card rounded-3 shadow-sm p-3 mb-3"
-                  >
-                    <div className="card-body p-0 d-flex justify-content-between align-items-center">
-                      <div>
+              {
+                //沒有租借優惠券
+                rentalCoupons.length === 0 ? (
+                  <p className="text-muted">目前沒有租借優惠券</p>
+                ) : (
+                  //有租借優惠券
+                  rentalCoupons.map((coupon) => (
+                    <div
+                      key={coupon.id}
+                      className={
+                        styles.taskCard + " rounded-3 shadow-sm p-3 mb-3"
+                      }
+                    >
+                      <div className={styles.taskLeft}>
                         <h5 className="fw-bold mb-0">{coupon.title}</h5>
                         <small className="text-muted">
                           有效期至：
                           {new Date(coupon.expiresAt).toLocaleDateString()}
                         </small>
                       </div>
-                      {/* 租借優惠券只顯示使用狀態 */}
-                      <span
-                        className={`fw-bold ${
-                          coupon.isUsed ? "text-secondary" : "text-success"
-                        }`}
-                      >
-                        {coupon.isUsed ? "已使用" : "未使用"}
-                      </span>
+                      <div className={styles.taskRight}>
+                        {coupon.isUsed === false ? (
+                          <button
+                            className={styles.claimBtn + " " + styles.disabled}
+                            disabled
+                          >
+                            未使用
+                          </button>
+                        ) : coupon.isUsed === true ? (
+                          <span className={styles["claimed-text"]}>已使用</span>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )
+              }
             </>
           )}
         </div>

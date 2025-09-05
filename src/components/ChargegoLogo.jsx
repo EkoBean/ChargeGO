@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Chargegologo.css";
+import styles from "../styles/scss/ChargegoLogo.module.scss";
 import 'animate.css';
 
 function ChargegoLogo({ className = "" }) {
@@ -12,12 +12,12 @@ function ChargegoLogo({ className = "" }) {
     };
 
     return (
-        <div className={`logo ${className}`}>
+        <div className={`${styles.logo} ${className}`}>
             <img
                 key={animKey}
                 src={logoHover ? "/home-button-hover.png" : "/home-button.png"}
                 alt="Chargego Logo"
-                className={logoHover ? "animate__animated animate__rubberBand" : ""}
+                className={logoHover ? `${styles.animateAnimated} ${styles.animateRubberBand}` : ""}
                 onMouseEnter={handleMouseEnter}
                 onAnimationEnd={() => setLogoHover(false)}
                 onMouseLeave={() => setLogoHover(false)}

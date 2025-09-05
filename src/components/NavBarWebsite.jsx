@@ -1,8 +1,8 @@
 import { useState } from "react";
 import homeBtn from "/home-button.png";
-import homeBtnHover from "/home-button-hover.png"; // 修正：使用絕對路徑
+import homeBtnHover from "/home-button-hover.png"; // 修正：使用絕對路徑  
 import "animate.css";
-import "./NavBarWebsite.css";
+import styles from "../styles/scss/NavBarWebsite.module.scss";
 
 function NavbarWebsite() {
   const [mainBallPos, setMainBallPos] = useState({ x: 0, y: 0, show: false });

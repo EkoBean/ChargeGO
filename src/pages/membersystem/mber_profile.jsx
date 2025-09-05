@@ -106,7 +106,6 @@ const mber_Profile = () => {
         </span>
         <div className={styles.mobile_arc_bg}>
           <div className={styles.mobile_arc_content}>
-            <ChargegoLogo className={styles.mobile_only_logo} />
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
         </div>
@@ -130,6 +129,11 @@ const mber_Profile = () => {
               <span>信用卡資料</span>
             </div>
             <div className={styles.card}>
+              <img
+                src="/Iconimg/bill.svg"
+                alt="帳單紀錄"
+                onClick={() => navigate("/mber_rentRecord")}
+              />
               <img
                 src="/Iconimg/bill.svg"
                 alt="帳單紀錄"

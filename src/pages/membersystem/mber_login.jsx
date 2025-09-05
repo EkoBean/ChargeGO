@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
-import styles from "../../styles/scss/mber_login.module.scss"; 
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+import styles from "../../styles/scss/mber_login.module.scss";
 
 const mber_Login = () => {
   const [form, setForm] = useState({
@@ -106,7 +105,6 @@ const mber_Login = () => {
           {/* header區塊：arc+logo+標題 */}
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
-              <ChargegoLogo className={styles["login-logo"]} />
               <h2 className={styles["login-title"]}>會員登入</h2>
             </div>
           </div>
@@ -114,9 +112,7 @@ const mber_Login = () => {
           <form className={styles["login-form"]} onSubmit={handleSubmit}>
             {/* 錯誤訊息顯示 */}
             {error && (
-              <div className={styles["login-error-message"]}>
-                {error}
-              </div>
+              <div className={styles["login-error-message"]}>{error}</div>
             )}
             {/* 帳號欄位 */}
             <input
