@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import "../../styles/scss/mall_index.scss";
+import "../../styles/scss/mall_index.module.scss";
 
 class Mission extends Component {
   state = {

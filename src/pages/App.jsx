@@ -11,7 +11,6 @@ import MapIndex from "./mapIndex/mapIndex";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Mbre_login from './membersystem/mber_login';
-import Mber_register from './membersystem/mber_register';
 import Mber_discount from "./membersystem/mber_discount";
 import Mber_Profile from "./membersystem/mber_profile";
 import Mber_info from "./membersystem/mber_info";
@@ -19,7 +18,6 @@ import Coupon from "./mall/coupon";
 import CheckoutCoupons from "./mall/coupon";
 import Task from "./membersystem/Task";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
-import MemberLogin from "./membersystem/login";
 
 function App() {
   return (

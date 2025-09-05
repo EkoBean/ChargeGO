@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_profile.module.scss"; 
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 
 
@@ -108,7 +107,6 @@ const mber_Profile = () => {
 
         <div className={styles.mobile_arc_bg}>
           <div className={styles.mobile_arc_content}>
-            <ChargegoLogo className={styles.mobile_only_logo} />
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
         </div>
