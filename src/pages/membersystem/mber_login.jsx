@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
-import "../../styles/scss/mber_login.scss";
+import styles from "../../styles/scss/mber_login.module.scss"; 
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 
 const mber_Login = () => {
@@ -90,31 +90,31 @@ const mber_Login = () => {
   };
 
   return (
-    <div className="login-bg">
+    <div className={styles["login-bg"]}>
       {/* 閃電背景 */}
-      <img className="lightning" src="../../../public/lightning.png" />
-      <div className="login-container">
-        <div className="login-form-section">
+      <img className={styles.lightning} src="../../../public/lightning.png" />
+      <div className={styles["login-container"]}>
+        <div className={styles["login-form-section"]}>
           {/* 返回按鈕移到最上方 */}
           <span
-            className="back-icon mobile-only-back"
+            className={styles["back-icon"] + " " + styles["mobile-only-back"]}
             onClick={() => window.history.back()}
             title="回到上頁"
           >
             ◀︎
           </span>
           {/* header區塊：arc+logo+標題 */}
-          <div className="mobile-arc-bg">
-            <div className="mobile-arc-content">
-              <ChargegoLogo className="login-logo" />
-              <h2 className="login-title">會員登入</h2>
+          <div className={styles["mobile-arc-bg"]}>
+            <div className={styles["mobile-arc-content"]}>
+              <ChargegoLogo className={styles["login-logo"]} />
+              <h2 className={styles["login-title"]}>會員登入</h2>
             </div>
           </div>
           {/* 登入表單區塊 */}
-          <form className="login-form" onSubmit={handleSubmit}>
+          <form className={styles["login-form"]} onSubmit={handleSubmit}>
             {/* 錯誤訊息顯示 */}
             {error && (
-              <div className="login-error-message">
+              <div className={styles["login-error-message"]}>
                 {error}
               </div>
             )}
@@ -122,7 +122,7 @@ const mber_Login = () => {
             <input
               type="text"
               name="username"
-              className="login-input"
+              className={styles["login-input"]}
               placeholder="帳號"
               value={form.username}
               onChange={handleChange}
@@ -132,7 +132,7 @@ const mber_Login = () => {
             <input
               type="password"
               name="password"
-              className="login-input"
+              className={styles["login-input"]}
               placeholder="密碼"
               value={form.password}
               onChange={handleChange}
@@ -141,18 +141,18 @@ const mber_Login = () => {
             {/* 忘記密碼 */}
             <button
               type="button"
-              className="forgot-link"
+              className={styles["forgot-link"]}
               onClick={() => alert("請聯繫客服重設密碼")}
             >
               忘記密碼
             </button>
             {/* 驗證碼顯示與刷新 */}
-            <div className="captcha-row">
-              <span className="captcha-label">驗證碼</span>
-              <span className="captcha-value">{captchaValue}</span>
+            <div className={styles["captcha-row"]}>
+              <span className={styles["captcha-label"]}>驗證碼</span>
+              <span className={styles["captcha-value"]}>{captchaValue}</span>
               <button
                 type="button"
-                className="captcha-refresh"
+                className={styles["captcha-refresh"]}
                 onClick={refreshCaptcha}
               >
                 重新產生
@@ -162,19 +162,19 @@ const mber_Login = () => {
             <input
               type="text"
               name="captcha"
-              className="login-input"
+              className={styles["login-input"]}
               placeholder="請輸入驗證碼"
               value={form.captcha}
               onChange={handleChange}
               required
             />
             {/* 登入按鈕 */}
-            <button type="submit" className="login-btn">
+            <button type="submit" className={styles["login-btn"]}>
               登入
             </button>
             <button
               type="button"
-              className="register-btn"
+              className={styles["register-btn"]}
               onClick={() => navigate("/mber_register")}
             >
               註冊
