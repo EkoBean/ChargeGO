@@ -8,6 +8,8 @@ SCSS是管理CSS的手段，你可以想成是css的mata data。
 
 寫好的 SCSS 會經過編譯，產生一般瀏覽器能讀的 CSS 檔案。
 
+**不過在vite環境下只要在jsx中直接引入scss就好，vite會在渲染的時候自動編譯，不需要再編譯一次**
+
 ---
 
 # SCSS 的安裝

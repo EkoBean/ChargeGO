@@ -1,4 +1,4 @@
-import './Task.css';
+import '../../styles/scss/Task.module.module.scss';
 import NavbarWebsite from '../../components/NavbarWebsite';
 
 export default function Task() {

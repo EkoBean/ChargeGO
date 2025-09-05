@@ -1,5 +1,4 @@
 // ======scss==========
-import "../styles/scss/global.scss";
 import React, { useEffect } from "react";
 import WebSite from "./ImageWebsite/WebSite";
 
@@ -15,10 +14,9 @@ import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Login from './Login/Login';
 import Coupon from "./mall/coupon";
-import CheckoutCoupon from "./mall/checkout_coupon";
-import MemberLogin from "./MemberLogin";
-import NavbarWebsite from "../components/NavbarWebsite";
-import Task from "./Task";
+import CheckoutCoupons from "./mall/checkout_coupon";
+import MemberLogin from "./membersystem/login";
+import NavbarWebsite from "../components/NavBarWebsite";
 
 function App() {
   return (
@@ -30,19 +28,11 @@ function App() {
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
-        <Route path="/CheckoutCoupon" element={<CheckoutCoupon />}></Route>
-        <Route
-          path="/"
-          element={
-            <>
-              <Task />
-            </>
-          }
-        />
+        <Route path="/CheckoutCoupons" element={<CheckoutCoupons />}></Route>
+
         {/* <Route path="/register" element={<Register />} /> */}
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/MemberLogin" element={<MemberLogin />} />
-        <Route path="/Task" element={<Task />} />
         {/* <Route path="*" element={<Register />} /> */}
         {/* 這個以後可以來寫個no Found頁 */}
       </Routes>
