@@ -1,11 +1,6 @@
-// teser
-import NavBarAPP from '../../components/NavBarAPP';
-
 // ================= Library =============================
 // style
-import styles from '../../styles/scss/map_index.module.scss';
-
-
+import styles from '../../styles/scss/map_index.module.scss'; 
 //React
 import React, { cloneElement, use, useEffect, useRef } from 'react';
 import axios from 'axios';
@@ -26,21 +21,49 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // environment variables
 const API_URL = import.meta.env.VITE_BACKEND_API_URL
+
+
 // ================= Constants ============================
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
+
 const mapId = '7ade7c4e6e2cc1087f2619a5'
-const defaultCenter = { lat: 25.033964, lng: 121.564468 }
+let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 }
 
 
 // Warning time threshold in minutes (e.g., 4320 minutes = 3 days)
 const WARNING_MINUTES = 4320;
+
+// ======== MarkerBus  ==========
+// 將對markerID的操作不管在哪裡都將他連結進markerItem裡面
+// 不管在父元件還是在其他地方都可以操作subscribe這個class的物件
+class Bus {
+  constructor() {
+    this.current = null;
+    this.listeners = new Set();
+  }
+  set(id) {
+    this.current = (this.current === id ? null : id);
+    this.listeners.forEach(l => l(this.current));
+  }
+  clear() {
+    if (this.current !== null) {
+      this.current = null;
+      this.listeners.forEach(l => l(this.current));
+    }
+  }
+  subscribe(fn) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+}
+const markerBus = new Bus();
+const listBus = new Bus();
 
 // =============== Main function ===========================
 function MapIndex() {
   const [stations, setStations] = React.useState([]);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = React.useState(false);
 
-  // ======== Base Map =============
 
 
   // ================= Axios fetch =================
@@ -700,7 +723,7 @@ function MapIndex() {
         <>
           {/* Current Location Marker */}
           <CurrentLocationMarker />
-
+          
           {/* Stations Marker */}
           <AdvancedMarker
             position={
@@ -732,32 +755,33 @@ function MapIndex() {
 
 
     return (
-      <APIProvider apiKey={APIkey}>
+      <>
         <Map
           style={{ width: '100vw', height: '100vh' }}
           defaultCenter={defaultCenter}
           defaultZoom={16}
           gestureHandling={'greedy'}
           disableDefaultUI={true}
+          draggingCursor={'default'}
+          draggableCursor={'default'}
           mapId={mapId}
-
         >
-          <AdvancedMarker position={defaultCenter} />
+
+          <HudSet />
+          <MarkerWithInfoWindow />
         </Map>
-      </APIProvider>
-    )
-  }
+
+      </>
+    );
+  };
 
 
-  // ============ Original JS ==============
-  useEffect(() => {
 
-  }, []);
+
 
   // ============= Render zone ================
   return (
     <>
-      <NavBarAPP />
       <APIProvider apiKey={APIkey}
         region='TW'
         libraries={['places']}
@@ -770,7 +794,7 @@ function MapIndex() {
         )}
       </APIProvider>
     </>
-  )
-};
+  );
+}
 
 export default MapIndex;
