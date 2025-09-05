@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "../../styles/scss/mber_profile.module.scss"; 
+import styles from "../../styles/scss/mber_profile.module.scss";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
-
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
@@ -99,13 +98,12 @@ const mber_Profile = () => {
       {/* Header */}
       <div className={styles.info_container}>
         <span
-          className={styles.back_icon + " " + styles.mobile_only_back}
+          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
           onClick={() => window.history.back()}
           title="回到上頁"
         >
           ◀︎
         </span>
-
         <div className={styles.mobile_arc_bg}>
           <div className={styles.mobile_arc_content}>
             <ChargegoLogo className={styles.mobile_only_logo} />
@@ -132,7 +130,11 @@ const mber_Profile = () => {
               <span>信用卡資料</span>
             </div>
             <div className={styles.card}>
-              <img src="/Iconimg/bill.svg" alt="帳單紀錄" onClick={() => navigate("/mber_rentRecord")} />
+              <img
+                src="/Iconimg/bill.svg"
+                alt="帳單紀錄"
+                onClick={() => navigate("/mber_rentRecord")}
+              />
               <span>租借紀錄</span>
             </div>
             <div className={styles.card}>
@@ -142,6 +144,10 @@ const mber_Profile = () => {
           </div>
           {/* 會員資料區塊 */}
           <div className={styles.mber_info_profile}>
+            <div>
+              <span>帳號｜</span>
+              <span>{user?.login_id || "testuser"}</span>
+            </div>
             <div>
               <span>會員姓名｜</span>
               <span>{user?.user_name || "王大明"}</span>
@@ -186,6 +192,10 @@ const mber_Profile = () => {
                 <option value="金門縣">金門縣</option>
               </select>
             </div>
+            <div>
+              <span>地址｜</span>
+              <span>{user?.address || ""}</span>
+            </div>
           </div>
         </div>
         {/* 按鈕區塊 */}
@@ -199,4 +209,3 @@ const mber_Profile = () => {
 };
 
 export default mber_Profile;
-

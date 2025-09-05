@@ -7,7 +7,7 @@ import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 
 const mber_Login = () => {
   const [form, setForm] = useState({
-    username: "",
+    login_id: "",
     password: "",
     captcha: "",
   });
@@ -30,7 +30,7 @@ const mber_Login = () => {
     setError("");
 
     // 必填欄位檢查
-    if (!form.username.trim()) {
+    if (!form.login_id.trim()) {
       setError("請輸入帳號");
       return;
     }
@@ -59,8 +59,8 @@ const mber_Login = () => {
       const res = await axios.post(
         "http://localhost:3000/mber_login",
         {
-          user_name: form.username,
-          password: hashedPwd,
+          login_id: form.login_id, // login_id
+          password: hashedPwd, // hashed_password
         },
         { withCredentials: true }
       );
@@ -121,10 +121,10 @@ const mber_Login = () => {
             {/* 帳號欄位 */}
             <input
               type="text"
-              name="username"
+              name="login_id" 
               className={styles["login-input"]}
               placeholder="帳號"
-              value={form.username}
+              value={form.login_id} 
               onChange={handleChange}
               required
             />

@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import crypto from 'crypto'; 
-import session from 'express-session'; 
-import cookieParser from 'cookie-parser'; 
+import crypto from 'crypto';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import db from './db.js'; // 引入 db.js
 
 const app = express();
@@ -54,26 +54,25 @@ app.get('/user/:uid/orders', (req, res) => {
 // 註冊會員 API
 app.post('/mber_register', (req, res) => {
     const {
+        login_id,
         user_name,
-        telephone,
+        password, // 已是雜湊值
         email,
-        password,
+        telephone,
         country,
         address,
         credit_card_number,
         credit_card_date
     } = req.body;
 
-
-
-    // 檢查 username 或 email 是否重複
+    // 檢查 login_id 或 email 是否重複
     db.query(
-        'SELECT user_name, email FROM user WHERE user_name = ? OR email = ?',
-        [user_name, email],
+        'SELECT login_id, email FROM user WHERE login_id = ? OR email = ?',
+        [login_id, email],
         (err, results) => {
             if (err) return res.status(500).json({ error: err });
             if (results.length > 0) {
-                if (results[0].user_name === user_name) {
+                if (results[0].login_id === login_id) {
                     return res.json({ success: false, message: '帳號已被註冊' });
                 }
                 if (results[0].email === email) {
@@ -88,17 +87,17 @@ app.post('/mber_register', (req, res) => {
             const total_carbon_footprint = 0;
             const status = "0";
 
-            // 密碼雜湊（10碼）
-            const hashed_password = hashPassword(password);
-
             db.query(
-                `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO user (
+                    login_id, user_name, telephone, email, password, country, address,
+                    blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
+                    login_id,
                     user_name,
                     telephone,
                     email,
-                    hashed_password, // 存雜湊值
+                    password, // 已是雜湊值
                     country,
                     address,
                     blacklist,
@@ -120,11 +119,11 @@ app.post('/mber_register', (req, res) => {
 
 // 登入 API
 app.post('/mber_login', (req, res) => {
-    const { user_name, password } = req.body;
-
+    const { login_id, password } = req.body;
+    // 前端已雜湊，直接比對
     db.query(
-        'SELECT uid, user_name, status, blacklist, email, telephone, country, address FROM user WHERE user_name = ? AND password = ?',
-        [user_name, password],
+        'SELECT uid, login_id, user_name, status, blacklist, email, telephone, country, address FROM user WHERE login_id = ? AND password = ?',
+        [login_id, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
 
@@ -145,7 +144,7 @@ app.post('/mber_login', (req, res) => {
             }
 
             // 登入成功，將 user 資料存入 session
-            req.session.user = user;
+            req.session.user = user; // session cookie 會自動儲存於瀏覽器
 
             return res.json({
                 success: true,
@@ -156,14 +155,14 @@ app.post('/mber_login', (req, res) => {
     );
 });
 
-// 檢查是否登入 API (前端可用來驗證登入狀態)
+// 檢查是否登入 API (前端可用來驗證登入狀態，並取得 user 資料)
 app.post('/check-auth', (req, res) => {
     // 直接從 session 取得 user
     if (req.session.user) {
         return res.json({
             success: true,
             authenticated: true,
-            user: req.session.user
+            user: req.session.user // 提供 user 資料給前端
         });
     } else {
         return res.json({
@@ -241,7 +240,7 @@ app.get('/user/:uid/coupons', (req, res) => {
         }
     );
 });
-  
+
 app.get('/', (req, res) => {
     res.send('伺服器連線成功！');
 });
@@ -291,4 +290,6 @@ app.get('/user/:uid/points', (req, res) => {
 app.listen(3000, () => {
     console.log('API server running on port 3000');
 });
+
+
 
