@@ -1,4 +1,4 @@
-import '../../styles/scss/Task.module.module.scss';
+import '../../styles/scss/Task.module.scss';
 import NavbarWebsite from '../../components/NavbarWebsite';
 
 

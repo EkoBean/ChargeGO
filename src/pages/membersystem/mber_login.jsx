@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss"; 
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 
 const mber_Login = () => {
   const [form, setForm] = useState({
@@ -106,7 +105,6 @@ const mber_Login = () => {
           {/* header區塊：arc+logo+標題 */}
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
-              <ChargegoLogo className={styles["login-logo"]} />
               <h2 className={styles["login-title"]}>會員登入</h2>
             </div>
           </div>

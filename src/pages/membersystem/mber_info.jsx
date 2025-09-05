@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 import styles from "../../styles/scss/mber_info.module.scss"; 
 
@@ -50,7 +49,6 @@ const mber_Info = () => {
 
   return (
     <div className={styles.mber_info_page}>
-      <ChargegoLogo />
       <div className={styles.mber_info_header}>
         <img
           src="./Iconimg/backBtn.svg"

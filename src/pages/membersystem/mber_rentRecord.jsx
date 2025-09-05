@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_rentRecord.module.scss";
-import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
+
 import NavBarAPP from "../../components/NavBarAPP";
 
 const mber_RentRecord = () => {
@@ -26,7 +26,6 @@ const mber_RentRecord = () => {
   return (
     <div className={styles.mber_rentRecord}>
       <div className={styles.record_header}>
-        <ChargegoLogo />
         <NavBarAPP />
         <h2>租借紀錄 </h2>
       </div>
