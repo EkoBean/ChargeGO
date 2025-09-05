@@ -4,15 +4,18 @@ import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss"; 
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP"; 
+import crypto from "crypto-js";
+
 const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
-    username: "",
+    login_id: "",
+    user_name: "",
     password: "",
     confirmPassword: "",
     email: "",
     telephone: "",
-    county: "", // 新增 county 欄位
+    county: "",
     address: "",
     credit_card_number: "",
     credit_card_date: "",
@@ -43,7 +46,8 @@ const mber_Register = () => {
   // 驗證表單有無錯誤
   const validate = () => {
     // 必填欄位檢查
-    if (!form.username.trim()) return "帳號必填";
+    if (!form.login_id.trim()) return "帳號必填";
+    if (!form.user_name.trim()) return "姓名必填";
     if (!form.password) return "密碼必填";
     if (!form.confirmPassword) return "確認密碼必填";
     if (!form.email.trim()) return "Email 必填";
@@ -57,7 +61,7 @@ const mber_Register = () => {
     if (form.subpwd !== String(captchaValue)) return "驗證碼錯誤";
     if (form.password !== form.confirmPassword) return "密碼與確認密碼不一致";
     if (!form.agreerule) return "請勾選同意使用者規範";
-    if (form.username == form.password) return "帳號密碼不可相同";
+    if (form.login_id == form.password) return "帳號密碼不可相同";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "Email 格式錯誤";
     if (form.telephone && form.telephone.length < 8) return "電話格式不正確";
@@ -79,16 +83,19 @@ const mber_Register = () => {
       return;
     }
     try {
+      // 前端雜湊密碼（SHA256取前10碼）
+      const hashedPwd = crypto.SHA256(form.password).toString(crypto.enc.Hex).slice(0, 10);
       const payload = {
-        user_name: form.username,
-        password: form.password,
+        login_id: form.login_id,
+        user_name: form.user_name,
+        password: hashedPwd, // 送出雜湊後的密碼
         email: form.email,
         telephone: form.telephone,
-        country: form.county, // 傳送 county 作為 country 欄位
+        country: form.county,
         address: form.address,
         credit_card_number: form.credit_card_number,
         credit_card_date: form.credit_card_date,
-        status: "0", // 修正為字串型態，符合 enum
+        status: "0",
       };
       const res = await axios.post(
         "http://localhost:3000/mber_register",
@@ -121,12 +128,13 @@ const mber_Register = () => {
   // 清空表單
   const handleClear = () => {
     setForm({
-      username: "",
+      login_id: "",
+      user_name: "",
       password: "",
       confirmPassword: "",
       email: "",
       telephone: "",
-      county: "", // 清空 county
+      county: "",
       address: "",
       credit_card_number: "",
       credit_card_date: "",
@@ -180,14 +188,29 @@ const mber_Register = () => {
             <div className={styles["register-form-row"]}>
               {/* 帳號 */}
               <div className={styles["register-input-group"]}>
-                <label htmlFor="username" className={styles["register-label"]}>
+                <label htmlFor="login_id" className={styles["register-label"]}>
                   帳號：
                 </label>
                 <input
                   className={styles["register-input"]}
-                  id="username"
-                  name="username"
-                  value={form.username}
+                  id="login_id"
+                  name="login_id"
+                  value={form.login_id}
+                  onChange={handleChange}
+                  required
+                  type="text"
+                />
+              </div>
+              {/* 姓名 */}
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="user_name" className={styles["register-label"]}>
+                  姓名：
+                </label>
+                <input
+                  className={styles["register-input"]}
+                  id="user_name"
+                  name="user_name"
+                  value={form.user_name}
                   onChange={handleChange}
                   required
                   type="text"
@@ -445,4 +468,4 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
-                 
+

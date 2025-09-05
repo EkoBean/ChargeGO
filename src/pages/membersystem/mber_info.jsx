@@ -73,8 +73,6 @@ const mber_Info = () => {
           ) : (
             notices.map((notice) => (
               <div className={styles.mber_info_info} key={notice.notice_id}>
-                {/* 可根據資料表顯示 LOGO 或其他欄位 */}
-                {/* <img src="" alt="LOGO" /> */}
                 <h4>{notice.notice_title}</h4>
                 <p>{notice.notice_content}</p>
                 <span>{notice.notice_date}</span>

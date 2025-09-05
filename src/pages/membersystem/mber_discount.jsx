@@ -53,7 +53,7 @@ const Mber_discount = () => {
           <ChargegoLogo />
         </div>
         <span
-          className={styles.backIcon}
+          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
           onClick={() => window.history.back()}
           title="回到上頁"
         >

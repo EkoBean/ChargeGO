@@ -1,7 +1,7 @@
 @use "./global.scss" as mb;
 
 .mber_discount {
-  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  background: linear-gradient(to bottom, mb.$primary 0%, #fff9e3 100%);
   min-height: 100vh;
 
   .discountHeader {
@@ -20,6 +20,25 @@
       cursor: pointer;
     }
 
+    .back-icon {
+      position: absolute;
+      top: 30px;
+      left: 50px;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 20;
+      background: #66ff50;
+      border-radius: 50%;
+      padding: 8px 16px;
+      transition: 0.2s ease;
+    }
+
+    .back-icon:hover {
+      color: #ffd600;
+      transform: scaleX(1.2);
+    }
+
     .headerFlex {
       display: flex;
       align-items: center;
@@ -27,7 +46,7 @@
       gap: 8px;
 
       .pointCircle {
-        background: #66ff50;
+        background: mb.$success;
         color: #fff;
         border-radius: 50%;
         width: 32px;
@@ -40,7 +59,7 @@
 
       .pointTitle {
         font-weight: bold;
-        color: #66ff50;
+        color: mb.$success;
         font-size: 20px;
       }
 
@@ -60,13 +79,13 @@
       text-align: center;
       font-size: 48px;
       font-weight: bold;
-      color: #7A5F00;
+      color: #7a5f00;
       margin-top: 8px;
     }
 
     .couponTitle {
       text-align: center;
-      color: #7A5F00;
+      color: #7a5f00;
       font-size: 20px;
       margin-top: 8px;
     }
@@ -95,10 +114,10 @@
     .couponCard {
       background: #fff;
       border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       padding: 20px;
       margin-bottom: 18px;
-      border-left: 8px solid #66ff50;
+      border-left: 8px solid mb.$success;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -110,7 +129,7 @@
       }
 
       .couponDesc {
-        color: #7A5F00;
+        color: #7a5f00;
         font-size: 16px;
       }
 
@@ -143,11 +162,17 @@
         align-items: center;
       }
 
-      .backIcon {
-        left: 8px;
+      .back-icon.mobile-only-back {
+        position: absolute;
         top: 12px;
-        font-size: 22px;
-        padding: 2px 8px;
+        left: 12px;
+        font-size: 2rem;
+        color: #fff;
+        background: #66ff50;
+        border-radius: 50%;
+        padding: 8px 16px;
+        transition: 0.2s ease;
+        z-index: 30;
       }
 
       .headerFlex {
@@ -205,10 +230,10 @@
         min-width: 0;
         background: #fff;
         border-radius: 24px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06); // Bootstrap: shadow-sm
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); // Bootstrap: shadow-sm
         padding: 14px;
         margin-bottom: 12px;
-        border-left: 6px solid #66ff50;
+        border-left: 6px solid mb.$success;
         gap: 4px;
 
         .couponCode {
@@ -242,7 +267,8 @@
         margin-bottom: 16px;
         margin-top: 0;
 
-        img, svg {
+        img,
+        svg {
           max-width: 160px;
           height: auto;
           display: block;
