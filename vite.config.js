@@ -15,3 +15,4 @@ export default defineConfig({
     cssCodeSplit: true,  // 生產模式下分割CSS
   },
 })
+
