@@ -31,6 +31,105 @@ app.get("/products", async (req, res) => {
   const results = await pool.query(query);
   res.json(results);
 });
+
+// 購買,兌換優惠券 (先不做扣點機制)
+app.post("/buycoupons", async (req, res) => {
+  try {
+    console.log("前端送的 template_id:", req.body.template_id);
+    console.log("前端送的 user_id:", req.body.user_id);
+
+    const { template_id, user_id } = req.body;
+
+    // 取出 優惠券模板中 的截止日期、消耗點數
+    const [templaterows] = await pool.query(
+      "SELECT validity_days, point FROM coupon_templates WHERE template_id = ?",
+      [template_id]
+    );
+    if (templaterows.length === 0) {
+      return res.status(404).json({ error: "找不到 coupon_template" });
+    }
+
+    const validity_days = templaterows[0].validity_days;
+    const coupon_point = templaterows[0].point; // 保留 point 作為價格資訊（但不扣點）
+
+    // 新增 coupon
+    const [couponResult] = await pool.query(
+      `INSERT INTO coupons (template_id, user_id, source_type, status, issued_at, expires_at)
+       VALUES (?, ?, 'shop_purchase', 'active', NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
+      [template_id, user_id, validity_days]
+    );
+
+    const coupon_id = couponResult.insertId;
+
+    // 新增 shop_orders
+    const [orderResult] = await pool.query(
+      `INSERT INTO shop_orders
+        (user_id, template_id, price, coupon_id, order_status)
+       VALUES (?, ?, ?, ?, 'completed')`,
+      [user_id, template_id, coupon_point, coupon_id]
+    );
+
+    const order_id = orderResult.insertId;
+
+    // 回傳
+    res.json({
+      success: true,
+      message: "優惠券與訂單新增成功（未扣點）",
+      coupon_id,
+      order_id,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "資料庫錯誤" });
+  }
+});
+
+// 後端新增 /checkpoints
+
+// GET /checkpoints?user_id=123&template_id=456
+app.get("/checkpoints", async (req, res) => {
+  try {
+    const { user_id, template_id } = req.query;
+
+    if (!user_id || !template_id) {
+      return res.status(400).json({ error: "缺少 user_id 或 template_id" });
+    }
+    //查模板
+    const [templaterows] = await pool.query(
+      "SELECT point FROM coupon_templates WHERE template_id = ?",
+      [template_id]
+    );
+    console.log(templaterows);
+    if (templaterows.length === 0) {
+      return res.status(404).json({ error: "找不到 coupon_template" });
+    }
+    //需求點數
+    const requiredPoints = templaterows.point;
+    console.log("需求點數", requiredPoints);
+    //查用戶點數
+    const [userRows] = await pool.query(
+      "SELECT point FROM user WHERE uid = ?",
+      [user_id]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(404).json({ error: "找不到使用者" });
+    }
+    console.log("userRows", userRows);
+    const userPoints = userRows.point;
+    console.log("userPoints", userPoints);
+    const sufficient = userPoints >= requiredPoints;
+    console.log("sufficient", sufficient);
+    res.json({ sufficient });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "資料庫錯誤" });
+  }
+});
+
+app.post("/points/deduct", async (req, res) => {
+  const query = ``;
+});
 const PORT = process.env.PORT || 4001;
 app.listen(PORT, () => {
   console.log(`API server running on port ${PORT}`);
