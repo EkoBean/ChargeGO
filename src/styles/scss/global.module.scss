@@ -28,6 +28,16 @@ $font-size-base: 1rem;
 body {
   font-family: $font-family-base;
   line-height: 1.6;
+  background: #ffce00;
+
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 
