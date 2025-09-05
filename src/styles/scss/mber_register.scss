@@ -1,0 +1,365 @@
+@use "./global.scss" as mb;
+
+
+
+.register-bg {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lightning {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: auto;
+  max-width: 60vw;
+  /* 可依需求調整寬度 */
+  display: flex;
+  object-fit: cover;
+  z-index: 1;
+}
+
+
+
+.register-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+
+
+.register-form-section {
+  background: rgba(255, 255, 255, 0);
+  padding: 0;
+  border-radius: 16px;
+  width: 100%;
+
+  max-width: 400px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.register-title {
+  text-align: center;
+  font-family: "Mantou sans", serif;
+  font-size: 36px;
+  color: #6b4f1d;
+  font-weight: 100;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+}
+
+
+
+.register-arrow {
+  background: linear-gradient(90deg, #6b4f1d 0%, #ffd600 100%);
+  font-size: 23px;
+  margin-left: 8px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  
+
+}
+
+.register-form-row {
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.register-form-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+
+.register-input-group {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px; // 與手機版一致
+}
+
+
+
+.register-btn,
+.correct-btn,
+.leave-btn {
+  width: 300px; // 與 input 欄位寬度一致
+  padding: 12px 0;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.3rem;
+  letter-spacing: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  cursor: pointer;
+  background: #ffd600;
+  color: #6b4f1d;
+  transition: 0.2s;
+}
+
+.register-btn:hover {
+  background: #ffc107;
+  transform: scale(1.2);
+}
+
+
+
+
+.register-label {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b4f1d;
+  font-size: 1.1rem;
+  pointer-events: none;
+  font-weight: bold;
+  letter-spacing: 2px;
+  width: 280px;
+}
+
+.register-input {
+  padding-left: 80px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 300px; /* 或 100%，依需求調整 */
+}
+
+.register-input#email {
+  padding-left: 120px;
+}
+
+.register-input#confirm-password {
+  padding-left: 120px;
+}
+
+.register-input#city {
+  width: 300px;
+  padding-left: 120px;
+  box-sizing: border-box;
+  display: block;
+  margin: 0;
+}
+
+.register-input:focus + .register-label,
+.register-input:not(:placeholder-shown) + .register-label {
+  color: #6b4f1d;
+}
+
+.register-checkbox-group {
+  display: flex;
+  gap: 25px; /* 調整勾選項目間距 */
+  margin-top: 10px; /* 與上方欄位距離 */
+  color: #6b4f1d;
+  font-weight: 500;
+}
+
+.correct-btn,
+.leave-btn {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.3rem;
+  letter-spacing: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  cursor: pointer;
+  background: #ffd600;
+  color: #6b4f1d;
+  transition: 0.2s;
+}
+
+.correct-btn:hover,
+.leave-btn:hover {
+  background: #ffc107;
+  transform: scale(1.2);
+}
+
+.register-footer {
+  width: 100%;
+  background: #d9d9d9;
+  text-align: center;
+  font-size: 2rem;
+  color: #222;
+  padding: 32px 0 24px 0;
+  position: relative;
+  bottom: 0;
+}
+
+/* 手機版專用區塊，預設隱藏 */
+.mobile-only {
+  display: none;
+}
+
+/* 手機響應式設計 */
+@media (max-width: 600px) {
+  .mobile-only {
+    display: block;
+  }
+ 
+  .register-container {
+    max-width: 100vw;
+    padding-top: 24px;
+  }
+  .register-form-section {
+    max-width: 80vw;
+    padding: 0 8px;
+    
+  }
+  .register-form {
+    max-width: 100vw;
+    width: 100%;
+    gap: 12px;
+   
+  }
+  .register-form-row {
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+  .register-form-col {
+    width: 100%;
+    gap: 0;
+    align-items: stretch;
+  }
+  .register-input-group {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  #city-group {
+    width: 100%;
+    margin: 0 0 24px 0;
+    display: block;
+  }
+  .register-label {
+    left: 16px;
+    font-size: 1rem;
+    width: 120px;
+  }
+  .register-input,
+  .register-input#city,
+  .register-input#email,
+  .register-input#confirm-password {
+    width: 100%;
+    min-width: 0;
+    font-size: 1rem;
+    padding-left: 100px;
+    padding-right: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .register-btn,
+  .correct-btn,
+  .leave-btn {
+    width: 100%; // 手機版維持全寬
+    border-radius: 32px;
+    margin-bottom: 12px;
+    padding: 16px 0;
+    font-size: 1.2rem;
+    letter-spacing: 8px;
+  }
+  .register-title {
+    font-size: 40px;
+    font-weight: 100;
+    margin-bottom: 18px;
+  }
+  .mobile-arc-bg {
+    width: 100vw;
+    height: 180px;
+    background: #ffc800;
+    top: -25px;
+    border-bottom-left-radius: 200px;
+    border-bottom-right-radius: 200px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    overflow: hidden;
+    margin-bottom: 20px;
+    z-index: 10;
+  }
+  .mobile-arc-content {
+    width: 90vw;
+    max-width: 400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 11;
+    padding-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lightning {
+    position: fixed;
+    left: 0;
+    top: 50px;
+    width: 100vw;
+    height: 110vh;
+    object-fit: contain;
+    display: flex;
+    z-index: 1;
+  }
+}
+
+.back-icon {
+  position: absolute;
+  top: 30px;
+  left: 50px;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 20;
+  background: #66ff50;
+  border-radius: 50%;
+  padding: 8px 16px;
+  transition: 0.2s ease;
+}
+.back-icon:hover {
+  color: #ffd600;
+  transform: scaleX(1.2);
+}
+
