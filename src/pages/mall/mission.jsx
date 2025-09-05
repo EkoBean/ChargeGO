@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import "../../styles/scss/mall_index.scss";
+import styles from "../../styles/scss/mall_index.module.scss"; // 修正匯入方式
 
 class Mission extends Component {
   state = {
@@ -85,10 +85,10 @@ class Mission extends Component {
     const { mission, loading, error, userId, filterDate } = this.state;
 
     return (
-      <div className="container">
-        <h2 className="title">我的任務列表</h2>
+      <div className={styles.container}>
+        <h2 className={styles.title}>我的任務列表</h2>
 
-        <div className="filter-row">
+        <div className={styles["filter-row"]}>
           <div>
             <label htmlFor="userId">使用者 ID</label>
             <input
@@ -111,11 +111,11 @@ class Mission extends Component {
         </div>
 
         {loading ? (
-          <div className="loading-text">任務資料載入中...</div>
+          <div className={styles["loading-text"]}>任務資料載入中...</div>
         ) : error ? (
-          <div className="error-text">錯誤: {error}</div>
+          <div className={styles["error-text"]}>錯誤: {error}</div>
         ) : mission.length > 0 ? (
-          <div className="taskList">
+          <div className={styles.taskList}>
             {mission.map((item) => {
               const progressPercent = Math.min(
                 100,
@@ -124,19 +124,19 @@ class Mission extends Component {
 
               return (
                 <div
-                  className="taskCard"
+                  className={styles.taskCard}
                   key={item.user_mission_id}
                   style={{ padding: "12px" }}
                 >
-                  <div className="taskLeft">
-                    <div className="taskName">{item.title}</div>
+                  <div className={styles.taskLeft}>
+                    <div className={styles.taskName}>{item.title}</div>
                     <p>
                       任務進度：{item.current_progress}/{item.target_value}
                     </p>
                   </div>
 
-                  <div className="taskRight">
-                    <div className="endDate">
+                  <div className={styles.taskRight}>
+                    <div className={styles.endDate}>
                       {item.mission_end_date
                         ? `至${new Date(
                             item.mission_end_date
@@ -146,7 +146,7 @@ class Mission extends Component {
 
                     {item.is_completed === 1 && item.is_claimed === 0 ? (
                       <button
-                        className="claimBtn"
+                        className={styles.claimBtn}
                         onClick={() =>
                           this.handleClaimMission(item.user_mission_id)
                         }
@@ -154,15 +154,18 @@ class Mission extends Component {
                         領取
                       </button>
                     ) : item.is_completed === 1 && item.is_claimed === 1 ? (
-                      <span className="claimed-text">已領取</span>
+                      <span className={styles["claimed-text"]}>已領取</span>
                     ) : (
-                      <button className="claimBtn disabled" disabled>
+                      <button
+                        className={`${styles.claimBtn} ${styles.disabled}`}
+                        disabled
+                      >
                         未完成
                       </button>
                     )}
 
-                    <div className="point">
-                      <span className="point-icon">P</span>
+                    <div className={styles.point}>
+                      <span className={styles["point-icon"]}>P</span>
                       {item.reward_points}
                     </div>
                   </div>
@@ -171,7 +174,7 @@ class Mission extends Component {
             })}
           </div>
         ) : (
-          <p className="no-mission-text">沒有找到任何任務。</p>
+          <p className={styles["no-mission-text"]}>沒有找到任何任務。</p>
         )}
       </div>
     );

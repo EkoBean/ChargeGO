@@ -1,0 +1,262 @@
+@use "./tokens.module.scss" as mb;
+
+.mber_discount {
+  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  min-height: 100vh;
+
+  .discountHeader {
+    background: #f7d447;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    padding: 24px 16px 40px 16px;
+    position: relative;
+
+    .backIcon {
+      position: absolute;
+      left: 16px;
+      top: 24px;
+      font-size: 28px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .headerFlex {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      .pointCircle {
+        background: #66ff50;
+        color: #fff;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+
+      .pointTitle {
+        font-weight: bold;
+        color: #66ff50;
+        font-size: 20px;
+      }
+
+      .bellIcon {
+        position: absolute;
+        right: 16px;
+        top: 24px;
+
+        img {
+          width: 28px;
+          height: 28px;
+        }
+      }
+    }
+
+    .pointValue {
+      text-align: center;
+      font-size: 48px;
+      font-weight: bold;
+      color: #7a5f00;
+      margin-top: 8px;
+    }
+
+    .couponTitle {
+      text-align: center;
+      color: #7a5f00;
+      font-size: 20px;
+      margin-top: 8px;
+    }
+
+    .chargegoLogoTop {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      margin-top: 0;
+      z-index: 2;
+      // 可根據 ChargegoLogo 實際高度調整 margin-bottom
+    }
+  }
+
+  .couponList {
+    padding: 24px 16px;
+
+    .noCoupon {
+      text-align: center;
+      color: #888;
+      margin-top: 32px;
+    }
+
+    .couponCard {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-bottom: 18px;
+      border-left: 8px solid #66ff50;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .couponCode {
+        font-weight: bold;
+        font-size: 20px;
+        color: #66ff50;
+      }
+
+      .couponDesc {
+        color: #7a5f00;
+        font-size: 16px;
+      }
+
+      .couponUsage,
+      .couponExpire {
+        color: #888;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .mber_discount {
+    min-height: 100vh;
+    padding: 0;
+    background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+
+    .discountHeader {
+      padding: 16px 8px 24px 8px;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+
+      .chargegoLogoTop {
+        margin-bottom: 4px;
+        margin-top: 0;
+        // Bootstrap: d-flex justify-content-center
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .backIcon {
+        left: 8px;
+        top: 12px;
+        font-size: 22px;
+        padding: 2px 8px;
+      }
+
+      .headerFlex {
+        flex-direction: row;
+        gap: 4px;
+        justify-content: flex-start;
+        align-items: center;
+        position: relative;
+        // Bootstrap: d-flex align-items-center gap-2
+      }
+
+      .pointCircle {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+        border-radius: 50%;
+      }
+
+      .pointTitle {
+        font-size: 16px;
+      }
+
+      .bellIcon {
+        right: 8px;
+        top: 12px;
+        img {
+          width: 22px;
+          height: 22px;
+        }
+      }
+
+      .pointValue {
+        font-size: 32px;
+        margin-top: 4px;
+      }
+
+      .couponTitle {
+        font-size: 16px;
+        margin-top: 4px;
+      }
+    }
+
+    .couponList {
+      padding: 16px 4px;
+
+      .noCoupon {
+        font-size: 1rem;
+        margin-top: 18px;
+        padding: 8px 0;
+        border-radius: 8px;
+      }
+
+      .couponCard {
+        width: 100%;
+        min-width: 0;
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); // Bootstrap: shadow-sm
+        padding: 14px;
+        margin-bottom: 12px;
+        border-left: 6px solid #66ff50;
+        gap: 4px;
+
+        .couponCode {
+          font-size: 16px;
+        }
+        .couponDesc {
+          font-size: 14px;
+        }
+        .couponUsage,
+        .couponExpire {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .mber_discount {
+    .discountHeader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+
+      .chargegoLogoTop {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 16px;
+        margin-top: 0;
+
+        img,
+        svg {
+          max-width: 160px;
+          height: auto;
+          display: block;
+        }
+      }
+
+      .headerFlex {
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 0;
+        // 保持橫向排列
+      }
+    }
+  }
+}
