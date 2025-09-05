@@ -23,21 +23,24 @@ function App() {
   return (
     <>
       <Routes>
-        {/* <Route path="/" element={<Login />} /> */}
-        <Route path="/" element={<Mbre_login />} />
+        {/* map index */}
         <Route path="/MapIndex" element={<MapIndex />} />
+
+        {/* store system */}
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
         <Route path="/CheckoutCoupons" element={<CheckoutCoupons />}></Route>
         <Route path="/Task" element={<Task />} />
+
+        {/* membersystem */}
+        <Route path="/mber-login" element={<Mbre_login />} />
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="/mber_info" element={<Mber_info />} />
         <Route path="/Mber_discount" element={<Mber_discount />} />
         <Route path="/mber_rentRecord" element={<Mber_RentRecord />} />
-        {/* <Route path="/register" element={<Register />} /> */}
-        {/* <Route path="/login" element={<Login />} /> */}
-        <Route path="/Task" element={<Task />} />
+
+
         {/* <Route path="*" element={<Register />} /> */}
         {/* 這個以後可以來寫個no Found頁 */}
       </Routes>

@@ -1,22 +1,27 @@
 // ================= Library =============================
 // style
-import styles from '../../styles/scss/map_index.module.scss'; 
+import '../../styles/scss/map_index.module.scss'
+
 //React
 import React, { cloneElement, use, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-//map style option
-import mapOptions from '../mapOptions.json';
+// Google Maps
+import {
+  APIProvider,
+  Map,
+  useMap,
+  useAdvancedMarkerRef,
+  AdvancedMarker,
+  Pin,
+  InfoWindow,
+} from '@vis.gl/react-google-maps';
 
-// APIProvider
-import { APIProvider, Map, Pin, AdvancedMarker } from '@vis.gl/react-google-maps';
+// Bootstrap Icons
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // environment variables
 const API_URL = import.meta.env.VITE_BACKEND_API_URL
-
-// testing compoenet
-import NavBarAPP from '../../components/NavBarAPP';
-
 // ================= Constants ============================
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
 const mapId = '7ade7c4e6e2cc1087f2619a5'
@@ -691,7 +696,7 @@ function MapIndex() {
         <>
           {/* Current Location Marker */}
           <CurrentLocationMarker />
-          
+
           {/* Stations Marker */}
           <AdvancedMarker
             position={
