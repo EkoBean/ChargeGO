@@ -1,12 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import React, { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import App from "./pages/App";
+import "./styles/scss/global.scss";
 import Admin from './admin/App.jsx';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
+createRoot(document.getElementById("root")).render(
+  <>
+    <Router>
+      <App />
+    </Router>
+    <Router>
       <Admin />
-    </BrowserRouter>
-  </React.StrictMode>
+  </Router >
+    </>
 );
