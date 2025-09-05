@@ -23,7 +23,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 const API_URL = import.meta.env.VITE_BACKEND_API_URL
 
 // testing compoenet
-// import NavBarAPP from '../../components/NavBarAPP';
+import NavBarAPP from '../../components/NavBarAPP';
 
 // ================= Constants ============================
 const APIkey = 'AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg'
@@ -784,7 +784,7 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      {/* <NavBarAPP /> */}
+      <NavBarAPP />
       <APIProvider apiKey={APIkey}
         region='TW'
         libraries={['places']}
