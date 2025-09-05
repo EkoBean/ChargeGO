@@ -8,35 +8,35 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // =========== elements ==================
 
 import MapIndex from "./mapIndex/mapIndex";
-// import Register from "./membersystem/register";
-// import Login from "./membersystem/login";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
-// import Login from "./Login/Login";
+import Login from "./Login/Login";
 import Mbre_login from "./membersystem/mber_login";
 import Mber_register from "./membersystem/mber_register";
 import Mber_discount from "./membersystem/mber_discount";
 import Mber_Profile from "./membersystem/mber_profile";
 import Mber_info from "./membersystem/mber_info";
 import Coupon from "./mall/coupon";
-import CheckoutCoupons from "./mall/checkout_coupon";
-import NavbarWebsite from "../components/NavbarWebsite";
+import CheckoutCoupons from "./mall/coupon";
 import Task from "./membersystem/Task";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
-// import MemberLogin from "./membersystem/login";
 
 function App() {
   return (
     <>
       <Routes>
-        {/* <Route path="/" element={<Login />} /> */}
-        <Route path="/" element={<NavbarWebsite />} />
+        {/* map index */}
         <Route path="/MapIndex" element={<MapIndex />} />
+
+        {/* store system */}
         <Route path="/Mission" element={<Mission />} />
         <Route path="/Shop" element={<Shop />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
         <Route path="/CheckoutCoupons" element={<CheckoutCoupons />}></Route>
         <Route path="/Task" element={<Task />} />
+
+        {/* membersystem */}
+        <Route path="/mber-login" element={<Mbre_login />} />
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="/mber_info" element={<Mber_info />} />
         <Route path="/Mber_discount" element={<Mber_discount />} />

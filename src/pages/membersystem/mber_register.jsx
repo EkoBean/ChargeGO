@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../../styles/scss/mber_register.scss";
-import ChargegoLogo from "../../components/ChargegoLogo";
+import styles from "../../styles/scss/mber_register.module.scss";
+import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 const mber_Register = () => {
   // 註冊表單狀態
@@ -140,13 +140,13 @@ const mber_Register = () => {
   // 如果註冊成功，顯示成功訊息和倒數計時
   if (isSuccess) {
     return (
-      <div className="container">
-        <div className="alert alert-success" role="alert">
-          <h4 className="alert-heading">註冊成功!</h4>
+      <div className={styles["container"]}>
+        <div className={styles["alert_success"]} role="alert">
+          <h4 className={styles["alert_heading"]}>註冊成功!</h4>
           <p>您的帳戶已成功創建，{countdown} 秒後將自動前往登入頁面。</p>
           <hr />
           <button
-            className="btn btn-primary"
+            className={styles["btn_primary"]}
             onClick={() => navigate("/mber_login")}
           >
             立即前往登入
@@ -157,119 +157,112 @@ const mber_Register = () => {
   }
   // 註冊表單主要內容
   return (
-    <div className="register-bg">
+    <div className={styles["register-bg"]}>
       {/* 手機版專用區塊 */}
-      <ChargegoLogo className="mobile-only-logo" />
+      <ChargegoLogo className={styles["mobile-only-logo"]} />
       <NavBarAPP />
-      <div className="register-container">
-        <div className="register-form-section">
+      <div className={styles["register-container"]}>
+        <div className={styles["register-form-section"]}>
           {/* 返回上頁按鈕 */}
           <span
-            className="back-icon mobile-only-back"
+            className={styles["back-icon"] + " " + styles["mobile-only-back"]}
             onClick={() => window.history.back()}
             title="回到上頁"
           >
             ◀︎
           </span>
-          <div className="mobile-arc-bg">
-            <div className="mobile-arc-content">
-              <h2 className="register-title">會員註冊</h2>
+          <div className={styles["mobile-arc-bg"]}>
+            <div className={styles["mobile-arc-content"]}>
+              <h2 className={styles["register-title"]}>會員註冊</h2>
             </div>
           </div>
-          <form className="register-form" onSubmit={handleSubmit}>
-            <div className="register-form-row">
+          <form className={styles["register-form"]} onSubmit={handleSubmit}>
+            <div className={styles["register-form-row"]}>
               {/* 帳號 */}
-              <div className="register-input-group">
-                <label htmlFor="username" className="register-label">
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="username" className={styles["register-label"]}>
                   帳號：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="register-input"
-                    id="username"
-                    name="username"
-                    value={form.username}
-                    onChange={handleChange}
-                    required
-                    type="text"
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="username"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  required
+                  type="text"
+                />
               </div>
               {/* 密碼 */}
-              <div className="register-input-group">
-                <label htmlFor="password" className="register-label">
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="password" className={styles["register-label"]}>
                   密碼：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="register-input"
-                    id="password"
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    type="password"
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                  type="password"
+                />
               </div>
               {/* 確認密碼 */}
-              <div className="register-input-group">
-                <label htmlFor="confirmPassword" className="register-label">
+              <div className={styles["register-input-group"]}>
+                <label
+                  htmlFor="confirmPassword"
+                  className={styles["register-label"]}
+                >
                   確認密碼：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="register-input"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    type="password"
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  type="password"
+                />
               </div>
               {/* Email */}
-              <div className="register-input-group">
-                <label htmlFor="email" className="register-label">
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="email" className={styles["register-label"]}>
                   電子郵件：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="register-input"
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               {/* 電話 */}
-              <div className="register-input-group">
-                <label htmlFor="telephone" className="register-label">
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="telephone" className={styles["register-label"]}>
                   電話：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="register-input"
-                    id="telephone"
-                    name="telephone"
-                    type="text"
-                    value={form.telephone}
-                    onChange={handleChange}
-                    placeholder="僅數字"
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="telephone"
+                  name="telephone"
+                  type="text"
+                  value={form.telephone}
+                  onChange={handleChange}
+                  placeholder="僅數字"
+                />
               </div>
               {/* 地址 */}
-              <div className="register-input-group">
-                <label htmlFor="address" className="register-label">
-                  地址：
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="county" className={styles["register-label"]}>
+                  縣市：
                 </label>
                 <select
-                  className="register-input"
+                  className={styles["register-input"]}
                   name="county"
                   id="county"
                   value={form.county}
@@ -301,9 +294,9 @@ const mber_Register = () => {
                   <option value="金門縣">金門縣</option>
                 </select>
               </div>
-              <div className="register-input-group">
+              <div className={styles["register-input-group"]}>
                 <input
-                  className="register-input"
+                  className={styles["register-input"]}
                   id="address"
                   name="address"
                   type="text"
@@ -313,150 +306,137 @@ const mber_Register = () => {
                 />
               </div>
               {/* 信用卡號 */}
-              <div className="register-input-group">
+              <div className={styles["register-input-group"]}>
                 <label
                   htmlFor="credit_card_number"
-                  className="col-md-3 col-form-label"
+                  className={styles["register-label"]}
                 >
                   信用卡號：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="form-control"
-                    id="credit_card_number"
-                    name="credit_card_number"
-                    type="text"
-                    value={form.credit_card_number}
-                    onChange={handleChange}
-                    maxLength={16}
-                    placeholder="16 碼"
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="credit_card_number"
+                  name="credit_card_number"
+                  type="text"
+                  value={form.credit_card_number}
+                  onChange={handleChange}
+                  maxLength={16}
+                  placeholder="16 碼"
+                />
               </div>
               {/* 信用卡到期日 */}
-              <div className="register-input-group">
+              <div className={styles["register-input-group"]}>
                 <label
                   htmlFor="credit_card_date"
-                  className="col-md-3 col-form-label"
+                  className={styles["register-label"]}
                 >
                   信用卡到期日：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="form-control"
-                    id="credit_card_date"
-                    name="credit_card_date"
-                    type="text"
-                    value={form.credit_card_date}
-                    onChange={handleChange}
-                    placeholder="MM/YY"
-                    maxLength={5}
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="credit_card_date"
+                  name="credit_card_date"
+                  type="text"
+                  value={form.credit_card_date}
+                  onChange={handleChange}
+                  placeholder="MM/YY"
+                  maxLength={5}
+                />
               </div>
               {/* 驗證碼 */}
-              <div className="register-input-group" id="capbox">
-                <label className="col-md-3 col-form-label">驗證碼：</label>
-                <div className="col-md-9 d-flex align-items-center">
-                  <span
-                    className="captcha-value"
-                    style={{ fontWeight: "bold" }}
-                  >
-                    {captchaValue}
-                  </span>
-                  <button
-                    type="button"
-                    className="captcha-refresh"
-                    onClick={() =>
-                      setCaptchaValue(
-                        Math.floor(
-                          Math.random() * (999999 - 100000 + 1) + 100000
-                        )
-                      )
-                    }
-                  >
-                    重新產生
-                  </button>
-                </div>
+              <div className={styles["register-input-group"]} id="capbox">
+                <label className={styles["register-label"]}>驗證碼：</label>
+                <span
+                  className={styles["captcha-value"]}
+                  style={{ fontWeight: "bold" }}
+                >
+                  {captchaValue}
+                </span>
+                <button
+                  type="button"
+                  className={styles["captcha-refresh"]}
+                  onClick={() =>
+                    setCaptchaValue(
+                      Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
+                    )
+                  }
+                >
+                  重新產生
+                </button>
               </div>
-              <div className="register-input-group">
-                <label htmlFor="subpwd" className="col-md-3 col-form-label">
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="subpwd" className={styles["register-label"]}>
                   請輸入驗證碼：
                 </label>
-                <div className="col-md-9">
-                  <input
-                    className="form-control"
-                    id="subpwd"
-                    name="subpwd"
-                    type="text"
-                    value={form.subpwd}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+                <input
+                  className={styles["register-input"]}
+                  id="subpwd"
+                  name="subpwd"
+                  type="text"
+                  value={form.subpwd}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               {/* 條款 & 活動 */}
-              <div className="register-input-group">
-                <div className="col-md-9 offset-md-3">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="agreerule"
-                      name="agreerule"
-                      checked={form.agreerule}
-                      onChange={handleChange}
-                    />
-                    <label className="form-check-label" htmlFor="agreerule">
-                      同意使用者規範
-                    </label>
-                  </div>
+              <div className={styles["register-input-group"]}>
+                <div className={styles["register-checkbox-group"]}>
+                  <input
+                    className={styles["form-check-input"]}
+                    type="checkbox"
+                    id="agreerule"
+                    name="agreerule"
+                    checked={form.agreerule}
+                    onChange={handleChange}
+                  />
+                  <label
+                    className={styles["form-check-label"]}
+                    htmlFor="agreerule"
+                  >
+                    同意使用者規範
+                  </label>
                 </div>
               </div>
-              <div className="register-input-group">
-                <div className="col-md-9 offset-md-3">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="event"
-                      name="event"
-                      checked={form.event}
-                      onChange={handleChange}
-                    />
-                    <label className="form-check-label" htmlFor="event">
-                      訂閱活動資訊
-                    </label>
-                  </div>
+              <div className={styles["register-input-group"]}>
+                <div className={styles["register-checkbox-group"]}>
+                  <input
+                    className={styles["form-check-input"]}
+                    type="checkbox"
+                    id="event"
+                    name="event"
+                    checked={form.event}
+                    onChange={handleChange}
+                  />
+                  <label className={styles["form-check-label"]} htmlFor="event">
+                    訂閱活動資訊
+                  </label>
                 </div>
               </div>
             </div>
             {/* 按鈕 */}
-            <div className="button-group">
-              <div className="">
-                <button
-                  className="correct-btn"
-                  id="mber_register"
-                  type="submit"
-                >
-                  註冊
-                </button>
-                <button
-                  className="leave-btn"
-                  id="clear"
-                  type="button"
-                  onClick={handleClear}
-                >
-                  清除
-                </button>
-                <button
-                  className="alreadyRegistered"
-                  type="button"
-                  onClick={() => navigate("/mber_login")}
-                >
-                  已有帳號？登入
-                </button>
-              </div>
+            <div className={styles["button-group"]}>
+              <button
+                className={styles["correct-btn"]}
+                id="mber_register"
+                type="submit"
+              >
+                註冊
+              </button>
+              <button
+                className={styles["leave-btn"]}
+                id="clear"
+                type="button"
+                onClick={handleClear}
+              >
+                清除
+              </button>
+              <button
+                className={styles["alreadyRegistered"]}
+                type="button"
+                onClick={() => navigate("/mber_login")}
+              >
+                已有帳號？登入
+              </button>
             </div>
           </form>
         </div>

@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/scss/mber_profile.scss";
-import ChargegoLogo from "../../components/ChargegoLogo";
+import styles from "../../styles/scss/mber_profile.module.scss";
 import NavBarAPP from "../../components/NavBarAPP";
 // import NavBarWebsite from "../../components/NavBarWebsite";
 
@@ -93,45 +92,44 @@ const mber_Profile = () => {
   };
 
   return (
-    <div className="mber_info">
+    <div className={styles.mber_info}>
       {/* <NavBarWebsite /> */}
-      <NavBarAPP className="mobile-only-nav" />
+      <NavBarAPP className={styles.mobile_only_nav} />
       {/* Header */}
-      <div className="info-container">
+      <div className={styles.info_container}>
         <span
-          className="back-icon mobile-only-back"
+          className={styles.back_icon + " " + styles.mobile_only_back}
           onClick={() => window.history.back()}
           title="回到上頁"
         >
           ◀︎
         </span>
 
-        <div className="mobile-arc-bg">
-          <div className="mobile-arc-content">
-            <ChargegoLogo className="mobile-only-logo" />
-            <h2 className="mber_info_title">會員資料</h2>
+        <div className={styles.mobile_arc_bg}>
+          <div className={styles.mobile_arc_content}>
+            <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
         </div>
-        <div className="mber_info_header">
+        <div className={styles.mber_info_header}>
           <img
             src="/Iconimg/notify.svg"
             alt="通知按鈕"
-            className="notify-btn"
+            className={styles.notify_btn}
             onClick={notifyBtnClick()}
           />
         </div>
-        <div className="mber_info_main">
+        <div className={styles.mber_info_main}>
           {/* 頭像 */}
-          <div className="avatar">
+          <div className={styles.avatar}>
             <img src="/Iconimg/user.svg" alt="用戶頭像" />
           </div>
           {/* 卡片列 */}
-          <div className="mber_info_cards">
-            <div className="card">
+          <div className={styles.mber_info_cards}>
+            <div className={styles.card}>
               <img src="/Iconimg/wallet.svg" alt="信用卡資料" />
               <span>信用卡資料</span>
             </div>
-            <div className="card">
+            <div className={styles.card}>
               <img
                 src="/Iconimg/bill.svg"
                 alt="帳單紀錄"
@@ -139,13 +137,13 @@ const mber_Profile = () => {
               />
               <span>租借紀錄</span>
             </div>
-            <div className="card">
+            <div className={styles.card}>
               <img src="/Iconimg/help.svg" alt="幫助中心" />
               <span>幫助中心</span>
             </div>
           </div>
           {/* 會員資料區塊 */}
-          <div className="mber_info_profile">
+          <div className={styles.mber_info_profile}>
             <div>
               <span>會員姓名｜</span>
               <span>{user?.user_name || "王大明"}</span>
@@ -193,7 +191,7 @@ const mber_Profile = () => {
           </div>
         </div>
         {/* 按鈕區塊 */}
-        <div className="mber_info_btns">
+        <div className={styles.mber_info_btns}>
           <button onClick={handleEditProfile}>修改會員資料</button>
           <button onClick={handleDeactivateAccount}>會員停權</button>
         </div>
