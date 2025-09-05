@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss"; 
-import NavBarAPP from "../../components/NavBarAPP"; 
 import crypto from "crypto-js";
 
 const mber_Register = () => {
@@ -166,7 +165,7 @@ const mber_Register = () => {
   return (
     <div className={styles["register-bg"]}>
       {/* 手機版專用區塊 */}
-      <NavBarAPP />
+   
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
           {/* 返回上頁按鈕 */}

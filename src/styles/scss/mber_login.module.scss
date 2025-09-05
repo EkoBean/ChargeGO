@@ -81,7 +81,9 @@
   font-weight: 100;
   margin-bottom: 0;
   letter-spacing: 2px;
-  margin-top: 8px;
+  margin-top: 0;
+  position: relative;
+  z-index: 14;
 }
 
 
@@ -102,6 +104,7 @@
   flex-direction: column;
   gap: 18px;
   margin-top: 12px; // 增加表單與標題間距
+  width: 100%;
 }
 
 // 錯誤訊息樣式
@@ -208,8 +211,6 @@
     min-width: 0;
     font-size: 1rem;
     padding-left: 29px;
-    padding-right: 12px;
-    padding-top: 10px;
     padding-bottom: 10px;
   }
 
@@ -237,11 +238,7 @@
     margin: 48px auto 32px auto; // 上方留空間，下方加大間距
     border-bottom-left-radius: 200px;
     border-bottom-right-radius: 200px;
-    // display: flex;
-    // justify-content: center;
-    // align-items: flex-start;
-    // position: relative;
-    z-index: 12;
+    
   }
 
   .mobile-arc-content {
@@ -296,6 +293,21 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  .input-row {
+    gap: 8px;
+    width: 100%;
+  }
+  .input-icon {
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    margin-right: 6px;
+  }
+  .input-row input {
+    font-size: 1rem;
+    padding-left: 12px;
+  }
 }
 
 .back-icon {
@@ -317,11 +329,52 @@
   transform: scaleX(1.2);
 }
 
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0;
+  width: 100%;
+  position: relative;
+}
+
+.input-icon {
+  width: 38px;
+  height: 38px;
+  background: #66ff50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  object-fit: contain;
+  padding: 6px;
+}
+
+.input-row input {
+  flex: 1;
+  margin-bottom: 0;
+  padding-left: 18px;
+  font-size: 1.1rem;
+  border-radius: 24px;
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.input-row .captcha-label,
+.input-row .captcha-value,
+.input-row .captcha-refresh {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
 .captcha-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 0;
 }
 
 .captcha-value {
