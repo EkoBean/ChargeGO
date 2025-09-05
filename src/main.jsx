@@ -6,6 +6,6 @@ import "./styles/scss/global.scss";
 
 createRoot(document.getElementById("root")).render(
   <Router>
-    <App />
+    <App/>
   </Router>
 );
