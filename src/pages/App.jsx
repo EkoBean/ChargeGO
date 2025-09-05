@@ -23,7 +23,6 @@ import CheckoutCoupons from "./mall/coupon";
 import NavbarWebsite from "../components/NavbarWebsite";
 import Task from "./membersystem/Task";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
-import CheckoutCoupons from "./mall/checkout_coupon";
 import MemberLogin from "./membersystem/login";
 
 function App() {
