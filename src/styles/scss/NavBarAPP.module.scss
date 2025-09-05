@@ -10,7 +10,7 @@ $icon-sizes: (
     base: 35px,
     sm: 43px,
     md: 45px,
-    lg: 48px
+    lg: 28px
 );
 
 
@@ -51,7 +51,7 @@ $icon-sizes: (
         transform: scale(2) translateY(-20%);
         position: relative;
     }
-    
+
 
     .navbar-phone-notification {
         width: 22px;
@@ -151,7 +151,7 @@ $icon-sizes: (
         }
 
         div#map img,
-        svg {
+        div#map svg {
             width: map-get($icon-sizes, md);
             height: map-get($icon-sizes, md);
             position: relative;
@@ -169,79 +169,34 @@ $icon-sizes: (
 }
 
 
-// /* lg >= 992pxpx */
-// @media (min-width: 992px){
-//    .navbar-phone-container {
+/* lg >= 992pxpx */
+@media (min-width: 992px) {
+    .navbar-phone-container {
+        padding-left: 5rem; 
+        padding-right: 5rem; 
+        .icon{
+            flex-direction: row;
+            p{
+                margin: 0;
+            }
+        }
+        .icon img,
+        .icon svg {
+            width: map-get($icon-sizes, lg);
+            height: map-get($icon-sizes, lg);
+            position: relative;
+        }
+        div#map p{
+            display: none !important;
+        }
 
-//         transform: translateX(-50%);
-//         width: 90vw;
-//         max-width: 800px;
-//         height: 100px;
-//         background: #f7d447;
-//         border-radius: 45px;
-//         box-shadow: 0 4px 24px 0 #d6f7a8;
-//         align-items: center;
-//         justify-content: space-around;
-//         z-index: 1000;
-//     }
-//     .icon {
-//         width: 40px;
-//         height: 40px;
-//     }
-//     .icon img,
-//     .icon svg {
-//         width: 60px;
-//         height: 60px;
-//         position: relative;
-//         top: -10px;
-//     }
-//     .icon img#map {
-//         position: relative;
-//     }
-//     .navbar-phone-notification {
-//         width: 22px;
-//         height: 22px;
-//         font-size: 1em;
-//         top: 4px;
-//         right: 4px;
-//     } 
-// }
+        .navbar-phone-notification {
+            width: 22px;
+            height: 22px;
+            font-size: 1em;
+            top: 4px;
+            right: 4px;
+        }
+    }
 
-/* xl >= 1200px */
-// @media (min-width: 1200px){
-//    .navbar-phone-container {
-//         transform: translateX(-50%);
-//         width: 90vw;
-//         max-width: 800px;
-//         height: 100px;
-//         background: #f7d447;
-//         border-radius: 50px;
-//         box-shadow: 0 4px 24px 0 #d6f7a8;
-//         align-items: center;
-//         justify-content: space-around;
-//         z-index: 1000;
-//     }
-//     .icon {
-//         width: 40px;
-//         height: 40px;
-//     }
-//     .icon img,
-//     .icon svg {
-//         width: 60px;
-//         height: 60px;
-//          position: relative;
-//     }
-
-//     .icon img#map {
-//         width: 90px;
-//         height: 90px;
-//         position: relative;
-//     }
-//     .navbar-phone-notification {
-//         width: 22px;
-//         height: 22px;
-//         font-size: 1em;
-//         top: 4px;
-//         right: 4px;
-//     } 
-// }
+}
