@@ -1,173 +1,155 @@
-@use './tokens.module.scss' as g;
+@use "./tokens.module.scss" as g;
 // variable
 $breakpoints: (
-    sm: 576px,
-    md: 768px,
-    lg: 992px,
-    xl: 1200px
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
 );
 $icon-sizes: (
-    base: 35px,
-    sm: 43px,
-    md: 45px,
-    lg: 48px
+  base: 35px,
+  sm: 43px,
+  md: 45px,
+  lg: 48px,
 );
-
 
 // xs <576px
 
 .navbar-phone-container {
+  display: flex;
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  width: 80vw;
 
-    display: flex;
-    position: fixed;
-    bottom: 50px;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background: g.$primary;
+  border-radius: 999px;
+  box-shadow: 0 4px 24px 0 #d6f7a8;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 9999;
+
+  .icon {
+    transition: 1 ease;
+  }
+
+  .icon img,
+  .icon svg {
+    width: map-get($icon-sizes, base);
+    height: map-get($icon-sizes, base);
+    position: relative;
+  }
+
+  div#map img {
+    transform: scale(2) translateY(-20%);
+    position: relative;
+  }
+
+  .navbar-phone-notification {
+    width: 22px;
+    height: 22px;
+    font-size: 1em;
+    top: 4px;
+    right: 4px;
+  }
+
+  /* 可根據需要調整 icon 間距與 hover 效果 */
+  .icon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s;
+  }
+
+  .icon:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+    transform: scale(1.2);
+  }
+}
+
+// sm >= 576px
+@media (min-width: 576px) {
+  .navbar-phone-container {
+    position: sticky;
+    top: 0px;
     left: 50%;
-    width: 80vw;
+    transform: translateX(0%);
+    width: 100vw;
 
-    transform: translateX(-50%);
-    padding: 0.5rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
     background: g.$primary;
-    border-radius: 999px;
+    border-radius: 0 0 50% 50%;
     box-shadow: 0 4px 24px 0 #d6f7a8;
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+
+    // flex option
+    display: flex;
     align-items: center;
     justify-content: space-around;
-    z-index: 9999;
 
+    .icon img,
+    .icon svg {
+      margin: 0.5rem;
+      width: map-get($icon-sizes, sm);
+      height: map-get($icon-sizes, sm);
+      position: relative;
+      top: -2px;
+    }
 
+    .navbar-phone-notification {
+      width: 22px;
+      height: 22px;
+      font-size: 1em;
+      top: 4px;
+      right: 4px;
+    }
+  }
+}
+
+/* md >= 768px */
+@media (min-width: 768px) {
+  .navbar-phone-container {
     .icon {
-        transition: 1 ease;
+      color: g.$brown;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      a {
+        display: inherit;
+        flex-direction: inherit;
+        align-items: inherit;
+        justify-content: inherit;
+      }
     }
 
     .icon img,
     .icon svg {
-        width: map-get($icon-sizes, base);
-        height: map-get($icon-sizes, base);
-        position: relative;
+      margin-bottom: 2.5px;
+      position: relative;
     }
 
-    div#map img {
-        transform: scale(2) translateY(-20%);
-        position: relative;
+    div#map img,
+    svg {
+      width: map-get($icon-sizes, md);
+      height: map-get($icon-sizes, md);
+      position: relative;
     }
-    
 
     .navbar-phone-notification {
-        width: 22px;
-        height: 22px;
-        font-size: 1em;
-        top: 4px;
-        right: 4px;
+      width: 22px;
+      height: 22px;
+      font-size: 1em;
+      top: 4px;
+      right: 4px;
     }
-
-
-    /* 可根據需要調整 icon 間距與 hover 效果 */
-    .icon {
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s;
-    }
-
-    .icon:hover {
-        filter: brightness(0.95);
-        cursor: pointer;
-        transform: scale(1.2);
-    }
+  }
 }
-
-
-
-
-
-
-// sm >= 576px
-@media (min-width: 576px) {
-    .navbar-phone-container {
-        position: sticky;
-        top: 0px;
-        left: 50%;
-        transform: translateX(0%);
-        width: 100vw;
-
-        background: g.$primary;
-        border-radius: 0 0 50% 50%;
-        box-shadow: 0 4px 24px 0 #d6f7a8;
-        padding-top: 2.5rem;
-        padding-bottom: 2rem;
-        padding-left: 3rem;
-        padding-right: 3rem;
-
-        // flex option
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-
-
-
-        .icon img,
-        .icon svg {
-            margin: 0.5rem;
-            width: map-get($icon-sizes, sm);
-            height: map-get($icon-sizes, sm);
-            position: relative;
-            top: -2px;
-        }
-
-        .navbar-phone-notification {
-            width: 22px;
-            height: 22px;
-            font-size: 1em;
-            top: 4px;
-            right: 4px;
-        }
-    }
-
-}
-
-
-/* md >= 768px */
-@media (min-width: 768px) {
-    .navbar-phone-container {
-
-        .icon {
-            color: g.$brown;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            a {
-                display: inherit;
-                flex-direction: inherit;
-                align-items: inherit;
-                justify-content: inherit;
-            }
-        }
-
-        .icon img,
-        .icon svg {
-
-            margin-bottom: 2.5px;
-            position: relative;
-        }
-
-        div#map img,
-        svg {
-            width: map-get($icon-sizes, md);
-            height: map-get($icon-sizes, md);
-            position: relative;
-
-        }
-
-        .navbar-phone-notification {
-            width: 22px;
-            height: 22px;
-            font-size: 1em;
-            top: 4px;
-            right: 4px;
-        }
-    }
-}
-
 
 // /* lg >= 992pxpx */
 // @media (min-width: 992px){
@@ -204,7 +186,7 @@ $icon-sizes: (
 //         font-size: 1em;
 //         top: 4px;
 //         right: 4px;
-//     } 
+//     }
 // }
 
 /* xl >= 1200px */
@@ -243,5 +225,5 @@ $icon-sizes: (
 //         font-size: 1em;
 //         top: 4px;
 //         right: 4px;
-//     } 
+//     }
 // }
