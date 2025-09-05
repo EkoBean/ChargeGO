@@ -1,10 +1,6 @@
-<<<<<<< HEAD:src/pages/Task/Task.jsx
 import '../../styles/scss/Task.module.module.scss';
 import NavbarWebsite from '../../components/NavbarWebsite';
-=======
-import './Task.css';
-import NavbarWebsite from "../../components/NavBarWebsite";
->>>>>>> membersystem:src/pages/membersystem/Task.jsx
+
 
 export default function Task() {
   // 範例靜態資料
