@@ -691,6 +691,7 @@ function MapIndex() {
         <>
           {/* Current Location Marker */}
           <CurrentLocationMarker />
+          
           {/* Stations Marker */}
           <AdvancedMarker
             position={
@@ -747,7 +748,7 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      {/* <NavBarAPP /> */}
+      <NavBarAPP />
       <APIProvider apiKey={APIkey}
         region='TW'
         libraries={['places']}
