@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
-import "../../styles/scss/mber_info.scss";
+import styles from "../../styles/scss/mber_info.module.scss"; 
 
 const mber_Info = () => {
   const [user, setUser] = useState(null);
@@ -49,36 +49,36 @@ const mber_Info = () => {
   }, [navigate]);
 
   return (
-    <div className="mber_info-page">
+    <div className={styles.mber_info_page}>
       <ChargegoLogo />
-      <div className="mber_info-header">
+      <div className={styles.mber_info_header}>
         <img
           src="./Iconimg/backBtn.svg"
-          className="mber_info-back-btn"
+          className={styles.mber_info_back_btn}
           onClick={backBtnClick()}
         />
         <NavBarAPP />
       </div>
-      <div className="mber_info-avatar">
+      <div className={styles.mber_info_avatar}>
         <h1>{user?.user_name || "會員名稱"}</h1>
         <img src="./Iconimg/user.svg" />
         <img src="./Iconimg/notify.svg" />
       </div>
-      <div className="mber_info-body">
+      <div className={styles.mber_info_body}>
         <h2>帳戶通知 </h2>
-        <div className="mber_info-section">
+        <div className={styles.mber_info_section}>
           {/* 根據通知資料渲染 */}
           {notices.length === 0 ? (
             <p>目前沒有通知</p>
           ) : (
             notices.map((notice) => (
-              <div className="mber_info-info" key={notice.notice_id}>
+              <div className={styles.mber_info_info} key={notice.notice_id}>
                 {/* 可根據資料表顯示 LOGO 或其他欄位 */}
                 {/* <img src="" alt="LOGO" /> */}
                 <h4>{notice.notice_title}</h4>
                 <p>{notice.notice_content}</p>
                 <span>{notice.notice_date}</span>
-                <button className="">查看更多</button>
+                <button className={styles.more_btn}>查看更多</button>
                 <hr />
               </div>
             ))

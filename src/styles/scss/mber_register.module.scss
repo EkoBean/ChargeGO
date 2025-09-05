@@ -110,7 +110,10 @@
 .register-input-group {
   position: relative;
   width: 100%;
-  margin-bottom: 16px; // 與手機版一致
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 
@@ -141,20 +144,22 @@
 
 
 .register-label {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  margin-bottom: 6px;
   color: #6b4f1d;
   font-size: 1.1rem;
-  pointer-events: none;
   font-weight: bold;
   letter-spacing: 2px;
-  width: 280px;
+  width: auto;
+  pointer-events: none;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .register-input {
-  padding-left: 80px;
+  padding-left: 18px;
   padding-right: 18px;
   padding-top: 12px;
   padding-bottom: 12px;
@@ -164,28 +169,16 @@
   background: #fff;
   margin-bottom: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  width: 300px; /* 或 100%，依需求調整 */
-}
-
-.register-input#email {
-  padding-left: 120px;
-}
-
-.register-input#confirm-password {
-  padding-left: 120px;
-}
-
-.register-input#city {
-  width: 300px;
-  padding-left: 120px;
+  width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  display: block;
-  margin: 0;
 }
 
-.register-input:focus + .register-label,
-.register-input:not(:placeholder-shown) + .register-label {
-  color: #6b4f1d;
+.register-input#email,
+.register-input#confirm-password,
+.register-input#city {
+  padding-left: 18px;
+  width: 100%;
 }
 
 .register-checkbox-group {
@@ -275,9 +268,9 @@
     display: block;
   }
   .register-label {
-    left: 16px;
     font-size: 1rem;
-    width: 120px;
+    width: auto;
+    margin-bottom: 4px;
   }
   .register-input,
   .register-input#city,
@@ -286,7 +279,7 @@
     width: 100%;
     min-width: 0;
     font-size: 1rem;
-    padding-left: 100px;
+    padding-left: 18px;
     padding-right: 12px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -355,6 +348,13 @@
   z-index: 20;
   background: #66ff50;
   border-radius: 50%;
+  padding: 8px 16px;
+  transition: 0.2s ease;
+}
+.back-icon:hover {
+  color: #ffd600;
+  transform: scaleX(1.2);
+
   padding: 8px 16px;
   transition: 0.2s ease;
 }
