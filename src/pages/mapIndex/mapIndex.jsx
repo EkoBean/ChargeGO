@@ -1,7 +1,6 @@
 // ================= Library =============================
 // style
-import '../../styles/scss/map_index.scss'
-
+import styles from '../../styles/scss/map_index.module.scss'; 
 //React
 import React, { cloneElement, use, useEffect, useRef } from 'react';
 import axios from 'axios';
@@ -270,8 +269,8 @@ function MapIndex() {
           return () => document.removeEventListener('keydown', handleEscape);
         }, [map])
         return (
-          <div className='search-bar-container'>
-            <div className='search-bar'>
+          <div className={`${styles.searchBarContainer}`}>
+            <div className={`${styles.searchBar}`}>
               <input type="text"
                 placeholder='搜尋地點'
                 onChange={(e) => (setInputValue(e.target.value), setListOpen(true))}
@@ -281,15 +280,15 @@ function MapIndex() {
               />
             </div>
             {suggestions.length > 0 && listOpen && (
-              <div className='suggestions-list'>
+              <div className={`${styles.suggestionsList}`}>
                 <ul>
                   {suggestions.map((suggestion, index) => (
                     <li key={suggestion.id}
                       onClick={() => handleSelect(suggestion)}
-                      className={index === selectSuggestion ? 'selected-suggestion' : ''}
+                      className={index === selectSuggestion ? `${styles.selectedSuggestion}` : ''}
                       ref={(el) => (suggestionRefs.current[index] = el)}>
-                      <div className={suggestion.type === 'local' ? 'local-station' : 'google-station' + ' ' + 'suggestion-primary'}>{suggestion.primaryText}</div>
-                      <div className="suggestion-secondary">{suggestion.secondaryText}</div>
+                      <div className={suggestion.type === 'local' ? `${styles.localStation} ${styles.suggestionPrimary}` : `${styles.googleStation} ${styles.suggestionPrimary}`}>{suggestion.primaryText}</div>
+                      <div className={`${styles.suggestionSecondary}`}>{suggestion.secondaryText}</div>
                     </li>
                   ))}
                 </ul>
@@ -495,15 +494,15 @@ function MapIndex() {
           }
 
           return (
-            <div className='overtime-overlay'>
+            <div className={`${styles.overtimeOverlay}`}>
 
-              <div className='overtime-window'>
+              <div className={`${styles.overtimeWindow}`}>
 
-                <p className='header'><i className="bi bi-exclamation-triangle-fill"></i>警告</p>
+                <p className={`${styles.header}`}><i className="bi bi-exclamation-triangle-fill"></i>警告</p>
                 <p>您已超過三天未歸還，本次歸還將會扣除 {overtimeFee} 元，且留下帳戶紀錄。</p>
-                <div className='handle-btns'>
-                  <button className='btn btn-primary' onClick={handleOvertime}>確認歸還</button>
-                  <button className='btn btn-primary cancel' onClick={() => setOvertimeReturnWindow(false)}>取消</button>
+                <div className={`${styles.handleBtns}`}>
+                  <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleOvertime}>確認歸還</button>
+                  <button className={`${styles.btn} ${styles.btnPrimary} ${styles.cancel}`} onClick={() => setOvertimeReturnWindow(false)}>取消</button>
                 </div>
 
               </div>
@@ -512,8 +511,8 @@ function MapIndex() {
         }
 
         return (
-          <div className='hud-container'>
-            <div className="buttons">
+          <div className={`${styles.hudContainer}`}>
+            <div className={`${styles.buttons}`}>
               {
                 buttonlinks.map((button, index) => (
                   <button type='btn btn-primary'
@@ -524,13 +523,13 @@ function MapIndex() {
                 ))
               }
             </div>
-            <div className='QR-code'>
+            <div className={`${styles.qrCode}`}>
               <button type='btn btn-primary' onClick={handleRent}>
                 <i className="bi bi-qr-code-scan"></i>
               </button>
             </div>
             <div
-              className="rent-info"
+              className={`${styles.rentInfo}`}
               style={{
                 transform: rentOpen ? 'translate(-50%, 0%)' : 'translate(-50%, 100%)',
               }}>
@@ -539,11 +538,11 @@ function MapIndex() {
                 (returnWarning ?
                   (<>
                     <p style={{ color: 'red' }}>您已超過三天未歸還，請盡速歸還以免影響信用紀錄</p>
-                    <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button>
+                    <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleReturn}>歸還裝置</button>
                   </>
                   ) :
                   (
-                    <button className='btn btn-primary' onClick={handleReturn}>歸還裝置</button>
+                    <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleReturn}>歸還裝置</button>
                   ))
                 :
                 <div>
@@ -553,7 +552,7 @@ function MapIndex() {
                   <p>扣款金額 {rentalFee}元</p>
 
                   <button
-                    className='btn btn-primary'
+                    className={`${styles.btn} ${styles.btnPrimary}`}
                     onClick={() => (rentWindowRef.current(false), setRentMessage(''), setRentalFee(null), setRentalTime(null))}>
                     關閉視窗</button>
 
@@ -562,7 +561,7 @@ function MapIndex() {
 
             </div>
             {returnWarning ?
-              <div className='alert alert-danger return-warning'
+              <div className={`${styles.alert} ${styles.alertDanger} ${styles.returnWarning}`}
                 style={{ opacity: rentOpen ? 0 : 0.7 }}>
                 <i className="bi bi-exclamation-triangle-fill"></i>
                 <span>警告</span><br />
@@ -682,9 +681,9 @@ function MapIndex() {
               anchor={marker}
             >
               <div>
-                <h4 className='site-name'>{info[0].site_name}</h4>
-                <p className='address'>{info[0].address}</p>
-                <div className='bat-status'>
+                <h4 className={`${styles.siteName}`}>{info[0].site_name}</h4>
+                <p className={`${styles.address}`}>{info[0].address}</p>
+                <div className={`${styles.batStatus}`}>
                   <p>可租借 {rentable}</p>
                   <p>充電中 {charging}</p>
                 </div>
@@ -784,7 +783,7 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      <NavBarAPP />
+      {/* <NavBarAPP /> */}
       <APIProvider apiKey={APIkey}
         region='TW'
         libraries={['places']}

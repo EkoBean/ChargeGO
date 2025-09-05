@@ -1,5 +1,5 @@
 import React from 'react';
-import './Register.css';
+// import './Register.css';
 import NavBarPhone from '../../components/NavBarPhone';
 import ChargegoLogo from '../../components/ChargegoLogo/ChargegoLogo'; // 修正 import 路徑
 
