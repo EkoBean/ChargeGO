@@ -40,9 +40,13 @@ export const AdminDataProvider = ({ children }) => {
       // 並行取得所有資料
       const [statsData, usersData, sitesData, chargersData, ordersData] = await Promise.all([
         ApiService.getDashboardStats(),
+        // statsData = [users = [uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint], sites, chargers, orders]
         ApiService.getUsers(),
+        // usersData = [uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint]
         ApiService.getSites(),
+        // sitesData = [site_id, site_name, address, longitude, latitude]
         ApiService.getChargers(),
+
         ApiService.getOrders(),
       ]);
 

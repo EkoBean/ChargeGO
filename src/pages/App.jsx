@@ -1,6 +1,7 @@
 // ======scss==========
 // import "../styles/scss/global.scss";
 import React, { useEffect } from "react";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 // =========== Routers =================
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
