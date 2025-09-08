@@ -72,9 +72,9 @@ class Charging extends Component {
         // 載入中顯示 Spinner
         if (loading) {
             return (
-                <div className="p-4 d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+                <div className="admin-loading-screen p-4 d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
                     <div className="text-center">
-                        <Spinner animation="border" role="status" className="mb-3" />
+                        <div className="admin-loading-spinner mb-3"></div>
                         <p>載入充電站資料中...</p>
                     </div>
                 </div>
@@ -84,13 +84,15 @@ class Charging extends Component {
         // 載入失敗顯示錯誤訊息
         if (error) {
             return (
-                <div className="p-4">
+                <div className="admin-error-screen p-4">
                     <Alert variant="danger">
                         <Alert.Heading>載入錯誤</Alert.Heading>
-                        <p>{error}</p>
-                        <button className="btn btn-outline-danger" onClick={this.loadChargingData}>
-                            重新載入
-                        </button>
+                        <div className="admin-error-message">
+                            <p>{error}</p>
+                            <button className="btn admin-btn admin-danger" onClick={this.loadChargingData}>
+                                重新載入
+                            </button>
+                        </div>
                     </Alert>
                 </div>
             );
@@ -102,106 +104,100 @@ class Charging extends Component {
         const maintenanceChargers = chargers.filter(c => c.status === 'maintenance').length;
 
         return (
-            <div className="p-4">
+            <div className="admin-main-content p-4">
                 {/* 頁面標題與刷新按鈕 */}
-                <div className="d-flex justify-content-between align-items-center mb-4">
+                <div className="admin-content-header d-flex justify-content-between align-items-center mb-4">
                     <h2>充電站管理</h2>
-                    <button className="btn btn-outline-primary" onClick={this.loadChargingData}>
+                    <button className="btn admin-btn admin-primary" onClick={this.loadChargingData}>
                         <i className="fas fa-sync-alt me-2"></i>刷新資料
                     </button>
                 </div>
 
                 {/* 統計卡片：顯示站點數、各狀態充電器數量 */}
-                <Row className="mb-4">
+                <Row className="admin-stats-row mb-4">
                     <Col md={3}>
-                        <Card className="border-0 shadow-sm">
-                            <Card.Body className="text-center">
-                                <h3 className="text-primary">{sites.length}</h3>
-                                <p className="mb-0">總站點數</p>
-                            </Card.Body>
-                        </Card>
+                        <div className="admin-mini-stat admin-primary">
+                            <div className="admin-number">{sites.length}</div>
+                            <div className="admin-label">總站點數</div>
+                        </div>
                     </Col>
                     <Col md={3}>
-                        <Card className="border-0 shadow-sm">
-                            <Card.Body className="text-center">
-                                <h3 className="text-success">{availableChargers}</h3>
-                                <p className="mb-0">可用充電器</p>
-                            </Card.Body>
-                        </Card>
+                        <div className="admin-mini-stat admin-success">
+                            <div className="admin-number">{availableChargers}</div>
+                            <div className="admin-label">可用充電器</div>
+                        </div>
                     </Col>
                     <Col md={3}>
-                        <Card className="border-0 shadow-sm">
-                            <Card.Body className="text-center">
-                                <h3 className="text-warning">{occupiedChargers}</h3>
-                                <p className="mb-0">使用中</p>
-                            </Card.Body>
-                        </Card>
+                        <div className="admin-mini-stat admin-warning">
+                            <div className="admin-number">{occupiedChargers}</div>
+                            <div className="admin-label">使用中</div>
+                        </div>
                     </Col>
                     <Col md={3}>
-                        <Card className="border-0 shadow-sm">
-                            <Card.Body className="text-center">
-                                <h3 className="text-danger">{maintenanceChargers}</h3>
-                                <p className="mb-0">維護中</p>
-                            </Card.Body>
-                        </Card>
+                        <div className="admin-mini-stat admin-danger">
+                            <div className="admin-number">{maintenanceChargers}</div>
+                            <div className="admin-label">維護中</div>
+                        </div>
                     </Col>
                 </Row>
 
                 {/* 充電站列表：顯示所有站點及其充電器狀態 */}
-                <Card className="border-0 shadow-sm">
-                    <Card.Header className="bg-white">
-                        <h5 className="mb-0">充電站列表</h5>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className="table-responsive">
-                            <Table hover>
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>站點ID</th>
-                                        <th>站點名稱</th>
-                                        <th>地址</th>
-                                        <th>充電器數量</th>
-                                        <th>可用數量</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {sites.map(site => {
-                                        // 計算該站點的充電器數量與可用數量
-                                        const siteChargers = chargers.filter(c => c.site_id === site.site_id);
-                                        const availableCount = siteChargers.filter(c => c.status === 'available').length;
+                <div className="admin-dashboard-card">
+                    <Card className="border-0 shadow-sm">
+                        <Card.Header className="bg-white">
+                            <h5 className="mb-0">充電站列表</h5>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="admin-table-container table-responsive">
+                                <Table hover className="admin-data-table">
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th>站點ID</th>
+                                            <th>站點名稱</th>
+                                            <th>地址</th>
+                                            <th>充電器數量</th>
+                                            <th>可用數量</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {sites.map(site => {
+                                            // 計算該站點的充電器數量與可用數量
+                                            const siteChargers = chargers.filter(c => c.site_id === site.site_id);
+                                            const availableCount = siteChargers.filter(c => c.status === 'available').length;
 
-                                        return (
-                                            <tr key={site.site_id}>
-                                                <td>{site.site_id}</td>
-                                                <td>{site.site_name}</td>
-                                                <td>{site.address}</td>
-                                                <td>{siteChargers.length}</td>
-                                                <td>
-                                                    <Badge bg={availableCount > 0 ? 'success' : 'danger'}>
-                                                        {availableCount}
-                                                    </Badge>
-                                                </td>
-                                                <td>
-                                                    {/* 查看詳情與管理按鈕 */}
-                                                    <button
-                                                        className="btn btn-sm btn-outline-primary me-2"
-                                                        onClick={() => this.handleSiteSelect(site.site_id)}
-                                                    >
-                                                        查看詳情
-                                                    </button>
-                                                    <button className="btn btn-sm btn-outline-success">
-                                                        管理
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </Table>
-                        </div>
-                    </Card.Body>
-                </Card>
+                                            return (
+                                                <tr key={site.site_id}>
+                                                    <td>{site.site_id}</td>
+                                                    <td>{site.site_name}</td>
+                                                    <td>{site.address}</td>
+                                                    <td>{siteChargers.length}</td>
+                                                    <td>
+                                                        <span className={`admin-badge ${availableCount > 0 ? 'admin-success' : 'admin-danger'}`}>
+                                                            {availableCount}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        {/* 查看詳情與管理按鈕 */}
+                                                        <button
+                                                            className="btn admin-btn admin-small admin-primary me-2"
+                                                            onClick={() => this.handleSiteSelect(site.site_id)}
+                                                        >
+                                                            查看詳情
+                                                        </button>
+                                                        <button className="btn admin-btn admin-small admin-success">
+                                                            管理
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        </Card.Body>
+                    </Card>
+                </div>
             </div>
         );
     }

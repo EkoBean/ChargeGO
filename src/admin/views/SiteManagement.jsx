@@ -4,7 +4,7 @@ import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
 import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
-
+//站點管理主畫面
 const SiteManagement = () => {
   const { sites, chargers, setSites, loading, error, loadAllData } = useAdminData();
 
@@ -189,64 +189,64 @@ const SiteManagement = () => {
   }
 
   return (
-    <div className="sites-content">
-      <div className="content-header">
+    <div className="admin-sites-content">
+      <div className="admin-content-header">
         <h2>站點管理</h2>
         <div>
-          <button className="btn" onClick={loadAllData}>
+          <button className="btn admin-btn" onClick={loadAllData}>
             🔄 刷新資料
           </button>
-          <button className="btn primary" onClick={handleAddSite}>
+          <button className="btn admin-btn admin-primary" onClick={handleAddSite}>
             ➕ 新增站點
           </button>
         </div>
       </div>
 
-      <div className="stats-row">
+      <div className="admin-stats-row">
         <div
-          className={`mini-stat primary${siteFilter === "all" ? " card-selected" : ""}`}
+          className={`admin-mini-stat admin-primary${siteFilter === "all" ? " admin-card-selected" : ""}`}
           style={{ cursor: "pointer" }}
           onClick={() => setSiteFilter("all")}
         >
-          <span className="number">{sites.length}</span>
-          <span className="label">總站點數</span>
+          <span className="admin-number">{sites.length}</span>
+          <span className="admin-label">總站點數</span>
         </div>
         <div
-          className={`mini-stat success${siteFilter === "available" ? " card-selected" : ""}`}
+          className={`admin-mini-stat admin-success${siteFilter === "available" ? " admin-card-selected" : ""}`}
           style={{ cursor: "pointer" }}
           onClick={() => setSiteFilter("available")}
         >
-          <span className="number">{counts.available}</span>
-          <span className="label">可用充電器</span>
+          <span className="admin-number">{counts.available}</span>
+          <span className="admin-label">可用充電器</span>
         </div>
         <div
-          className={`mini-stat warning${siteFilter === "occupied" ? " card-selected" : ""}`}
+          className={`admin-mini-stat admin-warning${siteFilter === "occupied" ? " admin-card-selected" : ""}`}
           style={{ cursor: "pointer" }}
           onClick={() => setSiteFilter("occupied")}
         >
-          <span className="number">{counts.occupied}</span>
-          <span className="label">使用中</span>
+          <span className="admin-number">{counts.occupied}</span>
+          <span className="admin-label">使用中</span>
         </div>
         <div
-          className={`mini-stat danger${siteFilter === "maintenance" ? " card-selected" : ""}`}
+          className={`admin-mini-stat admin-danger${siteFilter === "maintenance" ? " admin-card-selected" : ""}`}
           style={{ cursor: "pointer" }}
           onClick={() => setSiteFilter("maintenance")}
         >
-          <span className="number">{counts.maintenance}</span>
-          <span className="label">維護中</span>
+          <span className="admin-number">{counts.maintenance}</span>
+          <span className="admin-label">維護中</span>
         </div>
         <div
-          className={`mini-stat${siteFilter === "preparing" ? " card-selected" : ""}`}
+          className={`admin-mini-stat${siteFilter === "preparing" ? " admin-card-selected" : ""}`}
           style={{ cursor: "pointer" }}
           onClick={() => setSiteFilter("preparing")}
         >
-          <span className="number">{counts.preparing}</span>
-          <span className="label">準備中</span>
+          <span className="admin-number">{counts.preparing}</span>
+          <span className="admin-label">準備中</span>
         </div>
       </div>
 
-      <div className="table-container">
-        <table className="data-table">
+      <div className="admin-table-container">
+        <table className="admin-data-table">
           <thead>
             <tr>
               <th>站點ID</th>
@@ -271,12 +271,12 @@ const SiteManagement = () => {
                   <td>{site.address}</td>
                   <td>{siteChargers.length}</td>
                   <td>
-                    <span className={`badge ${availableCount > 0 ? "success" : "danger"}`}>
+                    <span className={`admin-badge ${availableCount > 0 ? "admin-success" : "admin-danger"}`}>
                       {availableCount}
                     </span>
                   </td>
                   <td>
-                    <button className="btn small primary" onClick={() => handleViewSite(site)}>
+                    <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewSite(site)}>
                       查看詳情
                     </button>
                   </td>

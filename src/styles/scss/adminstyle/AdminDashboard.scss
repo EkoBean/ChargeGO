@@ -545,248 +545,106 @@ body {
   padding: 1.2rem;
 }
 
-.admin-modal-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.admin-modal-table th, .admin-modal-table td {
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-  text-align: left;
-}
-
-.admin-modal-table th {
-  font-weight: 500;
-  color: #6b7280;
-}
-
-/* 表單樣式 */
-.admin-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.admin-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.admin-form-col-2 {
-  grid-column: span 2;
-}
-
-.admin-form-group label {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.admin-form-group input,
-.admin-form-group select,
-.admin-form-group textarea {
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.admin-form-group input:focus,
-.admin-form-group select:focus,
-.admin-form-group textarea:focus {
-  border-color: var(--color-primary);
-  outline: none;
-}
-
-.admin-form-group input:disabled,
-.admin-form-group select:disabled,
-.admin-form-group textarea:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
+/* 加強表單動作區域的樣式 */
 .admin-form-actions {
   margin-top: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.admin-save-success {
-  color: var(--color-success);
-  font-size: 0.9rem;
-}
-
-.admin-required {
-  color: var(--color-danger);
-}
-
-/* 設置頁面 */
-.admin-settings-container {
-  max-width: 900px;
-}
-
-.admin-setting-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1.2rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.admin-setting-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.admin-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.admin-checkbox input {
-  width: 16px;
-  height: 16px;
-}
-
-/* 詳情區塊 */
-.admin-detail-section {
-  background-color: #f9fafb;
-  padding: 1.2rem;
-  border-radius: 8px;
-  margin-bottom: 1.2rem;
-}
-
-.admin-detail-section:last-child {
-  margin-bottom: 0;
-}
-
-.admin-detail-section h4 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.admin-user-details p, 
-.admin-site-details p, 
-.admin-order-details p {
-  margin: 0.5rem 0;
-}
-
-/* 地圖預覽 */
-.admin-map-preview {
-  width: 100%;
-  height: 300px;
-  background-color: #eee;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-/* 註解掉全域標籤選擇器，避免影響整個專案 */
-/*
-.admin-map-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-*/
-
-/* 迷你統計網格 */
-.admin-stats-mini-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 0.8rem;
-}
-
-/* 地址輸入組合 */
-.admin-address-input-group {
-  display: flex;
-  gap: 10px;
-}
-
-.admin-address-input-group input {
-  flex: 1;
-}
-
-/* 輸入提示樣式 */
-.admin-input-hint {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
-}
-
-/* 表單錯誤訊息 */
-.admin-form-error {
-  color: #d32f2f;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-/* 空地圖預覽 */
-.admin-empty-map-placeholder {
-  background-color: #f5f5f5;
-  border: 1px dashed #ccc;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-}
-
-/* 響應式樣式 */
+/* 響應式設計 - 確保在手機上也好看 */
 @media (max-width: 768px) {
-  .admin-dashboard-layout {
-    flex-direction: column;
+  .admin-modal-content {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
   }
   
-  .admin-sidebar {
-    width: 100%;
-    max-height: 300px;
-  }
-  
-  .admin-quick-actions {
-    grid-template-columns: 1fr;
+  .admin-form-actions {
+    flex-direction: column-reverse;
+    
+    .btn {
+      width: 100%;
+    }
   }
   
   .admin-form-grid {
     grid-template-columns: 1fr;
   }
-  
-  .admin-form-col-2 {
-    grid-column: auto;
-  }
-  
-  .admin-stats-row {
-    flex-direction: column;
-  }
-  
-  .admin-mini-stat {
-    min-width: auto;
-  }
 }
 
-.admin-btn-large {
-  font-size: 2rem;
-  padding: 24px 0;
-  width: 100%;
-  min-width: 320px;
-  margin-top: 8px;
-  margin-bottom: 8px;
+/* 加強 checkbox 樣式 */
+.admin-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.admin-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.admin-checkbox label {
+  cursor: pointer;
   display: block;
+  line-height: 1.4;
 }
 
-/* 因OrderManagement 有bootstrap所以加強顯示 */
-.admin-card-selected {
-  box-shadow: 0 0 0 2px #3498db;
-  border: 2px solid #3498db !important;
-  background-color: #eaf6fd;
+/* 載入狀態的改進 */
+.admin-loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.admin-loading-spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: admin-spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .modal-footer {
+    flex-direction: column-reverse;
+    
+    .btn {
+      width: 100%;
+    }
+  }
 }

@@ -397,10 +397,8 @@ const OrderManagement = () => {
   // 載入中顯示 Spinner
   if (loading) {
     return (
-      <div className="text-center p-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">載入中...</span>
-        </Spinner>
+      <div className="admin-loading-screen text-center p-5">
+        <div className="admin-loading-spinner"></div>
         <p className="mt-3">載入訂單資料中...</p>
       </div>
     );
@@ -437,15 +435,15 @@ const OrderManagement = () => {
   };
 
   return (
-    <div className="orders-content">
+    <div className="admin-orders-content">
       {/* 頁面標題與刷新按鈕 */}
-      <div className="content-header">
+      <div className="admin-content-header">
         <h2>商城訂單管理</h2>
         <div>
-          <button className="btn" onClick={loadOrders}>
+          <button className="btn admin-btn" onClick={loadOrders}>
             🔄 刷新資料
           </button>
-          <button className="btn primary" onClick={handleOpenCreateModal}>
+          <button className="btn admin-btn admin-primary" onClick={handleOpenCreateModal}>
             ➕ 新增訂單
           </button>
         </div>
@@ -455,7 +453,7 @@ const OrderManagement = () => {
       <Row className="mb-4">
         <Col md={3}>
           <Card
-            className={`border-0 shadow-sm text-center ${statusFilter === "all" ? "card-selected" : ""}`}
+            className={`border-0 shadow-sm text-center ${statusFilter === "all" ? "admin-card-selected" : ""}`}
             style={{ cursor: "pointer" }}
             onClick={() => setStatusFilter("all")}//顯示全部訂單
           >
@@ -467,7 +465,7 @@ const OrderManagement = () => {
         </Col>
         <Col md={3}>
           <Card
-            className={`border-0 shadow-sm text-center ${statusFilter === "completed" ? "card-selected" : ""}`}
+            className={`border-0 shadow-sm text-center ${statusFilter === "completed" ? "admin-card-selected" : ""}`}
             style={{ cursor: "pointer" }}
             onClick={() => setStatusFilter("completed")}//顯示已完成訂單
           >
@@ -479,7 +477,7 @@ const OrderManagement = () => {
         </Col>
         <Col md={3}>
           <Card
-            className={`border-0 shadow-sm text-center ${statusFilter === "active" ? "card-selected" : ""}`}
+            className={`border-0 shadow-sm text-center ${statusFilter === "active" ? "admin-card-selected" : ""}`}
             style={{ cursor: "pointer" }}
             onClick={() => setStatusFilter("active")}//顯示進行中訂單
           >
@@ -491,9 +489,9 @@ const OrderManagement = () => {
         </Col>
         <Col md={3}>
           <Card
-            className={`border-0 shadow-sm text-center ${statusFilter === "cancelled" ? "card-selected" : ""}`}
+            className={`border-0 shadow-sm text-center ${statusFilter === "cancelled" ? "admin-card-selected" : ""}`}
             style={{ cursor: "pointer" }}
-            onClick={() => setStatusFilter("cancelled")}//
+            onClick={() => setStatusFilter("cancelled")}//顯示已取消訂單
           >
             <Card.Body>
               <h3 className="text-danger">{orderStats.cancelled}</h3>
@@ -534,8 +532,8 @@ const OrderManagement = () => {
           </Row>
         </Card.Header>
         <Card.Body>
-          <div className="table-responsive">
-            <Table hover>
+          <div className="admin-table-container table-responsive">
+            <Table hover className="admin-data-table">
               <thead className="table-light">
                 <tr>
                   <th>訂單ID</th>
@@ -572,7 +570,7 @@ const OrderManagement = () => {
                     <td>{getStatusBadge(normalizeOrderStatus(order))}</td>
                     <td>{order.comment ?? "-"}</td>
                     <td>
-                      <Button variant="outline-primary" size="sm" onClick={() => handleViewOrder(order)}>
+                      <Button variant="outline-primary" size="sm" className="admin-btn admin-small admin-primary" onClick={() => handleViewOrder(order)}>
                         查看詳情
                       </Button>
                     </td>

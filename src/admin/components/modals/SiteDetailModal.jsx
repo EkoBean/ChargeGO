@@ -83,10 +83,10 @@ const SiteDetailModal = ({
 
   return (
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
-    <div className="modal-overlay" onClick={() => !saving && onClose()}>
+    <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
       {/* 內容區：阻止事件冒泡以避免點擊內容區也關閉 modal */}
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+      <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
           {/* 標題： "新增站點"，否則顯示站點名稱 */}
           <h3>
             {creating ? "新增站點" : `站點詳情 - ${site.site_name}`}
@@ -97,29 +97,29 @@ const SiteDetailModal = ({
                 - 編輯模式顯示「取消」與「儲存」按鈕（由 onCancel / onSave 處理）
                 - saving 為 true 時會 disable 按鈕以避免重複送出 */}
             {!isEditing ? (
-              <button className="btn small primary" onClick={onEdit}>
+              <button className="btn admin-btn admin-small admin-primary" onClick={onEdit}>
                 編輯
               </button>
             ) : (
               <>
-                <button className="btn small" onClick={onCancel} disabled={saving}>
+                <button className="btn admin-btn admin-small" onClick={onCancel} disabled={saving}>
                   取消
                 </button>
-                <button className="btn small primary" onClick={onSave} disabled={saving}>
+                <button className="btn admin-btn admin-small admin-primary" onClick={onSave} disabled={saving}>
                   {saving ? "儲存中..." : "儲存"}
                 </button>
               </>
             )}
             {/* 右上關閉按鈕（saving 時被鎖住） */}
-            <button className="close-btn" onClick={() => !saving && onClose()}>
+            <button className="admin-close-btn" onClick={() => !saving && onClose()}>
               ×
             </button>
           </div>
         </div>
 
-        <div className="modal-body">
-          <div className="site-details">
-            <div className="detail-section">
+        <div className="admin-modal-body">
+          <div className="admin-site-details">
+            <div className="admin-detail-section">
               <h4>基本資訊</h4>
 
               {/* 非編輯模式顯示純文字；編輯模式顯示表單 input */}
@@ -133,10 +133,10 @@ const SiteDetailModal = ({
                   <p><strong>緯度:</strong> {site.latitude}</p>
                 </>
               ) : (
-                <div className="form-grid">
+                <div className="admin-form-grid">
                   {/* 編輯模式：站點 ID 為唯讀（disabled） */}
                   {!creating && (
-                    <div className="form-group">
+                    <div className="admin-form-group">
                       <label>站點ID</label>
                       <input 
                         type="text" 
@@ -150,8 +150,8 @@ const SiteDetailModal = ({
                       - name 屬性需與父元件 onChange 的邏輯相符（例如使用 e.target.name 來更新對應欄位）
                       - 值使用 editSite（父元件在打開 modal 時應把 site 複製給 editSite）
                       - required 屬性在前端會阻止空值提交，但實務仍需在後端再次驗證 */}
-                  <div className="form-group form-col-2">
-                    <label>站點名稱 <span className="required">*</span></label>
+                  <div className="admin-form-group admin-form-col-2">
+                    <label>站點名稱 <span className="admin-required">*</span></label>
                     <input
                       type="text"
                       name="site_name"
@@ -162,8 +162,8 @@ const SiteDetailModal = ({
                     />
                   </div>
 
-                  <div className="form-group form-col-2">
-                    <label>地址 <span className="required">*</span></label>
+                  <div className="admin-form-group admin-form-col-2">
+                    <label>地址 <span className="admin-required">*</span></label>
                     <div style={{ display: "flex", gap: 8 }}>
                       <input
                         type="text"
@@ -175,18 +175,18 @@ const SiteDetailModal = ({
                       />
                       <button
                         type="button"
-                        className="btn small"
+                        className="btn admin-btn admin-small"
                         onClick={handleGeocode}
                         disabled={isLoadingGeo}
                       >
                         {isLoadingGeo ? "查詢中..." : "查詢經緯度"}
                       </button>
                     </div>
-                    {geoError && <div style={{ color: "#d32f2f", fontSize: 12 }}>{geoError}</div>}
+                    {geoError && <div className="admin-form-error">{geoError}</div>}
                   </div>
 
-                  <div className="form-group">
-                    <label>經度 <span className="required">*</span></label>
+                  <div className="admin-form-group">
+                    <label>經度 <span className="admin-required">*</span></label>
                     <input
                       type="number"
                       name="longitude"
@@ -200,8 +200,8 @@ const SiteDetailModal = ({
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>緯度 <span className="required">*</span></label>
+                  <div className="admin-form-group">
+                    <label>緯度 <span className="admin-required">*</span></label>
                     <input
                       type="number"
                       name="latitude"
@@ -221,45 +221,45 @@ const SiteDetailModal = ({
             {/* 站點統計區塊：
                 - stats 由父元件計算並傳入，包含總充電器、可用、使用中、今日訂單數 */}
             {!creating && (
-              <div className="detail-section">
+              <div className="admin-detail-section">
                 <h4>站點統計</h4>
-                <div className="stats-mini-grid centered">
+                <div className="admin-stats-mini-grid admin-centered">
                   <div
-                    className="mini-stat success"
+                    className="admin-mini-stat admin-success"
                     style={{ cursor: 'pointer' }}
                     onClick={() => setActiveStat('total')}
                   >
-                    <span className="number">{stats.totalChargers}</span>
-                    <span className="label">總充電器</span>
+                    <span className="admin-number">{stats.totalChargers}</span>
+                    <span className="admin-label">總充電器</span>
                   </div>
                   <div
-                    className="mini-stat primary"
+                    className="admin-mini-stat admin-primary"
                     style={{ cursor: 'pointer' }}
                     onClick={() => setActiveStat('available')}
                   >
-                    <span className="number">{stats.available}</span>
-                    <span className="label">可用充電器</span>
+                    <span className="admin-number">{stats.available}</span>
+                    <span className="admin-label">可用充電器</span>
                   </div>
                   <div
-                    className="mini-stat warning"
+                    className="admin-mini-stat admin-warning"
                     style={{ cursor: 'pointer' }}
                     onClick={() => setActiveStat('occupied')}
                   >
-                    <span className="number">{stats.occupied}</span>
-                    <span className="label">使用中</span>
+                    <span className="admin-number">{stats.occupied}</span>
+                    <span className="admin-label">使用中</span>
                   </div>
                   <div
-                    className="mini-stat info"
+                    className="admin-mini-stat admin-info"
                     style={{ cursor: 'pointer' }}
                     onClick={() => setActiveStat('todayOrders')}
                   >
-                    <span className="number">{stats.todayOrders}</span>
-                    <span className="label">今日訂單數</span>
+                    <span className="admin-number">{stats.todayOrders}</span>
+                    <span className="admin-label">今日訂單數</span>
                   </div>
                 </div>
                 {/* 點擊後顯示充電器清單 */}
                 {activeStat && (
-                  <div className="charger-list">
+                  <div className="admin-charger-list">
                     <h5>
                       {activeStat === 'total' && '全部充電器'}
                       {activeStat === 'available' && '可用充電器'}
@@ -275,15 +275,15 @@ const SiteDetailModal = ({
                       ))}
                       {getChargersByType(activeStat).length === 0 && <li>無資料</li>}
                     </ul>
-                    <button className="btn small" onClick={() => setActiveStat(null)}>關閉</button>
+                    <button className="btn admin-btn admin-small" onClick={() => setActiveStat(null)}>關閉</button>
                   </div>
                 )}
               </div>
             )}
             {!creating && !isEditing && (
-              <div className="detail-section">
+              <div className="admin-detail-section">
                 <h4>位置預覽</h4>
-                <div className="map-preview">
+                <div className="admin-map-preview">
                   {/* google 金鑰 */}
                   <img 
                     src={`https://maps.googleapis.com/maps/api/staticmap?center=${site.latitude},${site.longitude}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${site.latitude},${site.longitude}&key=AIzaSyDfRu8ufAyaAXeGZnUDIjUOXEsTE3d1KM4`} 

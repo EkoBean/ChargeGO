@@ -46,50 +46,28 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={() => !saving && onClose()}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
+      <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
           <h3>建立活動</h3>
           <div>
             <button 
-              className="btn small" 
+              className="btn admin-btn admin-small" 
               onClick={() => !saving && onClose()}
               disabled={saving}
-              style={{
-                padding: '8px 16px',
-                fontSize: '14px',
-                fontWeight: '600',
-                borderRadius: '6px',
-                border: '2px solid #6c757d',
-                backgroundColor: '#fff',
-                color: '#6c757d',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                marginRight: '8px'
-              }}
             >
               取消
             </button>
             <button 
               type="submit"
               form="create-event-form"
-              className="btn small primary"
+              className="btn admin-btn admin-small admin-primary"
               disabled={saving}
-              style={{
-                padding: '8px 16px',
-                fontSize: '14px',
-                fontWeight: '600',
-                borderRadius: '6px',
-                border: '2px solid #28a745',
-                backgroundColor: saving ? '#6c757d' : '#28a745',
-                color: '#fff',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                marginRight: '8px'
-              }}
             >
               {saving ? "建立中..." : "建立活動"}
             </button>
             <button 
-              className="close-btn" 
+              className="admin-close-btn" 
               onClick={() => !saving && onClose()}
               disabled={saving}
             >
@@ -98,19 +76,19 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
           </div>
         </div>
         
-        <div className="modal-body">
-          <div className="order-details">
+        <div className="admin-modal-body">
+          <div className="admin-order-details">
             <form id="create-event-form" onSubmit={handleSubmit}>
-              <div className="detail-section">
+              <div className="admin-detail-section">
                 <h4>活動資訊</h4>
-                <div className="form-grid" style={{ 
+                <div className="admin-form-grid" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr',
                   gap: '20px' 
                 }}>
                   {/* 活動標題 */}
-                  <div className="form-group">
-                    <label>活動標題 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <div className="admin-form-group">
+                    <label>活動標題 <span className="admin-required">*</span></label>
                     <input 
                       name="event_title" 
                       value={newEvent.event_title} 
@@ -131,8 +109,8 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                   </div>
                   
                   {/* 活動內容 */}
-                  <div className="form-group">
-                    <label>活動內容 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <div className="admin-form-group">
+                    <label>活動內容 <span className="admin-required">*</span></label>
                     <textarea 
                       name="event_content" 
                       value={newEvent.event_content} 
@@ -155,7 +133,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                   </div>
                   
                   {/* 站點編號 */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>站點編號</label>
                     <input 
                       name="site_id" 
@@ -174,28 +152,23 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                         color: '#34495e'
                       }}
                     />
-                    <small style={{ 
-                      color: '#6c757d', 
-                      fontSize: '12px', 
-                      display: 'block', 
-                      marginTop: '4px'
-                    }}>
+                    <small className="admin-input-hint">
                       留空將套用至全部站點
                     </small>
                   </div>
                 </div>
               </div>
 
-              <div className="detail-section">
+              <div className="admin-detail-section">
                 <h4>時間設定</h4>
-                <div className="form-grid" style={{ 
+                <div className="admin-form-grid" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr',
                   gap: '20px' 
                 }}>
                   {/* 開始時間 */}
-                  <div className="form-group">
-                    <label>開始時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <div className="admin-form-group">
+                    <label>開始時間 <span className="admin-required">*</span></label>
                     <input 
                       name="event_start_date" 
                       type="date"
@@ -216,8 +189,8 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                   </div>
                   
                   {/* 結束時間 */}
-                  <div className="form-group">
-                    <label>結束時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <div className="admin-form-group">
+                    <label>結束時間 <span className="admin-required">*</span></label>
                     <input 
                       name="event_end_date" 
                       type="date"
@@ -238,30 +211,23 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                   </div>
                 </div>
                 
-                <small style={{ 
-                  color: '#6c757d', 
-                  fontSize: '12px', 
-                  display: 'block', 
-                  marginTop: '8px'
-                }}>
+                <small className="admin-input-hint">
                   請確保結束時間晚於開始時間
                 </small>
               </div>
 
               {/* 錯誤訊息 */}
               {error && (
-                <div className="detail-section">
-                  <div 
-                    style={{
-                      padding: '12px 16px',
-                      backgroundColor: '#f8d7da',
-                      borderRadius: '8px',
-                      border: '1px solid #f5c6cb',
-                      color: '#721c24',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
+                <div className="admin-detail-section">
+                  <div className="admin-form-error" style={{
+                    padding: '12px 16px',
+                    backgroundColor: '#f8d7da',
+                    borderRadius: '8px',
+                    border: '1px solid #f5c6cb',
+                    color: '#721c24',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}>
                     ⚠️ {error}
                   </div>
                 </div>

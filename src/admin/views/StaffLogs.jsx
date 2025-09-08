@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import ApiService from '../services/api';
-
+//職員操作紀錄
 const StaffLogs = () => {
   const [logs, setLogs] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -62,36 +62,44 @@ const StaffLogs = () => {
   }, [logs, staffMap, q]);
 
   return (
-    <div>
-      <h2>職員操作紀錄</h2>
+    <div className="admin-staff-logs-content">
+      <div className="admin-content-header">
+        <h2>職員操作紀錄</h2>
+      </div>
 
-      <div style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div className="admin-search-section">
         <input
+          className="admin-search-input"
           placeholder="搜尋：職員、編號或內容"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          style={{ padding: 8, flex: 1 }}
         />
-        <div style={{ minWidth: 120, textAlign: 'right', color: '#666' }}>
+        <div className="admin-search-count">
           {loading ? '讀取中…' : `${filtered.length} 筆`}
         </div>
       </div>
 
-      {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
+      {error && (
+        <div className="admin-alert admin-danger">
+          {error}
+        </div>
+      )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="admin-table-container">
+        <table className="admin-data-table">
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>時間</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>職員</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>職員信箱</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>操作</th>
+              <th>時間</th>
+              <th>職員</th>
+              <th>職員信箱</th>
+              <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan="4" style={{ padding: 12 }}>目前無紀錄</td></tr>
+              <tr>
+                <td colSpan="4" className="admin-empty-row">目前無紀錄</td>
+              </tr>
             )}
 
             {filtered.map((l, i) => {
@@ -100,11 +108,11 @@ const StaffLogs = () => {
               const sid = String(l.employee_id ?? l.employee ?? '');
               const staff = staffMap[sid] || { name: `#${sid || '未知'}`, email: '' };
               return (
-                <tr key={i} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: 8, verticalAlign: 'top' }}>{timeText}</td>
-                  <td style={{ padding: 8, verticalAlign: 'top' }}>{staff.name}</td>
-                  <td style={{ padding: 8, verticalAlign: 'top' }}>{staff.email}</td>
-                  <td style={{ padding: 8, verticalAlign: 'top' }}>{l.log || '-'}</td>
+                <tr key={i}>
+                  <td>{timeText}</td>
+                  <td>{staff.name}</td>
+                  <td>{staff.email}</td>
+                  <td>{l.log || '-'}</td>
                 </tr>
               );
             })}
