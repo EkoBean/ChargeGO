@@ -23,7 +23,7 @@ const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
 
 // ================= Constants ============================
-const APIkey = "AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg";
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const mapId = "7ade7c4e6e2cc1087f2619a5";
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
