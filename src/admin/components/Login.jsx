@@ -37,15 +37,15 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
+    <div className="admin-login-container">
+      <div className="admin-login-card">
+        <div className="admin-login-header">
           <h2>🔋 行動電源租借系統</h2>
           <p>後台管理登入</p>
         </div>
         
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className="admin-login-form">
+          <div className="admin-form-group">
             <label htmlFor="email">信箱</label>
             <input
               type="email"
@@ -58,7 +58,7 @@ const Login = ({ onLogin }) => {
             />
           </div>
           
-          <div className="form-group">
+          <div className="admin-form-group">
             <label htmlFor="password">密碼</label>
             <input
               type="password"
@@ -71,18 +71,18 @@ const Login = ({ onLogin }) => {
             />
           </div>
           
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="admin-error-message">{error}</div>}
           
           <button 
             type="submit" 
-            className="login-btn"
+            className="admin-login-btn"
             disabled={loading}
           >
             {loading ? '登入中...' : '登入'}
           </button>
         </form>
         
-        <div className="login-footer">
+        <div className="admin-login-footer">
           <p>預設帳號：employee1@gmail.com / 密碼：123456   </p>
         </div>
       </div>

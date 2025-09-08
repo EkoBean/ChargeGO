@@ -40,39 +40,39 @@ const UserDetailModal = ({
 
   return (
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
-    <div className="modal-overlay" onClick={() => !saving && onClose()}>
+    <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
       {/* 內容區：阻止事件冒泡以避免點擊內容區也關閉 modal */}
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+      <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
           {/* 標題顯示使用者名稱 */}
           <h3>用戶詳情 - {user.user_name}</h3>
           <div>
             {/* 編輯按鈕 / 取消 / 儲存（依 isEditing 切換） */}
             {!isEditing ? (
-              <button className="btn small primary" onClick={onEdit}>
+              <button className="btn admin-btn admin-small admin-primary" onClick={onEdit}>
                 編輯
               </button>
             ) : (
               <>
-                <button className="btn small" onClick={onCancel} disabled={saving}>
+                <button className="btn admin-btn admin-small" onClick={onCancel} disabled={saving}>
                   取消
                 </button>
-                <button className="btn small primary" onClick={onSave} disabled={saving}>
+                <button className="btn admin-btn admin-small admin-primary" onClick={onSave} disabled={saving}>
                   {saving ? "儲存中..." : "儲存"}
                 </button>
               </>
             )}
             {/* 右上關閉按鈕（saving 時被鎖住） */}
-            <button className="close-btn" onClick={() => !saving && onClose()}>
+            <button className="admin-close-btn" onClick={() => !saving && onClose()}>
               ×
             </button>
           </div>
         </div>
 
-        <div className="modal-body">
-          <div className="user-details">
+        <div className="admin-modal-body">
+          <div className="admin-user-details">
             {/* 基本資料區塊 */}
-            <div className="detail-section">
+            <div className="admin-detail-section">
               <h4>基本資料</h4>
 
               {/* 非編輯模式顯示純文字；編輯模式顯示 input（但部分欄位可由 disablePersonalEditing 鎖住） */}
@@ -85,16 +85,16 @@ const UserDetailModal = ({
                   <p><strong>地址:</strong> {user.address}</p>
                 </>
               ) : (
-                <div className="form-grid">
+                <div className="admin-form-grid">
                   {/* 用戶ID 永遠不可編輯 */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>用戶ID</label>
                     <input value={user.uid} disabled />
                   </div>
 
                   {/* 以下欄位在編輯時會使用 editUser 的值；若 editUser 沒值則 fallback 到 user 的欄位 */}
                   {/* 同時考慮 disablePersonalEditing 來決定是否要鎖住 */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>姓名</label>
                     <input
                       name="user_name"
@@ -105,7 +105,7 @@ const UserDetailModal = ({
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>Email</label>
                     <input
                       type="email"
@@ -116,7 +116,7 @@ const UserDetailModal = ({
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>電話</label>
                     <input
                       name="telephone"
@@ -126,7 +126,7 @@ const UserDetailModal = ({
                     />
                   </div>
 
-                  <div className="form-group form-col-2">
+                  <div className="admin-form-group admin-form-col-2">
                     <label>地址</label>
                     <input
                       name="address"
@@ -140,7 +140,7 @@ const UserDetailModal = ({
             </div>
 
             {/* 帳戶資訊區塊（錢包、點數、黑名單、碳足跡） */}
-            <div className="detail-section">
+            <div className="admin-detail-section">
               <h4>帳戶資訊</h4>
 
               {!isEditing ? (
@@ -149,16 +149,16 @@ const UserDetailModal = ({
                   <p><strong>點數:</strong> {user.point}</p>
                   <p>
                     <strong>狀態:</strong>
-                    <span className={`badge ${user.blacklist ? "danger" : "success"}`}>
+                    <span className={`admin-badge ${user.blacklist ? "admin-danger" : "admin-success"}`}>
                       {user.blacklist ? "黑名單" : "正常"}
                     </span>
                   </p>
                   <p><strong>碳足跡:</strong> {user.total_carbon_footprint}</p>
                 </>
               ) : (
-                <div className="form-grid">
+                <div className="admin-form-grid">
                   {/* 編輯模式下的錢包/點數/黑名單欄位（可編輯） */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>錢包餘額</label>
                     <input
                       type="number"
@@ -168,7 +168,7 @@ const UserDetailModal = ({
                       onChange={onChange}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>點數</label>
                     <input
                       type="number"
@@ -178,7 +178,7 @@ const UserDetailModal = ({
                       onChange={onChange}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>狀態</label>
                     <select
                       name="blacklist"
@@ -198,7 +198,7 @@ const UserDetailModal = ({
                       <option value="blacklist">黑名單</option>
                     </select>
                   </div>
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>碳足跡</label>
                     {/* 碳足跡顯示為只讀（如果需要編輯可改成 input） */}
                     <input value={user.total_carbon_footprint} disabled />
@@ -208,10 +208,10 @@ const UserDetailModal = ({
             </div>
 
             {/* 最近訂單記錄區塊 */}
-            <div className="detail-section">
+            <div className="admin-detail-section">
               <h4>最近訂單記錄</h4>
               {user.orders && user.orders.length > 0 ? (
-                <table className="modal-table">
+                <table className="admin-modal-table">
                   <thead>
                     <tr>
                       <th>訂單ID</th>
@@ -249,10 +249,10 @@ const UserDetailModal = ({
                         {/* 顯示訂單狀態 badge（根據 order_status 或文字值） */}
                         <td>
                           <span
-                            className={`badge ${
+                            className={`admin-badge ${
                               order.order_status === "1" || order.order_status === "completed"
-                                ? "success"
-                                : "warning"
+                                ? "admin-success"
+                                : "admin-warning"
                             }`}
                           >
                             {getOrderStatusText(order.order_status)}

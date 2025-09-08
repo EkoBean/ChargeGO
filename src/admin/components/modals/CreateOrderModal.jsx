@@ -78,16 +78,16 @@ const CreateOrderModal = ({
   const needReturnFields = editOrder?.order_status === "1" || editOrder?.order_status === "-1";
 
   return (
-    <div className="modal-overlay" onClick={() => !saving && onClose()}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
+      <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
           <h3>新增訂單</h3>
           <div>
-            <button className="btn small" onClick={onCancel} disabled={saving}>
+            <button className="btn admin-btn admin-small" onClick={onCancel} disabled={saving}>
               取消
             </button>
             <button 
-              className="btn small primary" 
+              className="btn admin-btn admin-small admin-primary" 
               onClick={() => {
                 const errors = validateForm();
                 if (Object.keys(errors).length > 0) {
@@ -101,24 +101,24 @@ const CreateOrderModal = ({
             >
               {saving ? "建立中..." : "建立訂單"}
             </button>
-            <button className="close-btn" onClick={() => !saving && onClose()}>
+            <button className="admin-close-btn" onClick={() => !saving && onClose()}>
               ×
             </button>
           </div>
         </div>
         
-        <div className="modal-body">
-          <div className="order-details">
-            <div className="detail-section">
+        <div className="admin-modal-body">
+          <div className="admin-order-details">
+            <div className="admin-detail-section">
               <h4>基本資訊</h4>
-              <div className="form-grid" style={{ 
+              <div className="admin-form-grid" style={{ 
                 display: 'grid', 
                 gridTemplateColumns: '1fr 1fr',
                 gap: '20px' 
               }}>
                 {/* 用戶ID */}
-                <div className="form-group">
-                  <label>用戶ID <span style={{ color: '#dc3545' }}>*</span></label>
+                <div className="admin-form-group">
+                  <label>用戶ID <span className="admin-required">*</span></label>
                   <input
                     type="number"
                     name="uid"
@@ -137,7 +137,7 @@ const CreateOrderModal = ({
                 </div>
 
                 {/* 用戶名稱（自動帶入） */}
-                <div className="form-group">
+                <div className="admin-form-group">
                   <label>用戶名稱</label>
                   <input
                     type="text"
@@ -156,8 +156,8 @@ const CreateOrderModal = ({
                 </div>
                 
                 {/* 租借站點 */}
-                <div className="form-group">
-                  <label>租借站點 <span style={{ color: '#dc3545' }}>*</span></label>
+                <div className="admin-form-group">
+                  <label>租借站點 <span className="admin-required">*</span></label>
                   <select 
                     name="rental_site_id"  
                     value={editOrder?.rental_site_id || ""} 
@@ -181,8 +181,8 @@ const CreateOrderModal = ({
                 </div>
 
                 {/* 訂單狀態 */}
-                <div className="form-group">
-                  <label>訂單狀態 <span style={{ color: '#dc3545' }}>*</span></label>
+                <div className="admin-form-group">
+                  <label>訂單狀態 <span className="admin-required">*</span></label>
                   <select 
                     name="order_status" 
                     value={String(editOrder?.order_status ?? "0")} 
@@ -200,15 +200,15 @@ const CreateOrderModal = ({
                     <option value="1">已完成</option>
                     <option value="-1">已取消</option>
                   </select>
-                  <small style={{ color: '#6c757d', fontSize: '12px' }}>
+                  <small className="admin-input-hint">
                     {needReturnFields ? '已完成/取消需填寫歸還站點和結束時間' : '進行中只需填寫租借站點和開始時間'}
                   </small>
                 </div>
 
                 {/* 歸還站點 - 根據狀態決定是否顯示和必填 */}
                 {needReturnFields && (
-                  <div className="form-group">
-                    <label>歸還站點 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <div className="admin-form-group">
+                    <label>歸還站點 <span className="admin-required">*</span></label>
                     <select 
                       name="return_site_id"  
                       value={editOrder?.return_site_id || ""} 
@@ -233,8 +233,8 @@ const CreateOrderModal = ({
                 )}
 
                 {/* 選擇充電器 - 修正狀態顯示和可選性 */}
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>選擇充電器 <span style={{ color: '#dc3545' }}>*</span></label>
+                <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label>選擇充電器 <span className="admin-required">*</span></label>
                   <div
                     role="listbox"
                     aria-label="可選充電器"
@@ -326,7 +326,7 @@ const CreateOrderModal = ({
                             }
                             onChange({ target: { name: 'charger_id', value: charger.charger_id } });
                           }}
-                          className="charger-list-item"
+                          className="admin-charger-list-item"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -385,7 +385,7 @@ const CreateOrderModal = ({
 
                           <div style={{ marginLeft: 12, textAlign: 'right', minWidth: 180 }}>
                             <span
-                              className="badge"
+                              className="admin-badge"
                               style={{
                                 background: disabled ? '#f8f9fa' : `${dotColor}15`,
                                 color: dotColor,
@@ -424,7 +424,7 @@ const CreateOrderModal = ({
                 </div>
 
                 {/* 備註 */}
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
                   <label>備註</label>
                   <textarea
                     name="comment"
@@ -447,15 +447,15 @@ const CreateOrderModal = ({
               </div>
             </div>
 
-            <div className="detail-section">
+            <div className="admin-detail-section">
               <h4>時間資訊</h4>
-              <div className="form-grid" style={{ 
+              <div className="admin-form-grid" style={{ 
                 display: 'grid', 
                 gridTemplateColumns: needReturnFields ? '1fr 1fr' : '1fr',
                 gap: '20px' 
               }}>
-                <div className="form-group">
-                  <label>開始時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                <div className="admin-form-group">
+                  <label>開始時間 <span className="admin-required">*</span></label>
                   <input 
                     type="datetime-local" 
                     name="start_date"
@@ -491,8 +491,8 @@ const CreateOrderModal = ({
                 
                 {/* 結束時間 - 根據狀態決定是否顯示和必填 */}
                 {needReturnFields && (
-                  <div className="form-group">
-                    <label>結束時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                  <div className="admin-form-group">
+                    <label>結束時間 <span className="admin-required">*</span></label>
                     <input 
                       type="datetime-local" 
                       name="end"
@@ -527,7 +527,7 @@ const CreateOrderModal = ({
                 )}
                 
                 {!needReturnFields && (
-                  <small style={{ color: '#6c757d', gridColumn: '1 / -1' }}>
+                  <small className="admin-input-hint" style={{ gridColumn: '1 / -1' }}>
                     進行中的訂單無需填寫結束時間和歸還站點
                   </small>
                 )}

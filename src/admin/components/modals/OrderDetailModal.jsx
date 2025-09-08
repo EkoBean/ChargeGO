@@ -66,22 +66,22 @@ const OrderDetailModal = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={() => !saving && onClose()}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
+      <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
           <h3>訂單詳情 #{order.order_ID}</h3>
           <div>
             {!isEditing ? (
-              <button className="btn small primary" onClick={onEdit}>
+              <button className="btn admin-btn admin-small admin-primary" onClick={onEdit}>
                 編輯
               </button>
             ) : (
               <>
-                <button className="btn small" onClick={onCancel} disabled={saving}>
+                <button className="btn admin-btn admin-small" onClick={onCancel} disabled={saving}>
                   取消
                 </button>
                 <button 
-                  className="btn small primary" 
+                  className="btn admin-btn admin-small admin-primary" 
                   onClick={onSave} 
                   disabled={saving}
                 >
@@ -89,15 +89,15 @@ const OrderDetailModal = ({
                 </button>
               </>
             )}
-            <button className="close-btn" onClick={() => !saving && onClose()}>
+            <button className="admin-close-btn" onClick={() => !saving && onClose()}>
               ×
             </button>
           </div>
         </div>
         
-        <div className="modal-body">
-          <div className="order-details">
-            <div className="detail-section">
+        <div className="admin-modal-body">
+          <div className="admin-order-details">
+            <div className="admin-detail-section">
               <h4>基本資訊</h4>
               {!isEditing ? (
                 <>
@@ -111,12 +111,12 @@ const OrderDetailModal = ({
                   <p>
                     <strong>狀態:</strong> 
                     <span
-                      className={`badge ${
+                      className={`admin-badge ${
                         order.order_status === "1" || order.order_status === "completed"
-                          ? "success"
+                          ? "admin-success"
                           : order.order_status === "0" || order.order_status === "active"
-                          ? "warning"
-                          : "danger"
+                          ? "admin-warning"
+                          : "admin-danger"
                       }`}
                     >
                       {getOrderStatusText(order.order_status)}
@@ -124,13 +124,13 @@ const OrderDetailModal = ({
                   </p>
                 </>
               ) : (
-                <div className="form-grid" style={{ 
+                <div className="admin-form-grid" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr',
                   gap: '20px' 
                 }}>
                   {/* 租借站點（不可編輯） */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>租借站點</label>
                     <div
                       style={{
@@ -151,8 +151,8 @@ const OrderDetailModal = ({
 
                   {/* 歸還站點（可編輯） - 根據訂單狀態決定是否顯示 */}
                   {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? (
-                    <div className="form-group">
-                      <label>歸還站點 <span style={{ color: '#dc3545' }}>*</span></label>
+                    <div className="admin-form-group">
+                      <label>歸還站點 <span className="admin-required">*</span></label>
                       <select 
                         name="return_site_id"
                         value={editOrder?.return_site_id || ""}
@@ -175,7 +175,7 @@ const OrderDetailModal = ({
                       </select>
                     </div>
                   ) : (
-                    <div className="form-group">
+                    <div className="admin-form-group">
                       <label>歸還站點</label>
                       <div
                         style={{
@@ -195,7 +195,7 @@ const OrderDetailModal = ({
                   )}
 
                   {/* 充電器（不可編輯） */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>充電器</label>
                     <div
                       style={{
@@ -223,7 +223,7 @@ const OrderDetailModal = ({
                   </div>
 
                   {/* 訂單狀態 */}
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>訂單狀態</label>
                     <select 
                       name="order_status" 
@@ -241,7 +241,7 @@ const OrderDetailModal = ({
                       <option value="1">已完成</option>
                       <option value="-1">已取消</option>
                     </select>
-                    <small style={{ color: '#6c757d', fontSize: '12px', display: 'block', marginTop: '4px' }}>
+                    <small className="admin-input-hint">
                       {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? 
                         '已完成/取消需填寫歸還站點和結束時間' : 
                         '進行中只需要基本資訊'
@@ -250,7 +250,7 @@ const OrderDetailModal = ({
                   </div>
 
                   {/* 備註 */}
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
                     <label>備註</label>
                     <textarea
                       name="comment"
@@ -274,7 +274,7 @@ const OrderDetailModal = ({
               )}
             </div>
 
-            <div className="detail-section">
+            <div className="admin-detail-section">
               <h4>時間資訊</h4>
               
               {!isEditing ? (
@@ -287,12 +287,12 @@ const OrderDetailModal = ({
                   </p>
                 </>
               ) : (
-                <div className="form-grid" style={{ 
+                <div className="admin-form-grid" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: editOrder?.order_status === "0" ? '1fr' : '1fr 1fr',
                   gap: '20px' 
                 }}>
-                  <div className="form-group">
+                  <div className="admin-form-group">
                     <label>開始時間</label>
                     <input 
                       type="datetime-local" 
@@ -313,8 +313,8 @@ const OrderDetailModal = ({
                   
                   {/* 結束時間 - 只有已完成或已取消才顯示 */}
                   {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") && (
-                    <div className="form-group">
-                      <label>結束時間 <span style={{ color: '#dc3545' }}>*</span></label>
+                    <div className="admin-form-group">
+                      <label>結束時間 <span className="admin-required">*</span></label>
                       <input 
                         type="datetime-local" 
                         name="end"
@@ -348,7 +348,7 @@ const OrderDetailModal = ({
                   )}
                   
                   {editOrder?.order_status === "0" && (
-                    <small style={{ color: '#6c757d', gridColumn: '1 / -1' }}>
+                    <small className="admin-input-hint" style={{ gridColumn: '1 / -1' }}>
                       進行中的訂單無需填寫結束時間
                     </small>
                   )}
@@ -356,7 +356,7 @@ const OrderDetailModal = ({
               )}
             </div>
 
-            <div className="detail-section">
+            <div className="admin-detail-section">
               <h4>費用資訊</h4>
               <p><strong>總費用:</strong> NT$ {order.fee || 0}</p>
               <p><strong>計費方式:</strong> {order.charge_method || "標準計費"}</p>
@@ -369,7 +369,7 @@ const OrderDetailModal = ({
       {/* 狀態變更確認對話框 */}
       {showStatusConfirm && (
         <div 
-          className="modal-overlay" 
+          className="admin-modal-overlay" 
           onClick={cancelStatusChange}
           style={{ 
             backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -377,7 +377,7 @@ const OrderDetailModal = ({
           }}
         >
           <div 
-            className="modal-content" 
+            className="admin-modal-content" 
             onClick={(e) => e.stopPropagation()} 
             style={{ 
               maxWidth: '420px',
@@ -388,7 +388,7 @@ const OrderDetailModal = ({
             }}
           >
             <div 
-              className="modal-header"
+              className="admin-modal-header"
               style={{
                 background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
                 color: 'white',
@@ -412,7 +412,7 @@ const OrderDetailModal = ({
                 警告
               </h3>
               <button 
-                className="close-btn" 
+                className="admin-close-btn" 
                 onClick={cancelStatusChange}
                 style={{
                   color: 'white',
@@ -435,7 +435,7 @@ const OrderDetailModal = ({
               </button>
             </div>
             <div 
-              className="modal-body"
+              className="admin-modal-body"
               style={{
                 padding: '24px 20px',
                 textAlign: 'center'
@@ -463,7 +463,7 @@ const OrderDetailModal = ({
                 justifyContent: 'center'
               }}>
                 <button 
-                  className="btn" 
+                  className="btn admin-btn" 
                   onClick={cancelStatusChange}
                   style={{
                     padding: '10px 20px',
@@ -489,7 +489,7 @@ const OrderDetailModal = ({
                   返回
                 </button>
                 <button 
-                  className="btn primary" 
+                  className="btn admin-btn admin-danger" 
                   onClick={confirmStatusChange}
                   style={{
                     padding: '10px 20px',

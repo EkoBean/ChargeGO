@@ -135,17 +135,17 @@ const UserManagement = () => {
 
   // 主畫面：使用者表格 + 刷新按鈕 + detail modal
   return (
-    <div className="users-content">
-      <div className="content-header" style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
-        <h2 style={{ margin: 0 }}>用戶管理</h2>
+    <div className="admin-users-content">
+      <div className="admin-content-header">
+        <h2>用戶管理</h2>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center", marginLeft: "auto" }}>
+        <div className="admin-search-section">
           <input
             type="text"
+            className="admin-search-input"
             placeholder="搜尋：用戶ID / 姓名 / Email / 電話"
             value={searchQ}
             onChange={(e) => setSearchQ(e.target.value)}
-            style={{ padding: 8, minWidth: 260 }}
           />
 
           <select
@@ -159,14 +159,14 @@ const UserManagement = () => {
             <option value="blacklist">黑名單</option>
           </select>
 
-          <button className="btn primary" onClick={loadAllData}>
+          <button className="btn admin-btn admin-primary" onClick={loadAllData}>
             🔄 刷新資料
           </button>
         </div>
       </div>
 
-      <div className="table-container">
-        <table className="data-table">
+      <div className="admin-table-container">
+        <table className="admin-data-table">
           <thead>
             <tr>
               <th>用戶ID</th>
@@ -187,12 +187,12 @@ const UserManagement = () => {
                 <td>{user.telephone}</td>
                 <td>NT$ {user.wallet}</td>
                 <td>
-                  <span className={`badge ${user.blacklist ? "danger" : "success"}`}>
+                  <span className={`admin-badge ${user.blacklist ? "admin-danger" : "admin-success"}`}>
                     {user.blacklist ? "黑名單" : "正常"}
                   </span>
                 </td>
                 <td>
-                  <button className="btn small primary" onClick={() => handleViewUser(user)}>
+                  <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewUser(user)}>
                     查看詳情
                   </button>
                 </td>
@@ -201,13 +201,14 @@ const UserManagement = () => {
 
             {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan="7" style={{ padding: 12 }}>查無符合條件的用戶</td>
+                <td colSpan="7" className="admin-empty-row">查無符合條件的用戶</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      <div style={{ marginBottom: 8, color: "#666" }}>
+      
+      <div className="admin-search-count">
         顯示 {filteredUsers.length} / {users.length} 筆
       </div>
 

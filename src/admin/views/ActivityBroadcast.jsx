@@ -16,10 +16,12 @@ const ActivityBroadcast = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [statusFilter, setStatusFilter] = useState("all"); // values: all | active | ended
+  const [eventSendCounts, setEventSendCounts] = useState({}); // 添加發送人數狀態
 
   // 載入活動列表
   useEffect(() => {
     fetchEvents();
+    fetchEventSendCounts(); // 載入發送統計
   }, []);
 
   const fetchEvents = async () => {
@@ -37,6 +39,16 @@ const ActivityBroadcast = () => {
       setError(`載入活動資料失敗: ${err.message || err.toString()}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 獲取活動發送統計
+  const fetchEventSendCounts = async () => {
+    try {
+      const data = await ApiService.request('/api/events/send-counts');
+      setEventSendCounts(data || {});
+    } catch (err) {
+      console.error('載入發送統計失敗:', err);
     }
   };
 
@@ -74,10 +86,18 @@ const ActivityBroadcast = () => {
   };
 
   // 處理發送成功
-  const handleSendSuccess = (message) => {
+  const handleSendSuccess = (message, sentCount) => {
     setShowSendModal(false);
     setSelectedEvent(null);
     setSuccess(message);
+    
+    // 更新發送人數統計
+    if (selectedEvent && sentCount) {
+      setEventSendCounts(prev => ({
+        ...prev,
+        [selectedEvent.event_id]: (prev[selectedEvent.event_id] || 0) + sentCount
+      }));
+    }
     
     // 5秒後清除成功訊息
     setTimeout(() => {
@@ -105,8 +125,8 @@ const ActivityBroadcast = () => {
   }
 
   return (
-    <div className="events-content">
-      <div className="content-header" style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
+    <div className="admin-events-content">
+      <div className="admin-content-header" style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
         <h2 style={{ margin: 0 }}>活動管理</h2>
 
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginLeft: "auto" }}>
@@ -129,12 +149,12 @@ const ActivityBroadcast = () => {
             <option value="ended">已結束</option>
           </select>
 
-          <button className="btn primary" onClick={fetchEvents}>
+          <button className="btn admin-btn admin-primary" onClick={fetchEvents}>
             🔄 刷新資料
           </button>
 
           <button
-            className="btn primary"
+            className="btn admin-btn admin-primary"
             onClick={() => setShowCreateModal(true)}
           >
             + 建立活動
@@ -142,10 +162,20 @@ const ActivityBroadcast = () => {
         </div>
       </div>
 
-      {success && <div className="alert success" style={{marginBottom: '15px', padding: '10px', backgroundColor: '#d4edda', borderRadius: '4px', color: 'green'}}>{success}</div>}
+      {success && (
+        <div className="admin-alert admin-success" style={{
+          marginBottom: '15px', 
+          padding: '10px', 
+          backgroundColor: '#d4edda', 
+          borderRadius: '4px', 
+          color: 'green'
+        }}>
+          {success}
+        </div>
+      )}
 
-      <div className="table-container">
-        <table className="data-table">
+      <div className="admin-table-container">
+        <table className="admin-data-table">
           <thead>
             <tr>
               <th>活動編號</th>
@@ -172,14 +202,16 @@ const ActivityBroadcast = () => {
                   </td>
                   <td>{event.site_name || '全站活動'}</td>
                   <td>
-                    <span className={`badge ${new Date() < new Date(event.event_end_date) ? "success" : "danger"}`}>
+                    <span className={`admin-badge ${new Date() < new Date(event.event_end_date) ? "admin-success" : "admin-danger"}`}>
                       {new Date() < new Date(event.event_end_date) ? '已上線' : '已結束'}
                     </span>
                   </td>
-                  <td className="text-center">0</td>
+                  <td className="admin-text-center">
+                    {eventSendCounts[event.event_id] || 0}
+                  </td>
                   <td>
                     <button 
-                      className="btn small primary"
+                      className="btn admin-btn admin-small admin-primary"
                       onClick={() => handleSendEvent(event)}
                     >
                       發送通知

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import ApiService from '../../services/api';
-//發送活動表單
+
 const SendEventModal = ({ event, onClose, onSuccess }) => {
   const [users, setUsers] = useState([]);
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [sendToAll, setSendToAll] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
+  
+  // 篩選和選擇狀態
+  const [statusFilter, setStatusFilter] = useState('normal'); // normal | blacklist | all
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -14,103 +18,267 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
 
   const fetchUsers = async () => {
     try {
-      const data = await ApiService.getActiveUsers();
-      setUsers(data);
-    } catch (err) {
-      setError('載入用戶列表失敗');
-    }
-  };
-
-  const handleSend = async () => {
-    try {
       setLoading(true);
       setError('');
-
-      const targetUsers = sendToAll ? 'all' : selectedUsers;
+      console.log('開始載入用戶資料...');
       
-      if (!sendToAll && selectedUsers.length === 0) {
-        setError('請選擇至少一位用戶');
-        return;
+      const data = await ApiService.request('/api/users');
+      console.log('用戶資料載入成功:', data);
+      
+      if (!Array.isArray(data)) {
+        throw new Error('API 返回的數據格式不正確');
       }
-
-      const result = await ApiService.sendEventToUsers(event.event_id, targetUsers);
       
-      onSuccess(`${result.message}`);
+      setUsers(data);
     } catch (err) {
-      setError(err.message || '發送失敗');
+      console.error('載入用戶列表失敗:', err);
+      setError(`載入用戶列表失敗: ${err.message || '未知錯誤'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleUserSelection = (uid) => {
-    setSelectedUsers(prev => 
-      prev.includes(uid) 
-        ? prev.filter(id => id !== uid)
-        : [...prev, uid]
-    );
+  // 根據狀態篩選用戶
+  const filteredUsers = users.filter(user => {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'normal') return user.status === 'normal';
+    if (statusFilter === 'blacklist') return user.status === 'blacklist';
+    return true;
+  });
+
+  // 處理全選/取消全選
+  const handleSelectAll = (checked) => {
+    setSelectAll(checked);
+    if (checked) {
+      setSelectedUsers(filteredUsers.map(user => user.user_id || user.uid));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  // 處理單個用戶選擇
+  const handleUserSelect = (userId, checked) => {
+    if (checked) {
+      setSelectedUsers(prev => [...prev, userId]);
+    } else {
+      setSelectedUsers(prev => prev.filter(id => id !== userId));
+      setSelectAll(false);
+    }
+  };
+
+  // 發送通知
+  const handleSend = async () => {
+    if (selectedUsers.length === 0) {
+      setError('請至少選擇一個用戶');
+      return;
+    }
+
+    try {
+      setSending(true);
+      setError('');
+      
+      const response = await ApiService.request('/api/events/send-notification', {
+        method: 'POST',
+        body: JSON.stringify({
+          event_id: event.event_id,
+          user_ids: selectedUsers,
+          send_all: false
+        })
+      });
+
+      onSuccess(`成功發送通知給 ${selectedUsers.length} 位用戶`, selectedUsers.length);
+    } catch (err) {
+      console.error('發送通知失敗:', err);
+      setError(`發送通知失敗: ${err.message}`);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // 發送給所有用戶
+  const handleSendAll = async () => {
+    try {
+      setSending(true);
+      setError('');
+      
+      const response = await ApiService.request('/api/events/send-notification', {
+        method: 'POST',
+        body: JSON.stringify({
+          event_id: event.event_id,
+          send_all: true,
+          status_filter: statusFilter
+        })
+      });
+
+      const count = response.sent_count || filteredUsers.length;
+      onSuccess(`成功發送通知給所有用戶 (${count} 人)`, count);
+    } catch (err) {
+      console.error('發送通知失敗:', err);
+      setError(`發送通知失敗: ${err.message}`);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="admin-modal-overlay" onClick={() => !sending && onClose()}>
+      <div className="admin-modal-content" onClick={e => e.stopPropagation()}>
+        <div className="admin-modal-header">
           <h3>發送活動通知</h3>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="admin-close-btn" onClick={() => !sending && onClose()}>
+            ×
+          </button>
         </div>
 
-        <div className="modal-body">
-          <div className="form-group">
-            <h4>活動資訊</h4>
-            <p><strong>標題:</strong> {event.event_title}</p>
-            <p><strong>內容:</strong> {event.event_content}</p>
+        <div className="admin-modal-body">
+          {/* 活動信息區塊 */}
+          <div className="admin-detail-section">
+            <h4>活動詳情</h4>
+            <p><strong>活動名稱：</strong>{event.event_title}</p>
+            <p><strong>活動ID：</strong>{event.event_id}</p>
           </div>
-
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={sendToAll}
-                onChange={(e) => setSendToAll(e.target.checked)}
-              />
-              發送給所有用戶
-            </label>
-          </div>
-
-          {!sendToAll && (
-            <div className="form-group">
-              <h4>選擇用戶 ({selectedUsers.length} 已選擇)</h4>
-              <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #ddd', padding: '10px' }}>
-                {users.map(user => (
-                  <label key={user.uid} style={{ display: 'block', marginBottom: '5px' }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.includes(user.uid)}
-                      onChange={() => toggleUserSelection(user.uid)}
-                    />
-                    {user.user_name} (ID: {user.uid}) - {user.email}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
 
           {error && (
-            <div className="alert error" style={{ marginTop: '10px' }}>
+            <div className="admin-alert admin-danger">
               {error}
             </div>
           )}
-        </div>
 
-        <div className="modal-footer">
-          <button className="btn secondary" onClick={onClose}>取消</button>
-          <button 
-            className="btn primary" 
-            onClick={handleSend}
-            disabled={loading}
-          >
-            {loading ? '發送中...' : '確認發送'}
-          </button>
+          {/* 用戶篩選區塊 */}
+          <div className="admin-detail-section">
+            <h4>發送設定</h4>
+            <div className="admin-form-grid">
+              <div className="admin-form-group">
+                <label>用戶狀態篩選</label>
+                <select 
+                  value={statusFilter} 
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setSelectedUsers([]);
+                    setSelectAll(false);
+                  }}
+                >
+                  <option value="normal">正常用戶</option>
+                  <option value="blacklist">黑名單用戶</option>
+                  <option value="all">所有用戶</option>
+                </select>
+              </div>
+              <div className="admin-form-group">
+                <label>符合條件用戶數</label>
+                <input 
+                  type="text" 
+                  value={`${filteredUsers.length} 人`} 
+                  disabled 
+                />
+              </div>
+            </div>
+
+            {/* 全選控制 */}
+            {!loading && filteredUsers.length > 0 && (
+              <div className="admin-checkbox" style={{ marginTop: '16px' }}>
+                <input
+                  type="checkbox"
+                  id="selectAll"
+                  checked={selectAll}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                />
+                <label htmlFor="selectAll">
+                  全選 ({selectedUsers.length} / {filteredUsers.length})
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* 用戶列表區塊 */}
+          <div className="admin-detail-section">
+            <h4>用戶列表</h4>
+            
+            {loading ? (
+              <div className="admin-loading-screen" style={{ height: '200px' }}>
+                <div className="admin-loading-spinner"></div>
+                <p>載入中...</p>
+              </div>
+            ) : (
+              <>
+                {filteredUsers.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6c757d' }}>
+                    <div style={{ fontSize: '3rem', opacity: 0.3, marginBottom: '16px' }}>👤</div>
+                    <p>沒有符合條件的用戶</p>
+                  </div>
+                ) : (
+                  <div style={{ 
+                    maxHeight: '300px', 
+                    overflowY: 'auto', 
+                    border: '1px solid #e9ecef',
+                    borderRadius: '4px'
+                  }}>
+                    {filteredUsers.map(user => (
+                      <div 
+                        key={user.user_id || user.uid} 
+                        className="admin-checkbox"
+                        style={{ 
+                          padding: '12px 16px',
+                          borderBottom: '1px solid #f8f9fa',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <input
+                          type="checkbox"
+                          id={`user-${user.user_id || user.uid}`}
+                          checked={selectedUsers.includes(user.user_id || user.uid)}
+                          onChange={(e) => handleUserSelect(user.user_id || user.uid, e.target.checked)}
+                        />
+                        <label htmlFor={`user-${user.user_id || user.uid}`} style={{ flex: 1, cursor: 'pointer' }}>
+                          <div style={{ fontWeight: '500', color: '#2c3e50', marginBottom: '2px' }}>
+                            {user.user_name || `用戶 ${user.user_id || user.uid}`}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                            ID: {user.user_id || user.uid} | 
+                            狀態: <span style={{ color: user.status === 'blacklist' ? '#dc3545' : '#28a745' }}>
+                              {user.status === 'blacklist' ? '黑名單' : '正常'}
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* 操作按鈕區塊 */}
+          <div className="admin-form-actions">
+            <button 
+              className="btn admin-btn"
+              onClick={() => !sending && onClose()}
+              disabled={sending}
+            >
+              取消
+            </button>
+            <button 
+              className="btn admin-btn admin-success"
+              onClick={handleSendAll}
+              disabled={sending || loading || filteredUsers.length === 0}
+            >
+              {sending ? '發送中...' : `發送給所有${statusFilter === 'normal' ? '正常' : statusFilter === 'blacklist' ? '黑名單' : ''}用戶`}
+            </button>
+            <button 
+              className="btn admin-btn admin-primary"
+              onClick={handleSend}
+              disabled={sending || loading || selectedUsers.length === 0}
+            >
+              {sending ? '發送中...' : `發送給選中的用戶 (${selectedUsers.length})`}
+            </button>
+            
+            {sending && (
+              <span className="admin-save-success">
+                正在發送通知...
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

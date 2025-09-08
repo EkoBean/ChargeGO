@@ -378,7 +378,7 @@ app.post("/api/orders", (req, res) => {
         LEFT JOIN user u ON o.uid = u.uid
         LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
         LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-        LEFT JOIN charger c ON o.charger_id = c.chcharger_id
+        LEFT JOIN charger c ON o.charger_id = c.charger_id
         WHERE o.order_ID = ?
       `;
       
@@ -813,182 +813,293 @@ app.get("/api/users/active", (req, res) => {
   });
 });
 
-// ===== bank 區 =====
-
-// 信用卡清單（遮蔽卡號）
-app.get("/bank/cards", (req, res) => {
-  connBank.query(`
-    SELECT card_id, 
-           CONCAT(SUBSTR(card_number, 1, 4), ' **** **** ', SUBSTR(card_number, -4)) AS masked_card_number,
-           expiry_date, holder_name, bank_name
-    FROM credit_card ORDER BY card_id ASC
-  `, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: "DB error", code: err.code });
-    res.json(rows);
-  });
-});
-
-// ===== 職員操作紀錄 =====
-
-// 職員操作紀錄清單
-app.get("/api/employee_log", (req, res) => {
-  connCharger.query(`
-    SELECT log_id, employee_id, action, target_table, target_id, 
-           old_values, new_values, timestamp
-    FROM employee_log 
-    ORDER BY timestamp DESC
-    LIMIT 100
-  `, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: "DB error", code: err.code });
-    res.json(rows);
-  });
-});
-
-// 員工清單
-app.get("/api/employees", (req, res) => {
-  connCharger.query(`
-    SELECT employee_id, employee_name, employee_email, role, created_at
-    FROM employee
-    ORDER BY employee_id ASC
-  `, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: "DB error", code: err.code });
-    res.json(rows);
-  });
-});
-
-// 新增站點
-app.post("/api/sites", (req, res) => {
-  const { site_name, address, longitude, latitude } = req.body;
+// 新增：獲取所有用戶列表（包含狀態）- 用於SendEventModal
+app.get("/api/users", (req, res) => {
+  console.log('查詢所有用戶列表...');
   
-  if (!site_name || !address) {
-    return res.status(400).json({ error: '站點名稱和地址為必填欄位' });
+  connCharger.query(`
+    SELECT uid as user_id, uid, user_name, telephone, email, address, 
+           CASE 
+             WHEN blacklist = 1 THEN 'blacklist'
+             ELSE 'normal'
+           END as status,
+           blacklist, wallet, point, total_carbon_footprint
+    FROM user 
+    ORDER BY uid ASC
+  `, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      return res.status(500).json({ error: '獲取用戶列表失敗', code: err.code });
+    }
+    console.log('用戶列表查詢成功，筆數:', rows.length);
+    res.json(rows);
+  });
+});
+
+// 新增：獲取活動發送統計
+app.get("/api/events/send-counts", (req, res) => {
+  console.log('查詢活動發送統計...');
+  
+  // 查詢每個活動的通知發送數量
+  connCharger.query(`
+    SELECT 
+      e.event_id,
+      COUNT(n.notice_id) as send_count
+    FROM event e
+    LEFT JOIN notice n ON n.notice_title = e.event_title
+    GROUP BY e.event_id
+  `, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching send counts:', err);
+      // 如果查詢失敗，返回空對象
+      return res.json({});
+    }
+    
+    // 轉換為 { event_id: count } 格式
+    const counts = {};
+    rows.forEach(row => {
+      counts[row.event_id] = row.send_count || 0;
+    });
+    
+    console.log('活動發送統計:', counts);
+    res.json(counts);
+  });
+});
+
+// 新增：發送活動通知 API
+app.post("/api/events/send-notification", (req, res) => {
+  const { event_id, user_ids, send_all, status_filter } = req.body;
+  
+  console.log('發送活動通知請求:', req.body);
+  
+  // 先獲取活動詳情
+  connCharger.query(
+    'SELECT * FROM event WHERE event_id = ?',
+    [event_id],
+    (err, eventResult) => {
+      if (err) {
+        console.error('獲取活動詳情失敗:', err);
+        return res.status(500).json({ error: '獲取活動詳情失敗' });
+      }
+      
+      if (eventResult.length === 0) {
+        return res.status(404).json({ error: '活動不存在' });
+      }
+      
+      const event = eventResult[0];
+      
+      // 根據發送類型構建查詢
+      let userQuery = '';
+      let userParams = [];
+      
+      if (send_all) {
+        // 根據狀態篩選發送給所有用戶
+        if (status_filter === 'normal') {
+          userQuery = 'SELECT uid FROM user WHERE blacklist = 0';
+        } else if (status_filter === 'blacklist') {
+          userQuery = 'SELECT uid FROM user WHERE blacklist = 1';
+        } else {
+          userQuery = 'SELECT uid FROM user';
+        }
+      } else if (user_ids && Array.isArray(user_ids)) {
+        // 發送給指定用戶
+        userQuery = `SELECT uid FROM user WHERE uid IN (${user_ids.map(() => '?').join(',')})`;
+        userParams = user_ids;
+      } else {
+        return res.status(400).json({ error: '無效的發送參數' });
+      }
+      
+      // 獲取目標用戶
+      connCharger.query(userQuery, userParams, (err, users) => {
+        if (err) {
+          console.error('獲取用戶列表失敗:', err);
+          return res.status(500).json({ error: '獲取用戶列表失敗' });
+        }
+        
+        if (users.length === 0) {
+          return res.status(400).json({ error: '沒有找到符合條件的用戶' });
+        }
+        
+        // 準備插入通知的資料
+        const notices = users.map(user => [
+          user.uid,
+          `活動通知：${event.event_title}`,
+          event.event_content,
+          new Date() // notice_date
+        ]);
+        
+        // 批次插入通知到 notice 表
+        const insertNoticeQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
+        
+        connCharger.query(insertNoticeQuery, [notices], (err, noticeResult) => {
+          if (err) {
+            console.error('插入通知失敗:', err);
+            return res.status(500).json({ error: '發送通知失敗' });
+          }
+          
+          console.log(`成功發送活動通知給 ${users.length} 位用戶`);
+          res.json({
+            message: `活動通知已成功發送給 ${users.length} 位用戶`,
+            sent_count: users.length,
+            event_title: event.event_title
+          });
+        });
+      });
+    }
+  );
+});
+
+// 新增：獲取活動詳細發送記錄 API（可選）
+app.get("/api/events/:id/send-history", (req, res) => {
+  const eventId = req.params.id;
+  
+  console.log(`查詢活動 ${eventId} 的發送記錄`);
+  
+  connCharger.query(`
+    SELECT n.notice_id, n.uid, u.user_name, n.notice_date
+    FROM notice n
+    LEFT JOIN user u ON n.uid = u.uid
+    LEFT JOIN event e ON n.notice_title LIKE CONCAT('活動通知：', e.event_title)
+    WHERE e.event_id = ?
+    ORDER BY n.notice_date DESC
+  `, [eventId], (err, rows) => {
+    if (err) {
+      console.error('查詢發送記錄失敗:', err);
+      return res.status(500).json({ error: '查詢發送記錄失敗' });
+    }
+    
+    console.log(`活動 ${eventId} 的發送記錄筆數:`, rows.length);
+    res.json(rows);
+  });
+});
+
+// 任務 (missions) 清單
+app.get("/api/missions", (req, res) => {
+  console.log('GET /api/missions');
+  const q = `
+    SELECT 
+      mission_id,
+      title,
+      description,
+      type,
+      reward_points,
+      target_value,
+      target_unit,
+      mission_start_date,
+      mission_end_date,
+      created_at
+    FROM missions
+    ORDER BY mission_id DESC
+  `;
+  connCharger.query(q, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching missions:', err);
+      return res.status(500).json({ error: '獲取任務列表失敗', details: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+
+// 新增任務
+app.post("/api/missions", (req, res) => {
+  const { title, description, type, reward_points, target_value, target_unit, mission_start_date, mission_end_date } = req.body;
+  
+  console.log('接收到新增任務請求:', req.body);
+  
+  // 基本驗證
+  if (!title || !description) {
+    return res.status(400).json({ error: '任務標題不能為空; 任務內容不能為空' });
+  }
+  
+  if (!reward_points || reward_points <= 0) {
+    return res.status(400).json({ error: '獎勵點數必須大於 0' });
+  }
+  
+  if (!target_value || target_value <= 0) {
+    return res.status(400).json({ error: '目標數值必須大於 0' });
   }
 
-  const query = `
-    INSERT INTO charger_site (site_name, address, longitude, latitude)
-    VALUES (?, ?, ?, ?)
+  const insertQuery = `
+    INSERT INTO missions (title, description, type, reward_points, target_value, target_unit, mission_start_date, mission_end_date, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
   
   const values = [
-    site_name, 
-    address, 
-    longitude || null, 
-    latitude || null
+    title,
+    description,
+    type || 'accumulated_hours',
+    parseInt(reward_points),
+    parseInt(target_value),
+    target_unit || 'Hours',
+    mission_start_date || null,
+    mission_end_date || null
   ];
   
-  connCharger.query(query, values, (err, result) => {
+  console.log('執行插入 SQL:', insertQuery);
+  console.log('參數:', values);
+  
+  connCharger.query(insertQuery, values, (err, result) => {
     if (err) {
-      console.error('Error creating site:', err);
+      console.error('Error creating mission:', err);
       return res.status(500).json({ 
-        error: '建立站點失敗', 
+        error: '建立任務失敗', 
         details: err.message,
         code: err.code 
       });
     }
     
-    res.status(201).json({
-      site_id: result.insertId,
-      message: '站點建立成功'
-    });
-  });
-});
-
-// 更新站點
-app.put("/api/sites/:id", (req, res) => {
-  const siteId = req.params.id;
-  const { site_name, address, longitude, latitude } = req.body;
-  
-  const sets = [];
-  const params = [];
-  
-  if (site_name !== undefined) {
-    sets.push('site_name = ?');
-    params.push(site_name);
-  }
-  if (address !== undefined) {
-    sets.push('address = ?');
-    params.push(address);
-  }
-  if (longitude !== undefined) {
-    sets.push('longitude = ?');
-    params.push(longitude);
-  }
-  if (latitude !== undefined) {
-    sets.push('latitude = ?');
-    params.push(latitude);
-  }
-  
-  if (!sets.length) {
-    return res.status(400).json({ error: '請提供至少一個要更新的欄位' });
-  }
-  
-  params.push(siteId);
-  
-  connCharger.query(`
-    UPDATE charger_site SET ${sets.join(', ')} WHERE site_id = ?
-  `, params, (err, result) => {
-    if (err) {
-      console.error('Error updating site:', err);
-      return res.status(500).json({ error: '更新站點失敗' });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: '找不到要更新的站點' });
-    }
-    res.json({ message: '站點更新成功' });
-  });
-});
-
-// 刪除站點
-app.delete("/api/sites/:id", (req, res) => {
-  const siteId = req.params.id;
-  
-  // 先檢查是否有相關的充電器
-  connCharger.query(
-    'SELECT COUNT(*) as charger_count FROM charger WHERE site_id = ?',
-    [siteId],
-    (err, countResult) => {
-      if (err) {
-        return res.status(500).json({ error: '檢查相關充電器失敗' });
-      }
-      
-      if (countResult[0].charger_count > 0) {
-        return res.status(400).json({ 
-          error: '無法刪除站點，該站點下還有充電器' 
+    console.log('任務建立成功, ID:', result.insertId);
+    
+    // 回傳新建立的任務資料
+    connCharger.query(
+      'SELECT * FROM missions WHERE mission_id = ?',
+      [result.insertId],
+      (selectErr, selectResult) => {
+        if (selectErr) {
+          console.error('查詢新建任務失敗:', selectErr);
+          return res.status(500).json({ error: '查詢新建任務失敗' });
+        }
+        
+        res.status(201).json({
+          mission_id: result.insertId,
+          message: '任務建立成功',
+          mission: selectResult[0]
         });
       }
-      
-      // 刪除站點
-      connCharger.query(
-        'DELETE FROM charger_site WHERE site_id = ?', 
-        [siteId], 
-        (deleteErr, result) => {
-          if (deleteErr) {
-            console.error('Error deleting site:', deleteErr);
-            return res.status(500).json({ error: '刪除站點失敗' });
-          }
-          if (result.affectedRows === 0) {
-            return res.status(404).json({ error: '找不到要刪除的站點' });
-          }
-          res.json({ message: '站點刪除成功' });
-        }
-      );
-    }
-  );
-});
-
-// 錯誤處理中間件
-app.use((error, req, res, next) => {
-  console.error('Unhandled error:', error);
-  res.status(500).json({ 
-    error: 'Internal server error', 
-    message: error.message 
+    );
   });
 });
 
-// 404 處理
-app.use((req, res) => {
-  res.status(404).json({ 
-    error: 'Not Found', 
-    message: `Route ${req.method} ${req.path} not found` 
+
+// ===== bank 區 =====
+
+// 信用卡清單（遮蔽卡號）
+app.get("/bank/cards", (req, res) => {
+  console.log('查詢信用卡清單...');
+  
+  const query = `
+    SELECT bankuser_id, bankuser_name, credit_card_number, credit_card_date, cvc
+    FROM credit_card 
+    ORDER BY bankuser_id ASC 
+    LIMIT 10
+  `;
+  
+  connBank.query(query, [], (err, rows) => {
+    if (err) {
+      console.error('查詢信用卡失敗:', err);
+      return res.status(500).json({ error: "DB error", code: err.code });
+    }
+    
+    // 遮蔽卡號中間數字
+    const maskedCards = rows.map(card => ({
+      ...card,
+      credit_card_number: card.credit_card_number ? 
+        card.credit_card_number.replace(/(\d{4})\d{8}(\d{4})/, '$1****$2') : 
+        'N/A'
+    }));
+    
+    console.log(`查詢到 ${rows.length} 張信用卡`);
+    res.json(maskedCards);
   });
 });

@@ -467,6 +467,78 @@ const ApiService = {
   async getActiveUsers() {
     return this.request('/api/users/active');
   },
+
+  // 任務 / missions
+  async getMissions() {
+    return this.request('/api/missions');
+  },
+
+  async getMissionById(missionId) {
+    return this.request(`/api/missions/${missionId}`);
+  },
+
+  async createMission(payload) {
+    console.log('Creating mission with payload:', payload);
+
+    const body = {
+      mission_title: String(payload.mission_title || "").trim(),
+      mission_content: String(payload.mission_content || "").trim(),
+      site_id: payload.site_id || null,
+      mission_start_date: payload.mission_start_date,
+      mission_end_date: payload.mission_end_date
+    };
+
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.mission_title) errors.push("任務標題不能為空");
+    if (!body.mission_content) errors.push("任務內容不能為空");
+    if (!body.mission_start_date) errors.push("開始時間不能為空");
+    if (!body.mission_end_date) errors.push("結束時間不能為空");
+
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+
+    console.log('Normalized mission body:', body);
+
+    try {
+      const result = await this.request(`/api/missions`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      console.log('Mission created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create mission:', error);
+      throw error;
+    }
+  },
+
+  async updateMission(missionId, payload) {
+    const body = {
+      mission_title: payload.mission_title,
+      mission_content: payload.mission_content,
+      site_id: payload.site_id || null,
+      mission_start_date: payload.mission_start_date,
+      mission_end_date: payload.mission_end_date
+    };
+
+    // 移除 undefined 欄位
+    Object.keys(body).forEach(key => 
+      body[key] === undefined && delete body[key]
+    );
+
+    return this.request(`/api/missions/${missionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  },
+
+  async deleteMission(missionId) {
+    return this.request(`/api/missions/${missionId}`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // 訂單相關 API 函數
