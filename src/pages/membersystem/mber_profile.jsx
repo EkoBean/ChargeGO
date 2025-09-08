@@ -92,7 +92,6 @@ const mber_Profile = () => {
 
   return (
     <div className={styles.mber_info}>
-      {/* <NavBarWebsite /> */}
       <NavBarAPP className={styles.mobile_only_nav} />
       {/* Header */}
       <div className={styles.info_container}>
@@ -124,7 +123,8 @@ const mber_Profile = () => {
           {/* 卡片列 */}
           <div className={styles.mber_info_cards}>
             <div className={styles.card}>
-              <img src="/Iconimg/wallet.svg" alt="信用卡資料" />
+              <img src="/Iconimg/wallet.svg" alt="信用卡資料"
+              onClick={() => navigate("/mber_addCreditcard")} />
               <span>信用卡資料</span>
             </div>
             <div className={styles.card}>
@@ -133,11 +133,7 @@ const mber_Profile = () => {
                 alt="帳單紀錄"
                 onClick={() => navigate("/mber_rentRecord")}
               />
-              <img
-                src="/Iconimg/bill.svg"
-                alt="帳單紀錄"
-                onClick={() => navigate("/mber_rentRecord")}
-              />
+             
               <span>租借紀錄</span>
             </div>
             <div className={styles.card}>

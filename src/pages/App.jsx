@@ -20,6 +20,7 @@ import Coupon from "./mall/coupon";
 import CheckoutCoupons from "./mall/coupon";
 import Task from "./membersystem/Task";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
+import Mber_addCreditcard from "./membersystem/mber_addCreditcard";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="/mber_info" element={<Mber_info />} />
         <Route path="/Mber_discount" element={<Mber_discount />} />
         <Route path="/mber_rentRecord" element={<Mber_RentRecord />} />
+        <Route path="/mber_addCreditcard" element={<Mber_addCreditcard />} />
         {/* <Route path="/register" element={<Register />} /> */}
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/Task" element={<Task />} />
