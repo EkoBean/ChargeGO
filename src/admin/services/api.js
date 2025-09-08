@@ -22,8 +22,8 @@ const ApiService = {
       });
 
       const responseText = await response.text();
-      console.log('API 回應狀態:', response.status); // 加入 debug
-      console.log('API 回應內容:', responseText); // 加入 debug
+      // console.log('API 回應狀態:', response.status); // 加入 debug
+      // console.log('API 回應內容:', responseText); // 加入 debug
     
       let data;
       try {

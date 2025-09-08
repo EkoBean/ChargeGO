@@ -10,7 +10,7 @@ const SiteManagement = () => {
 
   // debug: 確認 chargers 內容（印出第一筆完整物件以了解欄位）
   if (Array.isArray(chargers) && chargers.length > 0) {
-    console.log('SiteManagement chargers[0]:', JSON.stringify(chargers[0], null, 2));
+    // console.log('SiteManagement chargers[0]:', JSON.stringify(chargers[0], null, 2));
   } else {
     console.log('SiteManagement chargers sample (empty or not array):', chargers);
   }
