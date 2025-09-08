@@ -26,7 +26,7 @@ pool.query = util.promisify(pool.query);
 app.get("/", (req, res) => {
   res.send("API is running and ready to go!");
 });
-
+//任務查詢
 app.get("/mission/:user_id/:date", async function (req, res) {
   const { user_id, date } = req.params;
 
@@ -65,40 +65,73 @@ app.get("/mission/:user_id/:date", async function (req, res) {
   }
 });
 
-//領取獎勵
+// 領取任務獎勵
 app.post("/usermission/claim", async (req, res) => {
-  // 從請求主體取得 user_mission_id
-  const { user_mission_id } = req.body;
-
-  // 檢查是否提供了 user_mission_id
-  if (!user_mission_id) {
-    return res.status(400).json({ message: "缺少 user_mission_id" });
+  const { user_mission_id, user_id } = req.body;
+  console.log("user_mission", user_mission_id);
+  console.log("user_id", user_id);
+  if (!user_mission_id || !user_id) {
+    return res.status(400).json({ message: "缺少 user_mission_id 或 user_id" });
   }
 
   try {
-    // Step 1: 先查詢任務的狀態（是否完成和是否已領取）
+    // Step 1: 查詢任務狀態與獎勵點數
     const [rows] = await pool.query(
-      `SELECT is_completed, is_claimed FROM user_missions WHERE user_mission_id = ?`,
+      `SELECT
+        um.is_completed,
+        um.is_claimed,
+        m.reward_points
+      FROM user_missions AS um
+      JOIN missions AS m
+      ON um.mission_id = m.mission_id
+      WHERE
+        um.user_mission_id = ?`,
       [user_mission_id]
     );
 
-    // 如果找不到這個任務，回傳 404 錯誤
     if (rows.length === 0) {
       return res.status(404).json({ message: "找不到指定的任務" });
     }
-
-    // Step 4: 如果任務已完成且尚未領取，執行更新操作
-    const updateQuery = `UPDATE user_missions SET is_claimed = 1 WHERE user_mission_id = ?`;
-    const results = await pool.query(updateQuery, [user_mission_id]);
-
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "找不到指定的任務" });
+    console.log(rows);
+    const mission = rows;
+    console.log(mission);
+    // Step 2: 檢查狀態
+    if (!mission.is_completed) {
+      return res.status(400).json({ message: "任務尚未完成" });
+    }
+    if (mission.is_claimed) {
+      return res.status(400).json({ message: "獎勵已領取過" });
     }
 
-    res.status(200).json({ message: "任務已成功領取" });
+    // Step 3: 使用交易處理 領取 + 加點數
+    await pool.query("START TRANSACTION");
+
+    // 標記為已領取
+    await pool.query(
+      `UPDATE user_missions 
+       SET is_claimed = 1 
+       WHERE user_mission_id = ?`,
+      [user_mission_id]
+    );
+
+    // 增加點數
+    await pool.query(
+      `UPDATE user 
+       SET point = point + ? 
+       WHERE uid = ?`,
+      [mission.reward_points, user_id]
+    );
+
+    await pool.query("COMMIT");
+
+    res.status(200).json({
+      message: "任務已成功領取並增加點數",
+      reward: mission.reward_points,
+    });
   } catch (err) {
-    console.error("更新任務狀態時發生錯誤:", err);
-    res.status(500).json({ message: "無法更新任務狀態" });
+    await pool.query("ROLLBACK");
+    console.error("領取任務獎勵時發生錯誤:", err);
+    res.status(500).json({ message: "無法領取獎勵，請稍後再試" });
   }
 });
 
@@ -268,44 +301,6 @@ app.post("/update/monthRental", async (req, res) => {
       startOfMonth,
       startOfNextMonth,
     ]);
-
-    // --- 處理「當月租借總時數」任務類型 (total_rental_hours) ---
-
-    //     const totalHoursQuery = `
-    //             SELECT SUM(TIMESTAMPDIFF(HOUR, start_date, end)) AS total_hours
-    //             FROM order_record
-    //             WHERE uid = ? AND type = 'accumulated' AND start_date<=?;
-    //         `;
-    //     const [totalHoursResult] = await pool.query(totalHoursQuery, [
-    //       userId,
-    //       startOfMonth,
-    //     ]);
-    //     const totalRentalHours = totalHoursResult.total_hours || 0;
-
-    //     // 更新 user_missions 表中所有 `total_rental_hours` 類型的任務進度
-    //     const updateTotalHoursQuery = `
-    // UPDATE user_missions
-    // SET
-    //   current_progress = ?,
-    //   is_completed = IF(target_value <= ?, 1, 0)
-    // WHERE
-    //   user_id = ? AND mission_id IN (
-    //     SELECT
-    //       mission_id
-    //     FROM
-    //       missions
-    //     WHERE
-    //       mission_type = 'total_rental_hours'
-    //   )
-    //   AND mission_start_date <= ? AND (mission_end_date >= ? OR mission_end_date IS NULL);
-    //         `;
-    //     await pool.query(updateTotalHoursQuery, [
-    //       totalRentalHours,
-    //       totalRentalHours,
-    //       userId,
-    //       now,
-    //       now,
-    //     ]);
 
     res.status(200).json({ message: "任務進度更新成功", userId, filterDate });
   } catch (error) {

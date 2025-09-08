@@ -59,19 +59,28 @@ class Mission extends Component {
 
   handleClaimMission = async (userMissionId) => {
     try {
+      const { userId } = this.state;
+      console.log("handleClaimMission1");
       const response = await axios.post(
         "http://localhost:4000/usermission/claim",
-        { user_mission_id: userMissionId }
+        {
+          user_mission_id: userMissionId,
+          user_id: userId,
+        }
       );
+      console.log(response);
+      console.log("handleClaimMission2");
 
       if (response.status === 200) {
         this.fetchMissions();
       }
     } catch (error) {
       if (error.response && error.response.data) {
+        console.log(error);
         alert(error.response.data.message);
       } else {
         alert("領取任務時發生錯誤，請稍後再試。");
+        console.log(error);
       }
     }
   };

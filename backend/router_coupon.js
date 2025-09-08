@@ -82,7 +82,7 @@ app.post("/redeem/:couponCode", async (req, res) => {
   }
 });
 
-//租借折扣優惠券(專門給結帳用)
+//租借折扣優惠券(結帳用)
 app.get("/mycoupons/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
@@ -114,8 +114,7 @@ app.get("/mycoupons/:user_id", async (req, res) => {
   }
 });
 
-// 取得單一優惠券折扣資訊 API
-// 前端使用 GET /coupon-info/:user_id/:coupon_id
+// 取得單一優惠券折扣資訊 API(結帳用)
 app.get("/coupon-info/:user_id/:coupon_id", async (req, res) => {
   const { user_id, coupon_id } = req.params;
 

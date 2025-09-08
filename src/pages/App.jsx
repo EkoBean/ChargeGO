@@ -17,7 +17,7 @@ import Mber_discount from "./membersystem/mber_discount";
 import Mber_Profile from "./membersystem/mber_profile";
 import Mber_info from "./membersystem/mber_info";
 import Coupon from "./mall/coupon";
-import CheckoutCoupons from "./mall/coupon";
+import CheckoutCoupons from "./mall/checkout_coupon";
 import Task from "./membersystem/Task";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
 
