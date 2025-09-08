@@ -1,3 +1,155 @@
 @use "./tokens.module.scss" as mb;
 
-// ...existing code...
+.mber_addCreditcard {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.creditcard-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.creditcard-form {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.form-row{
+    font-weight: bold;
+    font-size: medium;
+    color: #6b4f1d;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.form-label {
+  text-align: left;
+}
+
+.form-input {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+}
+.form-input-cvv {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100px;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.form-input-small {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 80px;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.form-row > .form-input,
+.form-row > .form-input-cvv,
+.form-row > .form-input-small {
+  flex: 1 1 0;
+}
+
+.submit-btn,
+.cancel-btn {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.3rem;
+  letter-spacing: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background: #ffd600;
+  color: #6b4f1d;
+  transition: 0.2s;
+}
+
+.cancel-btn {
+  margin-bottom: 32px;
+}
+
+.submit-btn:hover,
+.cancel-btn:hover {
+  background: #ffc107;
+  transform: scale(1.05);
+}
+
+@media screen and (max-width: 600px) {
+  .creditcard-container {
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-input,
+  .form-input-cvv,
+  .form-input-small {
+    width: 100%;
+  }
+
+  .submit-btn,
+  .cancel-btn {
+    font-size: 1rem;
+  }
+}

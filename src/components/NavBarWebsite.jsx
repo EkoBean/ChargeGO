@@ -135,9 +135,9 @@ function NavbarWebsite() {
       </svg>
 
       {/* navbar */}
-      <header className="navbar">
+      <header className={styles.navbar}>
         <div
-          className="logo"
+          className={styles.logo}
           onMouseEnter={() => setLogoHover(true)}
           onMouseLeave={() => setLogoHover(false)}
         >
@@ -149,7 +149,7 @@ function NavbarWebsite() {
         </div>
         {/* 漢堡選單（手機/平板顯示） */}
         <div
-          className="hamburger"
+          className={styles.hamburger}
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={mobileMenuOpen}
@@ -158,11 +158,11 @@ function NavbarWebsite() {
           <span></span>
           <span></span>
         </div>
-        <nav className={`menu${mobileMenuOpen ? " active" : ""}`}>
+        <nav className={`${styles.menu}${mobileMenuOpen ? " " + styles.active : ""}`}>
           {menuItems.map((item, idx) => (
             <div
               key={idx}
-              className="menu-item-wrapper"
+              className={styles["menu-item-wrapper"]}
               onMouseEnter={() => {
                 // 桌面版進入選單項目或子選單區域時保持開啟
                 if (window.innerWidth > 768 && item.submenu) {
@@ -177,7 +177,7 @@ function NavbarWebsite() {
               }}
             >
               <div
-                className="menu-item"
+                className={styles["menu-item"]}
                 onMouseEnter={(e) => {
                   // 球球動畫在所有裝置都觸發（包括手機版）
                   handleHover(e);
@@ -214,7 +214,7 @@ function NavbarWebsite() {
               >
                 {item.title}
                 {item.submenu && (
-                  <span className="dropdown-arrow">
+                  <span className={styles["dropdown-arrow"]}>
                     {activeSubmenu === idx ? "▲" : "▼"}
                   </span>
                 )}
@@ -223,12 +223,12 @@ function NavbarWebsite() {
               {/* 子選單 */}
               {item.submenu && (
                 <div
-                  className={`submenu ${activeSubmenu === idx ? "show" : ""}`}
+                  className={`${styles.submenu}${activeSubmenu === idx ? " " + styles.show : ""}`}
                 >
                   {item.submenu.map((subitem, subIdx) => (
                     <div
                       key={subIdx}
-                      className="submenu-item"
+                      className={styles["submenu-item"]}
                       onMouseEnter={(e) => {
                         // 子選單項目在所有裝置都觸發球球動畫（包括手機版）
                         handleHover(e);
@@ -266,7 +266,7 @@ function NavbarWebsite() {
 
           {/* main ball */}
           <div
-            className={`ball main ${mainBallPos.show ? "show" : ""}`}
+            className={`${styles.ball} ${styles.main}${mainBallPos.show ? " " + styles.show : ""}`}
             style={{
               left: mainBallPos.x,
               top: mainBallPos.y,
@@ -276,7 +276,7 @@ function NavbarWebsite() {
 
           {/* follower ball */}
           <div
-            className={`ball follower ${followerBallPos.show ? "show" : ""}`}
+            className={`${styles.ball} ${styles.follower}${followerBallPos.show ? " " + styles.show : ""}`}
             style={{
               left: followerBallPos.x,
               top: followerBallPos.y,
