@@ -311,9 +311,38 @@
   }
 }
 
+.back-icon {
+  // 桌面版永遠置左
+  position: fixed;
+  top: 32px;
+  left: 32px;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 20;
+  background: #66ff50;
+  border-radius: 50%;
+  padding: 8px 16px;
+  transition: 0.2s ease;
+}
 .back-icon:hover {
   color: #ffd600;
   transform: scaleX(1.2);
+}
+@media (max-width: 600px) {
+  .back-icon {
+    position: absolute;
+    top: 30px;
+    left: 50px;
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    z-index: 20;
+    background: #66ff50;
+    border-radius: 50%;
+    padding: 8px 16px;
+    transition: 0.2s ease;
+  }
 }
 
 .input-row {
