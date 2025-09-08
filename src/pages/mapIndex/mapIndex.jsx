@@ -16,8 +16,7 @@ import {
   InfoWindow,
 } from "@vis.gl/react-google-maps";
 
-// Bootstrap Icons
-import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 // environment variables
 const API_URL = import.meta.env.VITE_BACKEND_API_URL;

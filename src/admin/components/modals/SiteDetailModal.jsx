@@ -1,5 +1,19 @@
+// ===========import library===========================
 import React, { useState } from 'react';
+// Google Maps
+import {
+  APIProvider,
+  Map,
+  useMap,
+  useAdvancedMarkerRef,
+  AdvancedMarker,
+  Pin,
+  InfoWindow,
+} from "@vis.gl/react-google-maps";
 
+
+
+// ====================================================
 // 站點管理 查看詳細資訊視窗
 // 顯示單一站點的詳細資料與統計，提供建立/編輯站點。
 const SiteDetailModal = ({
@@ -54,32 +68,7 @@ const SiteDetailModal = ({
 
   const selectedSiteChargers = chargers.filter(c => c.site_id === site.site_id);
 
-  // 地址查詢經緯度
-  const handleGeocode = async () => {
-    if (!editSite?.address) {
-      setGeoError("請先輸入地址");
-      return;
-    }
-    setIsLoadingGeo(true);
-    setGeoError("");
-    // 缺少 API 金鑰
-    try {
-      const res = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(editSite.address)}&key=AIzaSyDfRu8ufAyaAXeGZnUDIjUOXEsTE3d1KM4`
-      );
-      const data = await res.json();
-      if (data.status === "OK" && data.results.length > 0) {
-        const { lat, lng } = data.results[0].geometry.location;
-        onChange({ target: { name: "latitude", value: lat } });
-        onChange({ target: { name: "longitude", value: lng } });
-      } else {
-        setGeoError("查無經緯度，請確認地址正確");
-      }
-    } catch (e) {
-      setGeoError("查詢失敗，請稍後再試");
-    }
-    setIsLoadingGeo(false);
-  };
+
 
   return (
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
@@ -138,10 +127,10 @@ const SiteDetailModal = ({
                   {!creating && (
                     <div className="admin-form-group">
                       <label>站點ID</label>
-                      <input 
-                        type="text" 
-                        value={site.site_id} 
-                        disabled 
+                      <input
+                        type="text"
+                        value={site.site_id}
+                        disabled
                       />
                     </div>
                   )}
@@ -284,11 +273,9 @@ const SiteDetailModal = ({
               <div className="admin-detail-section">
                 <h4>位置預覽</h4>
                 <div className="admin-map-preview">
-                  {/* google 金鑰 */}
-                  <img 
-                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${site.latitude},${site.longitude}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${site.latitude},${site.longitude}&key=AIzaSyDfRu8ufAyaAXeGZnUDIjUOXEsTE3d1KM4`} 
-                    alt="站點位置地圖" 
-                  />
+                  <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                    
+                  </APIProvider>
                 </div>
               </div>
             )}
