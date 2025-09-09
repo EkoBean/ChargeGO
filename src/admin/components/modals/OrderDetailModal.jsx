@@ -34,7 +34,7 @@ const OrderDetailModal = ({
     return 'unknown';
   };
 
-  // 處理訂單狀態變更
+  // 處理租借狀態變更
   const handleStatusChange = (e) => {
     const newStatus = e.target.value;
     const currentStatus = String(editOrder?.order_status ?? "0");
@@ -69,7 +69,7 @@ const OrderDetailModal = ({
     <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
       <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="admin-modal-header">
-          <h3>訂單詳情 #{order.order_ID}</h3>
+          <h3>租借詳情 #{order.order_ID}</h3>
           <div>
             {!isEditing ? (
               <button className="btn admin-btn admin-small admin-primary" onClick={onEdit}>
@@ -101,15 +101,15 @@ const OrderDetailModal = ({
               <h4>基本資訊</h4>
               {!isEditing ? (
                 <>
-                  <p><strong>訂單編號:</strong> {order.order_ID}</p>
+                  <p><strong>租借編號:</strong> {order.order_ID}</p>
                   <p><strong>用戶名稱:</strong> {order.user_name}</p>
                   <p><strong>用戶ID:</strong> {order.uid}</p>
-                  <p><strong>租出站:</strong> {order.rental_site_name ?? order.site_name ?? order.rental_site_id ?? "-"}</p>
-                  <p><strong>歸還站:</strong> {order.return_site_name ?? "-"}</p>
+                  <p><strong>出借站點:</strong> {order.rental_site_name ?? order.site_name ?? order.rental_site_id ?? "-"}</p>
+                  <p><strong>歸還站點:</strong> {order.return_site_name ?? "-"}</p>
                   <p><strong>充電器:</strong> {order.charger_id || "未指定"}</p>
                   <p><strong>備註:</strong> {order.comment || "-"}</p>
                   <p>
-                    <strong>狀態:</strong> 
+                    <strong>租借狀態:</strong> 
                     <span
                       className={`admin-badge ${
                         order.order_status === "1" || order.order_status === "completed"
@@ -129,9 +129,9 @@ const OrderDetailModal = ({
                   gridTemplateColumns: '1fr 1fr',
                   gap: '20px' 
                 }}>
-                  {/* 租借站點（不可編輯） */}
+                  {/* 出借站點（不可編輯） */}
                   <div className="admin-form-group">
-                    <label>租借站點</label>
+                    <label>出借站點</label>
                     <div
                       style={{
                         padding: '10px 14px',
@@ -149,7 +149,7 @@ const OrderDetailModal = ({
                     </div>
                   </div>
 
-                  {/* 歸還站點（可編輯） - 根據訂單狀態決定是否顯示 */}
+                  {/* 歸還站點（可編輯） - 根據租借狀態決定是否顯示 */}
                   {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? (
                     <div className="admin-form-group">
                       <label>歸還站點 <span className="admin-required">*</span></label>
@@ -189,14 +189,14 @@ const OrderDetailModal = ({
                           alignItems: 'center'
                         }}
                       >
-                        進行中訂單無需歸還站點
+                        進行中的租借無需歸還站點
                       </div>
                     </div>
                   )}
 
                   {/* 充電器（不可編輯） */}
                   <div className="admin-form-group">
-                    <label>充電器</label>
+                    <label>租借設備</label>
                     <div
                       style={{
                         padding: '10px 14px',
@@ -222,9 +222,9 @@ const OrderDetailModal = ({
                     </div>
                   </div>
 
-                  {/* 訂單狀態 */}
+                  {/* 租借狀態 */}
                   <div className="admin-form-group">
-                    <label>訂單狀態</label>
+                    <label>租借狀態</label>
                     <select 
                       name="order_status" 
                       value={String(editOrder?.order_status ?? "0")} 
@@ -237,14 +237,14 @@ const OrderDetailModal = ({
                         background: '#fff'
                       }}
                     >
-                      <option value="0">進行中</option>
-                      <option value="1">已完成</option>
+                      <option value="0">租借中</option>
+                      <option value="1">已歸還</option>
                       <option value="-1">已取消</option>
                     </select>
                     <small className="admin-input-hint">
                       {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? 
-                        '已完成/取消需填寫歸還站點和結束時間' : 
-                        '進行中只需要基本資訊'
+                        '已歸還/取消需填寫歸還站點和結束時間' : 
+                        '租借中只需要基本資訊'
                       }
                     </small>
                   </div>
@@ -279,11 +279,11 @@ const OrderDetailModal = ({
               
               {!isEditing ? (
                 <>
-                  <p><strong>開始時間:</strong> {order.start_date ? new Date(order.start_date).toLocaleString() : "未開始"}</p>
-                  <p><strong>結束時間:</strong> {order.end ? new Date(order.end).toLocaleString() : "進行中"}</p>
-                  <p><strong>使用時長:</strong> {order.end && order.start_date ? 
+                  <p><strong>出借時間:</strong> {order.start_date ? new Date(order.start_date).toLocaleString() : "未開始"}</p>
+                  <p><strong>歸還時間:</strong> {order.end ? new Date(order.end).toLocaleString() : "租借中"}</p>
+                  <p><strong>租借時長:</strong> {order.end && order.start_date ? 
                     Math.round((new Date(order.end) - new Date(order.start_date)) / (1000 * 60)) + " 分鐘" : 
-                    "進行中"}
+                    "租借中"}
                   </p>
                 </>
               ) : (
@@ -293,7 +293,7 @@ const OrderDetailModal = ({
                   gap: '20px' 
                 }}>
                   <div className="admin-form-group">
-                    <label>開始時間</label>
+                    <label>出借時間</label>
                     <input 
                       type="datetime-local" 
                       value={editOrder?.start_date ? 
@@ -311,10 +311,10 @@ const OrderDetailModal = ({
                     />
                   </div>
                   
-                  {/* 結束時間 - 只有已完成或已取消才顯示 */}
+                  {/* 歸還時間 - 只有已歸還或已取消才顯示 */}
                   {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") && (
                     <div className="admin-form-group">
-                      <label>結束時間 <span className="admin-required">*</span></label>
+                      <label>歸還時間 <span className="admin-required">*</span></label>
                       <input 
                         type="datetime-local" 
                         name="end"
@@ -349,7 +349,7 @@ const OrderDetailModal = ({
                   
                   {editOrder?.order_status === "0" && (
                     <small className="admin-input-hint" style={{ gridColumn: '1 / -1' }}>
-                      進行中的訂單無需填寫結束時間
+                      租借中無需填寫歸還時間
                     </small>
                   )}
                 </div>
@@ -358,9 +358,110 @@ const OrderDetailModal = ({
 
             <div className="admin-detail-section">
               <h4>費用資訊</h4>
-              <p><strong>總費用:</strong> NT$ {order.fee || 0}</p>
-              <p><strong>計費方式:</strong> {order.charge_method || "標準計費"}</p>
-              <p><strong>支付狀態:</strong> {order.payment_status ? "已支付" : "未支付"}</p>
+              {!isEditing ? (
+                <>
+                  <p><strong>訂單總額:</strong> NT$ {order.total_amount || 0}</p>
+                  <p><strong>租借費用:</strong> NT$ {order.fee || 0}</p>
+                  <p><strong>實付金額:</strong> NT$ {order.paid_amount || order.fee || 0}</p>
+                  <p><strong>計費方式:</strong> {order.charge_method || "標準計費"}</p>
+                  <p><strong>支付狀態:</strong> 
+                    <span className={`admin-badge ${order.payment_status ? "admin-success" : "admin-warning"}`}>
+                      {order.payment_status ? "已支付" : "未支付"}
+                    </span>
+                  </p>
+                </>
+              ) : (
+                <div className="admin-form-grid" style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '20px' 
+                }}>
+                  <div className="admin-form-group">
+                    <label>訂單總額</label>
+                    <input
+                      type="number"
+                      name="total_amount"
+                      value={editOrder?.total_amount || ""}
+                      onChange={onChange}
+                      placeholder="0"
+                      min="0"
+                      step="1"
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        background: '#fff',
+                        minHeight: 38
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="admin-form-group">
+                    <label>租借費用</label>
+                    <input
+                      type="number"
+                      name="fee"
+                      value={editOrder?.fee || ""}
+                      onChange={onChange}
+                      placeholder="0"
+                      min="0"
+                      step="1"
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        background: '#fff',
+                        minHeight: 38
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="admin-form-group">
+                    <label>計費方式</label>
+                    <select
+                      name="charge_method"
+                      value={editOrder?.charge_method || "標準計費"}
+                      onChange={onChange}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        background: '#fff',
+                        minHeight: 38
+                      }}
+                    >
+                      <option value="標準計費">標準計費</option>
+                      <option value="時間計費">時間計費</option>
+                      <option value="固定費用">固定費用</option>
+                      <option value="免費使用">免費使用</option>
+                    </select>
+                  </div>
+                  
+                  <div className="admin-form-group">
+                    <label>支付狀態</label>
+                    <select
+                      name="payment_status"
+                      value={editOrder?.payment_status ? "1" : "0"}
+                      onChange={(e) => onChange({
+                        target: {
+                          name: 'payment_status',
+                          value: e.target.value === "1"
+                        }
+                      })}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #e3e8ee',
+                        background: '#fff',
+                        minHeight: 38
+                      }}
+                    >
+                      <option value="0">未支付</option>
+                      <option value="1">已支付</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -455,7 +556,7 @@ const OrderDetailModal = ({
                 fontWeight: '500',
                 lineHeight: '1.5'
               }}>
-                您即將會更改用戶訂單狀態，是否確定要修改？
+                您即將會更改用戶租借狀態，是否確定要修改？
               </p>
               <div style={{ 
                 display: 'flex', 

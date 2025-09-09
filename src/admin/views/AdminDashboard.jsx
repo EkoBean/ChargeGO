@@ -62,8 +62,8 @@ const AdminDashboard = () => {
         <div className="admin-stat-card admin-info" onClick={() => navigate('/orders')} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-icon">🛒</div>
           <div className="admin-stat-info">
-            <h3>{dashboardStats.todayOrders}</h3>
-            <p>點數商城訂單</p>
+            <h3>{dashboardStats.totalOrders}</h3>
+            <p>總訂單數</p>
           </div>
         </div>
       </div>
@@ -79,6 +79,7 @@ const AdminDashboard = () => {
                   style={{ width: `${Math.round(systemStatus.systemStatus * 100)}%` }}
                 ></div>
               </div>
+              {/* 計算方式 (正常運作的站點數 / 總站點數) */}
               <span>站點可用率 {Math.round(systemStatus.systemStatus * 100)}%</span>
             </div>
             <div className="admin-status-item">
@@ -88,6 +89,7 @@ const AdminDashboard = () => {
                   style={{ width: `${Math.round(systemStatus.deviceUsage * 100)}%` }}
                 ></div>
               </div>
+              {/* 計算方式 (當前使用中的設備數 / 總設備數) */}
               <span>設備使用率 {Math.round(systemStatus.deviceUsage * 100)}%</span>
             </div>
             <div className="admin-status-item">
@@ -97,6 +99,7 @@ const AdminDashboard = () => {
                   style={{ width: `${Math.round(systemStatus.orderCompletion * 100)}%` }}
                 ></div>
               </div>
+              {/* 計算方式 (已完成訂單數 / 總訂單數) */}
               <span>訂單完成率 {Math.round(systemStatus.orderCompletion * 100)}%</span>
             </div>
           </div>
@@ -112,7 +115,7 @@ const AdminDashboard = () => {
               📍 站點管理
             </button>
             <button className="admin-action-btn admin-btn-orange" onClick={() => navigate('/orders')}>
-              🛒 點數商城訂單
+              🛒 租借紀錄
             </button>
             <button className="admin-action-btn admin-btn-purple" onClick={() => navigate('/events')}>
               🎉 活動發送
