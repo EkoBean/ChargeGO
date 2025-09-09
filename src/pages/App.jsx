@@ -15,11 +15,12 @@ import Mbre_login from "./membersystem/mber_login";
 import Mber_register from "./membersystem/mber_register";
 import Mber_Profile from "./membersystem/mber_profile";
 import Mber_info from "./membersystem/mber_info";
+import Mber_edit from "./membersystem/mber_edit";
+import Mber_RentRecord from "./membersystem/mber_rentRecord";
+import Mber_addCreditcard from "./membersystem/mber_addCreditcard";
 import Coupon from "./mall/coupon";
 import CheckoutCoupons from "./mall/coupon";
 import Task from "./membersystem/Task";
-import Mber_RentRecord from "./membersystem/mber_rentRecord";
-import Mber_addCreditcard from "./membersystem/mber_addCreditcard";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         <Route path="/mber_register" element={<Mber_register />} />
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="/mber_info" element={<Mber_info />} />
+        <Route path="/mber_edit" element={<Mber_edit />} />
         <Route path="/mber_rentRecord" element={<Mber_RentRecord />} />
         <Route path="/mber_addCreditcard" element={<Mber_addCreditcard />} />
         {/* <Route path="/register" element={<Register />} /> */}
