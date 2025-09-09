@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
@@ -10,14 +10,25 @@ const mber_Login = () => {
     password: "",
     captcha: "",
   });
-  // 產生驗證碼
-  const [captchaValue, setCaptchaValue] = useState(() =>
-    Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-  );
-  // 更新驗證碼
+  const [generatedCaptcha, setGeneratedCaptcha] = useState("");
   const [error, setError] = useState("");
-  // 導向
   const navigate = useNavigate();
+
+  // 驗證碼初始化
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
+  // 更新驗證碼
+  const refreshCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setGeneratedCaptcha(code);
+  };
+
   // 處理表單變更
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +52,7 @@ const mber_Login = () => {
       setError("請輸入驗證碼");
       return;
     }
-    if (form.captcha !== String(captchaValue)) {
+    if (form.captcha !== generatedCaptcha) {
       setError("驗證碼錯誤");
       alert("驗證碼錯誤");
       return;
@@ -83,10 +94,6 @@ const mber_Login = () => {
       console.error("登入錯誤:", err);
     }
   };
-  // 重新產生驗證碼
-  const refreshCaptcha = () => {
-    setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
-  };
 
   return (
     <div className={styles["login-bg"]}>
@@ -117,10 +124,10 @@ const mber_Login = () => {
             {/* 帳號欄位 */}
             <input
               type="text"
-              name="login_id" 
+              name="login_id"
               className={styles["login-input"]}
               placeholder="帳號"
-              value={form.login_id} 
+              value={form.login_id}
               onChange={handleChange}
               required
             />
@@ -145,7 +152,7 @@ const mber_Login = () => {
             {/* 驗證碼顯示與刷新 */}
             <div className={styles["captcha-row"]}>
               <span className={styles["captcha-label"]}>驗證碼</span>
-              <span className={styles["captcha-value"]}>{captchaValue}</span>
+              <span className={styles["captcha-value"]}>{generatedCaptcha}</span>
               <button
                 type="button"
                 className={styles["captcha-refresh"]}
