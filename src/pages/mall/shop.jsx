@@ -137,65 +137,33 @@ class Shop extends Component {
           {/* 返回首頁 */}
 
           <button className={styles.navbarLeftSection}>
-            {/* 使用你提供的 SVG 程式碼 */}
-            <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
-              <path
-                d="M20.9702 41.9663C32.5517 41.9663 41.9404 32.5718 41.9404 20.9831C41.9404 9.39446 32.5517 0 20.9702 0C9.38868 0 0 9.39446 0 20.9831C0 32.5718 9.38868 41.9663 20.9702 41.9663Z"
-                fill="#00FF14"
-              />
-              <path
-                d="M27.7558 11.2036L14.1855 20.9832"
-                stroke="white"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M27.7558 30.7631L14.1855 20.9832"
-                stroke="white"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <img src="/Iconimg/backBtn.svg" alt="backBtn" />
           </button>
 
           {/* 裝點數與任務連結的容器 */}
           <div className={styles.navbarCenterSection}>
             {/* 點數顯示 */}
-            <div className={styles.point}></div>
+            <div className={styles.pointCircle}>
+              <div className={styles.circleText}>
+                <img src="/Iconimg/greenpoint.svg" alt="point" />
+                點數
+              </div>
+              <p className={styles.circleNumber}>2</p>
+            </div>
             {/* 導向任務連結 */}
-            <div className={styles.missionCircle}></div>
+            <div className={styles.missionCircle}>
+              <div className={styles.circleText}>任務</div>
+              <img src="/Iconimg/quest.svg" alt="任務" />
+            </div>
           </div>
 
           {/* 右上角通知鈴鐺*/}
           <button className={styles.navbarRightSection}>
             {/* 右上角通知鈴鐺 */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 40 43"
-              fill="none"
-            >
-              <path
-                d="M38.6927 31.6157V33.3099C38.6927 34.0259 38.1125 34.6072 37.3979 34.6072H1.29483C0.580197 34.6072 0 34.0259 0 33.3099V31.6157C0 31.1443 0.258256 30.7084 0.672176 30.478C2.37385 29.5316 6.72532 26.2531 6.72532 17.4312V16.5274C6.72532 10.4878 10.953 5.43355 16.6063 4.17884V4.11859C16.6063 2.6016 17.8339 1.36816 19.3516 1.36816C20.1087 1.36816 20.7951 1.67652 21.2903 2.17274C21.7856 2.66895 22.0934 3.35655 22.0934 4.11504V4.1753C23.0769 4.39505 24.0144 4.72467 24.8953 5.16063C24.7397 5.78798 24.6583 6.44014 24.6583 7.11357C24.6583 11.3065 27.8317 14.7588 31.9037 15.1947C31.9497 15.6307 31.9744 16.0773 31.9744 16.5238V17.4277C31.9744 26.2496 36.3259 29.5281 38.0276 30.4744C38.4415 30.7048 38.6998 31.1372 38.6998 31.6122L38.6927 31.6157Z"
-                fill="#6C4023"
-              />
-              <path
-                d="M25.3871 36.0532C25.3871 39.3956 22.6807 42.107 19.3446 42.107C16.0085 42.107 13.3021 39.3956 13.3021 36.0532H25.3871Z"
-                fill="#6C4023"
-              />
-              <path
-                d="M32.7669 14.2412C36.6922 14.2412 39.8743 11.0532 39.8743 7.12062C39.8743 3.18801 36.6922 0 32.7669 0C28.8416 0 25.6595 3.18801 25.6595 7.12062C25.6595 11.0532 28.8416 14.2412 32.7669 14.2412Z"
-                fill="#51FF3E"
-              />
-              <path
-                d="M33.6195 4.43034V9.95245C33.6195 10.2785 33.3542 10.5444 33.0287 10.5444C32.7032 10.5444 32.4379 10.2785 32.4379 9.95245V5.62834C32.3318 5.73467 32.2186 5.83745 32.0983 5.94379C31.8329 6.17062 31.4296 6.11746 31.2315 5.83036C31.0582 5.57871 31.1042 5.23491 31.3377 5.03997C31.8117 4.64655 32.1053 4.27085 32.2752 4.0192C32.4096 3.81717 32.6396 3.69312 32.8837 3.69312C33.2905 3.69312 33.6195 4.02274 33.6195 4.43034Z"
-                fill="#6C4023"
-              />
-            </svg>
-            <span className="notification-count"></span>
+            <img src="/Iconimg/notify.svg" alt="notify" />
           </button>
         </div>
+        {/* 白色區塊 */}
         <div className={styles.mallMain}>
           {/* UID 控制區塊（僅測試用，可隱藏） */}
           <div
@@ -233,7 +201,7 @@ class Shop extends Component {
           {/* 商家優惠券兌換 */}
           {storeCoupons.length > 0 && (
             <>
-              <h4 className="mb-3">兌換商家折扣</h4>
+              <h4 className={styles.shoptitle}>兌換商家折扣</h4>
               <div className={styles.storeCouponList}>
                 {storeCoupons.map((p) => (
                   <div className={styles.storeCouponCard} key={p.id}>
@@ -264,7 +232,7 @@ class Shop extends Component {
           {/* 租借優惠券兌換 */}
           {rentalCoupons.length > 0 && (
             <>
-              <h4 className="mt-4 mb-3">兌換租借折扣</h4>
+              <h4 className={styles.shoptitle}>兌換租借折扣</h4>
               <div className={styles.rentalCouponList}>
                 {rentalCoupons.map((p) => (
                   <div className={styles.rentalCouponCard} key={p.id}>
