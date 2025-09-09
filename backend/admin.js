@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql';
+
 const app = express();
 
 app.use(cors());
@@ -20,13 +21,18 @@ var connect = mysql.createConnection({
 });
 
 // === DB 連線：bank ===
-var connBank = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "",
-  database: "bank"
-});
+// 該功能已取消
+// var connBank = mysql.createConnection({
+//   host: "localhost",
+//   port: 3306,
+//   user: "root",
+//   password: "",
+//   database: "bank"
+// });
+
+import Promise from "bluebird";
+global.Promise = Promise;
+Promise.promisifyAll(connect);
 
 // 啟動伺服器
 app.listen(3000, () => {
@@ -47,20 +53,20 @@ connect.connect(function (err) {
   }
 });
 
-connBank.connect(function (err) {
-  if (err) {
-    console.error("bank 連線失敗：", err && err.code);
-  } else {
-    console.log("bank 連線成功");
-    connBank.query("SELECT COUNT(*) AS cnt FROM credit_card", (e, r) => {
-      if (e) {
-        console.error("credit_card 表查詢失敗：", e.code);
-      } else {
-        console.log("credit_card 表筆數：", r[0].cnt);
-      }
-    });
-  }
-});
+// connBank.connect(function (err) {
+//   if (err) {
+//     console.error("bank 連線失敗：", err && err.code);
+//   } else {
+//     console.log("bank 連線成功");
+//     connBank.query("SELECT COUNT(*) AS cnt FROM credit_card", (e, r) => {
+//       if (e) {
+//         console.error("credit_card 表查詢失敗：", e.code);
+//       } else {
+//         console.log("credit_card 表筆數：", r[0].cnt);
+//       }
+//     });
+//   }
+// });
 
 
 
@@ -159,7 +165,7 @@ app.put("/user/:uid", (req, res) => {
 // 站點清單
 app.get("/api/sites", (req, res) => {
   connect.query(`
-    SELECT site_id, site_name, address, longitude, latitude
+    SELECT site_id, site_name, country,address, longitude, latitude
     FROM charger_site ORDER BY site_id ASC
   `, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "DB error", code: err.code });
@@ -168,20 +174,102 @@ app.get("/api/sites", (req, res) => {
 });
 
 // 更新站點
-app.post("/api/sites", (req, res) => {
-  
-}); 
-// 編輯站點
-app.patch('api/sites', (req, res) => {
+app.post("/api/sites", async (req, res) => {
+  const { site_name, country, address, latitude, longitude } = req.body;
+  const queryIsert = `
+   insert into charger_site (site_id, site_name, country, address, latitude, longitude) values
+  (?, ?, ?, ?, ?, ?);
+  `
+  const queryCheckId = `SELECT site_id FROM charger_site WHERE site_id LIKE ? ORDER BY site_id DESC LIMIT 1`
+  // ========= generate site id ============
+  // 台灣縣市對應城市代碼
+  const countryCode = {
+    "基隆市": "KLU",
+    "新北市": "TPH",
+    "台北市": "TPE",
+    "桃園市": "TYC",
+    "新竹縣": "HSH",
+    "新竹市": "HSC",
+    "苗栗縣": "MAL",
+    "台中市": "TXG",
+    "彰化縣": "CWH",
+    "南投縣": "NTO",
+    "雲林縣": "YLH",
+    "嘉義縣": "CHY",
+    "嘉義市": "CYI",
+    "台南市": "TNN",
+    "高雄市": "KHH",
+    "屏東縣": "IUH",
+    "宜蘭縣": "ILN",
+    "花蓮縣": "HWA",
+    "台東縣": "TTT",
+    "澎湖縣": "PEH",
+    "金門縣": "KMN",
+    "連江縣": "LNN"
+  };
+  async function generateSiteId(connect, country) {
+    const prefix = countryCode[country];
+    if (!prefix) throw new Error("Invalid country");
+    const checkId = await connect.queryAsync(queryCheckId, [`${prefix}%`]);
+    if(checkId.length === 0){
+      return `${prefix}0001`;
+    }
+    if (checkId.length > 0) {
+      const latestId = checkId[0].site_id;
+      const number = parseInt(latestId.slice(3)) + 1;
+      const nextId = `${prefix}${number.toString().padStart(4, '0')}`;
+      if(!nextId){
+        return res.status(505).json({message: "site_id generate failed"})}
+      return nextId;
+    }
+  }
+  // ======================================
 
+  // 執行新增
+  try {
+    const site_id = await generateSiteId(connect, country);
+    const insertSite = await connect.queryAsync(queryIsert, [site_id,site_name, country, address, latitude, longitude]);
+    if(insertSite.affectedRows === 0){
+      return res.status(500).json({message: "insert site failed"})
+    }
+    return res.json({ message: "site created", site: { site_id, site_name, country, address, latitude, longitude } });
+  }
+  catch (err) {
+    console.error("[ERROR] POST /api/sites failed:", err);
+  }
+
+
+});
+// 編輯站點
+app.patch('/api/sites', async (req, res) => {
+  const query =
+    `UPDATE charger_site
+    SET site_name = ?,
+	  country = ?,
+	  address = ?,
+	  latitude = ?,
+	  longitude = ?
+    WHERE site_id = ?;`
+  const { site_name, country, address, latitude, longitude, site_id } = req.body;
+
+  try {
+    const updateSite = await connect.queryAsync(query, [site_name, country, address, latitude, longitude, site_id]);
+    if (updateSite.affectedRows === 0) {
+      return res.status(404).json({ message: "site not found" });
+    }
+    return res.json({ message: "site updated", site: req.body });
+  }
+  catch (err) {
+    console.error("[ERROR] PATCH /api/sites failed:", err);
+  }
 })
 
 // 修正獲取站點充電器 - 包含即時租借狀態檢查
 app.get("/api/sites/:id/chargers", (req, res) => {
   const site_id = req.params.id;
-  
+
   console.log(`查詢站點 ${site_id} 的充電器及租借狀態`);
-  
+
   const q = `
     SELECT c.*,
            CASE 
@@ -204,13 +292,13 @@ app.get("/api/sites/:id/chargers", (req, res) => {
     WHERE c.site_id = ?
     ORDER BY c.charger_id ASC
   `;
-  
+
   connect.query(q, [site_id], (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/sites/:id/chargers failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
     }
-    
+
     console.log(`站點 ${site_id} 充電器查詢結果:`, rows.map(r => ({
       charger_id: r.charger_id,
       status: r.status,
@@ -218,7 +306,7 @@ app.get("/api/sites/:id/chargers", (req, res) => {
       current_renter: r.current_renter,
       current_order_id: r.current_order_id
     })));
-    
+
     res.json(rows);
   });
 });
@@ -240,7 +328,7 @@ app.get("/api/chargers", (req, res) => {
 // 修正獲取所有訂單 - 按 order_ID 降序排列（最新的在上面）
 app.get("/api/orders", (req, res) => {
   console.log('獲取所有訂單請求');
-  
+
   const q = `
     SELECT o.order_ID,
            o.uid,
@@ -258,13 +346,13 @@ app.get("/api/orders", (req, res) => {
     LEFT JOIN charger c ON o.charger_id = c.charger_id
     ORDER BY o.order_ID DESC
   `;
-  
+
   connect.query(q, (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/orders failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
     }
-    
+
     console.log(`查詢到 ${rows.length} 筆訂單，按 order_ID 降序排列`);
     res.json(rows);
   });
@@ -275,9 +363,9 @@ app.get("/api/orders/page", (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 50;
   const offset = (page - 1) * limit;
-  
+
   console.log(`獲取訂單分頁請求 - 頁數: ${page}, 每頁: ${limit}`);
-  
+
   const q = `
     SELECT o.order_ID,
            o.uid,
@@ -296,13 +384,13 @@ app.get("/api/orders/page", (req, res) => {
     ORDER BY o.order_ID DESC
     LIMIT ? OFFSET ?
   `;
-  
+
   connect.query(q, [limit, offset], (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/orders/page failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
     }
-    
+
     // 同時獲取總數量
     const countQuery = "SELECT COUNT(*) as total FROM order_record";
     connect.query(countQuery, (countErr, countRows) => {
@@ -310,12 +398,12 @@ app.get("/api/orders/page", (req, res) => {
         console.error("[ERROR] Count orders failed:", countErr);
         return res.status(500).json({ error: "Count error", code: countErr.code, message: countErr.message });
       }
-      
+
       const total = countRows[0].total;
       const totalPages = Math.ceil(total / limit);
-      
+
       console.log(`返回第 ${page} 頁訂單，共 ${total} 筆，${totalPages} 頁`);
-      
+
       res.json({
         orders: rows,
         pagination: {
@@ -332,13 +420,13 @@ app.get("/api/orders/page", (req, res) => {
 // 新增訂單 - 最終版本
 app.post("/api/orders", (req, res) => {
   const { uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount } = req.body;
-  
+
   console.log('接收到新增訂單請求:', req.body);
-  
+
   // 驗證必要欄位
   if (!uid || !start_date || !rental_site_id || typeof order_status === "undefined" || !charger_id) {
-    return res.status(400).json({ 
-      message: "缺少必要欄位 (需要: uid, start_date, rental_site_id, order_status, charger_id)" 
+    return res.status(400).json({
+      message: "缺少必要欄位 (需要: uid, start_date, rental_site_id, order_status, charger_id)"
     });
   }
 
@@ -348,7 +436,7 @@ app.post("/api/orders", (req, res) => {
       console.error('查詢用戶失敗:', userErr);
       return res.status(500).json({ error: "DB error", code: userErr.code, message: userErr.message });
     }
-    
+
     if (userRows.length === 0) {
       return res.status(400).json({ message: "用戶不存在" });
     }
@@ -358,28 +446,28 @@ app.post("/api/orders", (req, res) => {
       INSERT INTO order_record (uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
+
     const values = [
-      uid, 
-      start_date, 
-      end || null, 
-      rental_site_id, 
-      return_site_id || null, 
-      order_status, 
-      charger_id, 
+      uid,
+      start_date,
+      end || null,
+      rental_site_id,
+      return_site_id || null,
+      order_status,
+      charger_id,
       comment || null,
       total_amount || 0
     ];
-    
+
     console.log('執行插入 SQL:', insertQuery);
     console.log('參數:', values);
-    
+
     connect.query(insertQuery, values, (insertErr, result) => {
       if (insertErr) {
         console.error('插入訂單失敗:', insertErr);
         return res.status(500).json({ error: "插入訂單失敗", code: insertErr.code, message: insertErr.message });
       }
-      
+
       // 查詢並返回完整的訂單資料
       const selectQuery = `
         SELECT o.order_ID,
@@ -398,13 +486,13 @@ app.post("/api/orders", (req, res) => {
         LEFT JOIN charger c ON o.charger_id = c.charger_id
         WHERE o.order_ID = ?
       `;
-      
+
       connect.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
         if (selectErr) {
           console.error('查詢新建訂單失敗:', selectErr);
           return res.status(500).json({ error: "查詢新建訂單失敗", code: selectErr.code, message: selectErr.message });
         }
-        
+
         console.log('訂單新增成功:', orderRows[0]);
         res.status(201).json(orderRows[0]);
       });
@@ -416,7 +504,7 @@ app.post("/api/orders", (req, res) => {
 app.get("/api/users/:uid", (req, res) => {
   const uid = req.params.uid;
   console.log('查詢用戶 ID:', uid, typeof uid); // 加入 debug 日誌
-  
+
   connect.query(
     'SELECT uid, user_name, telephone, email FROM user WHERE uid = ?',
     [uid],
@@ -425,14 +513,14 @@ app.get("/api/users/:uid", (req, res) => {
         console.error('查詢用戶失敗:', err);
         return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
       }
-      
+
       console.log('用戶查詢結果:', rows); // 加入 debug 日誌
-      
+
       if (rows.length === 0) {
         console.log('找不到用戶 ID:', uid);
         return res.status(404).json({ message: "用戶不存在" });
       }
-      
+
       console.log('找到用戶:', rows[0]);
       res.json(rows[0]);
     }
@@ -470,7 +558,7 @@ app.get('/api/system-status', (req, res) => {
 process.on("SIGINT", () => {
   console.log("\n關閉連線並結束程式...");
   connect.end(() => {
-    connBank.end(() => process.exit(0));
+    // connBank.end(() => process.exit(0));
   });
 });
 
@@ -502,13 +590,13 @@ app.post('/api/employee/login', (req, res) => {
 app.put("/api/orders/:order_ID", (req, res) => {
   const order_ID = req.params.order_ID;
   const { uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount } = req.body;
-  
+
   console.log('接收到更新訂單請求:', { order_ID, ...req.body });
-  
+
   // 建構動態更新語句
   const updateFields = [];
   const updateValues = [];
-  
+
   if (uid !== undefined) {
     updateFields.push('uid = ?');
     updateValues.push(uid);
@@ -545,33 +633,33 @@ app.put("/api/orders/:order_ID", (req, res) => {
     updateFields.push('total_amount = ?');
     updateValues.push(total_amount);
   }
-  
+
   if (updateFields.length === 0) {
     return res.status(400).json({ message: "沒有提供要更新的欄位" });
   }
-  
+
   // 添加 order_ID 到 WHERE 條件
   updateValues.push(order_ID);
-  
+
   const updateQuery = `
     UPDATE order_record 
     SET ${updateFields.join(', ')} 
     WHERE order_ID = ?
   `;
-  
+
   console.log('執行更新 SQL:', updateQuery);
   console.log('參數:', updateValues);
-  
+
   connect.query(updateQuery, updateValues, (updateErr, result) => {
     if (updateErr) {
       console.error('更新訂單失敗:', updateErr);
       return res.status(500).json({ error: "更新訂單失敗", code: updateErr.code, message: updateErr.message });
     }
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "找不到指定的訂單" });
     }
-    
+
     // 查詢並返回完整的訂單資料
     const selectQuery = `
       SELECT o.order_ID,
@@ -590,13 +678,13 @@ app.put("/api/orders/:order_ID", (req, res) => {
       LEFT JOIN charger c ON o.charger_id = c.charger_id
       WHERE o.order_ID = ?
     `;
-    
+
     connect.query(selectQuery, [order_ID], (selectErr, orderRows) => {
       if (selectErr) {
         console.error('查詢更新後訂單失敗:', selectErr);
         return res.status(500).json({ error: "查詢更新後訂單失敗", code: selectErr.code, message: selectErr.message });
       }
-      
+
       console.log('訂單更新成功:', orderRows[0]);
       res.json(orderRows[0]);
     });
@@ -606,7 +694,7 @@ app.put("/api/orders/:order_ID", (req, res) => {
 // 修正獲取所有活動 - 移除可能不存在的 creator_id 欄位
 app.get("/api/events", (req, res) => {
   console.log('開始查詢活動資料...'); // 加入 debug 日誌
-  
+
   connect.query(`
     SELECT e.event_id, 
            e.event_title, 
@@ -621,10 +709,10 @@ app.get("/api/events", (req, res) => {
   `, [], (err, rows) => {
     if (err) {
       console.error('Error fetching events:', err);
-      return res.status(500).json({ 
-        error: '獲取活動資料失敗', 
+      return res.status(500).json({
+        error: '獲取活動資料失敗',
         details: err.message,
-        code: err.code 
+        code: err.code
       });
     }
     console.log('成功獲取活動資料, 筆數:', rows.length);
@@ -636,9 +724,9 @@ app.get("/api/events", (req, res) => {
 // 修正新增活動 - 移除 creator_id
 app.post("/api/events", (req, res) => {
   const { event_title, event_content, site_id, event_start_date, event_end_date } = req.body;
-  
+
   console.log('接收到新增活動請求:', req.body);
-  
+
   // 基本驗證
   if (!event_title || !event_content || !event_start_date || !event_end_date) {
     return res.status(400).json({ error: '活動標題、內容和時間為必填欄位' });
@@ -648,22 +736,22 @@ app.post("/api/events", (req, res) => {
     INSERT INTO event (event_title, event_content, site_id, event_start_date, event_end_date)
     VALUES (?, ?, ?, ?, ?)
   `;
-  
+
   const values = [event_title, event_content, site_id || null, event_start_date, event_end_date];
-  
+
   console.log('執行插入 SQL:', query);
   console.log('參數:', values);
-  
+
   connect.query(query, values, (err, result) => {
     if (err) {
       console.error('Error creating event:', err);
-      return res.status(500).json({ 
-        error: '建立活動失敗', 
+      return res.status(500).json({
+        error: '建立活動失敗',
         details: err.message,
-        code: err.code 
+        code: err.code
       });
     }
-    
+
     console.log('活動建立成功, ID:', result.insertId);
     res.status(201).json({
       event_id: result.insertId,
@@ -676,11 +764,11 @@ app.post("/api/events", (req, res) => {
 app.put("/api/events/:id", (req, res) => {
   const eventId = req.params.id;
   const { event_title, event_content, site_id, event_start_date, event_end_date } = req.body;
-  
+
   // 動態生成 SET 子句
   const sets = [];
   const params = [];
-  
+
   if (event_title !== undefined) {
     sets.push('event_title = ?');
     params.push(event_title);
@@ -701,13 +789,13 @@ app.put("/api/events/:id", (req, res) => {
     sets.push('event_end_date = ?');
     params.push(event_end_date);
   }
-  
+
   if (!sets.length) {
     return res.status(400).json({ error: '請提供至少一個要更新的欄位' });
   }
-  
+
   params.push(eventId);
-  
+
   connect.query(`
     UPDATE event SET ${sets.join(', ')} WHERE event_id = ?
   `, params, (err, result) => {
@@ -725,7 +813,7 @@ app.put("/api/events/:id", (req, res) => {
 // 刪除活動
 app.delete("/api/events/:id", (req, res) => {
   const eventId = req.params.id;
-  
+
   connect.query('DELETE FROM event WHERE event_id = ?', [eventId], (err, result) => {
     if (err) {
       console.error('Error deleting event:', err);
@@ -742,9 +830,9 @@ app.delete("/api/events/:id", (req, res) => {
 app.post("/api/events/:id/send", (req, res) => {
   const eventId = req.params.id;
   const { targetUsers } = req.body; // 'all' 或 [uid1, uid2, ...]
-  
+
   console.log(`準備發送活動 ${eventId} 給用戶:`, targetUsers);
-  
+
   // 先獲取活動詳情
   connect.query(
     'SELECT * FROM event WHERE event_id = ?',
@@ -753,13 +841,13 @@ app.post("/api/events/:id/send", (req, res) => {
       if (err || eventResult.length === 0) {
         return res.status(404).json({ error: '活動不存在' });
       }
-      
+
       const event = eventResult[0];
-      
+
       // 根據目標用戶類型獲取用戶列表
       let userQuery = '';
       let userParams = [];
-      
+
       if (targetUsers === 'all') {
         userQuery = 'SELECT uid FROM user WHERE blacklist = 0'; // 排除黑名單用戶
       } else if (Array.isArray(targetUsers)) {
@@ -768,18 +856,18 @@ app.post("/api/events/:id/send", (req, res) => {
       } else {
         return res.status(400).json({ error: '無效的目標用戶參數' });
       }
-      
+
       // 獲取目標用戶
       connect.query(userQuery, userParams, (err, users) => {
         if (err) {
           console.error('獲取用戶列表失敗:', err);
           return res.status(500).json({ error: '獲取用戶列表失敗' });
         }
-        
+
         if (users.length === 0) {
           return res.status(400).json({ error: '沒有找到符合條件的用戶' });
         }
-        
+
         // 準備插入通知的資料
         const notices = users.map(user => [
           user.uid,
@@ -787,16 +875,16 @@ app.post("/api/events/:id/send", (req, res) => {
           event.event_content,
           new Date() // notice_date
         ]);
-        
+
         // 批次插入通知
         const insertQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
-        
+
         connect.query(insertQuery, [notices], (err, result) => {
           if (err) {
             console.error('插入通知失敗:', err);
             return res.status(500).json({ error: '發送活動失敗' });
           }
-          
+
           console.log(`成功發送活動給 ${users.length} 位用戶`);
           res.json({
             message: `活動已成功發送給 ${users.length} 位用戶`,
@@ -828,7 +916,7 @@ app.get("/api/users/active", (req, res) => {
 // 新增：獲取所有用戶列表（包含狀態）- 用於SendEventModal
 app.get("/api/users", (req, res) => {
   console.log('查詢所有用戶列表...');
-  
+
   connect.query(`
     SELECT uid as user_id, uid, user_name, telephone, email, address, 
            CASE 
@@ -851,7 +939,7 @@ app.get("/api/users", (req, res) => {
 // 新增：獲取活動發送統計
 app.get("/api/events/send-counts", (req, res) => {
   console.log('查詢活動發送統計...');
-  
+
   // 查詢每個活動的通知發送數量
   connect.query(`
     SELECT 
@@ -866,13 +954,13 @@ app.get("/api/events/send-counts", (req, res) => {
       // 如果查詢失敗，返回空對象
       return res.json({});
     }
-    
+
     // 轉換為 { event_id: count } 格式
     const counts = {};
     rows.forEach(row => {
       counts[row.event_id] = row.send_count || 0;
     });
-    
+
     console.log('活動發送統計:', counts);
     res.json(counts);
   });
@@ -881,9 +969,9 @@ app.get("/api/events/send-counts", (req, res) => {
 // 新增：發送活動通知 API
 app.post("/api/events/send-notification", (req, res) => {
   const { event_id, user_ids, send_all, status_filter } = req.body;
-  
+
   console.log('發送活動通知請求:', req.body);
-  
+
   // 先獲取活動詳情
   connect.query(
     'SELECT * FROM event WHERE event_id = ?',
@@ -893,17 +981,17 @@ app.post("/api/events/send-notification", (req, res) => {
         console.error('獲取活動詳情失敗:', err);
         return res.status(500).json({ error: '獲取活動詳情失敗' });
       }
-      
+
       if (eventResult.length === 0) {
         return res.status(404).json({ error: '活動不存在' });
       }
-      
+
       const event = eventResult[0];
-      
+
       // 根據發送類型構建查詢
       let userQuery = '';
       let userParams = [];
-      
+
       if (send_all) {
         // 根據狀態篩選發送給所有用戶
         if (status_filter === 'normal') {
@@ -920,18 +1008,18 @@ app.post("/api/events/send-notification", (req, res) => {
       } else {
         return res.status(400).json({ error: '無效的發送參數' });
       }
-      
+
       // 獲取目標用戶
       connect.query(userQuery, userParams, (err, users) => {
         if (err) {
           console.error('獲取用戶列表失敗:', err);
           return res.status(500).json({ error: '獲取用戶列表失敗' });
         }
-        
+
         if (users.length === 0) {
           return res.status(400).json({ error: '沒有找到符合條件的用戶' });
         }
-        
+
         // 準備插入通知的資料
         const notices = users.map(user => [
           user.uid,
@@ -939,16 +1027,16 @@ app.post("/api/events/send-notification", (req, res) => {
           event.event_content,
           new Date() // notice_date
         ]);
-        
+
         // 批次插入通知到 notice 表
         const insertNoticeQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
-        
+
         connect.query(insertNoticeQuery, [notices], (err, noticeResult) => {
           if (err) {
             console.error('插入通知失敗:', err);
             return res.status(500).json({ error: '發送通知失敗' });
           }
-          
+
           console.log(`成功發送活動通知給 ${users.length} 位用戶`);
           res.json({
             message: `活動通知已成功發送給 ${users.length} 位用戶`,
@@ -964,9 +1052,9 @@ app.post("/api/events/send-notification", (req, res) => {
 // 新增：獲取活動詳細發送記錄 API（可選）
 app.get("/api/events/:id/send-history", (req, res) => {
   const eventId = req.params.id;
-  
+
   console.log(`查詢活動 ${eventId} 的發送記錄`);
-  
+
   connect.query(`
     SELECT n.notice_id, n.uid, u.user_name, n.notice_date
     FROM notice n
@@ -979,7 +1067,7 @@ app.get("/api/events/:id/send-history", (req, res) => {
       console.error('查詢發送記錄失敗:', err);
       return res.status(500).json({ error: '查詢發送記錄失敗' });
     }
-    
+
     console.log(`活動 ${eventId} 的發送記錄筆數:`, rows.length);
     res.json(rows);
   });
@@ -1016,18 +1104,18 @@ app.get("/api/missions", (req, res) => {
 // 新增任務
 app.post("/api/missions", (req, res) => {
   const { title, description, type, reward_points, target_value, target_unit, mission_start_date, mission_end_date } = req.body;
-  
+
   console.log('接收到新增任務請求:', req.body);
-  
+
   // 基本驗證
   if (!title || !description) {
     return res.status(400).json({ error: '任務標題不能為空; 任務內容不能為空' });
   }
-  
+
   if (!reward_points || reward_points <= 0) {
     return res.status(400).json({ error: '獎勵點數必須大於 0' });
   }
-  
+
   if (!target_value || target_value <= 0) {
     return res.status(400).json({ error: '目標數值必須大於 0' });
   }
@@ -1036,7 +1124,7 @@ app.post("/api/missions", (req, res) => {
     INSERT INTO missions (title, description, type, reward_points, target_value, target_unit, mission_start_date, mission_end_date, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
-  
+
   const values = [
     title,
     description,
@@ -1047,22 +1135,22 @@ app.post("/api/missions", (req, res) => {
     mission_start_date || null,
     mission_end_date || null
   ];
-  
+
   console.log('執行插入 SQL:', insertQuery);
   console.log('參數:', values);
-  
+
   connect.query(insertQuery, values, (err, result) => {
     if (err) {
       console.error('Error creating mission:', err);
-      return res.status(500).json({ 
-        error: '建立任務失敗', 
+      return res.status(500).json({
+        error: '建立任務失敗',
         details: err.message,
-        code: err.code 
+        code: err.code
       });
     }
-    
+
     console.log('任務建立成功, ID:', result.insertId);
-    
+
     // 回傳新建立的任務資料
     connect.query(
       'SELECT * FROM missions WHERE mission_id = ?',
@@ -1072,7 +1160,7 @@ app.post("/api/missions", (req, res) => {
           console.error('查詢新建任務失敗:', selectErr);
           return res.status(500).json({ error: '查詢新建任務失敗' });
         }
-        
+
         res.status(201).json({
           mission_id: result.insertId,
           message: '任務建立成功',
@@ -1089,28 +1177,28 @@ app.post("/api/missions", (req, res) => {
 // 信用卡清單（遮蔽卡號）
 app.get("/bank/cards", (req, res) => {
   console.log('查詢信用卡清單...');
-  
+
   const query = `
     SELECT bankuser_id, bankuser_name, credit_card_number, credit_card_date, cvc
     FROM credit_card 
     ORDER BY bankuser_id ASC 
     LIMIT 10
   `;
-  
+
   connBank.query(query, [], (err, rows) => {
     if (err) {
       console.error('查詢信用卡失敗:', err);
       return res.status(500).json({ error: "DB error", code: err.code });
     }
-    
+
     // 遮蔽卡號中間數字
     const maskedCards = rows.map(card => ({
       ...card,
-      credit_card_number: card.credit_card_number ? 
-        card.credit_card_number.replace(/(\d{4})\d{8}(\d{4})/, '$1****$2') : 
+      credit_card_number: card.credit_card_number ?
+        card.credit_card_number.replace(/(\d{4})\d{8}(\d{4})/, '$1****$2') :
         'N/A'
     }));
-    
+
     console.log(`查詢到 ${rows.length} 張信用卡`);
     res.json(maskedCards);
   });
