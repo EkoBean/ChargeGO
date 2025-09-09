@@ -1,4 +1,4 @@
-
+import express, { json, urlencoded } from 'express';
 const app = express();
 import cors from 'cors';
 
