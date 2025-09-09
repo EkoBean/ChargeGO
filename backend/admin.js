@@ -1173,6 +1173,163 @@ app.post("/api/missions", (req, res) => {
     );
   });
 });
+// 獲取所有員工清單
+app.get("/api/employees", (req, res) => {
+  console.log('獲取員工清單請求');
+  
+  const q = `
+    SELECT employee_id, employee_name, employee_email, 
+           job_title, department, entry_date, 
+           status, last_login
+    FROM employee
+    ORDER BY employee_id ASC
+  `;
+  
+  connCharger.query(q, (err, rows) => {
+    if (err) {
+      console.error("[ERROR] GET /api/employees failed:", err);
+      return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
+    }
+    
+    console.log(`查詢到 ${rows.length} 筆員工資料`);
+    res.json(rows);
+  });
+});
+
+// 獲取職員操作紀錄
+app.get("/api/employee_log", (req, res) => {
+  console.log('獲取職員操作紀錄請求');
+  
+  const q = `
+    SELECT l.log_id, l.employee_id, e.employee_name, 
+           l.action_type, l.action_description,
+           l.timestamp, l.ip_address, l.target_table, 
+           l.target_id, l.details
+    FROM employee_log l
+    LEFT JOIN employee e ON l.employee_id = e.employee_id
+    ORDER BY l.timestamp DESC
+  `;
+  
+  connCharger.query(q, (err, rows) => {
+    if (err) {
+      console.error("[ERROR] GET /api/employee_log failed:", err);
+      return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
+    }
+    
+    console.log(`查詢到 ${rows.length} 筆員工操作紀錄`);
+    res.json(rows);
+  });
+});
+
+// 新增職員操作紀錄 API (方便從前端直接記錄操作)
+app.post("/api/employee_log", (req, res) => {
+  const { 
+    employee_id,
+    action_type,
+    action_description,
+    ip_address,
+    target_table,
+    target_id,
+    details
+  } = req.body;
+  
+  console.log('接收到新增操作紀錄請求:', req.body);
+  
+  // 驗證必要欄位
+  if (!employee_id || !action_type || !action_description) {
+    return res.status(400).json({ 
+      message: "缺少必要欄位 (需要: employee_id, action_type, action_description)" 
+    });
+  }
+
+  // 插入操作日誌
+  const insertQuery = `
+    INSERT INTO employee_log 
+      (employee_id, action_type, action_description, timestamp, ip_address, target_table, target_id, details)
+    VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)
+  `;
+  
+  const values = [
+    employee_id,
+    action_type,
+    action_description,
+    ip_address || req.ip || null,
+    target_table || null,
+    target_id || null,
+    details ? JSON.stringify(details) : null
+  ];
+  
+  connCharger.query(insertQuery, values, (err, result) => {
+    if (err) {
+      console.error('記錄員工操作失敗:', err);
+      return res.status(500).json({ 
+        error: "記錄操作失敗", 
+        code: err.code, 
+        message: err.message 
+      });
+    }
+    
+    console.log('員工操作紀錄成功, ID:', result.insertId);
+    res.status(201).json({
+      log_id: result.insertId,
+      message: '操作紀錄已儲存'
+    });
+  });
+});
+
+// 獲取特定員工的操作紀錄
+app.get("/api/employees/:id/logs", (req, res) => {
+  const employeeId = req.params.id;
+  
+  console.log(`獲取員工 ID ${employeeId} 的操作紀錄`);
+  
+  connCharger.query(
+    `SELECT log_id, employee_id, action_type, action_description, 
+            timestamp, ip_address, target_table, target_id, details
+     FROM employee_log 
+     WHERE employee_id = ?
+     ORDER BY timestamp DESC`,
+    [employeeId],
+    (err, rows) => {
+      if (err) {
+        console.error('查詢員工操作紀錄失敗:', err);
+        return res.status(500).json({ error: "DB error", code: err.code });
+      }
+      
+      console.log(`查詢到 ${rows.length} 筆員工 ${employeeId} 的操作紀錄`);
+      res.json(rows);
+    }
+  );
+});
+
+// 獲取特定員工詳情
+app.get("/api/employees/:id", (req, res) => {
+  const employeeId = req.params.id;
+  
+  console.log(`獲取員工 ID ${employeeId} 的詳細資料`);
+  
+  connCharger.query(
+    `SELECT employee_id, employee_name, employee_email, 
+            job_title, department, entry_date, 
+            status, last_login
+     FROM employee 
+     WHERE employee_id = ?`,
+    [employeeId],
+    (err, rows) => {
+      if (err) {
+        console.error('查詢員工詳情失敗:', err);
+        return res.status(500).json({ error: "DB error", code: err.code });
+      }
+      
+      if (rows.length === 0) {
+        return res.status(404).json({ message: "找不到此員工" });
+      }
+      
+      console.log(`成功查詢員工 ${employeeId} 的詳細資料`);
+      res.json(rows[0]);
+    }
+  );
+});
 
 
 // ===== bank 區 =====
