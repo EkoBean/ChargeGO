@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAdminData } from '../context/AdminDataContext';
 import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
@@ -6,6 +6,7 @@ import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
 //站點管理主畫面
 const SiteManagement = () => {
+  // 從 context 取得 sites, chargers, setSites, loading, error, loadAllData
   const { sites, chargers, setSites, loading, error, loadAllData } = useAdminData();
 
   // debug: 確認 chargers 內容（印出第一筆完整物件以了解欄位）
@@ -15,10 +16,8 @@ const SiteManagement = () => {
     console.log('SiteManagement chargers sample (empty or not array):', chargers);
   }
 
-  // 安全地把 chargers 轉成陣列
   const chargersArr = Array.isArray(chargers) ? chargers : [];
 
-  // 對應你的狀態定義：
   // -1、0 => 故障 / 進廠維修 → 視為 maintenance（維護中）
   // 1 => 出租中 → 視為 occupied（使用中/已外借）
   // 2、3 => 待租借  (代租借,滿電)、（30%~99%）→ 視為 available（可用）
@@ -47,27 +46,52 @@ const SiteManagement = () => {
     },
     { available: 0, occupied: 0, maintenance: 0, preparing: 0, other: 0 }
   );
-
   // 可在 UI 使用 counts.available / counts.occupied / counts.maintenance
 
-  const [selectedSite, setSelectedSite] = useState(null);
-  const [showSiteModal, setShowSiteModal] = useState(false);
-  const [isEditingSite, setIsEditingSite] = useState(false);
-  const [editSite, setEditSite] = useState(null);
-  const [creatingSite, setCreatingSite] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [siteFilter, setSiteFilter] = useState("all");//顯示所有站點
 
-  // 共用驗證與格式化
-  const toFixed8 = (n) => {
-    if (n === "" || n === undefined || n === null || isNaN(n)) return "";
-    return Number.parseFloat(n).toFixed(8);
+  // =========== modal selections =================
+  const [selectedSite, setSelectedSite] = useState(null);
+  const [showSiteModal, setShowSiteModal] = useState(false);
+
+  // ========== modal content ===============
+  // currently editing site data in modal form
+  const [editSite, setEditSite] = useState(null);
+
+  // handleAddSite(click on "新增" button) & called in SiteDetailModal.jsx(click on "編輯" button)
+  const [isEditingSite, setIsEditingSite] = useState(false);
+  // handleAddSite(click on "新增" button) 
+  const [creatingSite, setCreatingSite] = useState(false);
+
+  // saving condition (during handleSaveSite)
+  const [saving, setSaving] = useState(false);
+
+  // =========== other status ================
+  // ('' ->message content, null -> warning type)
+  const [formatWarning, setFormatWarning] = useState({ message: '', type: null });
+
+  // =========== functions pack ================
+
+  const checker = {
+    isDemical8: (n) => {
+      const str = String(n);
+      return str.includes('.') && str.split('.')[1].length === 8;
+    },
+    isValidLng: (n) => {
+      const v = parseFloat(n);
+      return !isNaN(v) && v >= 119.5 && v <= 122.5;
+    },
+    isValidLat: (n) => {
+      const v = parseFloat(n);
+      return !isNaN(v) && v >= 21.5 && v <= 25.5;
+    },
   };
-  const isValidLng = (v) => v !== "" && !isNaN(v) && v >= -180 && v <= 180;
-  const isValidLat = (v) => v !== "" && !isNaN(v) && v >= -90 && v <= 90;
+
+  // ==========================================
 
   // handleViewSite 定義
   const handleViewSite = async (site) => {
+
     // 先把 site 設到 state，確保 modal 可拿到站點基本資料
     setSelectedSite(site);
     setEditSite(site);
@@ -116,51 +140,97 @@ const SiteManagement = () => {
     setCreatingSite(true);
     setShowSiteModal(true);
   };
+  // debug ===========testing editSite changes============
+  useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
+  useEffect(() => { console.log('formatWarning :>> ', formatWarning); }, [formatWarning])
+
+  // ===================================================
 
   const handleSiteFieldChange = (e) => {
+    if (!e || !e.target) return;
     const { name, value } = e.target;
+    // debug=================================
+    console.log(name, value);
+    // =====================================
+
     setEditSite((prev) => {
-      let v = value;
+      // check the coordinate format
       if (name === "longitude" || name === "latitude") {
-        v = value === "" ? "" : toFixed8(value);
+
+        // 檢查小數位數是否為 8 位
+        if (!checker.isDemical8(value)) {
+          setFormatWarning({ message: "小數位數必須為 8 位。", type: name });
+          return {
+            ...prev, [name]: value
+          }
+        }
+        // 檢查台灣經緯度範圍
+        if (name === "longitude") {
+          if (!checker.isValidLng(value)) {
+            setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
+            return {
+              ...prev, [name]: value
+            };
+          }
+        } else if (name === "latitude") {
+          if (!checker.isValidLat(value)) {
+            setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
+            return {
+              ...prev, [name]: value
+            };
+          }
+        }
+        setFormatWarning("");
       }
-      return { ...prev, [name]: v };
+      else if (name) {
+        if (!value) {
+          setFormatWarning({ message: '必填欄位不可為空', type: name });
+        }
+      }
+      return { ...prev, [name]: value };
     });
   };
 
+  // press the save button in SiteDetailModal.jsx
   const handleSaveSite = async () => {
     if (!editSite) return;
     try {
       setSaving(true);
-      const { site_name, address, longitude, latitude } = editSite;
-
-      if (!isValidLng(longitude) || !isValidLat(latitude)) {
-        throw new Error("經度/緯度為必填，且必須為數字（經度 -180~180；緯度 -90~90）");
+      const { site_name, address, longitude, latitude, country } = editSite;
+      if (!site_name || !address || !longitude || !latitude) {
+        throw new Error("請填寫所有必填欄位");
       }
 
-      const lng8 = Number(toFixed8(longitude));
-      const lat8 = Number(toFixed8(latitude));
+      if (!checker.isValidLng(longitude) || !checker.isValidLat(latitude)) {
+        throw new Error("經度/緯度為必填，且必須為數字（經度 -180~180；緯度 -90~90）");
+      }
+      if (!checker.isDemical8(longitude) || !checker.isDemical8(latitude)) {
+        throw new Error("經度/緯度小數位數必須為 8 位");
+      }
+
 
       const payload = {
         site_name,
         address,
-        longitude: lng8,
-        latitude: lat8,
+        longitude,
+        latitude,
+        country,
       };
 
       if (creatingSite || !editSite.site_id) {
         const created = await ApiService.createSite(payload);
         setSites((prev) => [...prev, created]);
-        setSelectedSite(created);
-        setEditSite(created);
+        setSelectedSite(created.site);
+        setEditSite(created.site);
         setCreatingSite(false);
       } else {
         const updated = await ApiService.updateSite(editSite.site_id, payload);
         setSites((prev) => prev.map((s) => (s.site_id === updated.site_id ? { ...s, ...updated } : s)));
-        setSelectedSite(updated);
-        setEditSite(updated);
+        setShowSiteModal(true); 
+        setIsEditingSite(false);
+        setEditSite(updated.site);
+        setSelectedSite(updated.site);
       }
-      setIsEditingSite(false);
     } catch (err) {
       console.error("Failed to save site:", err);
       alert(`站點儲存失敗：${err.message || "請稍後再試"}`);
@@ -289,6 +359,7 @@ const SiteManagement = () => {
 
       {showSiteModal && selectedSite && (
         <SiteDetailModal
+          formatWarning={formatWarning}
           site={selectedSite}
           editSite={editSite}
           isEditing={isEditingSite}
