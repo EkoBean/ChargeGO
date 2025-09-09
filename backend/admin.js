@@ -1,7 +1,7 @@
 //後端
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2');
+import express from 'express';
+import cors from 'cors';
+import mysql from 'mysql2';
 const app = express();
 
 app.use(cors());
