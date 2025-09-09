@@ -3,10 +3,6 @@
 // ==============================================
 @use "./tokens.module.scss" as *;
 
-// ==============================================
-// 匯入 Bootstrap (使用 @use)
-// ==============================================
-@use "./tokens.module.scss" as *;
 
 // 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
 @use "../../../node_modules/bootstrap/scss/bootstrap" as bs with (
