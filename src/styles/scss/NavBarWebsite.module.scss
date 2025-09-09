@@ -10,7 +10,7 @@
   justify-content: space-between;
 }
 
-.logo {
+/* .logo {
   width: 120px;
   display: flex;
   align-items: center;
@@ -20,12 +20,44 @@
   left: -50px;
   top: 0;
   transform: none;
+} */
+
+.chargego-logo {
+  /* 你可以根據 ChargegoLogo 實際內容調整寬高 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.my-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 32px;
+  box-sizing: border-box;
+  position: relative;
+  //background: #fff;
+  min-height: 64px;
+}
+
+.left-placeholder {
+  display: flex;
+  align-items: center;
+  /* 不設 min-width，讓 logo 尺寸由 ChargegoLogo.module.scss 控制 */
+  flex: 0 0 auto;
+}
+
+.right-placeholder {
+  min-width: 120px; /* 可依需求調整右側預留空間 */
+  flex: 0 0 auto;
 }
 
 .menu {
+  flex: 1 1 auto;
   display: flex;
-  flex-direction: row;
-  gap: 15px; /* 這裡調整數值即可，越大間距越寬 */
+  align-items: center;
+  justify-content: center;
   position: relative;
   top: 0;
   left: 0;
@@ -206,17 +238,6 @@
     height: 56px;
     justify-content: center;
     position: relative;
-  }
-
-  .logo {
-    left: 0;
-    margin: 0 auto;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    justify-content: center;
   }
 
   .menu {
