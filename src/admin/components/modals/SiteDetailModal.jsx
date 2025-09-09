@@ -81,7 +81,7 @@ const SiteDetailModal = ({
     const mapCenter = {
       lat: Number(site?.latitude || 25.033964),
       lng: Number(site?.longitude || 121.564468),
-    } 
+    }
 
     return (
       <Map
@@ -190,6 +190,32 @@ const SiteDetailModal = ({
 
                       </label>
                       <div style={{ display: "flex", gap: 8 }}>
+                      <select name="country" id="country" value={editSite?.country || null} required
+                        onChange={onChange}>
+                        <option value="">請選擇縣市</option>
+                        <option value="基隆市">基隆市</option>
+                        <option value="台北市">台北市</option>
+                        <option value="新北市">新北市</option>
+                        <option value="桃園市">桃園市</option>
+                        <option value="新竹市">新竹市</option>
+                        <option value="新竹縣">新竹縣</option>
+                        <option value="苗栗縣">苗栗縣</option>
+                        <option value="台中市">台中市</option>
+                        <option value="彰化縣">彰化縣</option>
+                        <option value="南投縣">南投縣</option>
+                        <option value="雲林縣">雲林縣</option>
+                        <option value="嘉義市">嘉義市</option>
+                        <option value="嘉義縣">嘉義縣</option>
+                        <option value="台南市">台南市</option>
+                        <option value="高雄市">高雄市</option>
+                        <option value="屏東縣">屏東縣</option>
+                        <option value="宜蘭縣">宜蘭縣</option>
+                        <option value="花蓮縣">花蓮縣</option>
+                        <option value="台東縣">台東縣</option>
+                        <option value="澎湖縣">澎湖縣</option>
+                        <option value="金門縣">金門縣</option>
+                        <option value="連江縣">連江縣</option>
+                      </select>
                         <input
                           type="text"
                           name="address"
@@ -203,12 +229,13 @@ const SiteDetailModal = ({
                           type="button"
                           className="btn admin-btn admin-small"
                         >
+                          查詢地圖
                         </button>
                       </div>
                     </div>
 
                     <div className="admin-form-group">
-                      <label for='lontitue'>經度
+                      <label>經度
                         <span className="admin-required">*</span>
                         {formatWarning.type == 'longitude' && <span className='admin-lat-lng-warning'>{formatWarning.message}</span>}
 
@@ -219,7 +246,6 @@ const SiteDetailModal = ({
                         step="0.00000001"
                         min="-180"
                         max="180"
-                        id='lontitue'
                         value={editSite?.longitude || ""}
                         onChange={onChange}
                         placeholder="-180 到 180"
