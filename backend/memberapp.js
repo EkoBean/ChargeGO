@@ -286,6 +286,31 @@ app.get('/user/:uid/points', (req, res) => {
     });
 });
 
+// 會員資料修改 API
+app.post('/update-user', (req, res) => {
+    const { uid, user_name, telephone, email, country, address } = req.body;
+    if (!uid) return res.status(400).json({ success: false, message: '缺少 uid' });
+    db.query(
+        'UPDATE user SET user_name = ?, telephone = ?, email = ?, country = ?, address = ? WHERE uid = ?',
+        [user_name, telephone, email, country, address, uid],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err });
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: '找不到該會員或未更新' });
+            }
+            // 更新 session user 資料
+            if (req.session.user && req.session.user.uid === uid) {
+                req.session.user.user_name = user_name;
+                req.session.user.telephone = telephone;
+                req.session.user.email = email;
+                req.session.user.country = country;
+                req.session.user.address = address;
+            }
+            res.json({ success: true, message: '會員資料已更新' });
+        }
+    );
+});
+
 // 伺服器啟動
 app.listen(3000, () => {
     console.log('API server running on port 3000');

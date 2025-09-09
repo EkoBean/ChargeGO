@@ -7,6 +7,12 @@ import styles from "../../styles/scss/mber_edit.module.scss";
 const mber_edit = () => {
   const [user, setUser] = useState(null);
   const [country, setCountry] = useState("");
+  const [userName, setUserName] = useState("");
+  const [telephone, setTelephone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [captcha, setCaptcha] = useState("");
+  const [generatedCaptcha, setGeneratedCaptcha] = useState("");
   const navigate = useNavigate();
   const API_BASE = "http://localhost:3000";
 
@@ -21,6 +27,10 @@ const mber_edit = () => {
       .then((data) => {
         if (data.authenticated && data.user) {
           setUser(data.user);
+          setUserName(data.user.user_name || "");
+          setTelephone(data.user.telephone || "");
+          setEmail(data.user.email || "");
+          setAddress(data.user.address || "");
           if (data.user.country) setCountry(data.user.country);
         } else {
           alert("請先登入");
@@ -31,7 +41,17 @@ const mber_edit = () => {
         alert("請先登入");
         navigate("/mber_login");
       });
+    generateCaptcha();
   }, [navigate]);
+
+  const generateCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setGeneratedCaptcha(code);
+  };
 
   // 處理城市選擇變更
   const handleCountryChange = (e) => {
@@ -39,47 +59,60 @@ const mber_edit = () => {
   };
 
   // 處理會員資料修改
-    const handleSubmit = async () => {
-        if (!user) return;
-
-        const updatedUser = {
-            ...user,
-            country,
-        };
-
-        try {
-            const response = await fetch(`${API_BASE}/update-user`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedUser),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert("修改成功");
-            } else {
-                alert("修改失敗");
-            }
-        } catch (error) {
-            console.error("Error updating user:", error);
-            alert("修改失敗");
-        }
+  const handleSubmit = async () => {
+    if (!user) return;
+    // 驗證驗證碼必填且正確
+    if (!captcha) {
+      alert("請輸入驗證碼");
+      return;
+    }
+    if (captcha !== generatedCaptcha) {
+      alert("驗證碼輸入錯誤，請重新確認");
+      return;
+    }
+    const updatedUser = {
+      ...user,
+      user_name: userName,
+      telephone,
+      email,
+      country,
+      address,
+      captcha,
     };
+
+    try {
+      const response = await fetch(`${API_BASE}/update-user`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("修改成功");
+      } else {
+        alert("修改失敗");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert("修改失敗");
+    }
+  };
 
   return (
     <div className={styles.mber_edit}>
       <NavBarAPP />
       <div className={styles.edit_container}>
-        <span
-          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-          onClick={() => window.history.back()}
-          title="回到上頁"
-        >
-          ◀︎
-        </span>
         <div className={styles.mobile_arc_bg}>
+          <span
+            className={styles["back-icon"] + " " + styles["mobile-only-back"]}
+            onClick={() => window.history.back()}
+            title="回到上頁"
+          >
+            ◀︎
+          </span>
           <div className={styles.mobile_arc_content}>
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
@@ -99,19 +132,27 @@ const mber_edit = () => {
             </div>
             <div>
               <span>會員姓名｜</span>
-              <span>{user?.user_name || "王大明"}</span>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+              />
             </div>
             <div>
               <span>電話｜</span>
-              <span>
-                {user?.telephone
-                  ? user.telephone.replace(/(\d{2})\d{4}(\d{4})/, "$1****$2")
-                  : "09**-****-***"}
-              </span>
+              <input
+                type="text"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+              />
             </div>
             <div>
               <span>e-mail｜</span>
-              <span>{user?.email || "gmail@gmail.com"}</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div>
               <span>居住城市｜</span>
@@ -143,7 +184,30 @@ const mber_edit = () => {
             </div>
             <div>
               <span>地址｜</span>
-              <span>{user?.address || ""}</span>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+            <div>
+              <span>驗證碼｜</span>
+              <div className={styles.captcha_container}>
+                <span className={styles.captcha}>{generatedCaptcha}</span>
+                <button
+                  type="button"
+                  className={styles.captcha_refresh_btn}
+                  onClick={generateCaptcha}
+                >
+                  重新產生
+                </button>
+              </div>
+              <input
+                type="text"
+                value={captcha}
+                onChange={(e) => setCaptcha(e.target.value)}
+                placeholder="請輸入驗證碼"
+              />
             </div>
           </div>
           {/* 修改送出 */}
