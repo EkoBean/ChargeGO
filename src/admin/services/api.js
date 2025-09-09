@@ -11,7 +11,7 @@ const ApiService = {
   async request(endpoint, options = {}) {
     try {
       console.log('發送 API 請求:', `${API_BASE_URL}${endpoint}`); // 加入 debug
-    
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...defaultOptions,
         ...options,
@@ -22,9 +22,9 @@ const ApiService = {
       });
 
       const responseText = await response.text();
-      // console.log('API 回應狀態:', response.status); // 加入 debug
-      // console.log('API 回應內容:', responseText); // 加入 debug
-    
+      console.log('API 回應狀態:', response.status); // 加入 debug
+      console.log('API 回應內容:', responseText); // 加入 debug
+
       let data;
       try {
         data = responseText ? JSON.parse(responseText) : null;
@@ -107,7 +107,7 @@ const ApiService = {
       ]);
 
       const today = new Date().toISOString().split('T')[0];
-      const todayOrders = orders.filter(order => 
+      const todayOrders = orders.filter(order =>
         order.start_date && order.start_date.startsWith(today)
       ).length;
       //判斷 active 狀態 2:使用中 3:預約中 會顯示在總覽
@@ -140,7 +140,7 @@ const ApiService = {
     if (value === null || value === undefined || value === '') {
       return undefined;
     }
-    
+
     // 若已是數字則直接回傳
     if (typeof value === 'number') {
       return value;
@@ -159,9 +159,11 @@ const ApiService = {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   },
 
-  // 站點 CRUD
+  // ========== update sites ======================
   async updateSite(site_id, payload) {
     const body = {
+      site_id: Number(site_id),
+      country: payload.country,
       site_name: payload.site_name ?? payload.siteName,
       address: payload.address,
       longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
@@ -169,54 +171,27 @@ const ApiService = {
     };
 
     // 移除 undefined 欄位
-    Object.keys(body).forEach(key => 
+    Object.keys(body).forEach(key =>
       body[key] === undefined && delete body[key]
     );
 
-    return this.request(`/api/sites/${site_id}`, {
-      method: 'PUT',
+    return this.request(`/api/sites`, {
+      method: 'PATCH',
       body: JSON.stringify(body),
     });
   },
-
+  // ===========  create site ======================
   async createSite(payload) {
     console.log('Creating site with payload:', payload);
 
     const body = {
-      site_name: String(payload.site_name ?? payload.siteName ?? "").trim(),
-      address: String(payload.address ?? "").trim(),
+      country: payload.country,
+      site_name: payload.site_name ?? payload.siteName,
+      address: payload.address,
       longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
       latitude: this._parseCoordinate(payload.latitude ?? payload.lat),
     };
 
-    console.log('Normalized body:', body);
-
-    // 驗證必填欄位（包含經緯度）
-    const errors = [];
-    if (!body.site_name) errors.push("站點名稱不能為空");
-    if (!body.address) errors.push("地址不能為空");
-    if (body.longitude === undefined || body.longitude === null || Number.isNaN(body.longitude)) {
-      errors.push("經度不能為空且必須為數字");
-    }
-    if (body.latitude === undefined || body.latitude === null || Number.isNaN(body.latitude)) {
-      errors.push("緯度不能為空且必須為數字");
-    }
-
-    // 範圍檢查
-    if (typeof body.longitude === 'number') {
-      if (body.longitude < -180 || body.longitude > 180) {
-        errors.push("經度必須在 -180 到 180 之間");
-      }
-    }
-    if (typeof body.latitude === 'number') {
-      if (body.latitude < -90 || body.latitude > 90) {
-        errors.push("緯度必須在 -90 到 90 之間");
-      }
-    }
-
-    if (errors.length > 0) {
-      throw new Error(errors.join('; '));
-    }
 
     try {
       const result = await this.request(`/api/sites`, {
@@ -246,7 +221,7 @@ const ApiService = {
     };
 
     // 移除 undefined 欄位
-    Object.keys(body).forEach(key => 
+    Object.keys(body).forEach(key =>
       body[key] === undefined && delete body[key]
     );
 
@@ -259,25 +234,25 @@ const ApiService = {
   // 獲取單個用戶資訊 - 加強錯誤處理
   async getUserById(uid) {
     console.log('API: 查詢用戶 ID:', uid, typeof uid); // 加入 debug 日誌
-    
+
     if (!uid) {
       throw new Error('用戶ID不能為空');
     }
-    
+
     try {
       const result = await this.request(`/api/users/${uid}`);
       console.log('API: 查詢用戶成功:', result); // 加入 debug 日誌
       return result;
     } catch (error) {
       console.error('API: 查詢用戶失敗:', error);
-      
+
       // 提供更友善的錯誤訊息
       if (error.status === 404) {
         throw new Error('用戶不存在');
       } else if (error.status >= 500) {
         throw new Error('伺服器錯誤，請稍後再試');
       }
-      
+
       throw error;
     }
   },
@@ -343,24 +318,24 @@ const ApiService = {
   async saveOrderData(orderData) {
     // 複製一份數據進行處理
     const data = { ...orderData };
-    
+
     // 確保關鍵字段存在
     if (!data.start_date) {
       throw new Error("開始時間不能為空");
     }
-    
+
     if (!data.uid) {
       throw new Error("用戶ID不能為空");
     }
-    
+
     if (!data.rental_site_id) { // 改這裡
       throw new Error("租借站點不能為空");
     }
-    
+
     if (!data.charger_id) {
       throw new Error("充電器不能為空");
     }
-    
+
     // 發送請求 - 修正 URL
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, { // 加入完整 URL
@@ -370,12 +345,12 @@ const ApiService = {
         },
         body: JSON.stringify(data),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || '儲存訂單失敗');
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('API 錯誤:', error);
@@ -439,7 +414,7 @@ const ApiService = {
     };
 
     // 移除 undefined 欄位
-    Object.keys(body).forEach(key => 
+    Object.keys(body).forEach(key =>
       body[key] === undefined && delete body[key]
     );
 
@@ -524,7 +499,7 @@ const ApiService = {
     };
 
     // 移除 undefined 欄位
-    Object.keys(body).forEach(key => 
+    Object.keys(body).forEach(key =>
       body[key] === undefined && delete body[key]
     );
 
