@@ -94,97 +94,131 @@ class Mission extends Component {
     const { mission, loading, error, userId, filterDate } = this.state;
 
     return (
-      <div className={styles.container}>
-        <h2 className={styles.title}>我的任務列表</h2>
+      <div>
+        {/* navbar */}
+        <div className={styles.mallNavbar}>
+          {/* 返回首頁 */}
 
-        <div className={styles["filter-row"]}>
-          <div>
-            <label htmlFor="userId">使用者 ID</label>
-            <input
-              type="text"
-              id="userId"
-              value={userId}
-              onChange={this.handleInputChange}
-            />
+          <button className={styles.navbarLeftSection}>
+            <img src="/Iconimg/backBtn.svg" alt="backBtn" />
+          </button>
+
+          {/* 裝點數與任務連結的容器 */}
+          <div className={styles.navbarCenterSection}>
+            {/* 點數顯示 */}
+            <div className={styles.pointCircle}>
+              <div className={styles.circleText}>
+                <img src="/Iconimg/greenpoint.svg" alt="point" />
+                點數
+              </div>
+              <p className={styles.circleNumber}>2</p>
+            </div>
+            {/* 導向任務連結 */}
+            <div className={styles.missionCircle}>
+              <div className={styles.circleText}>去逛逛</div>
+              <img src="/Iconimg/Shopping Cart.svg" alt="去逛逛" />
+            </div>
           </div>
-          <div>
-            <label htmlFor="filterDate">篩選日期</label>
-            <input
-              type="date"
-              id="filterDate"
-              value={filterDate}
-              onChange={this.handleInputChange}
-            />
-          </div>
-          <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
+
+          {/* 右上角通知鈴鐺*/}
+          <button className={styles.navbarRightSection}>
+            {/* 右上角通知鈴鐺 */}
+            <img src="/Iconimg/notify.svg" alt="notify" />
+          </button>
         </div>
+        {/* main */}
+        <div className={styles.mallMain}>
+          <h2 className={styles.malltitle}>任務</h2>
 
-        {loading ? (
-          <div className={styles["loading-text"]}>任務資料載入中...</div>
-        ) : error ? (
-          <div className={styles["error-text"]}>錯誤: {error}</div>
-        ) : mission.length > 0 ? (
-          <div className={styles.taskList}>
-            {mission.map((item) => {
-              const progressPercent = Math.min(
-                100,
-                (item.current_progress / item.target_value) * 100
-              );
-
-              return (
-                <div
-                  className={styles.taskCard}
-                  key={item.user_mission_id}
-                  style={{ padding: "12px" }}
-                >
-                  <div className={styles.taskLeft}>
-                    <div className={styles.taskName}>{item.title}</div>
-                    <p>
-                      任務進度：{item.current_progress}/{item.target_value}
-                    </p>
-                  </div>
-
-                  <div className={styles.taskRight}>
-                    <div className={styles.endDate}>
-                      {item.mission_end_date
-                        ? `至${new Date(
-                            item.mission_end_date
-                          ).toLocaleDateString("zh-TW")}`
-                        : "無期限"}
-                    </div>
-
-                    {item.is_completed === 1 && item.is_claimed === 0 ? (
-                      <button
-                        className={styles.claimBtn}
-                        onClick={() =>
-                          this.handleClaimMission(item.user_mission_id)
-                        }
-                      >
-                        領取
-                      </button>
-                    ) : item.is_completed === 1 && item.is_claimed === 1 ? (
-                      <span className={styles["claimed-text"]}>已領取</span>
-                    ) : (
-                      <button
-                        className={`${styles.claimBtn} ${styles.disabled}`}
-                        disabled
-                      >
-                        未完成
-                      </button>
-                    )}
-
-                    <div className={styles.point}>
-                      <span className={styles["point-icon"]}>P</span>
-                      {item.reward_points}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className={styles["filter-row"]}>
+            <div>
+              <label htmlFor="userId">使用者 ID</label>
+              <input
+                type="text"
+                id="userId"
+                value={userId}
+                onChange={this.handleInputChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="filterDate">篩選日期</label>
+              <input
+                type="date"
+                id="filterDate"
+                value={filterDate}
+                onChange={this.handleInputChange}
+              />
+            </div>
+            <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
           </div>
-        ) : (
-          <p className={styles["no-mission-text"]}>沒有找到任何任務。</p>
-        )}
+
+          {loading ? (
+            <div className={styles["loading-text"]}>任務資料載入中...</div>
+          ) : error ? (
+            <div className={styles["error-text"]}>錯誤: {error}</div>
+          ) : mission.length > 0 ? (
+            <div className={styles.taskList}>
+              {mission.map((item) => {
+                const progressPercent = Math.min(
+                  100,
+                  (item.current_progress / item.target_value) * 100
+                );
+
+                return (
+                  <div
+                    className={styles.taskCard}
+                    key={item.user_mission_id}
+                    style={{ padding: "12px" }}
+                  >
+                    <div className={styles.taskLeft}>
+                      <div className={styles.taskName}>{item.title}</div>
+                      <p>
+                        任務進度：{item.current_progress}/{item.target_value}
+                      </p>
+                    </div>
+
+                    <div className={styles.taskRight}>
+                      <div className={styles.endDate}>
+                        {item.mission_end_date
+                          ? `至${new Date(
+                              item.mission_end_date
+                            ).toLocaleDateString("zh-TW")}`
+                          : "無期限"}
+                      </div>
+
+                      {item.is_completed === 1 && item.is_claimed === 0 ? (
+                        <button
+                          className={styles.claimBtn}
+                          onClick={() =>
+                            this.handleClaimMission(item.user_mission_id)
+                          }
+                        >
+                          領取
+                        </button>
+                      ) : item.is_completed === 1 && item.is_claimed === 1 ? (
+                        <span className={styles["claimed-text"]}>已領取</span>
+                      ) : (
+                        <button
+                          className={`${styles.claimBtn} ${styles.disabled}`}
+                          disabled
+                        >
+                          未完成
+                        </button>
+                      )}
+
+                      <div className={styles.point}>
+                        <img src="./public\Iconimg\greenpoint.svg" alt="p" />
+                        {item.reward_points}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className={styles["no-mission-text"]}>沒有找到任何任務。</p>
+          )}
+        </div>
       </div>
     );
   }

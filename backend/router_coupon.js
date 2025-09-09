@@ -43,7 +43,7 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
        WHERE c.user_id = ? AND c.status != 'expired'`,
       [user_id]
     );
-
+    console.log(coupons);
     res.json(coupons);
   } catch (err) {
     console.error(err);

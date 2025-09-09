@@ -31,10 +31,27 @@ $color-shop-circle: #69f05b;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 4px;
   // margin-bottom: 2rem;
 }
+.mallMain {
+  z-index: 3;
+  top: 23vh; /* 距離視窗頂端 10% 高度 */
 
+  width: 100vw;
+  height: 80vh;
+  overflow: auto;
+  position: relative;
+  background-color: white;
+  position: fixed; /* 固定在視窗底部 */
+
+  // 左右上角圓角
+  border-top-left-radius: 38px;
+  border-top-right-radius: 38px;
+
+  // 也可以寫成一行
+  // border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
+}
 .navbarLeftSection {
   position: absolute;
   left: 0rem;
@@ -129,49 +146,11 @@ $color-shop-circle: #69f05b;
   font-weight: 400;
   line-height: normal;
 }
-.mallMain {
-  z-index: 3;
 
-  width: 100vw;
-  height: 80vh;
-  overflow: auto;
-  position: relative;
-  background-color: white;
-  position: fixed; /* 固定在視窗底部 */
-
-  // 左右上角圓角
-  border-top-left-radius: 50px;
-  border-top-right-radius: 50px;
-
-  // 也可以寫成一行
-  // border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
-}
-
-.navbarRightSection svg {
-  position: relative;
-
-  height: 2.5rem;
-  width: 2.5rem;
-}
-
-.notification-count {
-  position: relative;
-  right: 0;
-  top: 0;
-  height: 1rem;
-  width: 1rem;
-  border-radius: 9999px;
-  background-color: #ef4444; /* red-500 */
-  font-size: 0.75rem;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 // ==========================
 // 標題
 // ==========================
-.shoptitle {
+.malltitle {
   color: var(--brown, #6c4023);
   font-family: Inter;
   font-size: 24px;
@@ -187,19 +166,55 @@ $color-shop-circle: #69f05b;
 // ==========================
 .taskList {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: column; // 手機預設為單列
+  gap: 24px;
+  height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+  padding-left: 10px;
+
+  margin: 0 12px;
+  padding-top: 30px;
+  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+
+  // 平板以上
+  @media (min-width: 768px) {
+    margin: 0 24px;
+  }
+
+  // 桌機以上
+  @media (min-width: 1200px) {
+    margin: 0 48px;
+    flex-direction: column; // 保持每張卡片換行
+    align-items: center; // 卡片置中
+  }
 }
 
 .taskCard {
+  width: 100%; // 手機全寬
+  height: 120px; // 或你希望的固定高度
+  flex-shrink: 0; // 避免因為 list 捲動壓縮
+  @media (min-width: 1200px) {
+    width: calc(70% - 12px); // 桌機兩欄，保留gap
+  }
+  // margin-left: 30px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border-radius: 12px;
+  align-items: flex-start; // ✅ 文字靠上，不會被擠到中間
   background: #fff;
-  margin-bottom: 6px;
-
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 16px;
+  position: relative;
+  box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24), 6px 6px 6px 0 #ffa832;
   .taskLeft {
     display: flex;
     flex-direction: column;
@@ -220,7 +235,7 @@ $color-shop-circle: #69f05b;
   .taskRight {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 6px;
     min-width: 80px;
 
@@ -236,8 +251,8 @@ $color-shop-circle: #69f05b;
       font-weight: 500;
       border: none;
       cursor: pointer;
-      background: #00d84a;
-      color: #fff;
+      background: bs.$success;
+      color: black;
 
       &.disabled {
         background: #ccc !important;
@@ -259,19 +274,6 @@ $color-shop-circle: #69f05b;
       display: flex;
       align-items: center;
       gap: 4px;
-
-      .point-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: #00d84a; // 綠色底
-        color: #fff; // 白色字
-        font-size: 14px;
-        font-weight: bold;
-      }
     }
   }
 }

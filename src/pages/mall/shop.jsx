@@ -201,7 +201,7 @@ class Shop extends Component {
           {/* 商家優惠券兌換 */}
           {storeCoupons.length > 0 && (
             <>
-              <h4 className={styles.shoptitle}>兌換商家折扣</h4>
+              <h4 className={styles.malltitle}>兌換商家折扣</h4>
               <div className={styles.storeCouponList}>
                 {storeCoupons.map((p) => (
                   <div className={styles.storeCouponCard} key={p.id}>
@@ -232,7 +232,7 @@ class Shop extends Component {
           {/* 租借優惠券兌換 */}
           {rentalCoupons.length > 0 && (
             <>
-              <h4 className={styles.shoptitle}>兌換租借折扣</h4>
+              <h4 className={styles.malltitle}>兌換租借折扣</h4>
               <div className={styles.rentalCouponList}>
                 {rentalCoupons.map((p) => (
                   <div className={styles.rentalCouponCard} key={p.id}>
