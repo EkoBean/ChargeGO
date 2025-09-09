@@ -25,8 +25,8 @@ const mber_RentRecord = () => {
 
   return (
     <div className={styles.mber_rentRecord}>
-      <div className={styles.record_header}>
         <NavBarAPP />
+      <div className={styles.record_header}>
         <h2>租借紀錄 </h2>
       </div>
       <div className={styles.record_body}>

@@ -84,10 +84,8 @@ const mber_AddCreditcard = () => {
         >
           ◀︎
         </span>
-        <div className={styles.paymentCircle}>
+        <div className={styles.titleSection}>
           <div className={styles.paymentText}>付款方式</div>
-        </div>
-        <div className={styles.cardIconCircle}>
           <div className={styles.cardIcon}>
             <img src="../../../public/creditcard.svg" alt="" />
           </div>
