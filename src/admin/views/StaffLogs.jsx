@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import ApiService from '../services/api';
+
 //職員操作紀錄
 const StaffLogs = () => {
   const [logs, setLogs] = useState([]);
@@ -8,7 +9,8 @@ const StaffLogs = () => {
   const [error, setError] = useState(null);
   const [q, setQ] = useState('');
 
-  useEffect(() => {
+  // 資料載入 function
+  const fetchData = () => {
     setLoading(true);
     setError(null);
 
@@ -26,6 +28,10 @@ const StaffLogs = () => {
         setEmployees([]);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const staffMap = useMemo(() => {
@@ -54,7 +60,7 @@ const StaffLogs = () => {
         if (!ql) return true;
         const staff = staffMap[String(l.employee_id ?? l.employee)] || { name: '' };
         return (
-          String(l.log || '').toLowerCase().includes(ql) ||
+          String(l.action || l.log || '').toLowerCase().includes(ql) ||
           String(l.employee_id ?? '').toLowerCase().includes(ql) ||
           (staff.name || '').toLowerCase().includes(ql)
         );
@@ -65,22 +71,26 @@ const StaffLogs = () => {
     <div className="admin-staff-logs-content">
       <div className="admin-content-header">
         <h2>職員操作紀錄</h2>
-      </div>
-
-      <div className="admin-search-section">
-        <input
-          className="admin-search-input"
-          placeholder="搜尋：職員、編號或內容"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <div className="admin-search-count">
-          {loading ? '讀取中…' : `${filtered.length} 筆`}
+        <div className="admin-search-section">
+          <input
+            className="admin-search-input"
+            placeholder="搜尋：職員、編號或內容"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <button
+            className="btn admin-btn admin-primary"
+            onClick={fetchData}
+            disabled={loading}
+            style={{ marginLeft: 8 }}
+          >
+            {loading ? '讀取中…' : '🔄 刷新資料'}
+          </button>
         </div>
       </div>
 
       {error && (
-        <div className="admin-alert admin-danger">
+        <div className="admin-alert admin-danger" style={{ marginBottom: 12 }}>
           {error}
         </div>
       )}
@@ -101,10 +111,9 @@ const StaffLogs = () => {
                 <td colSpan="4" className="admin-empty-row">目前無紀錄</td>
               </tr>
             )}
-
             {filtered.map((l, i) => {
-              const time = new Date(l.employee_log_date || l.time || l.created_at || null);
-              const timeText = isNaN(time.getTime()) ? (l.employee_log_date || l.time || '-') : time.toLocaleString();
+              const time = new Date(l.employee_log_date || l.action_time || l.time || l.created_at || null);
+              const timeText = isNaN(time.getTime()) ? (l.employee_log_date || l.action_time || l.time || '-') : time.toLocaleString();
               const sid = String(l.employee_id ?? l.employee ?? '');
               const staff = staffMap[sid] || { name: `#${sid || '未知'}`, email: '' };
               return (
@@ -112,12 +121,15 @@ const StaffLogs = () => {
                   <td>{timeText}</td>
                   <td>{staff.name}</td>
                   <td>{staff.email}</td>
-                  <td>{l.log || '-'}</td>
+                  <td>{l.action || l.log || '-'}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
+      <div style={{ marginBottom: 8, color: "#666" }}>
+        顯示 {filtered.length} / {logs.length} 筆
       </div>
     </div>
   );
