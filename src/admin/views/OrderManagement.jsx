@@ -275,29 +275,12 @@ const OrderManagement = () => {
   // 訂單欄位變更處理 - 修正欄位名稱
   const handleOrderFieldChange = (e) => {
     const { name, value } = e.target;
-    
-    // 如果是用戶ID欄位，使用特殊處理函數
-    if (name === 'uid') {
-      handleUserIdChange(e);
-      return;
-    }
-    
-    setEditOrder((prev) => {
-      const next = { ...prev, [name]: value };
-      if (name === "rental_site_id") { // 改為 rental_site_id
-        // 切換站點時清空充電器選項
-        next.charger_id = "";
-        const sid = value;
-        if (sid) {
-          ApiService.getSiteChargers(sid)
-            .then(setOrderSiteChargers)
-            .catch(() => setOrderSiteChargers([]));
-        } else {
-          setOrderSiteChargers([]);
-        }
-      }
-      return next;
-    });
+    setEditOrder(prev => ({
+      ...prev,
+      [name]: name === 'total_amount' || name === 'fee' || name === 'paid_amount'
+        ? Number(value) || 0  // 確保金額欄位為數字
+        : value
+    }));
   };
 
   // 新增：處理用戶ID變更時自動帶入用戶名稱
@@ -438,7 +421,7 @@ const OrderManagement = () => {
     <div className="admin-orders-content">
       {/* 頁面標題與刷新按鈕 */}
       <div className="admin-content-header">
-        <h2>商城訂單管理</h2>
+        <h2>租借紀錄管理</h2>
         <div>
           <button className="btn admin-btn" onClick={loadOrders}>
             🔄 刷新資料
@@ -506,7 +489,7 @@ const OrderManagement = () => {
         <Card.Header className="bg-white">
           <Row className="align-items-center">
             <Col md={4}>
-              <h5 className="mb-0">商城訂單列表 ({filteredOrders.length})</h5>
+              <h5 className="mb-0">租借紀錄列表 ({filteredOrders.length})</h5>
             </Col>
             <Col md={4}>
               {/* 搜尋框：可依訂單ID、用戶、站點搜尋 */}
@@ -544,6 +527,7 @@ const OrderManagement = () => {
                   <th>充電器</th>
                   <th>開始時間</th>
                   <th>結束時間</th>
+                  <th>總金額</th> {/* 新增這行 */}
                   <th>狀態</th>
                   <th>備註</th>
                   <th>操作</th>
@@ -567,10 +551,16 @@ const OrderManagement = () => {
                     <td>{order.charger_id}</td>
                     <td>{order.start_date ? new Date(order.start_date).toLocaleString() : "-"}</td>
                     <td>{order.end ? new Date(order.end).toLocaleString() : "-"}</td>
+                    <td>NT$ {order.total_amount || 0}</td> {/* 新增這行 */}
                     <td>{getStatusBadge(normalizeOrderStatus(order))}</td>
                     <td>{order.comment ?? "-"}</td>
                     <td>
-                      <Button variant="outline-primary" size="sm" className="admin-btn admin-small admin-primary" onClick={() => handleViewOrder(order)}>
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm" 
+                        className="admin-btn admin-small admin-primary" 
+                        onClick={() => handleViewOrder(order)}
+                      >
                         查看詳情
                       </Button>
                     </td>

@@ -366,21 +366,21 @@ app.post("/api/orders", (req, res) => {
       // 查詢並返回完整的訂單資料
       const selectQuery = `
         SELECT o.order_ID,
-               o.uid,
-               u.user_name, u.telephone, u.email,
-               o.start_date, o.end,
-               o.rental_site_id, rs.site_name as rental_site_name,
-               o.return_site_id, rts.site_name as return_site_name,
-               o.order_status, o.charger_id,
-               c.status AS charger_status,
-               o.comment, o.total_amount 
-        FROM order_record o
-        LEFT JOIN user u ON o.uid = u.uid
-        LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
-        LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-        LEFT JOIN charger c ON o.charger_id = c.charger_id
-        WHERE o.order_ID = ?
-      `;
+         o.uid,
+         u.user_name, u.telephone, u.email,
+         o.start_date, o.end,
+         o.rental_site_id, rs.site_name as rental_site_name,
+         o.return_site_id, rts.site_name as return_site_name,
+         o.order_status, o.charger_id,
+         c.status AS charger_status,
+         o.comment, o.total_amount  // 確認這裡有包含 total_amount
+  FROM order_record o
+  LEFT JOIN user u ON o.uid = u.uid
+  LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
+  LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
+  LEFT JOIN charger c ON o.charger_id = c.charger_id
+  ORDER BY o.order_ID DESC
+`;
       
       connCharger.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
         if (selectErr) {
@@ -489,9 +489,12 @@ app.post('/api/employee/login', (req, res) => {
 // 更新訂單
 app.put("/api/orders/:order_ID", (req, res) => {
   const order_ID = req.params.order_ID;
-  const { uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount } = req.body;
-  
-  console.log('接收到更新訂單請求:', { order_ID, ...req.body });
+  const { 
+    uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, 
+    total_amount, fee, paid_amount, charge_method, payment_status 
+  } = req.body;
+
+  console.log('接收到更新租借記錄請求:', { order_ID, ...req.body });
   
   // 建構動態更新語句
   const updateFields = [];
