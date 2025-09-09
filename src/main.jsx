@@ -7,11 +7,11 @@ import Admin from './admin/App.jsx';
 
 createRoot(document.getElementById("root")).render(
   <>
-    <Router>
-      <App />
-    </Router>
-    <Router>
-      <Admin />
-  </Router >
+  <Router>
+    <Routes>
+      <Route path="/admin/*" element={<Admin />} />
+      <Route path="/*" element={<App />} />
+    </Routes>
+  </Router>
     </>
 );

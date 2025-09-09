@@ -651,7 +651,7 @@ function MapIndex() {
             </div>
             {returnWarning ? (
               <div
-                className={`${styles.alert} ${styles.alertDanger} ${styles.returnWarning}`}
+                className={`alert alert-danger ${styles.returnWarning}`}
                 style={{ opacity: rentOpen ? 0 : 0.7 }}
               >
                 <i className="bi bi-exclamation-triangle-fill"></i>
