@@ -26,29 +26,113 @@ $color-shop-circle: #69f05b;
 // body {
 //   background: linear-gradient(180deg, $color-bg-gradient-start 0%, $color-bg-gradient-end 100%);
 // }
+.mallNavbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // padding: 0.5rem;
+  // margin-bottom: 2rem;
+}
 
-.container {
+.navbarLeftSection {
+  position: absolute;
+  left: 1rem;
+  top: 15%;
+  transform: translateY(-50%);
+  border: none;
+  background-color: transparent;
+}
+.navbarCenterSection {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.point {
+  width: 127px;
+  height: 127px;
+  border-radius: 50%;
+  background-color: bs.$primary;
+  opacity: 0.8;
+
+  position: absolute;
+  z-index: 2;
+
+  /* 控制重疊的偏移程度 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-100%, -60%);
+  /* 往左移多一點，就會只蓋住一部分 */
+}
+
+.missionCircle {
+  width: 171px;
+  height: 171px;
+  border-radius: 50%;
+  background-color: bs.$success;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+  position: relative;
+  z-index: 1;
+  /* 控制重疊的偏移程度 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-20%, 10%);
+}
+
+.mallMain {
+  z-index: 3;
+
   width: 100vw;
   height: 100vh;
   overflow: auto;
-  position: relative; // 讓絕對定位以 container 為基準
+  position: relative;
+  background-color: white;
+
+  // 左右上角圓角
+  border-top-left-radius: 50px;
+  border-top-right-radius: 50px;
+
+  // 也可以寫成一行
+  // border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
+}
+.navbarRightSection {
+  position: absolute;
+  right: 1rem;
+  top: 15%;
+  transform: translateY(-50%);
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
 }
 
-// ==========================
-// Main
-// ==========================
-.main {
-  background-color: $color-main-bg;
-  border-radius: 30px;
-  position: fixed;
-  left: 10px;
-  right: 10px;
-  bottom: 0;
-  top: 200px;
-  padding: 0 30px;
-  z-index: 1; // 讓 main 在 points-shop-row 之下
+.navbarRightSection svg {
+  position: relative;
+
+  height: 2.5rem;
+  width: 2.5rem;
 }
 
+.notification-count {
+  position: relative;
+  right: 0;
+  top: 0;
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background-color: #ef4444; /* red-500 */
+  font-size: 0.75rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 // ==========================
 // 標題
 // ==========================
@@ -252,13 +336,13 @@ $color-shop-circle: #69f05b;
 // ==========================
 .rentalCouponList {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; // 手機預設為單列
   gap: 12px;
   max-height: 400px;
   overflow-y: auto;
-  padding-right: 6px; // 預留空間避免文字被捲軸蓋住
+  padding-right: 6px;
+  margin: 0 12px;
 
-  // 捲軸樣式（可選）
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -266,41 +350,71 @@ $color-shop-circle: #69f05b;
     background: #ccc;
     border-radius: 4px;
   }
+
+  // 平板以上
+  @media (min-width: 768px) {
+    margin: 0 24px;
+  }
+
+  // 桌機以上
+  @media (min-width: 1200px) {
+    margin: 0 48px;
+    flex-direction: column; // 保持每張卡片換行
+    align-items: center; // 卡片置中
+  }
 }
 
 .rentalCouponCard {
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  padding: 12px;
+  width: 100%; // 手機全寬
+
+  @media (min-width: 1200px) {
+    width: calc(70% - 12px); // 桌機兩欄，保留gap
+  }
 
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; // ✅ 文字靠上，不會被擠到中間
+  background: #fff;
+  border-radius: 0 16px 16px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  padding: 16px;
+  position: relative;
+
+  &::before {
+    content: "";
+    width: 6px;
+    background: bs.$success;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
 
   .couponInfo {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    margin-left: 16px;
+    flex: 1;
+  }
 
-    .couponName {
-      font-size: 16px;
-      font-weight: 600;
-    }
+  .couponName {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+  }
 
-    .couponDetails {
-      font-size: 14px;
-      color: #333;
-      margin: 0;
-      line-height: 1.4;
-    }
+  .couponDetails {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
   }
 
   .couponActions {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    min-width: 80px;
 
     .btn-detail {
       padding: 4px 8px;
