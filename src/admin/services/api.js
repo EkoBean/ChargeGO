@@ -159,9 +159,10 @@ const ApiService = {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   },
 
-  // 站點 CRUD
+  // ========== update sites ======================
   async updateSite(site_id, payload) {
     const body = {
+      site_id: Number(site_id),
       site_name: payload.site_name ?? payload.siteName,
       address: payload.address,
       longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
@@ -173,13 +174,13 @@ const ApiService = {
       body[key] === undefined && delete body[key]
     );
 
-    return this.request(`/api/sites/${site_id}`, {
-      method: 'PUT',
+    return this.request(`/api/sites`, {
+      method: 'PATCH',
       body: JSON.stringify(body),
     });
   },
-
-  async createSite(payload) {
+// ===========  create sites ======================
+  async   createSite(payload) {
     console.log('Creating site with payload:', payload);
 
     const body = {

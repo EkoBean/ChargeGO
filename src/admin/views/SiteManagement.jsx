@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAdminData } from '../context/AdminDataContext';
 import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
@@ -15,10 +15,8 @@ const SiteManagement = () => {
     console.log('SiteManagement chargers sample (empty or not array):', chargers);
   }
 
-  // 安全地把 chargers 轉成陣列
   const chargersArr = Array.isArray(chargers) ? chargers : [];
 
-  // 對應你的狀態定義：
   // -1、0 => 故障 / 進廠維修 → 視為 maintenance（維護中）
   // 1 => 出租中 → 視為 occupied（使用中/已外借）
   // 2、3 => 待租借  (代租借,滿電)、（30%~99%）→ 視為 available（可用）
@@ -47,16 +45,29 @@ const SiteManagement = () => {
     },
     { available: 0, occupied: 0, maintenance: 0, preparing: 0, other: 0 }
   );
-
   // 可在 UI 使用 counts.available / counts.occupied / counts.maintenance
 
+  const [siteFilter, setSiteFilter] = useState("all");//顯示所有站點
+
+  // =========== modal selections =================
   const [selectedSite, setSelectedSite] = useState(null);
   const [showSiteModal, setShowSiteModal] = useState(false);
-  const [isEditingSite, setIsEditingSite] = useState(false);
+
+  // ========== modal content ===============
+  // currently editing site data in modal form
   const [editSite, setEditSite] = useState(null);
+
+  // handleAddSite(click on "新增" button) & called in SiteDetailModal.jsx(click on "編輯" button)
+  const [isEditingSite, setIsEditingSite] = useState(false);
+  // handleAddSite(click on "新增" button) 
   const [creatingSite, setCreatingSite] = useState(false);
+
+  // saving condition (during handleSaveSite)
   const [saving, setSaving] = useState(false);
-  const [siteFilter, setSiteFilter] = useState("all");//顯示所有站點
+
+  // =========== other status ================
+  // ('' ->message content, null -> warning type)
+  const [formatWarning, setFormatWarning] = useState({ message: '', type: null });
 
   // 共用驗證與格式化
   const toFixed8 = (n) => {
@@ -68,6 +79,7 @@ const SiteManagement = () => {
 
   // handleViewSite 定義
   const handleViewSite = async (site) => {
+
     // 先把 site 設到 state，確保 modal 可拿到站點基本資料
     setSelectedSite(site);
     setEditSite(site);
@@ -116,18 +128,61 @@ const SiteManagement = () => {
     setCreatingSite(true);
     setShowSiteModal(true);
   };
+  // debug ===========testing editSite changes============
+  // useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
+  useEffect(() => { console.log('formatWarning :>> ', formatWarning); }, [formatWarning])
+
+  // ===================================================
 
   const handleSiteFieldChange = (e) => {
+    if (!e || !e.target) return;
     const { name, value } = e.target;
+    // debug=================================
+    console.log(name, value);
+    // =====================================
+
     setEditSite((prev) => {
       let v = value;
+      // check the coordinate format
       if (name === "longitude" || name === "latitude") {
-        v = value === "" ? "" : toFixed8(value);
+
+        // 檢查小數位數是否為 8 位
+        const demicalLength = value.includes('.') ? value.split('.')[1].length : 0;
+        if (demicalLength !== 8) {
+          setFormatWarning({message:"小數位數必須為 8 位。", type: name});
+          return {
+            ...prev, [name]: v
+          }
+        }
+        // 檢查台灣經緯度範圍
+        const numValue = parseFloat(value);
+        if (name === "longitude") {
+          if (isNaN(numValue) || numValue < 119.5 || numValue > 122.5) {
+            setFormatWarning({message:"經度不在台灣範圍內（ 119.5-122.5）。", type: name});
+            return {
+              ...prev, [name]: v
+            };
+          }
+        } else if (name === "latitude") {
+          if (isNaN(numValue) || numValue < 21.5 || numValue > 25.5) {
+            setFormatWarning({message:"緯度不在台灣範圍內（21.5-25.5）。", type: name});
+            return {
+              ...prev, [name]: v
+            };
+          }
+        }
+        setFormatWarning("");
+      }
+      else if(name){
+        if (!value){
+          setFormatWarning({message: '必填欄位不可為空', type: name});
+        }
       }
       return { ...prev, [name]: v };
     });
   };
 
+  // press the save button in SiteDetailModal.jsx
   const handleSaveSite = async () => {
     if (!editSite) return;
     try {
@@ -137,7 +192,6 @@ const SiteManagement = () => {
       if (!isValidLng(longitude) || !isValidLat(latitude)) {
         throw new Error("經度/緯度為必填，且必須為數字（經度 -180~180；緯度 -90~90）");
       }
-
       const lng8 = Number(toFixed8(longitude));
       const lat8 = Number(toFixed8(latitude));
 
@@ -289,6 +343,7 @@ const SiteManagement = () => {
 
       {showSiteModal && selectedSite && (
         <SiteDetailModal
+          formatWarning={formatWarning}
           site={selectedSite}
           editSite={editSite}
           isEditing={isEditingSite}

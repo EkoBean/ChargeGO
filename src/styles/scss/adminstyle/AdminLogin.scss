@@ -146,6 +146,11 @@
 
 .admin-form-group {
   margin-bottom: 20px;
+  .admin-lat-lng-warning {
+    color: red;
+    font-size: 12px;
+    margin-left: 8px;
+  }
 }
 
 .admin-form-group label {

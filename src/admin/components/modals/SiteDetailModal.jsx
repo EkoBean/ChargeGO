@@ -10,6 +10,7 @@ import {
   Pin,
   InfoWindow,
 } from "@vis.gl/react-google-maps";
+import { format } from 'mysql';
 const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 
@@ -23,9 +24,11 @@ const SiteDetailModal = ({
   isEditing,
   creating,
   saving,
+  // onEdit={() => setIsEditingSite(true)}
   onEdit,
   onCancel,
   onSave,
+  formatWarning,
   onChange,
   onClose,
   // 新增 stats prop，來自 SiteManagement 計算
@@ -44,7 +47,7 @@ const SiteDetailModal = ({
       case -1: return "故障";
       case 0: return "進廠維修";
       case 1: return "出租中";
-      case 2: return "代租借,滿電";
+      case 2: return "待租借,滿電";
       case 3: return "待租借,30%-99%";
       case 4: return "準備中,<30%";
       default: return "未知";
@@ -76,9 +79,9 @@ const SiteDetailModal = ({
     const markerRef = useAdvancedMarkerRef();
 
     const mapCenter = {
-      lat: Number(site.latitude),
-      lng: Number(site.longitude)
-    }
+      lat: Number(site?.latitude || 25.033964),
+      lng: Number(site?.longitude || 121.564468),
+    } 
 
     return (
       <Map
@@ -92,7 +95,9 @@ const SiteDetailModal = ({
         // use without map Id, keep it default style in admin system
         mapId={"DEMO_MAP_ID"}
       >
-            <AdvancedMarker position={mapCenter} />
+        {!creating &&
+          <AdvancedMarker position={mapCenter} />
+        }
       </Map>
 
     )
@@ -102,24 +107,19 @@ const SiteDetailModal = ({
   return (
 
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
+    // editing : 
     <APIProvider apiKey={APIkey}
       region='TW'
       libraries={['places']}
       onLoad={() => setIsGoogleMapsLoaded(true)}
     >
       <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
-        {/* 內容區：阻止事件冒泡以避免點擊內容區也關閉 modal */}
         <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="admin-modal-header">
-            {/* 標題： "新增站點"，否則顯示站點名稱 */}
             <h3>
               {creating ? "新增站點" : `站點詳情 - ${site.site_name}`}
             </h3>
             <div>
-              {/* 編輯狀態控制按鈕：
-                - 非編輯模式顯示「編輯」按鈕（由父元件 onEdit 負責切換 isEditing）
-                - 編輯模式顯示「取消」與「儲存」按鈕（由 onCancel / onSave 處理）
-                - saving 為 true 時會 disable 按鈕以避免重複送出 */}
               {!isEditing ? (
                 <button className="btn admin-btn admin-small admin-primary" onClick={onEdit}>
                   編輯
@@ -147,7 +147,7 @@ const SiteDetailModal = ({
                 <h4>基本資訊</h4>
 
                 {/* 非編輯模式顯示純文字；編輯模式顯示表單 input */}
-                {!isEditing ? (
+                {!isEditing && !creating ? (
                   <>
                     {/* 若為查看（非建立），顯示站點 ID */}
                     {!creating && <p><strong>站點ID:</strong> {site.site_id}</p>}
@@ -158,8 +158,8 @@ const SiteDetailModal = ({
                   </>
                 ) : (
                   <div className="admin-form-grid">
-                    {/* 編輯模式：站點 ID 為唯讀（disabled） */}
-                    {!creating && (
+                    {/*station ID : only show when edit mode (read only) */}
+                    {isEditing && !creating && (
                       <div className="admin-form-group">
                         <label>站點ID</label>
                         <input
@@ -169,13 +169,10 @@ const SiteDetailModal = ({
                         />
                       </div>
                     )}
-
-                    {/* 建立/編輯站點表單欄位（受控 input）：
-                      - name 屬性需與父元件 onChange 的邏輯相符（例如使用 e.target.name 來更新對應欄位）
-                      - 值使用 editSite（父元件在打開 modal 時應把 site 複製給 editSite）
-                      - required 屬性在前端會阻止空值提交，但實務仍需在後端再次驗證 */}
                     <div className="admin-form-group admin-form-col-2">
-                      <label>站點名稱 <span className="admin-required">*</span></label>
+                      <label>站點名稱
+                        <span className="admin-required">*</span>
+                      </label>
                       <input
                         type="text"
                         name="site_name"
@@ -183,11 +180,15 @@ const SiteDetailModal = ({
                         onChange={onChange}
                         placeholder="請輸入站點名稱"
                         required
+                        style={!editSite?.site_name?.trim() ? { borderColor: 'red' } : {}}
                       />
                     </div>
 
                     <div className="admin-form-group admin-form-col-2">
-                      <label>地址 <span className="admin-required">*</span></label>
+                      <label>地址
+                        <span className="admin-required">*</span>
+
+                      </label>
                       <div style={{ display: "flex", gap: 8 }}>
                         <input
                           type="text"
@@ -196,36 +197,43 @@ const SiteDetailModal = ({
                           onChange={onChange}
                           placeholder="請輸入站點地址"
                           required
+                          style={!editSite?.address?.trim() ? { borderColor: 'red' } : {}}
                         />
                         <button
                           type="button"
                           className="btn admin-btn admin-small"
-                          onClick={handleGeocode}
-                          disabled={isLoadingGeo}
                         >
-                          {isLoadingGeo ? "查詢中..." : "查詢經緯度"}
                         </button>
                       </div>
-                      {geoError && <div className="admin-form-error">{geoError}</div>}
                     </div>
 
                     <div className="admin-form-group">
-                      <label>經度 <span className="admin-required">*</span></label>
+                      <label for='lontitue'>經度
+                        <span className="admin-required">*</span>
+                        {formatWarning.type == 'longitude' && <span className='admin-lat-lng-warning'>{formatWarning.message}</span>}
+
+                      </label>
                       <input
                         type="number"
                         name="longitude"
                         step="0.00000001"
                         min="-180"
                         max="180"
+                        id='lontitue'
                         value={editSite?.longitude || ""}
                         onChange={onChange}
                         placeholder="-180 到 180"
                         required
+                        style={formatWarning.type == 'longitude' ? { borderColor: 'red' } : {}}
                       />
                     </div>
 
                     <div className="admin-form-group">
-                      <label>緯度 <span className="admin-required">*</span></label>
+                      <label>緯度
+                        <span className="admin-required">*</span>
+                        {formatWarning.type === 'latitude' && <span className='admin-lat-lng-warning'>{formatWarning.message}</span>}
+
+                      </label>
                       <input
                         type="number"
                         name="latitude"
@@ -236,6 +244,7 @@ const SiteDetailModal = ({
                         onChange={onChange}
                         placeholder="-90 到 90"
                         required
+                        style={formatWarning.type === 'latiude' ? { borderColor: 'red' } : {}}
                       />
                     </div>
                   </div>
@@ -244,9 +253,10 @@ const SiteDetailModal = ({
 
               {/* 站點統計區塊：
                 - stats 由父元件計算並傳入，包含總充電器、可用、使用中、今日訂單數 */}
+              {/* editing & previewing */}
               {!creating && (
                 <div className="admin-detail-section">
-                  <h4>站點統計</h4>
+                  <h4>該站充電器現狀</h4>
                   <div className="admin-stats-mini-grid admin-centered">
                     <div
                       className="admin-mini-stat admin-success"
@@ -278,7 +288,8 @@ const SiteDetailModal = ({
                       onClick={() => setActiveStat('todayOrders')}
                     >
                       <span className="admin-number">{stats.todayOrders}</span>
-                      <span className="admin-label">今日訂單數</span>
+
+                      <span className="admin-label">該站今日出租紀錄</span>
                     </div>
                   </div>
                   {/* 點擊後顯示充電器清單 */}
@@ -304,16 +315,14 @@ const SiteDetailModal = ({
                   )}
                 </div>
               )}
+              {/* previewing */}
               {!creating && !isEditing && (
                 <div className="admin-detail-section">
-                  <h4>位置預覽</h4>
-                  <div className="admin-map-preview">
-
-                    <PreviewMap />
-
-                  </div>
                 </div>
               )}
+            </div>
+            <div className="admin-map-preview">
+              <PreviewMap />
             </div>
           </div>
         </div>
