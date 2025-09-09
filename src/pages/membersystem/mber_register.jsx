@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss"; 
@@ -21,16 +21,27 @@ const mber_Register = () => {
     agreerule: false,
     event: true,
   });
-  // 驗證碼
-  const [captchaValue, setCaptchaValue] = useState(() =>
-    Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-  );
+  // 驗證碼（6位英數字）
+  const [captchaValue, setCaptchaValue] = useState("");
   // 註冊成功
   const [isSuccess, setIsSuccess] = useState(false);
   // 轉跳頁面倒數計時
   const [countdown, setCountdown] = useState(3);
   // 導向網站
   const navigate = useNavigate();
+  // 驗證碼初始化
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+  // 產生新驗證碼
+  const refreshCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaValue(code);
+  };
   // 表單變更處理
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -56,7 +67,7 @@ const mber_Register = () => {
     if (!form.credit_card_date.trim()) return "信用卡到期日必填";
     if (!form.subpwd.trim()) return "驗證碼必填";
     // 其他驗證
-    if (form.subpwd !== String(captchaValue)) return "驗證碼錯誤";
+    if (form.subpwd !== captchaValue) return "驗證碼錯誤";
     if (form.password !== form.confirmPassword) return "密碼與確認密碼不一致";
     if (!form.agreerule) return "請勾選同意使用者規範";
     if (form.login_id == form.password) return "帳號密碼不可相同";
@@ -140,7 +151,7 @@ const mber_Register = () => {
       agreerule: false,
       event: true,
     });
-    setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
+    refreshCaptcha();
   };
 
   // 如果註冊成功，顯示成功訊息和倒數計時
@@ -375,11 +386,7 @@ const mber_Register = () => {
                 <button
                   type="button"
                   className={styles["captcha-refresh"]}
-                  onClick={() =>
-                    setCaptchaValue(
-                      Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-                    )
-                  }
+                  onClick={refreshCaptcha}
                 >
                   重新產生
                 </button>
@@ -434,7 +441,7 @@ const mber_Register = () => {
               </div>
             </div>
             {/* 按鈕 */}
-            <div className={styles["button-group"]}>
+            <div >
               <button
                 className={styles["correct-btn"]}
                 id="mber_register"
@@ -443,7 +450,7 @@ const mber_Register = () => {
                 註冊
               </button>
               <button
-                className={styles["leave-btn"]}
+                className={styles["correct-btn"]}
                 id="clear"
                 type="button"
                 onClick={handleClear}
@@ -451,7 +458,7 @@ const mber_Register = () => {
                 清除
               </button>
               <button
-                className={styles["alreadyRegistered"]}
+                className={styles.loginLink}
                 type="button"
                 onClick={() => navigate("/mber_login")}
               >
