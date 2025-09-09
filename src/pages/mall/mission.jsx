@@ -94,7 +94,7 @@ class Mission extends Component {
     const { mission, loading, error, userId, filterDate } = this.state;
 
     return (
-      <div>
+      <div className={styles.mallBody}>
         {/* navbar */}
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
@@ -157,7 +157,7 @@ class Mission extends Component {
           ) : error ? (
             <div className={styles["error-text"]}>錯誤: {error}</div>
           ) : mission.length > 0 ? (
-            <div className={styles.taskList}>
+            <div className={styles.missionList}>
               {mission.map((item) => {
                 const progressPercent = Math.min(
                   100,
@@ -166,7 +166,7 @@ class Mission extends Component {
 
                 return (
                   <div
-                    className={styles.taskCard}
+                    className={styles.missionCard}
                     key={item.user_mission_id}
                     style={{ padding: "12px" }}
                   >
