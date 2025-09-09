@@ -22,9 +22,13 @@ import Mber_RentRecord from "./membersystem/mber_rentRecord";
 // index
 import WebSite from './ImageWebsite/WebSite'
 
+// nav
+import NavBarWebsite from '../components/NavBarWebsite'
+
 function App() {
   return (
     <>
+      {/* <NavBarWebsite /> */}
       <Routes>
         {/* index */}
         <Route path="/" element={<WebSite />} />
