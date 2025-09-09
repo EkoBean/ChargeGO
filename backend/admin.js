@@ -1,7 +1,7 @@
 //後端
 import express from 'express';
 import cors from 'cors';
-import mysql from 'mysql2';
+import mysql from 'mysql';
 const app = express();
 
 app.use(cors());
@@ -11,7 +11,7 @@ app.use(express.json());
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // === DB 連線：charger_database ===
-var connCharger = mysql.createConnection({
+var connect = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
@@ -35,12 +35,12 @@ app.listen(3000, () => {
 });
 
 // 連線 DB（開機檢查）
-connCharger.connect(function (err) {
+connect.connect(function (err) {
   if (err) {
     console.error("charger_database 連線失敗：", err && err.code);
   } else {
     console.log("charger_database 連線成功");
-    connCharger.query("SELECT COUNT(*) AS cnt FROM user", (e, r) => {
+    connect.query("SELECT COUNT(*) AS cnt FROM user", (e, r) => {
       if (e) console.error("user 表查詢失敗：", e.code);
       else console.log("user 表筆數：", r[0].cnt);
     });
@@ -62,6 +62,8 @@ connBank.connect(function (err) {
   }
 });
 
+
+
 // ===== 首頁（導覽）=====
 app.get("/", (req, res) => {
   res.send(`
@@ -79,11 +81,17 @@ app.get("/", (req, res) => {
   `);
 });
 
+// 處理 DB 錯誤的函式（若需要）
+const handleDBError = (res, err) => {
+  console.error("DB錯誤:", err);
+  return res.status(500).json({ error: "DB error", code: err.code });
+};
+
 // ===== charger_database 區 =====
 
 // 使用者清單（不回傳敏感信用卡欄位）
 app.get("/user/list", (req, res) => {
-  connCharger.query(`
+  connect.query(`
     SELECT uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint
     FROM user ORDER BY uid ASC
   `, [], (err, rows) => {
@@ -128,14 +136,14 @@ app.put("/user/:uid", (req, res) => {
 
   params.push(uid);
 
-  connCharger.query(
+  connect.query(
     `UPDATE user SET ${sets.join(", ")} WHERE uid = ?`,
     params,
     (err, result) => {
       if (err) return res.status(500).json({ error: "DB error", code: err.code });
       if (result.affectedRows === 0) return res.status(404).json({ message: "user not found" });
 
-      connCharger.query(
+      connect.query(
         `SELECT uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint
          FROM user WHERE uid = ?`,
         [uid],
@@ -150,7 +158,7 @@ app.put("/user/:uid", (req, res) => {
 
 // 站點清單
 app.get("/api/sites", (req, res) => {
-  connCharger.query(`
+  connect.query(`
     SELECT site_id, site_name, address, longitude, latitude
     FROM charger_site ORDER BY site_id ASC
   `, [], (err, rows) => {
@@ -158,6 +166,15 @@ app.get("/api/sites", (req, res) => {
     res.json(rows);
   });
 });
+
+// 更新站點
+app.post("/api/sites", (req, res) => {
+  
+}); 
+// 編輯站點
+app.patch('api/sites', (req, res) => {
+
+})
 
 // 修正獲取站點充電器 - 包含即時租借狀態檢查
 app.get("/api/sites/:id/chargers", (req, res) => {
@@ -188,7 +205,7 @@ app.get("/api/sites/:id/chargers", (req, res) => {
     ORDER BY c.charger_id ASC
   `;
   
-  connCharger.query(q, [site_id], (err, rows) => {
+  connect.query(q, [site_id], (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/sites/:id/chargers failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
@@ -208,7 +225,7 @@ app.get("/api/sites/:id/chargers", (req, res) => {
 
 // 行充總覽（含站點 join）
 app.get("/api/chargers", (req, res) => {
-  connCharger.query(`
+  connect.query(`
     SELECT c.charger_id, c.status, c.site_id,
            s.site_name, s.address, s.longitude, s.latitude
     FROM charger c
@@ -242,7 +259,7 @@ app.get("/api/orders", (req, res) => {
     ORDER BY o.order_ID DESC
   `;
   
-  connCharger.query(q, (err, rows) => {
+  connect.query(q, (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/orders failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
@@ -280,7 +297,7 @@ app.get("/api/orders/page", (req, res) => {
     LIMIT ? OFFSET ?
   `;
   
-  connCharger.query(q, [limit, offset], (err, rows) => {
+  connect.query(q, [limit, offset], (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/orders/page failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
@@ -288,7 +305,7 @@ app.get("/api/orders/page", (req, res) => {
     
     // 同時獲取總數量
     const countQuery = "SELECT COUNT(*) as total FROM order_record";
-    connCharger.query(countQuery, (countErr, countRows) => {
+    connect.query(countQuery, (countErr, countRows) => {
       if (countErr) {
         console.error("[ERROR] Count orders failed:", countErr);
         return res.status(500).json({ error: "Count error", code: countErr.code, message: countErr.message });
@@ -326,7 +343,7 @@ app.post("/api/orders", (req, res) => {
   }
 
   // 檢查用戶是否存在
-  connCharger.query('SELECT user_name FROM user WHERE uid = ?', [uid], (userErr, userRows) => {
+  connect.query('SELECT user_name FROM user WHERE uid = ?', [uid], (userErr, userRows) => {
     if (userErr) {
       console.error('查詢用戶失敗:', userErr);
       return res.status(500).json({ error: "DB error", code: userErr.code, message: userErr.message });
@@ -357,7 +374,7 @@ app.post("/api/orders", (req, res) => {
     console.log('執行插入 SQL:', insertQuery);
     console.log('參數:', values);
     
-    connCharger.query(insertQuery, values, (insertErr, result) => {
+    connect.query(insertQuery, values, (insertErr, result) => {
       if (insertErr) {
         console.error('插入訂單失敗:', insertErr);
         return res.status(500).json({ error: "插入訂單失敗", code: insertErr.code, message: insertErr.message });
@@ -382,7 +399,7 @@ app.post("/api/orders", (req, res) => {
         WHERE o.order_ID = ?
       `;
       
-      connCharger.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
+      connect.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
         if (selectErr) {
           console.error('查詢新建訂單失敗:', selectErr);
           return res.status(500).json({ error: "查詢新建訂單失敗", code: selectErr.code, message: selectErr.message });
@@ -400,7 +417,7 @@ app.get("/api/users/:uid", (req, res) => {
   const uid = req.params.uid;
   console.log('查詢用戶 ID:', uid, typeof uid); // 加入 debug 日誌
   
-  connCharger.query(
+  connect.query(
     'SELECT uid, user_name, telephone, email FROM user WHERE uid = ?',
     [uid],
     (err, rows) => {
@@ -424,14 +441,14 @@ app.get("/api/users/:uid", (req, res) => {
 
 // 設備使用率、訂單完成率、系統運行狀態
 app.get('/api/system-status', (req, res) => {
-  connCharger.query(
+  connect.query(
     'SELECT COUNT(*) AS total, SUM(status IN ("1","2","3")) AS used FROM charger',
     [],
     (err, rows) => {
       if (err) return res.status(500).json({ error: 'DB error' });
       const total = rows[0].total || 1;
       const used = rows[0].used || 0;
-      connCharger.query(
+      connect.query(
         'SELECT COUNT(*) AS totalOrders, SUM(order_status=2) AS completedOrders FROM order_record',
         [],
         (err2, rows2) => {
@@ -452,21 +469,16 @@ app.get('/api/system-status', (req, res) => {
 // 關閉時優雅斷線
 process.on("SIGINT", () => {
   console.log("\n關閉連線並結束程式...");
-  connCharger.end(() => {
+  connect.end(() => {
     connBank.end(() => process.exit(0));
   });
 });
 
-// 處理 DB 錯誤的函式（若需要）
-const handleDBError = (res, err) => {
-  console.error("DB錯誤:", err);
-  return res.status(500).json({ error: "DB error", code: err.code });
-};
 
 // 員工登入
 app.post('/api/employee/login', (req, res) => {
   const { email, password } = req.body;
-  connCharger.query(
+  connect.query(
     'SELECT * FROM employee WHERE employee_email = ? AND password = ?',
     [email, password],
     (err, rows) => {
@@ -550,7 +562,7 @@ app.put("/api/orders/:order_ID", (req, res) => {
   console.log('執行更新 SQL:', updateQuery);
   console.log('參數:', updateValues);
   
-  connCharger.query(updateQuery, updateValues, (updateErr, result) => {
+  connect.query(updateQuery, updateValues, (updateErr, result) => {
     if (updateErr) {
       console.error('更新訂單失敗:', updateErr);
       return res.status(500).json({ error: "更新訂單失敗", code: updateErr.code, message: updateErr.message });
@@ -579,7 +591,7 @@ app.put("/api/orders/:order_ID", (req, res) => {
       WHERE o.order_ID = ?
     `;
     
-    connCharger.query(selectQuery, [order_ID], (selectErr, orderRows) => {
+    connect.query(selectQuery, [order_ID], (selectErr, orderRows) => {
       if (selectErr) {
         console.error('查詢更新後訂單失敗:', selectErr);
         return res.status(500).json({ error: "查詢更新後訂單失敗", code: selectErr.code, message: selectErr.message });
@@ -595,7 +607,7 @@ app.put("/api/orders/:order_ID", (req, res) => {
 app.get("/api/events", (req, res) => {
   console.log('開始查詢活動資料...'); // 加入 debug 日誌
   
-  connCharger.query(`
+  connect.query(`
     SELECT e.event_id, 
            e.event_title, 
            e.event_content, 
@@ -642,7 +654,7 @@ app.post("/api/events", (req, res) => {
   console.log('執行插入 SQL:', query);
   console.log('參數:', values);
   
-  connCharger.query(query, values, (err, result) => {
+  connect.query(query, values, (err, result) => {
     if (err) {
       console.error('Error creating event:', err);
       return res.status(500).json({ 
@@ -696,7 +708,7 @@ app.put("/api/events/:id", (req, res) => {
   
   params.push(eventId);
   
-  connCharger.query(`
+  connect.query(`
     UPDATE event SET ${sets.join(', ')} WHERE event_id = ?
   `, params, (err, result) => {
     if (err) {
@@ -714,7 +726,7 @@ app.put("/api/events/:id", (req, res) => {
 app.delete("/api/events/:id", (req, res) => {
   const eventId = req.params.id;
   
-  connCharger.query('DELETE FROM event WHERE event_id = ?', [eventId], (err, result) => {
+  connect.query('DELETE FROM event WHERE event_id = ?', [eventId], (err, result) => {
     if (err) {
       console.error('Error deleting event:', err);
       return res.status(500).json({ error: '刪除活動失敗' });
@@ -734,7 +746,7 @@ app.post("/api/events/:id/send", (req, res) => {
   console.log(`準備發送活動 ${eventId} 給用戶:`, targetUsers);
   
   // 先獲取活動詳情
-  connCharger.query(
+  connect.query(
     'SELECT * FROM event WHERE event_id = ?',
     [eventId],
     (err, eventResult) => {
@@ -758,7 +770,7 @@ app.post("/api/events/:id/send", (req, res) => {
       }
       
       // 獲取目標用戶
-      connCharger.query(userQuery, userParams, (err, users) => {
+      connect.query(userQuery, userParams, (err, users) => {
         if (err) {
           console.error('獲取用戶列表失敗:', err);
           return res.status(500).json({ error: '獲取用戶列表失敗' });
@@ -779,7 +791,7 @@ app.post("/api/events/:id/send", (req, res) => {
         // 批次插入通知
         const insertQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
         
-        connCharger.query(insertQuery, [notices], (err, result) => {
+        connect.query(insertQuery, [notices], (err, result) => {
           if (err) {
             console.error('插入通知失敗:', err);
             return res.status(500).json({ error: '發送活動失敗' });
@@ -799,7 +811,7 @@ app.post("/api/events/:id/send", (req, res) => {
 
 // 新增：獲取用戶列表 API（用於選擇發送對象）
 app.get("/api/users/active", (req, res) => {
-  connCharger.query(`
+  connect.query(`
     SELECT uid, user_name, email, telephone
     FROM user 
     WHERE blacklist = 0
@@ -817,7 +829,7 @@ app.get("/api/users/active", (req, res) => {
 app.get("/api/users", (req, res) => {
   console.log('查詢所有用戶列表...');
   
-  connCharger.query(`
+  connect.query(`
     SELECT uid as user_id, uid, user_name, telephone, email, address, 
            CASE 
              WHEN blacklist = 1 THEN 'blacklist'
@@ -841,7 +853,7 @@ app.get("/api/events/send-counts", (req, res) => {
   console.log('查詢活動發送統計...');
   
   // 查詢每個活動的通知發送數量
-  connCharger.query(`
+  connect.query(`
     SELECT 
       e.event_id,
       COUNT(n.notice_id) as send_count
@@ -873,7 +885,7 @@ app.post("/api/events/send-notification", (req, res) => {
   console.log('發送活動通知請求:', req.body);
   
   // 先獲取活動詳情
-  connCharger.query(
+  connect.query(
     'SELECT * FROM event WHERE event_id = ?',
     [event_id],
     (err, eventResult) => {
@@ -910,7 +922,7 @@ app.post("/api/events/send-notification", (req, res) => {
       }
       
       // 獲取目標用戶
-      connCharger.query(userQuery, userParams, (err, users) => {
+      connect.query(userQuery, userParams, (err, users) => {
         if (err) {
           console.error('獲取用戶列表失敗:', err);
           return res.status(500).json({ error: '獲取用戶列表失敗' });
@@ -931,7 +943,7 @@ app.post("/api/events/send-notification", (req, res) => {
         // 批次插入通知到 notice 表
         const insertNoticeQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
         
-        connCharger.query(insertNoticeQuery, [notices], (err, noticeResult) => {
+        connect.query(insertNoticeQuery, [notices], (err, noticeResult) => {
           if (err) {
             console.error('插入通知失敗:', err);
             return res.status(500).json({ error: '發送通知失敗' });
@@ -955,7 +967,7 @@ app.get("/api/events/:id/send-history", (req, res) => {
   
   console.log(`查詢活動 ${eventId} 的發送記錄`);
   
-  connCharger.query(`
+  connect.query(`
     SELECT n.notice_id, n.uid, u.user_name, n.notice_date
     FROM notice n
     LEFT JOIN user u ON n.uid = u.uid
@@ -991,7 +1003,7 @@ app.get("/api/missions", (req, res) => {
     FROM missions
     ORDER BY mission_id DESC
   `;
-  connCharger.query(q, [], (err, rows) => {
+  connect.query(q, [], (err, rows) => {
     if (err) {
       console.error('Error fetching missions:', err);
       return res.status(500).json({ error: '獲取任務列表失敗', details: err.message });
@@ -1039,7 +1051,7 @@ app.post("/api/missions", (req, res) => {
   console.log('執行插入 SQL:', insertQuery);
   console.log('參數:', values);
   
-  connCharger.query(insertQuery, values, (err, result) => {
+  connect.query(insertQuery, values, (err, result) => {
     if (err) {
       console.error('Error creating mission:', err);
       return res.status(500).json({ 
@@ -1052,7 +1064,7 @@ app.post("/api/missions", (req, res) => {
     console.log('任務建立成功, ID:', result.insertId);
     
     // 回傳新建立的任務資料
-    connCharger.query(
+    connect.query(
       'SELECT * FROM missions WHERE mission_id = ?',
       [result.insertId],
       (selectErr, selectResult) => {
