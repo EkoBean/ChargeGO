@@ -65,7 +65,7 @@
   font-size: medium;
   color: mb.$brown;
   display: flex;
-  gap: 16px;
+  gap: 20px;
   align-items: flex-start;
   text-align: left;
   width: 100%;
@@ -90,7 +90,7 @@
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  text-align: left;
+  text-align: right;
 }
 .form-input-cvv {
   padding-left: 18px;
@@ -104,7 +104,7 @@
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   width: 100%;
-  min-width: 0;
+  max-width: 100px;
   box-sizing: border-box;
   text-align: left;
 }

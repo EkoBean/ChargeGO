@@ -104,6 +104,8 @@ const mber_Register = () => {
     try {
       // 前端雜湊密碼（SHA256取前10碼）
       const hashedPwd = crypto.SHA256(form.password).toString(crypto.enc.Hex).slice(0, 10);
+      // 將信用卡號中間8碼遮蔽
+      const maskedCardNumber = form.credit_card_number.replace(/(\d{4}) (\d{4}) (\d{4}) (\d{4})/, (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`);
       const payload = {
         login_id: form.login_id,
         user_name: form.user_name,
@@ -112,7 +114,7 @@ const mber_Register = () => {
         telephone: form.telephone,
         country: form.county,
         address: form.address,
-        credit_card_number: form.credit_card_number,
+        credit_card_number: maskedCardNumber,
         credit_card_month: form.credit_card_month,
         credit_card_year: form.credit_card_year,
         cvv: form.cvv, // 新增 CVV 欄位

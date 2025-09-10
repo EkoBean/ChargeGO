@@ -42,12 +42,17 @@ const mber_AddCreditcard = () => {
     e.preventDefault();
     if (!user) return;
     try {
+      // 將信用卡號中間8碼遮蔽
+      const maskedCardNumber = cardNumber.replace(
+        /(\d{4}) (\d{4}) (\d{4}) (\d{4})/,
+        (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`
+      );
       const res = await axios.post(
         `${API_BASE}/user/add-creditcard`,
         {
           userId: user.uid,
           user_name: cardHolder,
-          cardNumber,
+          cardNumber: maskedCardNumber,
           cvv,
           expMonth,
           expYear,
@@ -80,6 +85,7 @@ const mber_AddCreditcard = () => {
       <NavBarAPP />
 
       <div className={styles.creditcardContainer}>
+        {/* 返回鍵 */}
         <span
           className={styles["back-icon"] + " " + styles["mobile-only-back"]}
           onClick={() => window.history.back()}
@@ -87,6 +93,7 @@ const mber_AddCreditcard = () => {
         >
           ◀︎
         </span>
+        {/* 標題區域 */}
         <div className={styles.titleSection}>
           <div className={styles.paymentText}>付款方式</div>
           <div className={styles.cardIcon}>
@@ -94,11 +101,13 @@ const mber_AddCreditcard = () => {
           </div>
           <div className={styles.cardIconText}>信用卡</div>
         </div>
+        {/* 表單區域 */}
         <form
           className={styles.creditcardForm}
           ref={formRef}
           onSubmit={handleSubmit}
         >
+          {/* 信用卡資訊 */}
           <div className={styles.formRow}>
             <label className={styles.formLabel}>持卡人姓名</label>
             <input
@@ -110,8 +119,10 @@ const mber_AddCreditcard = () => {
               onChange={(e) => setCardHolder(e.target.value)}
             />
           </div>
+          {/* 信用卡號 */}
           <div className={styles.formRow}>
             <label className={styles.formLabel}>信用卡號</label>
+            
             <input
               className={styles.formInput}
               type="text"
