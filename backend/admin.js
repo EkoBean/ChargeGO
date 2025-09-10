@@ -471,23 +471,23 @@ app.post("/api/orders", (req, res) => {
       // 查詢並返回完整的訂單資料
       const selectQuery = `
         SELECT o.order_ID,
-               o.uid,
-               u.user_name, u.telephone, u.email,
-               o.start_date, o.end,
-               o.rental_site_id, rs.site_name as rental_site_name,
-               o.return_site_id, rts.site_name as return_site_name,
-               o.order_status, o.charger_id,
-               c.status AS charger_status,
-               o.comment, o.total_amount 
-        FROM order_record o
-        LEFT JOIN user u ON o.uid = u.uid
-        LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
-        LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-        LEFT JOIN charger c ON o.charger_id = c.charger_id
-        WHERE o.order_ID = ?
-      `;
-
-      connect.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
+         o.uid,
+         u.user_name, u.telephone, u.email,
+         o.start_date, o.end,
+         o.rental_site_id, rs.site_name as rental_site_name,
+         o.return_site_id, rts.site_name as return_site_name,
+         o.order_status, o.charger_id,
+         c.status AS charger_status,
+         o.comment, o.total_amount  // 確認這裡有包含 total_amount
+  FROM order_record o
+  LEFT JOIN user u ON o.uid = u.uid
+  LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
+  LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
+  LEFT JOIN charger c ON o.charger_id = c.charger_id
+  ORDER BY o.order_ID DESC
+`;
+      
+      connCharger.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
         if (selectErr) {
           console.error('查詢新建訂單失敗:', selectErr);
           return res.status(500).json({ error: "查詢新建訂單失敗", code: selectErr.code, message: selectErr.message });
@@ -589,10 +589,13 @@ app.post('/api/employee/login', (req, res) => {
 // 更新訂單
 app.put("/api/orders/:order_ID", (req, res) => {
   const order_ID = req.params.order_ID;
-  const { uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount } = req.body;
+  const { 
+    uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, 
+    total_amount, fee, paid_amount, charge_method, payment_status 
+  } = req.body;
 
-  console.log('接收到更新訂單請求:', { order_ID, ...req.body });
-
+  console.log('接收到更新租借記錄請求:', { order_ID, ...req.body });
+  
   // 建構動態更新語句
   const updateFields = [];
   const updateValues = [];
@@ -1170,6 +1173,201 @@ app.post("/api/missions", (req, res) => {
     );
   });
 });
+// ...existing code...
+
+// 修正：獲取所有員工清單 - 配合實際資料庫結構
+app.get("/api/employees", (req, res) => {
+  console.log('獲取員工清單請求');
+
+  const q = `
+    SELECT employee_id, employee_name, employee_email
+    FROM employee
+    ORDER BY employee_id ASC
+  `;
+
+  console.log('執行 SQL:', q);
+
+  connCharger.query(q, (err, rows) => {
+    if (err) {
+      console.error("[ERROR] GET /api/employees failed:", err);
+      return res.status(500).json({ 
+        error: "資料庫查詢錯誤", 
+        code: err.code, 
+        message: err.message
+      });
+    }
+
+    console.log(`成功查詢到 ${rows.length} 筆員工資料`);
+    console.log('員工資料:', rows);
+    
+    // 移除敏感的密碼資訊，並添加預設值
+    const safeEmployees = rows.map(emp => ({
+      employee_id: emp.employee_id,
+      employee_name: emp.employee_name,
+      employee_email: emp.employee_email,
+      job_title: '員工', // 預設值
+      department: '一般部門', // 預設值
+      entry_date: null, // 預設值
+      status: 'active', // 預設值
+      last_login: null // 預設值
+    }));
+
+    res.json(safeEmployees);
+  });
+});
+
+// 修正：獲取員工操作紀錄 - 配合實際資料庫結構
+app.get("/api/employee_log", (req, res) => {
+  console.log('獲取員工操作紀錄請求');
+
+  const q = `
+    SELECT el.employee_log_date, el.employee_id, el.log,
+           e.employee_name, e.employee_email
+    FROM employee_log el
+    LEFT JOIN employee e ON el.employee_id = e.employee_id
+    ORDER BY el.employee_log_date DESC
+    LIMIT 100
+  `;
+
+  connCharger.query(q, (err, rows) => {
+    if (err) {
+      console.error("[ERROR] GET /api/employee_log failed:", err);
+      return res.status(500).json({ 
+        error: "資料庫查詢錯誤", 
+        code: err.code, 
+        message: err.message
+      });
+    }
+
+    console.log(`成功查詢到 ${rows.length} 筆員工操作紀錄`);
+    
+    // 將資料格式化為前端期望的格式
+    const formattedLogs = rows.map(log => ({
+      log_id: log.employee_id + '_' + log.employee_log_date, // 生成唯一 ID
+      employee_id: log.employee_id,
+      action: log.log,
+      action_time: log.employee_log_date,
+      target_table: null, // 您的表沒有這個欄位
+      target_id: null, // 您的表沒有這個欄位
+      description: log.log,
+      employee_name: log.employee_name,
+      employee_email: log.employee_email
+    }));
+
+    res.json(formattedLogs);
+  });
+});
+
+// 修正：新增員工 - 配合實際資料庫結構
+app.post("/api/employees", (req, res) => {
+  const { employee_name, employee_email, password } = req.body;
+
+  console.log('接收到新增員工請求:', req.body);
+
+  // 驗證必要欄位
+  if (!employee_name || !employee_email || !password) {
+    return res.status(400).json({
+      message: "缺少必要欄位 (需要: employee_name, employee_email, password)"
+    });
+  }
+
+  // 檢查員工 email 是否已存在
+  connCharger.query('SELECT employee_id FROM employee WHERE employee_email = ?', [employee_email], (checkErr, checkRows) => {
+    if (checkErr) {
+      console.error('檢查員工 email 失敗:', checkErr);
+      return res.status(500).json({ error: "資料庫錯誤", code: checkErr.code });
+    }
+
+    if (checkRows.length > 0) {
+      return res.status(400).json({ message: "該 email 已被使用" });
+    }
+
+    // 插入新員工 - 只使用實際存在的欄位
+    const insertQuery = `
+      INSERT INTO employee (employee_name, employee_email, password)
+      VALUES (?, ?, ?)
+    `;
+
+    const values = [employee_name, employee_email, password];
+
+    connCharger.query(insertQuery, values, (insertErr, result) => {
+      if (insertErr) {
+        console.error('插入員工失敗:', insertErr);
+        return res.status(500).json({ error: "新增員工失敗", code: insertErr.code });
+      }
+
+      console.log('員工新增成功, ID:', result.insertId);
+      res.status(201).json({
+        employee_id: result.insertId,
+        message: '員工新增成功'
+      });
+    });
+  });
+});
+
+// 修正：更新員工 - 配合實際資料庫結構
+app.put("/api/employees/:id", (req, res) => {
+  const employeeId = req.params.id;
+  const { employee_name, employee_email } = req.body;
+
+  console.log('接收到更新員工請求:', { employeeId, ...req.body });
+
+  const updateFields = [];
+  const updateValues = [];
+
+  if (employee_name !== undefined) {
+    updateFields.push('employee_name = ?');
+    updateValues.push(employee_name);
+  }
+  if (employee_email !== undefined) {
+    updateFields.push('employee_email = ?');
+    updateValues.push(employee_email);
+  }
+
+  if (updateFields.length === 0) {
+    return res.status(400).json({ message: "沒有提供要更新的欄位" });
+  }
+
+  updateValues.push(employeeId);
+
+  const updateQuery = `UPDATE employee SET ${updateFields.join(', ')} WHERE employee_id = ?`;
+
+  connCharger.query(updateQuery, updateValues, (err, result) => {
+    if (err) {
+      console.error('更新員工失敗:', err);
+      return res.status(500).json({ error: "更新員工失敗", code: err.code });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "找不到指定的員工" });
+    }
+
+    console.log('員工更新成功');
+    res.json({ message: '員工更新成功' });
+  });
+});
+
+// 刪除員工保持不變，因為使用的是主鍵
+app.delete("/api/employees/:id", (req, res) => {
+  const employeeId = req.params.id;
+
+  console.log('接收到刪除員工請求, ID:', employeeId);
+
+  connCharger.query('DELETE FROM employee WHERE employee_id = ?', [employeeId], (err, result) => {
+    if (err) {
+      console.error('刪除員工失敗:', err);
+      return res.status(500).json({ error: "刪除員工失敗", code: err.code });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "找不到要刪除的員工" });
+    }
+
+    console.log('員工刪除成功');
+    res.json({ message: '員工刪除成功' });
+  });
+});
+
 
 
 // ===== bank 區 =====
