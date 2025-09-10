@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAdminData } from "../context/AdminDataContext";
 import LoadingScreen from "../components/LoadingScreen";
 import ErrorScreen from "../components/ErrorScreen";
 import UserDetailModal from "../components/modals/UserDetailModal";
 import ApiService from "../services/api";
+import OperationLogger from '../utils/operationLogger';
 
 /**
  * 用戶管理頁 (Admin)
@@ -65,11 +66,17 @@ const UserManagement = () => {
    * - 從 editUser 組成 payload，呼叫 ApiService.updateUser 更新後端
    * - 成功後更新全域 users 與 modal 中的 selectedUser / editUser
    * - saving flag 防止重複提交
+   * - 新增：記錄操作日誌
    */
   const handleSaveUser = async () => {
     if (!editUser) return;
     try {
       setSaving(true);
+      
+      // 記錄修改前的資料，用來比較變更
+      const originalUser = selectedUser;
+      const changedFields = [];
+      
       const payload = {
         user_name: editUser.user_name,
         email: editUser.email,
@@ -79,7 +86,40 @@ const UserManagement = () => {
         point: Number(editUser.point ?? 0),
         blacklist: Boolean(editUser.blacklist),
       };
+
+      // 比較變更的欄位
+      if (payload.user_name !== originalUser.user_name) {
+        changedFields.push(`姓名: ${originalUser.user_name} → ${payload.user_name}`);
+      }
+      if (payload.email !== originalUser.email) {
+        changedFields.push(`信箱: ${originalUser.email} → ${payload.email}`);
+      }
+      if (payload.telephone !== originalUser.telephone) {
+        changedFields.push(`電話: ${originalUser.telephone} → ${payload.telephone}`);
+      }
+      if (payload.address !== originalUser.address) {
+        changedFields.push(`地址: ${originalUser.address} → ${payload.address}`);
+      }
+      if (payload.wallet !== originalUser.wallet) {
+        changedFields.push(`錢包: ${originalUser.wallet} → ${payload.wallet}`);
+      }
+      if (payload.point !== originalUser.point) {
+        changedFields.push(`點數: ${originalUser.point} → ${payload.point}`);
+      }
+      if (payload.blacklist !== originalUser.blacklist) {
+        changedFields.push(`狀態: ${originalUser.blacklist ? '黑名單' : '正常'} → ${payload.blacklist ? '黑名單' : '正常'}`);
+      }
+
       const updated = await ApiService.updateUser(editUser.uid, payload);
+
+      // 記錄操作成功日誌
+      await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_USER, {
+        user_id: editUser.uid,
+        user_name: payload.user_name,
+        changed_fields: changedFields,
+        updated_time: new Date().toISOString(),
+        status: 'success'
+      });
 
       // 更新全域使用者清單中對應項目（保持引用不被直接操作）
       setUsers((prev) =>
@@ -91,8 +131,21 @@ const UserManagement = () => {
       setSelectedUser(merged);
       setEditUser(merged);
       setIsEditingUser(false);
+      
+      console.log('用戶更新成功，已記錄操作日誌');
+      
     } catch (err) {
       console.error("Failed to update user:", err);
+      
+      // 記錄操作失敗日誌
+      await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_USER, {
+        user_id: editUser.uid,
+        user_name: editUser.user_name,
+        error: err.message || '更新失敗',
+        updated_time: new Date().toISOString(),
+        status: 'failed'
+      });
+      
       alert("更新失敗，請稍後再試");
     } finally {
       setSaving(false);

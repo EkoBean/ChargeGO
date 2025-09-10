@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminDataProvider } from './context/AdminDataContext';
 import AdminLayout from './components/AdminLayout';
 import Login from './components/Login';
+import OperationLogger from './utils/operationLogger'; // 新增這行
 
 import AdminDashboard from './views/AdminDashboard';
 import UserManagement from './views/UserManagement';
@@ -34,9 +35,38 @@ function App() {
     setIsAuthenticated(success);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('employeeName');
-    setIsAuthenticated(false);
+  // 計算會話持續時間
+  const calculateSessionDuration = () => {
+    const loginTime = localStorage.getItem('loginTime');
+    if (loginTime) {
+      const duration = Date.now() - new Date(loginTime).getTime();
+      return Math.floor(duration / 1000); // 回傳秒數
+    }
+    return 0;
+  };
+
+  // 修改登出處理函數，加入操作記錄
+  const handleLogout = async () => {
+    try {
+      // 記錄登出操作
+      await OperationLogger.log(OperationLogger.ACTIONS.LOGOUT, {
+        employee_name: localStorage.getItem('employeeName') || '未知員工',
+        logout_time: new Date().toISOString(),
+        session_duration: calculateSessionDuration(),
+        status: 'success'
+      });
+    } catch (err) {
+      console.warn('記錄登出操作失敗:', err);
+    } finally {
+      // 清除本地儲存
+      localStorage.removeItem('employeeName');
+      localStorage.removeItem('employeeId');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('loginTime');
+      
+      // 執行登出
+      setIsAuthenticated(false);
+    }
   };
 
   if (loading) {

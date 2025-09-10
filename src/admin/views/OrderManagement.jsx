@@ -527,7 +527,7 @@ const OrderManagement = () => {
                   <th>充電器</th>
                   <th>開始時間</th>
                   <th>結束時間</th>
-                  <th>總金額</th> {/* 新增這行 */}
+                  <th>總金額</th> 
                   <th>狀態</th>
                   <th>備註</th>
                   <th>操作</th>
@@ -535,37 +535,45 @@ const OrderManagement = () => {
               </thead>
               <tbody>
                 {/* 依篩選結果顯示訂單資料 */}
-                {filteredOrders.map((order) => (
-                  <tr key={order.order_ID}>
-                    <td>{order.order_ID}</td>
-                    <td>{order.user_name}</td>
-                    <td>
-                      <div>
-                        <small className="text-muted">{order.telephone}</small>
-                        <br />
-                        <small className="text-muted">{order.email}</small>
-                      </div>
-                    </td>
-                    <td>{order.rental_site_name ?? order.site_name ?? order.rental_site_id ?? "-"}</td>
-                    <td>{order.return_site_name ?? "-"}</td>
-                    <td>{order.charger_id}</td>
-                    <td>{order.start_date ? new Date(order.start_date).toLocaleString() : "-"}</td>
-                    <td>{order.end ? new Date(order.end).toLocaleString() : "-"}</td>
-                    <td>NT$ {order.total_amount || 0}</td> {/* 新增這行 */}
-                    <td>{getStatusBadge(normalizeOrderStatus(order))}</td>
-                    <td>{order.comment ?? "-"}</td>
-                    <td>
-                      <Button 
-                        variant="outline-primary" 
-                        size="sm" 
-                        className="admin-btn admin-small admin-primary" 
-                        onClick={() => handleViewOrder(order)}
-                      >
-                        查看詳情
-                      </Button>
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <tr key={order.order_ID}>
+                      <td>{order.order_ID}</td>
+                      <td>{order.user_name}</td>
+                      <td>
+                        <div>
+                          <small className="text-muted">{order.telephone}</small>
+                          <br />
+                          <small className="text-muted">{order.email}</small>
+                        </div>
+                      </td>
+                      <td>{order.rental_site_name ?? order.site_name ?? order.rental_site_id ?? "-"}</td>
+                      <td>{order.return_site_name ?? "-"}</td>
+                      <td>{order.charger_id}</td>
+                      <td>{order.start_date ? new Date(order.start_date).toLocaleString() : "-"}</td>
+                      <td>{order.end ? new Date(order.end).toLocaleString() : "-"}</td>
+                      <td>NT$ {order.total_amount || 0}</td>
+                      <td>{getStatusBadge(normalizeOrderStatus(order))}</td>
+                      <td>{order.comment ?? "-"}</td>
+                      <td>
+                        <Button 
+                          variant="outline-primary" 
+                          size="sm" 
+                          className="admin-btn admin-small admin-primary" 
+                          onClick={() => handleViewOrder(order)}
+                        >
+                          查看詳情
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="12" className="text-center py-4">
+                      查無訂單資料
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </Table>
           </div>
