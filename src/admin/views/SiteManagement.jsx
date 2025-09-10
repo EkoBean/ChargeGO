@@ -4,6 +4,8 @@ import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
 import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
+import OperationLogger from '../utils/operationLogger';
+
 //站點管理主畫面
 const SiteManagement = () => {
   // 從 context 取得 sites, chargers, setSites, loading, error, loadAllData
@@ -91,6 +93,16 @@ const SiteManagement = () => {
 
   // handleViewSite 定義
   const handleViewSite = async (site) => {
+    // 記錄查看站點操作
+    try {
+      await OperationLogger.log(OperationLogger.ACTIONS.VIEW_SITE, {
+        site_id: site.site_id,
+        site_name: site.site_name,
+        action_time: new Date().toISOString()
+      });
+    } catch (err) {
+      console.warn('記錄查看操作失敗:', err);
+    }
 
     // 先把 site 設到 state，確保 modal 可拿到站點基本資料
     setSelectedSite(site);
@@ -208,7 +220,6 @@ const SiteManagement = () => {
         throw new Error("經度/緯度小數位數必須為 8 位");
       }
 
-
       const payload = {
         site_name,
         address,
@@ -219,12 +230,39 @@ const SiteManagement = () => {
 
       if (creatingSite || !editSite.site_id) {
         const created = await ApiService.createSite(payload);
+        
+        // 記錄創建站點操作
+        try {
+          await OperationLogger.log(OperationLogger.ACTIONS.CREATE_SITE, {
+            site_name: payload.site_name,
+            address: payload.address,
+            longitude: payload.longitude,
+            latitude: payload.latitude,
+            action_time: new Date().toISOString()
+          });
+        } catch (err) {
+          console.warn('記錄創建操作失敗:', err);
+        }
+
         setSites((prev) => [...prev, created]);
         setSelectedSite(created.site);
         setEditSite(created.site);
         setCreatingSite(false);
       } else {
         const updated = await ApiService.updateSite(editSite.site_id, payload);
+        
+        // 記錄更新站點操作
+        try {
+          await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_SITE, {
+            site_id: editSite.site_id,
+            site_name: payload.site_name,
+            changes: payload,
+            action_time: new Date().toISOString()
+          });
+        } catch (err) {
+          console.warn('記錄更新操作失敗:', err);
+        }
+
         setSites((prev) => prev.map((s) => (s.site_id === updated.site_id ? { ...s, ...updated } : s)));
         setShowSiteModal(true); 
         setIsEditingSite(false);

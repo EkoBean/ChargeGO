@@ -486,7 +486,7 @@ app.post("/api/orders", (req, res) => {
   ORDER BY o.order_ID DESC
 `;
       
-      connCharger.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
+      connect.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
         if (selectErr) {
           console.error('查詢新建訂單失敗:', selectErr);
           return res.status(500).json({ error: "查詢新建訂單失敗", code: selectErr.code, message: selectErr.message });
@@ -499,31 +499,118 @@ app.post("/api/orders", (req, res) => {
   });
 });
 
-// 獲取用戶資訊（用於新增訂單時自動帶入用戶名稱）- 加強 debug
-app.get("/api/users/:uid", (req, res) => {
+// 修改用戶資訊 API，添加操作記錄
+app.put("/api/users/:uid", (req, res) => {
   const uid = req.params.uid;
-  console.log('查詢用戶 ID:', uid, typeof uid); // 加入 debug 日誌
+  const { user_name, telephone, email, registration_date } = req.body;
 
-  connect.query(
-    'SELECT uid, user_name, telephone, email FROM user WHERE uid = ?',
-    [uid],
-    (err, rows) => {
-      if (err) {
-        console.error('查詢用戶失敗:', err);
-        return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
-      }
-
-      console.log('用戶查詢結果:', rows); // 加入 debug 日誌
-
-      if (rows.length === 0) {
-        console.log('找不到用戶 ID:', uid);
-        return res.status(404).json({ message: "用戶不存在" });
-      }
-
-      console.log('找到用戶:', rows[0]);
-      res.json(rows[0]);
+  console.log('接收到更新用戶請求:', { uid, ...req.body });
+  
+  // 先獲取原始用戶資料
+  const selectQuery = 'SELECT * FROM user WHERE uid = ?';
+  
+  connect.query(selectQuery, [uid], (selectErr, originalData) => {
+    if (selectErr) {
+      console.error('獲取原始用戶資料失敗:', selectErr);
+      return res.status(500).json({ error: "獲取用戶資料失敗", message: selectErr.message });
     }
-  );
+    
+    if (originalData.length === 0) {
+      return res.status(404).json({ message: "找不到指定用戶" });
+    }
+    
+    const originalUser = originalData[0];
+    
+    // 建構動態更新語句
+    const updateFields = [];
+    const updateValues = [];
+    const changedFields = [];
+
+    if (user_name !== undefined && user_name !== originalUser.user_name) {
+      updateFields.push('user_name = ?');
+      updateValues.push(user_name);
+      changedFields.push(`姓名: ${originalUser.user_name} → ${user_name}`);
+    }
+    if (telephone !== undefined && telephone !== originalUser.telephone) {
+      updateFields.push('telephone = ?');
+      updateValues.push(telephone);
+      changedFields.push(`電話: ${originalUser.telephone} → ${telephone}`);
+    }
+    if (email !== undefined && email !== originalUser.email) {
+      updateFields.push('email = ?');
+      updateValues.push(email);
+      changedFields.push(`信箱: ${originalUser.email} → ${email}`);
+    }
+    if (registration_date !== undefined && registration_date !== originalUser.registration_date) {
+      updateFields.push('registration_date = ?');
+      updateValues.push(registration_date);
+      changedFields.push(`註冊日期: ${originalUser.registration_date} → ${registration_date}`);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ message: "沒有提供要更新的欄位" });
+    }
+
+    // 添加 uid 到 WHERE 條件
+    updateValues.push(uid);
+
+    const updateQuery = `UPDATE user SET ${updateFields.join(', ')} WHERE uid = ?`;
+
+    console.log('執行更新 SQL:', updateQuery);
+    console.log('參數:', updateValues);
+
+    connect.query(updateQuery, updateValues, (updateErr, result) => {
+      if (updateErr) {
+        console.error('更新用戶失敗:', updateErr);
+        return res.status(500).json({ error: "更新用戶失敗", code: updateErr.code, message: updateErr.message });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "找不到指定的用戶" });
+      }
+
+      // 記錄操作日誌到 employee_log
+      const logContent = `UPDATE_USER - {"user_id":${uid},"user_name":"${user_name || originalUser.user_name}","changed_fields":${JSON.stringify(changedFields)},"updated_time":"${new Date().toISOString()}","status":"success"}`;
+      
+      // 這裡假設操作者資訊在請求標頭中，或者您需要從前端傳送
+      const operatorId = req.body.operator_id || null; // 前端需要傳送操作者ID
+      
+      if (operatorId) {
+        const logInsertQuery = `
+          INSERT INTO employee_log (employee_id, log, employee_log_date)
+          VALUES (?, ?, NOW())
+        `;
+        
+        connect.query(logInsertQuery, [operatorId, logContent], (logErr) => {
+          if (logErr) {
+            console.error('記錄操作日誌失敗:', logErr);
+            // 不影響主要功能，只記錄錯誤
+          } else {
+            console.log('用戶更新操作記錄成功');
+          }
+        });
+      }
+
+      // 查詢並返回完整的用戶資料
+      const selectUpdatedQuery = `
+        SELECT uid, user_name, telephone, email, registration_date 
+        FROM user WHERE uid = ?
+      `;
+
+      connect.query(selectUpdatedQuery, [uid], (selectUpdatedErr, userRows) => {
+        if (selectUpdatedErr) {
+          console.error('查詢更新後用戶失敗:', selectUpdatedErr);
+          return res.status(500).json({ error: "查詢更新後用戶失敗", message: selectUpdatedErr.message });
+        }
+
+        console.log('用戶更新成功:', userRows[0]);
+        res.json({
+          user: userRows[0],
+          changedFields: changedFields
+        });
+      });
+    });
+  });
 });
 
 // 設備使用率、訂單完成率、系統運行狀態
@@ -562,27 +649,145 @@ process.on("SIGINT", () => {
 });
 
 
-// 員工登入
+
+
+// 員工登入 API
 app.post('/api/employee/login', (req, res) => {
   const { email, password } = req.body;
-  connect.query(
-    'SELECT * FROM employee WHERE employee_email = ? AND password = ?',
-    [email, password],
-    (err, rows) => {
-      if (err) return res.status(500).json({ success: false, message: '資料庫錯誤' });
-      if (rows.length === 0) {
-        return res.status(401).json({ success: false, message: '帳號或密碼錯誤' });
-      }
-      res.json({
-        success: true,
-        employee: {
-          id: rows[0].employee_id,
-          name: rows[0].employee_name,
-          email: rows[0].employee_email
-        }
+  
+  console.log('員工登入請求:', { email });
+  
+  if (!email || !password) {
+    return res.status(400).json({ 
+      success: false, 
+      message: '請輸入信箱和密碼' 
+    });
+  }
+
+  const query = 'SELECT * FROM employee WHERE employee_email = ? AND password = ?';
+  
+  connect.query(query, [email, password], (err, rows) => {
+    if (err) {
+      console.error('登入查詢失敗:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '資料庫錯誤' 
       });
     }
-  );
+    
+    if (rows.length === 0) {
+      console.log('登入失敗: 帳號或密碼錯誤');
+      return res.status(401).json({ 
+        success: false, 
+        message: '帳號或密碼錯誤' 
+      });
+    }
+    
+    const employee = rows[0];
+    console.log('登入成功:', employee.employee_name);
+    
+    res.json({
+      success: true,
+      employee: {
+        id: employee.employee_id,
+        name: employee.employee_name,
+        email: employee.employee_email
+      }
+    });
+  });
+});
+
+
+// 新增：獲取員工操作日誌 API
+app.get("/api/employee_log", (req, res) => {
+  console.log('獲取員工操作日誌請求');
+
+  const q = `
+    SELECT 
+      el.employee_log_date,
+      el.employee_id,
+      e.employee_name,
+      el.log
+    FROM employee_log el
+    LEFT JOIN employee e ON el.employee_id = e.employee_id
+    ORDER BY el.employee_log_date DESC
+  `;
+
+  connect.query(q, [], (err, rows) => {
+    if (err) {
+      console.error('獲取員工操作日誌失敗:', err);
+      return res.status(500).json({ 
+        error: '獲取操作日誌失敗', 
+        code: err.code, 
+        message: err.message 
+      });
+    }
+
+    console.log(`返回 ${rows.length} 筆員工操作日誌`);
+    res.json(rows);
+  });
+});
+
+// 新增：記錄員工操作日誌 API
+app.post("/api/employee_log", (req, res) => {
+  const { employee_id, log } = req.body;
+
+  console.log('新增員工操作日誌請求:', req.body);
+
+  // 驗證必要欄位
+  if (!employee_id || !log) {
+    console.log('缺少必要欄位:', { employee_id, log });
+    return res.status(400).json({ 
+      error: '缺少必要欄位', 
+      message: 'employee_id 和 log 為必填欄位' 
+    });
+  }
+
+  // 先檢查 employee_log 表結構
+  connect.query("DESCRIBE employee_log", (descErr, descResult) => {
+    if (descErr) {
+      console.error('無法獲取 employee_log 表結構:', descErr);
+      return res.status(500).json({ 
+        error: '資料表結構錯誤', 
+        message: descErr.message 
+      });
+    }
+    
+    console.log('employee_log 表結構:', descResult);
+
+    const insertQuery = `
+      INSERT INTO employee_log (employee_id, log, employee_log_date)
+      VALUES (?, ?, NOW())
+    `;
+
+    const values = [employee_id, log];
+
+    console.log('準備執行 SQL:', insertQuery);
+    console.log('參數:', values);
+
+    connect.query(insertQuery, values, (err, result) => {
+      if (err) {
+        console.error('新增員工操作日誌失敗:', err);
+        console.error('錯誤代碼:', err.code);
+        console.error('錯誤訊息:', err.message);
+        console.error('SQL 狀態:', err.sqlState);
+        console.error('SQL 訊息:', err.sqlMessage);
+        
+        return res.status(500).json({ 
+          error: '新增操作日誌失敗', 
+          code: err.code, 
+          message: err.message,
+          sqlMessage: err.sqlMessage
+        });
+      }
+
+      console.log('員工操作日誌新增成功, insertId:', result.insertId);
+      res.status(201).json({
+        message: '操作日誌新增成功',
+        log_id: result.insertId
+      });
+    });
+  });
 });
 
 // 更新訂單
@@ -692,6 +897,7 @@ app.put("/api/orders/:order_ID", (req, res) => {
     });
   });
 });
+
 
 // 修正獲取所有活動 - 移除可能不存在的 creator_id 欄位
 app.get("/api/events", (req, res) => {
@@ -1270,7 +1476,7 @@ app.post("/api/employees", (req, res) => {
   }
 
   // 檢查員工 email 是否已存在
-  connCharger.query('SELECT employee_id FROM employee WHERE employee_email = ?', [employee_email], (checkErr, checkRows) => {
+  connect.query('SELECT employee_id FROM employee WHERE employee_email = ?', [employee_email], (checkErr, checkRows) => {
     if (checkErr) {
       console.error('檢查員工 email 失敗:', checkErr);
       return res.status(500).json({ error: "資料庫錯誤", code: checkErr.code });
@@ -1288,7 +1494,7 @@ app.post("/api/employees", (req, res) => {
 
     const values = [employee_name, employee_email, password];
 
-    connCharger.query(insertQuery, values, (insertErr, result) => {
+    connect.query(insertQuery, values, (insertErr, result) => {
       if (insertErr) {
         console.error('插入員工失敗:', insertErr);
         return res.status(500).json({ error: "新增員工失敗", code: insertErr.code });
@@ -1330,7 +1536,7 @@ app.put("/api/employees/:id", (req, res) => {
 
   const updateQuery = `UPDATE employee SET ${updateFields.join(', ')} WHERE employee_id = ?`;
 
-  connCharger.query(updateQuery, updateValues, (err, result) => {
+  connect.query(updateQuery, updateValues, (err, result) => {
     if (err) {
       console.error('更新員工失敗:', err);
       return res.status(500).json({ error: "更新員工失敗", code: err.code });
@@ -1351,7 +1557,7 @@ app.delete("/api/employees/:id", (req, res) => {
 
   console.log('接收到刪除員工請求, ID:', employeeId);
 
-  connCharger.query('DELETE FROM employee WHERE employee_id = ?', [employeeId], (err, result) => {
+  connect.query('DELETE FROM employee WHERE employee_id = ?', [employeeId], (err, result) => {
     if (err) {
       console.error('刪除員工失敗:', err);
       return res.status(500).json({ error: "刪除員工失敗", code: err.code });
