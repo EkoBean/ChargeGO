@@ -11,6 +11,7 @@ const mber_AddCreditcard = () => {
   const [cvv, setCvv] = useState("");
   const [expMonth, setExpMonth] = useState("");
   const [expYear, setExpYear] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
   const API_BASE = "http://localhost:3000";
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -44,7 +45,8 @@ const mber_AddCreditcard = () => {
       const res = await axios.post(
         `${API_BASE}/user/add-creditcard`,
         {
-          userId: user.id,
+          userId: user.uid,
+          user_name: cardHolder,
           cardNumber,
           cvv,
           expMonth,
@@ -66,6 +68,7 @@ const mber_AddCreditcard = () => {
 
   const cleanup = () => {
     if (formRef.current) formRef.current.reset();
+    setCardHolder("");
     setCardNumber("");
     setCvv("");
     setExpMonth("");
@@ -97,7 +100,18 @@ const mber_AddCreditcard = () => {
           onSubmit={handleSubmit}
         >
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>信用卡卡號</label>
+            <label className={styles.formLabel}>持卡人姓名</label>
+            <input
+              className={styles.formInput}
+              type="text"
+              placeholder="持卡人姓名"
+              required
+              value={cardHolder}
+              onChange={(e) => setCardHolder(e.target.value)}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>信用卡號</label>
             <input
               className={styles.formInput}
               type="text"
@@ -105,16 +119,20 @@ const mber_AddCreditcard = () => {
               maxLength={19}
               required
               value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
+              onChange={(e) => {
+                let v = e.target.value.replace(/\D/g, "").slice(0, 16);
+                v = v.replace(/(.{4})/g, "$1 ").trim();
+                setCardNumber(v);
+              }}
             />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>三碼檢查碼</label>
+            <label className={styles.formLabel}>安全碼</label>
             <input
               className={styles.formInputCvv}
               type="text"
               placeholder="CVV"
-              maxLength={3}
+              maxLength={4}
               required
               value={cvv}
               onChange={(e) => setCvv(e.target.value)}
@@ -142,6 +160,7 @@ const mber_AddCreditcard = () => {
               onChange={(e) => setExpYear(e.target.value)}
             />
           </div>
+
           <div className={styles.formButtons}>
             <button className={styles.submitBtn} type="submit">
               新增信用卡

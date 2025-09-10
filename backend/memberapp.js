@@ -54,8 +54,10 @@ app.post('/mber_register', (req, res) => {
         telephone,
         country,
         address,
-        credit_card_number,
-        credit_card_date
+        credit_card_number, // 信用卡號
+        credit_card_month, // MM
+        credit_card_year, // YY
+        cvv // CVV
     } = req.body;
 
     // 檢查 login_id 或 email 是否重複
@@ -80,11 +82,12 @@ app.post('/mber_register', (req, res) => {
             const total_carbon_footprint = 0;
             const status = "0";
 
+            // 先新增 user 資料
             db.query(
                 `INSERT INTO user (
                     login_id, user_name, telephone, email, password, country, address,
-                    blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    blacklist, wallet, point, total_carbon_footprint, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     login_id,
                     user_name,
@@ -97,13 +100,20 @@ app.post('/mber_register', (req, res) => {
                     wallet,
                     point,
                     total_carbon_footprint,
-                    credit_card_number,
-                    credit_card_date,
                     status,
                 ],
                 (err2, result) => {
                     if (err2) return res.status(500).json({ error: err2 });
-                    res.json({ success: true, uid: result.insertId });
+                    const uid = result.insertId;
+                    // 新增 user_creditcard 資料
+                    db.query(
+                        `INSERT INTO user_creditcard (uid, user_name, creditcard, CVV, MM, YY) VALUES (?, ?, ?, ?, ?, ?)`,
+                        [uid, user_name, credit_card_number, cvv, credit_card_month, credit_card_year],
+                        (err3, result2) => {
+                            if (err3) return res.status(500).json({ error: err3 });
+                            res.json({ success: true, uid });
+                        }
+                    );
                 }
             );
         }
@@ -302,6 +312,22 @@ app.post('/update-user', (req, res) => {
                 req.session.user.address = address;
             }
             res.json({ success: true, message: '會員資料已更新' });
+        }
+    );
+});
+
+// 新增信用卡 API
+app.post('/user/add-creditcard', (req, res) => {
+    const { userId, user_name, cardNumber, cvv, expMonth, expYear } = req.body;
+    if (!userId || !cardNumber || !cvv || !expMonth || !expYear) {
+        return res.status(400).json({ success: false, message: '缺少必要欄位' });
+    }
+    db.query(
+        `INSERT INTO user_creditcard (uid, user_name, creditcard, CVV, MM, YY) VALUES (?, ?, ?, ?, ?, ?)`,
+        [userId, user_name, cardNumber, cvv, expMonth, expYear],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err });
+            res.json({ success: true });
         }
     );
 });
