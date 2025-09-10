@@ -52,14 +52,14 @@
   text-align: center;
   font-family: "Mantou sans", serif;
   font-size: 36px;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-weight: 100;
   margin-bottom: 24px;
   letter-spacing: 2px;
 }
 
 .register-arrow {
-  background: linear-gradient(90deg, #6b4f1d 0%, #ffd600 100%);
+  background: linear-gradient(90deg, mb.$brown 0%, #ffd600 100%);
   font-size: 23px;
   margin-left: 8px;
   background-clip: text;
@@ -107,7 +107,7 @@
   display: inline-block;
   font-weight: bold;
   font-size: 1.3rem;
-  color: #6b4f1d;
+  color: mb.$brown;
   letter-spacing: 6px;
   background: #fff9e3;
   padding: 6px 18px;
@@ -125,7 +125,7 @@
   font-size: 1.1rem;
   font-weight: bold;
   background: #ffd600;
-  color: #6b4f1d;
+  color: mb.$brown;
   cursor: pointer;
   margin-left: 0;
   margin-bottom: 8px;
@@ -157,7 +157,7 @@
   margin-bottom: 16px;
   cursor: pointer;
   background: #ffd600;
-  color: #6b4f1d;
+  color: mb.$brown;
   transition: 0.2s;
 }
 
@@ -170,7 +170,7 @@
 .register-label {
   position: static;
   margin-bottom: 6px;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-size: 1.1rem;
   font-weight: bold;
   letter-spacing: 2px;
@@ -210,7 +210,7 @@
   align-items: center;
   gap: 12px;
   margin-top: 10px;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-weight: 500;
 }
 
@@ -372,7 +372,7 @@
   color: #fff;
   cursor: pointer;
   z-index: 20;
-  background: #66ff50;
+  background: mb.$success;
   border-radius: 50%;
   padding: 8px 16px;
   transition: 0.2s ease;
@@ -393,7 +393,7 @@
   display: block;
   text-align: center;
   margin-top: 8px;
-  color: #6b4f1d;
+  color: mb.$brown;
   text-decoration: underline;
   font-weight: bold;
   font-size: 1rem;

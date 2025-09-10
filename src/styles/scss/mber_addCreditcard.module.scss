@@ -43,7 +43,7 @@
 
 .form-label {
   font-size: 1rem;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-weight: bold;
   letter-spacing: 2px;
 }
@@ -63,7 +63,7 @@
 .form-row {
   font-weight: bold;
   font-size: medium;
-  color: #6b4f1d;
+  color: mb.$brown;
   display: flex;
   gap: 16px;
   align-items: flex-start;
@@ -144,7 +144,7 @@
   margin-bottom: 20px;
   cursor: pointer;
   background: #ffd600;
-  color: #6b4f1d;
+  color: mb.$brown;
   transition: 0.2s;
 }
 
@@ -164,7 +164,7 @@
   left: 24px;
   font-size: 2rem;
   color: #fff;
-  background: #66ff50;
+  background: mb.$success;
   border-radius: 50%;
   padding: 8px 16px;
   cursor: pointer;
