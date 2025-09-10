@@ -10,8 +10,6 @@ import {
   Pin,
   InfoWindow,
 } from "@vis.gl/react-google-maps";
-import { format } from 'mysql';
-const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 
 
@@ -30,6 +28,7 @@ const SiteDetailModal = ({
   onSave,
   formatWarning,
   onChange,
+  onMapClick, 
   onClose,
   // 新增 stats prop，來自 SiteManagement 計算
   stats = { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 },
@@ -79,8 +78,12 @@ const SiteDetailModal = ({
     const markerRef = useAdvancedMarkerRef();
 
     const mapCenter = {
-      lat: Number(site?.latitude || 25.033964),
-      lng: Number(site?.longitude || 121.564468),
+      lat: Number(editSite?.latitude || site?.latitude || 25.033964),
+      lng: Number(editSite?.longitude || site?.longitude || 121.564468),
+    }
+    const editCoord = {
+      lat : Number(editSite?.latitude),
+      lng : Number(editSite?.longitude)
     }
 
     return (
@@ -94,9 +97,10 @@ const SiteDetailModal = ({
         draggableCursor={"default"}
         // use without map Id, keep it default style in admin system
         mapId={"DEMO_MAP_ID"}
+        onClick={isEditing ? (e)=> onMapClick(e) : undefined}
       >
         {!creating &&
-          <AdvancedMarker position={mapCenter} />
+          <AdvancedMarker position={editCoord} />
         }
       </Map>
 
@@ -108,11 +112,7 @@ const SiteDetailModal = ({
 
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
     // editing : 
-    <APIProvider apiKey={APIkey}
-      region='TW'
-      libraries={['places']}
-      onLoad={() => setIsGoogleMapsLoaded(true)}
-    >
+
       <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
         <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="admin-modal-header">
@@ -190,32 +190,32 @@ const SiteDetailModal = ({
 
                       </label>
                       <div style={{ display: "flex", gap: 8 }}>
-                      <select name="country" id="country" value={editSite?.country || null} required
-                        onChange={onChange}>
-                        <option value="">請選擇縣市</option>
-                        <option value="基隆市">基隆市</option>
-                        <option value="台北市">台北市</option>
-                        <option value="新北市">新北市</option>
-                        <option value="桃園市">桃園市</option>
-                        <option value="新竹市">新竹市</option>
-                        <option value="新竹縣">新竹縣</option>
-                        <option value="苗栗縣">苗栗縣</option>
-                        <option value="台中市">台中市</option>
-                        <option value="彰化縣">彰化縣</option>
-                        <option value="南投縣">南投縣</option>
-                        <option value="雲林縣">雲林縣</option>
-                        <option value="嘉義市">嘉義市</option>
-                        <option value="嘉義縣">嘉義縣</option>
-                        <option value="台南市">台南市</option>
-                        <option value="高雄市">高雄市</option>
-                        <option value="屏東縣">屏東縣</option>
-                        <option value="宜蘭縣">宜蘭縣</option>
-                        <option value="花蓮縣">花蓮縣</option>
-                        <option value="台東縣">台東縣</option>
-                        <option value="澎湖縣">澎湖縣</option>
-                        <option value="金門縣">金門縣</option>
-                        <option value="連江縣">連江縣</option>
-                      </select>
+                        <select name="country" id="country" value={editSite?.country || null} required
+                          onChange={onChange}>
+                          <option value="">請選擇縣市</option>
+                          <option value="基隆市">基隆市</option>
+                          <option value="台北市">台北市</option>
+                          <option value="新北市">新北市</option>
+                          <option value="桃園市">桃園市</option>
+                          <option value="新竹市">新竹市</option>
+                          <option value="新竹縣">新竹縣</option>
+                          <option value="苗栗縣">苗栗縣</option>
+                          <option value="台中市">台中市</option>
+                          <option value="彰化縣">彰化縣</option>
+                          <option value="南投縣">南投縣</option>
+                          <option value="雲林縣">雲林縣</option>
+                          <option value="嘉義市">嘉義市</option>
+                          <option value="嘉義縣">嘉義縣</option>
+                          <option value="台南市">台南市</option>
+                          <option value="高雄市">高雄市</option>
+                          <option value="屏東縣">屏東縣</option>
+                          <option value="宜蘭縣">宜蘭縣</option>
+                          <option value="花蓮縣">花蓮縣</option>
+                          <option value="台東縣">台東縣</option>
+                          <option value="澎湖縣">澎湖縣</option>
+                          <option value="金門縣">金門縣</option>
+                          <option value="連江縣">連江縣</option>
+                        </select>
                         <input
                           type="text"
                           name="address"
@@ -353,7 +353,6 @@ const SiteDetailModal = ({
           </div>
         </div>
       </div >
-    </APIProvider>
   );
 };
 
