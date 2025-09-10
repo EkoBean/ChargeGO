@@ -65,7 +65,7 @@ app.get("/mission/:user_id/:date", async function (req, res) {
   }
 });
 
-// 領取任務獎勵
+// 領取任務獎勵（修正版：正確取得 row、檢查、transaction、回傳更新後 point）
 app.post("/usermission/claim", async (req, res) => {
   const { user_mission_id, user_id } = req.body;
   console.log("user_mission", user_mission_id);
@@ -76,30 +76,32 @@ app.post("/usermission/claim", async (req, res) => {
 
   try {
     // Step 1: 查詢任務狀態與獎勵點數
-    const [rows] = await pool.query(
+    const rows = await pool.query(
       `SELECT
         um.is_completed,
         um.is_claimed,
         m.reward_points
       FROM user_missions AS um
       JOIN missions AS m
-      ON um.mission_id = m.mission_id
-      WHERE
-        um.user_mission_id = ?`,
+        ON um.mission_id = m.mission_id
+      WHERE um.user_mission_id = ?`,
       [user_mission_id]
     );
 
-    if (rows.length === 0) {
+    if (!rows || rows.length === 0) {
       return res.status(404).json({ message: "找不到指定的任務" });
     }
-    console.log(rows);
-    const mission = rows;
-    console.log(mission);
+
+    // 取第一筆
+    const mission = rows[0];
+    console.log("mission row:", mission);
+
     // Step 2: 檢查狀態
-    if (!mission.is_completed) {
+    // 注意強制轉為 Number 檢查 0/1
+    if (Number(mission.is_completed) !== 1) {
       return res.status(400).json({ message: "任務尚未完成" });
     }
-    if (mission.is_claimed) {
+    if (Number(mission.is_claimed) === 1) {
       return res.status(400).json({ message: "獎勵已領取過" });
     }
 
@@ -107,29 +109,47 @@ app.post("/usermission/claim", async (req, res) => {
     await pool.query("START TRANSACTION");
 
     // 標記為已領取
-    await pool.query(
+    const updateMissionRes = await pool.query(
       `UPDATE user_missions 
        SET is_claimed = 1 
        WHERE user_mission_id = ?`,
       [user_mission_id]
     );
+    console.log("updateMissionRes:", updateMissionRes);
+
+    // 確保 reward_points 是數字
+    const rewardPoints = Number(mission.reward_points) || 0;
 
     // 增加點數
-    await pool.query(
+    const updateUserRes = await pool.query(
       `UPDATE user 
        SET point = point + ? 
        WHERE uid = ?`,
-      [mission.reward_points, user_id]
+      [rewardPoints, user_id]
     );
+    console.log("updateUserRes:", updateUserRes);
 
+    // commit
     await pool.query("COMMIT");
+
+    // 讀出更新後的 point
+    const userRows = await pool.query(
+      "SELECT point FROM `user` WHERE uid = ?",
+      [user_id]
+    );
+    const updatedPoint = userRows && userRows.length ? userRows[0].point : null;
 
     res.status(200).json({
       message: "任務已成功領取並增加點數",
-      reward: mission.reward_points,
+      reward: rewardPoints,
+      point: updatedPoint,
     });
   } catch (err) {
-    await pool.query("ROLLBACK");
+    try {
+      await pool.query("ROLLBACK");
+    } catch (rbErr) {
+      console.error("ROLLBACK 失敗:", rbErr);
+    }
     console.error("領取任務獎勵時發生錯誤:", err);
     res.status(500).json({ message: "無法領取獎勵，請稍後再試" });
   }

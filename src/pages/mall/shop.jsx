@@ -10,8 +10,33 @@ class Shop extends Component {
     showModal: false,
     modalType: "",
     userId: sessionStorage.getItem("uid") || "", // 直接從 session 讀 uid
+    userPoint: null, // 新增
   };
 
+  // ✅ 抓取點數 API
+  getUserPoint = async (userId) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:4005/checkpoints/${userId}`
+      );
+      return res.data.point;
+    } catch (err) {
+      console.error("Error fetching point:", err);
+      return null;
+    }
+  };
+
+  // ✅ 共用刷新方法
+  refreshUserPoint = () => {
+    const { userId } = this.state;
+    if (userId) {
+      this.getUserPoint(userId).then((point) => {
+        this.setState({ userPoint: point });
+      });
+    }
+  };
+
+  // 每秒檢查 session uid 是否更新
   // 每秒檢查 session uid 是否更新
   checkSessionUid = () => {
     const uid = sessionStorage.getItem("uid") || "";
@@ -21,10 +46,10 @@ class Shop extends Component {
   };
 
   componentDidMount() {
-    // 啟動 interval 每秒檢查 uid
-    this.uidInterval = setInterval(this.checkSessionUid, 1000);
+    // 監聽 storage 事件，當其他地方更新 sessionStorage.uid 時觸發
+    window.addEventListener("storage", this.handleStorageChange);
 
-    // 抓產品資料
+    // 抓商品
     axios
       .get("http://localhost:4001/products")
       .then((res) => {
@@ -44,12 +69,22 @@ class Shop extends Component {
         this.setState({ products: formattedData });
       })
       .catch((err) => console.error("抓取後端資料失敗:", err));
+
+    // 抓使用者點數
+    this.refreshUserPoint();
   }
 
   componentWillUnmount() {
-    clearInterval(this.uidInterval);
+    // 移除 storage 監聽
+    window.removeEventListener("storage", this.handleStorageChange);
   }
-
+  // ✅ 當 sessionStorage.uid 變動時觸發
+  handleStorageChange = (e) => {
+    if (e.key === "uid") {
+      const newUid = e.newValue || "";
+      this.setState({ userId: newUid }, this.refreshUserPoint);
+    }
+  };
   handleShowDetail = (product) => {
     this.setState({ selectedProduct: product, showDetailModal: true });
   };
@@ -88,11 +123,14 @@ class Shop extends Component {
       });
 
       if (redeemRes.data.success) {
-        this.setState({
-          selectedProduct: product,
-          showModal: true,
-          modalType: "success",
-        });
+        this.setState(
+          {
+            selectedProduct: product,
+            showModal: true,
+            modalType: "success",
+          },
+          this.refreshUserPoint // <-- 兌換後刷新點數
+        );
       } else {
         this.setState({
           selectedProduct: product,
@@ -108,7 +146,6 @@ class Shop extends Component {
       });
     }
   };
-
   handleCloseModal = () => {
     this.setState({ showModal: false });
   };
@@ -148,7 +185,11 @@ class Shop extends Component {
                 <img src="/Iconimg/greenpoint.svg" alt="point" />
                 點數
               </div>
-              <p className={styles.circleNumber}>2</p>
+              <p className={styles.circleNumber}>
+                {this.state.userPoint !== null
+                  ? this.state.userPoint
+                  : "載入中"}
+              </p>
             </div>
             {/* 導向任務連結 */}
             <div className={styles.missionCircle}>
@@ -201,7 +242,7 @@ class Shop extends Component {
           {/* 商家優惠券兌換 */}
           {storeCoupons.length > 0 && (
             <>
-              <h4 className={styles.shoptitle}>兌換商家折扣</h4>
+              <h4 className={styles.malltitle}>兌換商家折扣</h4>
               <div className={styles.storeCouponList}>
                 {storeCoupons.map((p) => (
                   <div className={styles.storeCouponCard} key={p.id}>
@@ -232,7 +273,7 @@ class Shop extends Component {
           {/* 租借優惠券兌換 */}
           {rentalCoupons.length > 0 && (
             <>
-              <h4 className={styles.shoptitle}>兌換租借折扣</h4>
+              <h4 className={styles.malltitle}>兌換租借折扣</h4>
               <div className={styles.rentalCouponList}>
                 {rentalCoupons.map((p) => (
                   <div className={styles.rentalCouponCard} key={p.id}>
