@@ -81,7 +81,6 @@ app.get("/", (req, res) => {
       <li><a href="/api/orders">/api/orders</a>（訂單含關聯）</li>
       <li><a href="/api/employee_log">/api/employee_log</a>（職員操作紀錄）</li>
       <li><a href="/api/employees">/api/employees</a>（員工清單）</li>
-      <li><a href="/bank/cards">/bank/cards</a>（信用卡清單-遮蔽）</li>
       <li><a href="/api/events">/api/events</a>（活動清單）</li>
     </ul>
   `);
@@ -1173,7 +1172,6 @@ app.post("/api/missions", (req, res) => {
     );
   });
 });
-// ...existing code...
 
 // 修正：獲取所有員工清單 - 配合實際資料庫結構
 app.get("/api/employees", (req, res) => {
@@ -1187,7 +1185,7 @@ app.get("/api/employees", (req, res) => {
 
   console.log('執行 SQL:', q);
 
-  connCharger.query(q, (err, rows) => {
+  connect.query(q, (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/employees failed:", err);
       return res.status(500).json({ 
@@ -1229,7 +1227,7 @@ app.get("/api/employee_log", (req, res) => {
     LIMIT 100
   `;
 
-  connCharger.query(q, (err, rows) => {
+  connect.query(q, (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/employee_log failed:", err);
       return res.status(500).json({ 
@@ -1370,34 +1368,3 @@ app.delete("/api/employees/:id", (req, res) => {
 
 
 
-// ===== bank 區 =====
-
-// 信用卡清單（遮蔽卡號）
-app.get("/bank/cards", (req, res) => {
-  console.log('查詢信用卡清單...');
-
-  const query = `
-    SELECT bankuser_id, bankuser_name, credit_card_number, credit_card_date, cvc
-    FROM credit_card 
-    ORDER BY bankuser_id ASC 
-    LIMIT 10
-  `;
-
-  connBank.query(query, [], (err, rows) => {
-    if (err) {
-      console.error('查詢信用卡失敗:', err);
-      return res.status(500).json({ error: "DB error", code: err.code });
-    }
-
-    // 遮蔽卡號中間數字
-    const maskedCards = rows.map(card => ({
-      ...card,
-      credit_card_number: card.credit_card_number ?
-        card.credit_card_number.replace(/(\d{4})\d{8}(\d{4})/, '$1****$2') :
-        'N/A'
-    }));
-
-    console.log(`查詢到 ${rows.length} 張信用卡`);
-    res.json(maskedCards);
-  });
-});
