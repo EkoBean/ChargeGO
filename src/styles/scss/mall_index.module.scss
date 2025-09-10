@@ -57,6 +57,51 @@ $color-shop-circle: #69f05b;
   // 也可以寫成一行
   border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
 }
+// ==========================
+// coupon禮物箱navbar跟main
+// ==========================
+.couponBody {
+  min-height: 100vh; // 或 height: 100vh;
+  background: linear-gradient(
+    180deg,
+    #fece00 0.02%,
+    #fee471 11.35%,
+    #fff 75.99%
+  );
+}
+.couponNavbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  padding: 20px 0; // 上下各 10px，高度會比原來多 20px
+
+  background-color: #ffce00;
+  /* 只把底部設圓角 */
+  border-bottom-left-radius: 50% 40px; /* 水平半徑 / 垂直半徑 */
+  border-bottom-right-radius: 50% 40px;
+  flex-shrink: 0;
+  // margin-bottom: 2rem;
+}
+.couponMain {
+  z-index: 3;
+  top: 23vh; /* 距離視窗頂端 10% 高度 */
+
+  width: 100vw;
+  height: 80vh;
+  overflow: auto;
+  position: relative;
+  background-color: transparent; /* alpha 值 0~1 */
+
+  position: fixed; /* 固定在視窗底部 */
+
+  // 左右上角圓角
+
+  // 也可以寫成一行
+  // border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
+}
+//navbar
 .navbarLeftSection {
   position: absolute;
   left: 0rem;
@@ -80,6 +125,7 @@ $color-shop-circle: #69f05b;
   background-color: transparent;
   cursor: pointer;
 }
+//navbarCenterSection內的設定
 .pointCircle {
   width: 127px;
   height: 127px;
@@ -102,7 +148,6 @@ $color-shop-circle: #69f05b;
   justify-content: center; /* 垂直置中，或者你想靠上/靠下可調整 */
   gap: 4px; /* 每個元素之間間距，可自行調整 */
 }
-
 .missionCircle {
   width: 171px;
   height: 171px;
@@ -152,50 +197,7 @@ $color-shop-circle: #69f05b;
   font-weight: 400;
   line-height: normal;
 }
-// ==========================
-// coupon禮物箱navbar跟main
-// ==========================
-.couponBody {
-  min-height: 100vh; // 或 height: 100vh;
-  background: linear-gradient(
-    180deg,
-    #fece00 0.02%,
-    #fee471 11.35%,
-    #fff 75.99%
-  );
-}
-.couponNavbar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 4px;
-  padding: 20px 0; // 上下各 10px，高度會比原來多 20px
-
-  background-color: #ffce00;
-  /* 只把底部設圓角 */
-  border-bottom-left-radius: 50% 40px; /* 水平半徑 / 垂直半徑 */
-  border-bottom-right-radius: 50% 40px;
-  flex-shrink: 0;
-  // margin-bottom: 2rem;
-}
-.couponMain {
-  z-index: 3;
-  top: 23vh; /* 距離視窗頂端 10% 高度 */
-
-  width: 100vw;
-  height: 80vh;
-  overflow: auto;
-  position: relative;
-  background-color: transparent; /* alpha 值 0~1 */
-
-  position: fixed; /* 固定在視窗底部 */
-
-  // 左右上角圓角
-
-  // 也可以寫成一行
-  // border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
-}
+// coupon.jsx中navbar的設定，couponPoint=.navbarCenterSection
 .couponPoint {
   // border-radius: 50%;
   // background-color: bs.$primary;
@@ -230,42 +232,9 @@ $color-shop-circle: #69f05b;
   font-weight: 400;
   line-height: normal;
 }
-.couponList {
-  display: flex;
-  flex-direction: column; // 手機預設為單列
-  gap: 24px;
-  height: 100%;
-  overflow-y: auto;
-  padding-right: 10px;
-  padding-left: 10px;
-
-  margin: 0 12px;
-  padding-top: 30px;
-  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
-
-  // 平板以上
-  @media (min-width: 768px) {
-    margin: 0 24px;
-  }
-
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px;
-    flex-direction: column; // 保持每張卡片換行
-    align-items: center; // 卡片置中
-  }
-}
 
 // ==========================
-// 標題
+// mall所有頁面標題
 // ==========================
 .malltitle {
   color: var(--brown, #6c4023);
@@ -434,7 +403,7 @@ $color-shop-circle: #69f05b;
     .couponName {
       font-size: 14px;
       font-weight: 600;
-      white-space: nowrap;
+      white-space: wrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -542,7 +511,7 @@ $color-shop-circle: #69f05b;
 
   &::before {
     content: "";
-    width: 6px;
+    width: 20px;
     background: bs.$success;
     position: absolute;
     left: 0;
@@ -610,86 +579,132 @@ $color-shop-circle: #69f05b;
     z-index: 5; // 遮在上面
   }
 }
-
 // ==========================
-// 點數 & 去逛逛圓形
+// coupon禮物箱列表
 // ==========================
-.points-shop-row {
-  position: static;
+.couponBoxList {
   display: flex;
-  gap: 32px;
-  align-items: center;
-  justify-content: flex-start;
+  flex-direction: column; // 手機預設為單列
+  gap: 12px;
+  height: 75%;
+  overflow-y: auto;
+  padding-right: 10px;
+  padding-left: 10px;
+
+  margin: 0 12px;
+  padding-top: 30px;
+  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+
+  // 平板以上
+  @media (min-width: 768px) {
+    margin: 0 24px;
+  }
+
+  // 桌機以上
+  @media (min-width: 1200px) {
+    margin: 0 48px;
+    flex-direction: column; // 保持每張卡片換行
+    align-items: center; // 卡片置中
+  }
 }
+.storeCouponCardInBox {
+  width: 100%; // 手機全寬
+  height: 120px; // 或你希望的固定高度
+  flex-shrink: 0; // 避免因為 list 捲動壓縮
+  @media (min-width: 1200px) {
+    width: calc(70% - 12px); // 桌機兩欄，保留gap
+  }
+  // margin-left: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; // ✅ 文字靠上，不會被擠到中間
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 16px;
+  position: relative;
+  box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24), 6px 6px 6px 0 #ffa832;
+  .cardLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
-.points-circle-wrapper {
-  position: absolute;
-  left: 3vw;
-  top: 120px;
-  z-index: 10;
+    .cardName {
+      font-size: 16px;
+      font-weight: 600;
+    }
 
-  .circle {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
+    p {
+      font-size: 14px;
+      color: #333;
+      margin: 0;
+    }
+  }
+
+  .cardRight {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.4);
-    background: $color-circle-bg;
-    position: relative;
+    gap: 6px;
+    min-width: 80px;
 
-    &.points-circle {
-      background: $color-points-circle;
-      width: 120px;
-      height: 120px;
-      box-shadow: 3px 2px 10px #ea9f0aa8;
+    .Date {
+      font-size: 12px;
+      color: #999;
     }
 
-    .points-text {
-      font-size: 1.3rem;
-      letter-spacing: 6px;
-      font-weight: bold;
-      color: #6b4f1d;
-    }
-  }
-}
+    .claimBtn {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      background: bs.$success;
+      color: black;
 
-.shop-circle-wrapper {
-  position: absolute;
-  left: 8vw;
-  top: 170px;
-  z-index: 10;
-
-  .circle {
-    &.shop-circle {
-      background: $color-shop-circle;
-      width: 160px;
-      height: 160px;
-      box-shadow: 0 2px 8px #b89b2b33;
+      &.disabled {
+        background: #ccc !important;
+        cursor: not-allowed;
+      }
     }
 
-    .shop-img {
-      width: 70px;
-      height: 70px;
-      margin-bottom: 6px;
+    .claimed-text {
+      font-size: 14px;
+      color: #999;
+      font-weight: 500;
     }
+    .point {
+      font-size: 16px;
+      font-weight: 600;
+      color: black;
+      background-color: white; /* ✅ 文字顏色改成白色 */
 
-    .shop-text {
-      font-size: 20px;
-      letter-spacing: 3px;
-      color: #6b4f1d;
-      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
   }
 }
-
 // coupon禮物箱客製化tab
 .customTabs {
   :global(.nav-link) {
-    color: black;
-
+    color: var(--brown, #6c4023);
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 3.2px;
+    white-space: nowrap;
     &:hover {
       color: #666;
     }

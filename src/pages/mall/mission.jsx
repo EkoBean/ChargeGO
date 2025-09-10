@@ -1,18 +1,26 @@
 import React, { Component } from "react";
 import axios from "axios";
-import styles from "../../styles/scss/mall_index.module.scss"; // 修正匯入方式
+import styles from "../../styles/scss/mall_index.module.scss";
 
 class Mission extends Component {
   state = {
     mission: [],
     loading: false,
     error: null,
-    userId: "1",
+    userId: sessionStorage.getItem("uid") || "1",
     filterDate: this.getTodayDate(),
+    userPoint: null,
+    claimingMissionId: null,
   };
 
   componentDidMount() {
+    window.addEventListener("storage", this.handleStorageChange);
     this.fetchMissions();
+    this.refreshUserPoint();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("storage", this.handleStorageChange);
   }
 
   getTodayDate() {
@@ -23,8 +31,51 @@ class Mission extends Component {
     return `${year}-${month}-${day}`;
   }
 
+  // ===== 點數相關 =====
+  getUserPoint = async (userId) => {
+    if (!userId) return null;
+    try {
+      const res = await axios.get(
+        `http://localhost:4005/checkpoints/${userId}`
+      );
+      return res.data?.point ?? null;
+    } catch (err) {
+      console.error("Error fetching point:", err);
+      return null;
+    }
+  };
+
+  // 回傳最新 point（可被 await）
+  refreshUserPoint = async () => {
+    const uid = this.state.userId || sessionStorage.getItem("uid") || "";
+    if (!uid) {
+      this.setState({ userPoint: null });
+      return null;
+    }
+    try {
+      const point = await this.getUserPoint(uid);
+      this.setState({ userPoint: point });
+      return point;
+    } catch (err) {
+      this.setState({ userPoint: null });
+      return null;
+    }
+  };
+  // ====================
+
+  handleStorageChange = (e) => {
+    if (e.key === "uid") {
+      const newUid = e.newValue || "";
+      this.setState({ userId: newUid }, () => {
+        this.fetchMissions();
+        this.refreshUserPoint();
+      });
+    }
+  };
+
   async fetchMissions() {
-    const { userId, filterDate } = this.state;
+    const userId = this.state.userId || sessionStorage.getItem("uid") || "";
+    const { filterDate } = this.state;
     this.setState({ loading: true, error: null, mission: [] });
 
     try {
@@ -50,6 +101,7 @@ class Mission extends Component {
         });
       }
     } catch (error) {
+      console.error("fetchMissions error:", error);
       this.setState({
         error: "無法從伺服器獲取任務資料，請檢查後端服務。",
         loading: false,
@@ -57,10 +109,23 @@ class Mission extends Component {
     }
   }
 
+  // 使用後端回傳的 point 更新（若有），否則 fallback 呼叫 refreshUserPoint
   handleClaimMission = async (userMissionId) => {
+    const { userId, mission } = this.state;
+
+    if (!userId) {
+      alert("請先輸入使用者 ID 並設為 session");
+      return;
+    }
+
+    const missionItem = mission.find(
+      (m) => m.user_mission_id === userMissionId
+    );
+    const rewardPoints = Number(missionItem?.reward_points ?? 0);
+
     try {
-      const { userId } = this.state;
-      console.log("handleClaimMission1");
+      this.setState({ claimingMissionId: userMissionId });
+
       const response = await axios.post(
         "http://localhost:4000/usermission/claim",
         {
@@ -68,71 +133,103 @@ class Mission extends Component {
           user_id: userId,
         }
       );
-      console.log(response);
-      console.log("handleClaimMission2");
 
       if (response.status === 200) {
-        this.fetchMissions();
+        // 優先使用後端回傳的 point（若有）
+        if (response.data && typeof response.data.point !== "undefined") {
+          this.setState({ userPoint: response.data.point });
+        } else {
+          // fallback：向 /checkpoints 再拿一次
+          await this.refreshUserPoint();
+        }
+
+        // 更新任務列表（該任務應該會變成已領）
+        await this.fetchMissions();
+      } else {
+        // 非 200 的情況
+        await this.refreshUserPoint();
+        alert("領取失敗，請稍後再試。");
       }
     } catch (error) {
-      if (error.response && error.response.data) {
-        console.log(error);
+      console.error("領取任務錯誤：", error);
+      // 若伺服器回傳錯誤訊息，顯示給使用者
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         alert(error.response.data.message);
       } else {
         alert("領取任務時發生錯誤，請稍後再試。");
-        console.log(error);
       }
+      // 確保 UI 同步回伺服器最新值
+      await this.refreshUserPoint();
+    } finally {
+      this.setState({ claimingMissionId: null });
     }
   };
 
   handleInputChange = (event) => {
     const { id, value } = event.target;
+
+    if (id === "userId") {
+      sessionStorage.setItem("uid", value);
+      this.setState({ userId: value }, () => {
+        // 輸入 uid 時立即刷新點數（任務仍需按獲取或可改為自動）
+        this.refreshUserPoint();
+      });
+      return;
+    }
+
     this.setState({ [id]: value });
   };
 
   render() {
-    const { mission, loading, error, userId, filterDate } = this.state;
+    const {
+      mission,
+      loading,
+      error,
+      userId,
+      filterDate,
+      userPoint,
+      claimingMissionId,
+    } = this.state;
 
     return (
       <div className={styles.mallBody}>
-        {/* navbar */}
         <div className={styles.mallNavbar}>
-          {/* 返回首頁 */}
-
           <button className={styles.navbarLeftSection}>
             <img src="/Iconimg/backBtn.svg" alt="backBtn" />
           </button>
 
-          {/* 裝點數與任務連結的容器 */}
           <div className={styles.navbarCenterSection}>
-            {/* 點數顯示 */}
             <div className={styles.pointCircle}>
               <div className={styles.circleText}>
                 <img src="/Iconimg/greenpoint.svg" alt="point" />
                 點數
               </div>
-              <p className={styles.circleNumber}>2</p>
+              <p className={styles.circleNumber}>
+                {userPoint !== null ? userPoint : "載入中"}
+              </p>
             </div>
-            {/* 導向任務連結 */}
+
             <div className={styles.missionCircle}>
               <div className={styles.circleText}>去逛逛</div>
               <img src="/Iconimg/Shopping Cart.svg" alt="去逛逛" />
             </div>
           </div>
 
-          {/* 右上角通知鈴鐺*/}
           <button className={styles.navbarRightSection}>
-            {/* 右上角通知鈴鐺 */}
             <img src="/Iconimg/notify.svg" alt="notify" />
           </button>
         </div>
-        {/* main */}
+
         <div className={styles.mallMain}>
           <h2 className={styles.malltitle}>任務</h2>
 
           <div className={styles["filter-row"]}>
             <div>
-              <label htmlFor="userId">使用者 ID</label>
+              <label htmlFor="userId">使用者 ID（會同步到 session）</label>
               <input
                 type="text"
                 id="userId"
@@ -159,11 +256,6 @@ class Mission extends Component {
           ) : mission.length > 0 ? (
             <div className={styles.missionList}>
               {mission.map((item) => {
-                const progressPercent = Math.min(
-                  100,
-                  (item.current_progress / item.target_value) * 100
-                );
-
                 return (
                   <div
                     className={styles.missionCard}
@@ -192,8 +284,11 @@ class Mission extends Component {
                           onClick={() =>
                             this.handleClaimMission(item.user_mission_id)
                           }
+                          disabled={claimingMissionId === item.user_mission_id}
                         >
-                          領取
+                          {claimingMissionId === item.user_mission_id
+                            ? "領取中..."
+                            : "領取"}
                         </button>
                       ) : item.is_completed === 1 && item.is_claimed === 1 ? (
                         <span className={styles["claimed-text"]}>已領取</span>
@@ -207,7 +302,7 @@ class Mission extends Component {
                       )}
 
                       <div className={styles.point}>
-                        <img src="./public\Iconimg\greenpoint.svg" alt="p" />
+                        <img src="/Iconimg/greenpoint.svg" alt="p" />
                         {item.reward_points}
                       </div>
                     </div>
