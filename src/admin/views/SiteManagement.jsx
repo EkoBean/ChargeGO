@@ -4,7 +4,7 @@ import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
 import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
-import OperationLogger from '../utils/operationLogger';
+import OperationLogger from '../../../backend/operationLogger';
 
 //站點管理主畫面
 const SiteManagement = () => {
