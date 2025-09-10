@@ -65,7 +65,7 @@ const mber_Info = () => {
         <div className={styles.mber_info_title}>
           <img src="../../../public/user.svg" />
           <h1>{user?.user_name || "會員名稱"}</h1>
-          <h2>帳戶通知 </h2>
+          <h2>帳號通知 </h2>
         </div>
         <div className={styles.mber_info_section}>
           {/* 根據通知資料渲染 */}
