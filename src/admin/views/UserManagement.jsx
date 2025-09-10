@@ -4,7 +4,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import ErrorScreen from "../components/ErrorScreen";
 import UserDetailModal from "../components/modals/UserDetailModal";
 import ApiService from "../services/api";
-import OperationLogger from '../utils/operationLogger';
+import OperationLogger from '../../../backend/operationLogger';
 
 /**
  * 用戶管理頁 (Admin)

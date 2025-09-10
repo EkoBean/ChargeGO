@@ -23,7 +23,12 @@ const StaffLogs = () => {
     EXPORT_DATA: '匯出資料',
     UPDATE_USER: '修改用戶資訊',    
     CREATE_USER: '新增用戶',       
-    DELETE_USER: '刪除用戶',       
+    DELETE_USER: '刪除用戶',
+    // 新增訂單相關操作
+    CREATE_ORDER: '新增訂單',
+    UPDATE_ORDER: '修改訂單',
+    DELETE_ORDER: '刪除訂單',
+    VIEW_ORDER: '查看訂單',       
     'log in': '登入系統',
     'log out': '登出系統',
     'changed userinfo': '修改用戶資訊'

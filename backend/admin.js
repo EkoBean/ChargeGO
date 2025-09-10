@@ -256,6 +256,7 @@ app.patch('/api/sites', async (req, res) => {
     if (updateSite.affectedRows === 0) {
       return res.status(404).json({ message: "site not found" });
     }
+    
     return res.json({ message: "site updated", site: req.body });
   }
   catch (err) {
