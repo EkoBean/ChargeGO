@@ -50,7 +50,7 @@
 
 .creditcard-form {
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
   padding-top: 40px;
   flex: 1;
@@ -103,7 +103,7 @@
   background: #fff;
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  width: 100px;
+  width: 100%;
   min-width: 0;
   box-sizing: border-box;
   text-align: left;
@@ -189,6 +189,10 @@
   .form-input,
   .form-input-cvv,
   .form-input-small {
+    width: 100%;
+  }
+
+  .form-input-cvv {
     width: 100%;
   }
 

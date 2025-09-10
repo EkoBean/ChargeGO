@@ -16,7 +16,9 @@ const mber_Register = () => {
     county: "",
     address: "",
     credit_card_number: "",
-    credit_card_date: "",
+    credit_card_month: "", // 月份
+    credit_card_year: "", // 年份
+    cvv: "", // 新增 CVV 欄位
     subpwd: "",
     agreerule: false,
     event: true,
@@ -48,8 +50,13 @@ const mber_Register = () => {
     let v = type === "checkbox" ? checked : value;
     // 數字欄位簡單過濾
     if (name === "telephone") v = v.replace(/\D/g, "").slice(0, 15);
-    if (name === "credit_card_number") v = v.replace(/\D/g, "").slice(0, 16);
-    if (name === "credit_card_date") v = v.replace(/[^0-9/]/g, "").slice(0, 5);
+    if (name === "credit_card_number") {
+      let digits = value.replace(/\D/g, "").slice(0, 16);
+      v = digits.replace(/(.{4})/g, "$1 ").trim();
+    }
+    if (name === "credit_card_month") v = v.replace(/\D/g, "").slice(0, 2);
+    if (name === "credit_card_year") v = v.replace(/\D/g, "").slice(0, 2);
+    if (name === "cvv") v = v.replace(/\D/g, "").slice(0, 4); // CVV 最多 4 碼
     setForm((prev) => ({ ...prev, [name]: v }));
   };
   // 驗證表單有無錯誤
@@ -64,7 +71,9 @@ const mber_Register = () => {
     if (!form.county.trim()) return "縣市必填";
     if (!form.address.trim()) return "地址必填";
     if (!form.credit_card_number.trim()) return "信用卡號必填";
-    if (!form.credit_card_date.trim()) return "信用卡到期日必填";
+    if (!form.credit_card_month.trim()) return "信用卡到期月必填";
+    if (!form.credit_card_year.trim()) return "信用卡到期年必填";
+    if (!form.cvv.trim()) return "安全碼(CVV)必填"; // 新增 CVV 必填
     if (!form.subpwd.trim()) return "驗證碼必填";
     // 其他驗證
     if (form.subpwd !== captchaValue) return "驗證碼錯誤";
@@ -74,13 +83,14 @@ const mber_Register = () => {
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "Email 格式錯誤";
     if (form.telephone && form.telephone.length < 8) return "電話格式不正確";
-    if (form.credit_card_number && form.credit_card_number.length !== 16)
+    if (form.credit_card_number && form.credit_card_number.length !== 19)
       return "信用卡號需 16 碼數字";
-    if (
-      form.credit_card_date &&
-      !/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.credit_card_date)
-    )
-      return "到期日格式需為 MM/YY";
+    if (form.credit_card_month && (parseInt(form.credit_card_month) < 1 || parseInt(form.credit_card_month) > 12))
+      return "到期月需為 01~12";
+    if (form.credit_card_year && !/^\d{2}$/.test(form.credit_card_year))
+      return "到期年需為 2 碼數字";
+    if (form.cvv && (form.cvv.length < 3 || form.cvv.length > 4))
+      return "安全碼(CVV)需 3~4 碼數字"; // 新增 CVV 格式驗證
     return null;
   };
   // 表單提交處理
@@ -103,7 +113,9 @@ const mber_Register = () => {
         country: form.county,
         address: form.address,
         credit_card_number: form.credit_card_number,
-        credit_card_date: form.credit_card_date,
+        credit_card_month: form.credit_card_month,
+        credit_card_year: form.credit_card_year,
+        cvv: form.cvv, // 新增 CVV 欄位
         status: "0",
       };
       const res = await axios.post(
@@ -146,7 +158,9 @@ const mber_Register = () => {
       county: "",
       address: "",
       credit_card_number: "",
-      credit_card_date: "",
+      credit_card_month: "", // 月份
+      credit_card_year: "", // 年份
+      cvv: "", // 新增 CVV 欄位
       subpwd: "",
       agreerule: false,
       event: true,
@@ -351,27 +365,68 @@ const mber_Register = () => {
                   type="text"
                   value={form.credit_card_number}
                   onChange={handleChange}
-                  maxLength={16}
+                  maxLength={19}
                   placeholder="16 碼"
                 />
               </div>
-              {/* 信用卡到期日 */}
+              {/* 信用卡到期月 */}
               <div className={styles["register-input-group"]}>
                 <label
-                  htmlFor="credit_card_date"
+                  htmlFor="credit_card_month"
                   className={styles["register-label"]}
                 >
-                  信用卡到期日：
+                  信用卡到期月：
                 </label>
                 <input
                   className={styles["register-input"]}
-                  id="credit_card_date"
-                  name="credit_card_date"
+                  id="credit_card_month"
+                  name="credit_card_month"
                   type="text"
-                  value={form.credit_card_date}
+                  value={form.credit_card_month}
                   onChange={handleChange}
-                  placeholder="MM/YY"
-                  maxLength={5}
+                  maxLength={2}
+                  placeholder="MM"
+                  required
+                />
+              </div>
+              {/* 信用卡到期年 */}
+              <div className={styles["register-input-group"]}>
+                <label
+                  htmlFor="credit_card_year"
+                  className={styles["register-label"]}
+                >
+                  信用卡到期年：
+                </label>
+                <input
+                  className={styles["register-input"]}
+                  id="credit_card_year"
+                  name="credit_card_year"
+                  type="text"
+                  value={form.credit_card_year}
+                  onChange={handleChange}
+                  maxLength={2}
+                  placeholder="YY"
+                  required
+                />
+              </div>
+              {/* 安全碼(CVV) */}
+              <div className={styles["register-input-group"]}>
+                <label
+                  htmlFor="cvv"
+                  className={styles["register-label"]}
+                >
+                  安全碼(CVV)：
+                </label>
+                <input
+                  className={styles["register-input"]}
+                  id="cvv"
+                  name="cvv"
+                  type="text"
+                  value={form.cvv}
+                  onChange={handleChange}
+                  maxLength={4}
+                  placeholder="3~4 碼"
+                  required
                 />
               </div>
               {/* 驗證碼 */}
