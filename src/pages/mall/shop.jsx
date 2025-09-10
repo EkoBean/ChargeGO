@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss";
-
+import NavBarPhone from "../../components/NavBarApp";
 class Shop extends Component {
   state = {
     products: [],
@@ -170,6 +170,8 @@ class Shop extends Component {
     return (
       // <div className={styles.container + " py-4"}>
       <div className={styles.mallBody}>
+        <NavBarPhone />
+
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
 

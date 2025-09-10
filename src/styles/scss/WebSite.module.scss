@@ -1,15 +1,15 @@
 $primary: #ffce00;
 
 @use "../../../node_modules/bootstrap/scss/bootstrap";
-@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css");
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: $primary;
-    min-height: 200vh;
-    padding-top: 80px;
-    /* color: $primary; // 需要時可加這行 */
-    /* 為固定導航欄預留空間 */
+  font-family: "Arial", sans-serif;
+  background-color: $primary;
+  // min-height: 200vh;
+  // padding-top: 80px;
+  /* color: $primary; // 需要時可加這行 */
+  /* 為固定導航欄預留空間 */
 }
 
 .content {
@@ -19,30 +19,30 @@ body {
 }
 
 .logo-section {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    z-index: 3;
-    opacity: 1;
-    visibility: visible;
-    transition: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 3;
+  opacity: 1;
+  visibility: visible;
+  transition: none;
 }
 
 /* 添加箭頭圖片樣式 */
 .arrow {
-    position: relative;
-    width: 100vw;
-    max-width: 1000px;
-    min-width: 250px;
-    margin-bottom: 1rem;
-    left: -23vw;
-    top: 15vw;
-    opacity: 1;
-    transform: scale(1);
-    display: block;
-    transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+  position: relative;
+  width: 100vw;
+  max-width: 1000px;
+  min-width: 250px;
+  margin-bottom: 1rem;
+  left: -23vw;
+  top: 15vw;
+  opacity: 1;
+  transform: scale(1);
+  display: block;
+  transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
 }
 
 @keyframes arrowAppear {
@@ -58,41 +58,48 @@ body {
 }
 
 .header-logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: "akagi-pro", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-    font-size: 100px;
-    color: #fff;
-    display: block;
-    text-align: center;
-    white-space: nowrap;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.5s, visibility 0.5s;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "akagi-pro", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 100px;
+  color: #fff;
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s, visibility 0.5s;
 }
 
 .gradient-logo {
-    position: absolute;
-    top: -500px;
-    left: 50%;
-    transform: translate(-50%, 200%);
-    font-size: 100px;
-    font-weight: 900;
-    font-family: "akagi-pro", sans-serif;
-    background: linear-gradient(270deg, #FFCC00, #FFFFFF, #FFCC00, #FFFFFF, #FFCC00);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientMove 3s ease infinite;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-    z-index: 10;
-    white-space: nowrap;
+  position: absolute;
+  top: -500px;
+  left: 50%;
+  transform: translate(-50%, 200%);
+  font-size: 100px;
+  font-weight: 900;
+  font-family: "akagi-pro", sans-serif;
+  background: linear-gradient(
+    270deg,
+    #ffcc00,
+    #ffffff,
+    #ffcc00,
+    #ffffff,
+    #ffcc00
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 3s ease infinite;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  z-index: 10;
+  white-space: nowrap;
 }
 
 .gradient-logo.show {
@@ -101,12 +108,12 @@ body {
 }
 
 .logo-Charge {
-    display: inline-block;
-    opacity: 0;
-    transform: translateX(50px);
-    vertical-align: baseline;
-    font-family: 'Akagi Pro Fat' sans-serif;
-    /* 移除自動動畫 */
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(50px);
+  vertical-align: baseline;
+  font-family: "Akagi Pro Fat" sans-serif;
+  /* 移除自動動畫 */
 }
 
 @keyframes gradientMove {
@@ -140,51 +147,51 @@ body {
 }
 
 .tagline {
-    position: absolute;
-    left: 0;
-    top: 80%;
-    transform: translateY(-50%);
-    width: 100vw;
-    height: auto;
-    margin-top: 2rem;
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
-    display: block;
-    object-fit: contain;
-    z-index: 30;
+  position: absolute;
+  left: 0;
+  top: 80%;
+  transform: translateY(-50%);
+  width: 100vw;
+  height: auto;
+  margin-top: 2rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
+  display: block;
+  object-fit: contain;
+  z-index: 30;
 }
 
 .taglineCover {
-    position: absolute;
-    left: -0.5%;
-    top: 91%;
-    transform: translateY(-50%);
-    width: 100vw;
-    height: auto;
-    margin-top: 2rem;
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
-    display: block;
-    object-fit: contain;
-    z-index: 50;
+  position: absolute;
+  left: -0.5%;
+  top: 91%;
+  transform: translateY(-50%);
+  width: 100vw;
+  height: auto;
+  margin-top: 2rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
+  display: block;
+  object-fit: contain;
+  z-index: 50;
 }
 
 .show-tagline {
-    opacity: 1 !important;
-    visibility: visible !important;
-    animation: taglineMoveIn 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: taglineMoveIn 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards;
 }
 
 @keyframes taglineMoveIn {
-    from {
-        transform: translate(-50%, calc(-50% + 200px));
-    }
+  from {
+    transform: translate(-50%, calc(-50% + 200px));
+  }
 
-    to {
-        transform: translate(-50%, -50%);
-    }
+  to {
+    transform: translate(-50%, -50%);
+  }
 }
 
 .content-section {
@@ -291,22 +298,22 @@ body {
 
 /* 黃線 SVG 路徑樣式 */
 #yellowLine {
-    position: fixed;
-    left: 50%;
-    /* 水平置中 */
-    bottom: -2%;
-    transform: translateX(-50%);
-    width: 100vw;
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
-    z-index: 40;
+  position: fixed;
+  left: 50%;
+  /* 水平置中 */
+  bottom: -2%;
+  transform: translateX(-50%);
+  width: 100vw;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+  z-index: 40;
 }
 
 #yellowLine.show {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* .navbar-fixed {
@@ -320,37 +327,37 @@ body {
 
 /* 服務據點介紹區域靠右且在導覽列下方 */
 .service-intro {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 2rem;
-    margin: 4rem auto;
-    max-width: 1440px;
-    width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2rem;
+  margin: 4rem auto;
+  max-width: 1440px;
+  width: 100%;
 }
 
 .service-intro-right {
-    flex: 1;
-    font-family: 'Mantou Sans', sans-serif;
-    color: #333;
-    border-radius: 16px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-    padding: 2rem;
-    z-index: 70;
-    /* 移除 top: 50vw; 和 right: 50px; */
+  flex: 1;
+  font-family: "Mantou Sans", sans-serif;
+  color: #333;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  z-index: 70;
+  /* 移除 top: 50vw; 和 right: 50px; */
 }
 
 .service-intro-left {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .title {
-    align-items: center;
+  align-items: center;
 }
 
 p {
-    font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+  font-family: "Arial", "Microsoft JhengHei", sans-serif;
 }
