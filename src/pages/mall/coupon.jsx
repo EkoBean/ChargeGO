@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import styles from "../../styles/scss/mall_index.module.scss";
-
+import NavBarPhone from "../../components/NavBarApp";
 const Coupon = () => {
   // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
   const initialUid = sessionStorage.getItem("uid") || "2";
@@ -121,6 +121,8 @@ const Coupon = () => {
 
   return (
     <div className={styles.couponBody}>
+      <NavBarPhone />
+
       <div className={styles.couponNavbar}>
         <button className={styles.navbarLeftSection}>
           <img src="/Iconimg/backBtn.svg" alt="backBtn" />

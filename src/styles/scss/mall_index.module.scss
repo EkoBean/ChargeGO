@@ -30,16 +30,24 @@ $color-shop-circle: #69f05b;
   align-items: center;
   justify-content: center;
   margin-top: 4px;
-  // margin-bottom: 2rem;
 }
+@media (min-width: 575.98px) {
+  // 小於 576px
+  .mallNavbar {
+    display: none !important;
+  }
+}
+
 .mallBody {
-  min-height: 100vh; // 或 height: 100vh;
-  background: linear-gradient(
-    180deg,
-    #fece00 0.02%,
-    #fee471 11.35%,
-    #fff 75.99%
-  );
+  height: 100vh; // 或 height: 100vh;
+  overflow: hidden; // 防止滾動撐高
+
+  // background: linear-gradient(
+  //   180deg,
+  //   #fece00 0.02%,
+  //   #fee471 11.35%,
+  //   #fff 75.99%
+  // );
 }
 .mallMain {
   z-index: 3;
@@ -57,6 +65,7 @@ $color-shop-circle: #69f05b;
   // 也可以寫成一行
   border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
 }
+
 // ==========================
 // coupon禮物箱navbar跟main
 // ==========================
@@ -83,6 +92,12 @@ $color-shop-circle: #69f05b;
   border-bottom-right-radius: 50% 40px;
   flex-shrink: 0;
   // margin-bottom: 2rem;
+}
+@media (min-width: 575.98px) {
+  // 小於 576px
+  .couponNavbar {
+    display: none !important;
+  }
 }
 .couponMain {
   z-index: 3;
@@ -369,6 +384,7 @@ $color-shop-circle: #69f05b;
 .storeCouponList {
   display: flex;
   overflow-x: auto;
+
   padding-bottom: 8px;
   gap: 12px;
   margin-left: 24px;

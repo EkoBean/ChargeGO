@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
+// import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo"; // 修正 import 路徑
+import NavBarPhone from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
 
 class Mission extends Component {
@@ -197,6 +199,8 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
+        {/* <ChargegoLogo className="mobile-only-logo" /> 只在手機版顯示 */}
+        <NavBarPhone />
         <div className={styles.mallNavbar}>
           <button className={styles.navbarLeftSection}>
             <img src="/Iconimg/backBtn.svg" alt="backBtn" />
@@ -223,7 +227,6 @@ class Mission extends Component {
             <img src="/Iconimg/notify.svg" alt="notify" />
           </button>
         </div>
-
         <div className={styles.mallMain}>
           <h2 className={styles.malltitle}>任務</h2>
 
