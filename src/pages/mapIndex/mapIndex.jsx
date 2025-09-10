@@ -22,8 +22,6 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 // environment variables
 const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
-// testing compoenet
-import NavBarAPP from "../../components/NavBarAPP";
 
 // ================= Constants ============================
 const APIkey = "AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg";
@@ -563,13 +561,13 @@ function MapIndex() {
                 </p>
                 <div className={`${styles.handleBtns}`}>
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary}`}
+                    className='btn btn-primary'
                     onClick={handleOvertime}
                   >
                     確認歸還
                   </button>
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary} ${styles.cancel}`}
+                    className='btn btn-primary cancel'
                     onClick={() => setOvertimeReturnWindow(false)}
                   >
                     取消
@@ -585,7 +583,7 @@ function MapIndex() {
             <div className={`${styles.buttons}`}>
               {buttonlinks.map((button, index) => (
                 <button
-                  type="btn btn-primary"
+                  className='btn btn-primary'
                   key={index}
                   onClick={() => button.action(button.url)}
                 >
@@ -597,7 +595,7 @@ function MapIndex() {
               ))}
             </div>
             <div className={`${styles.qrCode}`}>
-              <button type="btn btn-primary" onClick={handleRent}>
+              <button className='btn btn-primary' onClick={handleRent}>
                 <i className="bi bi-qr-code-scan"></i>
               </button>
             </div>
@@ -617,7 +615,7 @@ function MapIndex() {
                       您已超過三天未歸還，請盡速歸還以免影響信用紀錄
                     </p>
                     <button
-                      className={`${styles.btn} ${styles.btnPrimary}`}
+                      className='btn btn-primary'
                       onClick={handleReturn}
                     >
                       歸還裝置
@@ -625,7 +623,7 @@ function MapIndex() {
                   </>
                 ) : (
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary}`}
+                    className='btn btn-primary'
                     onClick={handleReturn}
                   >
                     歸還裝置
@@ -639,7 +637,7 @@ function MapIndex() {
                   <p>扣款金額 {rentalFee}元</p>
 
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary}`}
+                    className='btn btn-primary'
                     onClick={() => (
                       rentWindowRef.current(false),
                       setRentMessage(""),
@@ -866,11 +864,9 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      <NavBarAPP />
-      <APIProvider
-        apiKey={APIkey}
-        region="TW"
-        libraries={["places"]}
+      <APIProvider apiKey={APIkey}
+        region='TW'
+        libraries={['places']}
         onLoad={() => setIsGoogleMapsLoaded(true)}
       >
         {isGoogleMapsLoaded && (
