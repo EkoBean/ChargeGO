@@ -4,10 +4,28 @@ import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
 import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
+
+// Google Maps
+import {
+  APIProvider,
+  Map,
+  useMap,
+  useAdvancedMarkerRef,
+  AdvancedMarker,
+  Pin,
+  InfoWindow,
+} from "@vis.gl/react-google-maps";
+
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+
 //站點管理主畫面
 const SiteManagement = () => {
   // 從 context 取得 sites, chargers, setSites, loading, error, loadAllData
   const { sites, chargers, setSites, loading, error, loadAllData } = useAdminData();
+
+  // Google Maps 狀態
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   // debug: 確認 chargers 內容（印出第一筆完整物件以了解欄位）
   if (Array.isArray(chargers) && chargers.length > 0) {
@@ -71,7 +89,7 @@ const SiteManagement = () => {
   const [formatWarning, setFormatWarning] = useState({ message: '', type: null });
 
   // =========== functions pack ================
-
+  // lat lng format checker
   const checker = {
     isDemical8: (n) => {
       const str = String(n);
@@ -86,7 +104,57 @@ const SiteManagement = () => {
       return !isNaN(v) && v >= 21.5 && v <= 25.5;
     },
   };
+  // get address from latlng by geocoder
+  function getAddress(coord) {
+    if (isGoogleMapsLoaded && coord) {
+      const coordArray = {
+        latitude: parseFloat(coord.lat.toFixed(8)),
+        longitude: parseFloat(coord.lng.toFixed(8)),
+        // =========== geocoder : serach adress from latlng =================
+      }
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode(
+        // request
+        { location: { lat: coord.lat, lng: coord.lng }, region: 'TW' },
+        // callback
+        (result, status) => {
+          console.log(result);
+          if (status === "OK" && result[0]) {
+            const addressComp = result[0].address_components;
+            // 一級行政區
+            const country = addressComp.find(x => x.types.includes('administrative_area_level_1'))?.long_name || '';
+            // 地址
+            // 二級行政區
+            const administrativeLv2 = addressComp.find(x => x.types.includes('administrative_area_level_2'))?.long_name || '';
+            // 街道名稱
+            const route = addressComp.find(x => x.types.includes('route'))?.long_name || '';
+            // 門牌號碼
+            let streetNumber = addressComp.find(x => x.types.includes('street_number'))?.long_name || '';
+            if (streetNumber.includes('號') === false) { streetNumber = streetNumber + '號' }
 
+            // console.log('streetNumber :>> ', route);
+            const addressFull = `${administrativeLv2}${route}${streetNumber}`;
+
+            setEditSite((prev) => ({
+              ...prev,
+              address: addressFull,
+              country: country,
+              latitude: coordArray.latitude,
+              longitude: coordArray.longitude,
+            }))
+          }
+          else {
+            setEditSite((prev) => ({
+              ...prev,
+              latitude: coordArray.latitude,
+              longitude: coordArray.longitude,
+            }))
+            alert("無法取得地址，請手動輸入");
+          }
+        })
+    }
+
+  }
   // ==========================================
 
   // handleViewSite 定義
@@ -142,10 +210,13 @@ const SiteManagement = () => {
   };
   // debug ===========testing editSite changes============
   useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
-  useEffect(() => { console.log('formatWarning :>> ', formatWarning); }, [formatWarning])
+  // useEffect(() => { console.log('formatWarning :>> ', formatWarning); }, [formatWarning])
 
   // ===================================================
 
+
+  //============ changing the data by user interact ================
+  // ===== keydown input on form =====
   const handleSiteFieldChange = (e) => {
     if (!e || !e.target) return;
     const { name, value } = e.target;
@@ -191,6 +262,16 @@ const SiteManagement = () => {
     });
   };
 
+  // =========== click on map =================
+  const handleMapClick = (event) => {
+    if (!isGoogleMapsLoaded) return;
+    const coord = event.detail.latLng
+    getAddress(coord);
+
+
+  }
+
+
   // press the save button in SiteDetailModal.jsx
   const handleSaveSite = async () => {
     if (!editSite) return;
@@ -226,7 +307,7 @@ const SiteManagement = () => {
       } else {
         const updated = await ApiService.updateSite(editSite.site_id, payload);
         setSites((prev) => prev.map((s) => (s.site_id === updated.site_id ? { ...s, ...updated } : s)));
-        setShowSiteModal(true); 
+        setShowSiteModal(true);
         setIsEditingSite(false);
         setEditSite(updated.site);
         setSelectedSite(updated.site);
@@ -259,126 +340,135 @@ const SiteManagement = () => {
   }
 
   return (
-    <div className="admin-sites-content">
-      <div className="admin-content-header">
-        <h2>站點管理</h2>
-        <div>
-          <button className="btn admin-btn" onClick={loadAllData}>
-            🔄 刷新資料
-          </button>
-          <button className="btn admin-btn admin-primary" onClick={handleAddSite}>
-            ➕ 新增站點
-          </button>
+    <APIProvider
+      apiKey={APIkey}
+      region='TW'
+      libraries={['places']}
+      onLoad={() => setIsGoogleMapsLoaded(true)}
+    >
+      <div className="admin-sites-content">
+        <div className="admin-content-header">
+          <h2>站點管理</h2>
+          <div>
+            <button className="btn admin-btn" onClick={loadAllData}>
+              🔄 刷新資料
+            </button>
+            <button className="btn admin-btn admin-primary" onClick={handleAddSite}>
+              ➕ 新增站點
+            </button>
+          </div>
         </div>
+
+        <div className="admin-stats-row">
+          <div
+            className={`admin-mini-stat admin-primary${siteFilter === "all" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("all")}
+          >
+            <span className="admin-number">{sites.length}</span>
+            <span className="admin-label">總站點數</span>
+          </div>
+          <div
+            className={`admin-mini-stat admin-success${siteFilter === "available" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("available")}
+          >
+            <span className="admin-number">{counts.available}</span>
+            <span className="admin-label">可用充電器</span>
+          </div>
+          <div
+            className={`admin-mini-stat admin-warning${siteFilter === "occupied" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("occupied")}
+          >
+            <span className="admin-number">{counts.occupied}</span>
+            <span className="admin-label">使用中</span>
+          </div>
+          <div
+            className={`admin-mini-stat admin-danger${siteFilter === "maintenance" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("maintenance")}
+          >
+            <span className="admin-number">{counts.maintenance}</span>
+            <span className="admin-label">維護中</span>
+          </div>
+          <div
+            className={`admin-mini-stat${siteFilter === "preparing" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("preparing")}
+          >
+            <span className="admin-number">{counts.preparing}</span>
+            <span className="admin-label">準備中</span>
+          </div>
+        </div>
+
+        <div className="admin-table-container">
+          <table className="admin-data-table">
+            <thead>
+              <tr>
+                <th>站點ID</th>
+                <th>站點名稱</th>
+                <th>地址</th>
+                <th>充電器數量</th>
+                <th>可用數量</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSites.map((site) => {
+                // 轉成字串比較 site_id，避免 number vs string 差異造成過濾失敗
+                const siteChargers = chargers.filter((c) => String(c.site_id) === String(site.site_id));
+                // 使用 normalizeStatus(c) 判斷是否為 'available'（比直接比對 c.status 更可靠）
+                const availableCount = siteChargers.filter((c) => normalizeStatus(c) === "available").length;
+
+                return (
+                  <tr key={site.site_id}>
+                    <td>{site.site_id}</td>
+                    <td>{site.site_name}</td>
+                    <td>{site.address}</td>
+                    <td>{siteChargers.length}</td>
+                    <td>
+                      <span className={`admin-badge ${availableCount > 0 ? "admin-success" : "admin-danger"}`}>
+                        {availableCount}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewSite(site)}>
+                        查看詳情
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {showSiteModal && selectedSite && (
+          <SiteDetailModal
+            formatWarning={formatWarning}
+            site={selectedSite}
+            editSite={editSite}
+            isEditing={isEditingSite}
+            creating={creatingSite}
+            saving={saving}
+            stats={editSite?._stats ?? { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 }}
+            chargers={chargers.filter(c => String(c.site_id) === String(selectedSite.site_id))} // <--- 傳入該站點充電器資料
+            onEdit={() => setIsEditingSite(true)}
+            onCancel={() => {
+              setEditSite(selectedSite);
+              setIsEditingSite(false);
+              setCreatingSite(false);
+            }}
+            onSave={handleSaveSite}
+            onChange={handleSiteFieldChange}
+            onMapClick={handleMapClick}
+            onClose={() => !saving && setShowSiteModal(false)}
+          />
+        )}
       </div>
+    </APIProvider>
 
-      <div className="admin-stats-row">
-        <div
-          className={`admin-mini-stat admin-primary${siteFilter === "all" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("all")}
-        >
-          <span className="admin-number">{sites.length}</span>
-          <span className="admin-label">總站點數</span>
-        </div>
-        <div
-          className={`admin-mini-stat admin-success${siteFilter === "available" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("available")}
-        >
-          <span className="admin-number">{counts.available}</span>
-          <span className="admin-label">可用充電器</span>
-        </div>
-        <div
-          className={`admin-mini-stat admin-warning${siteFilter === "occupied" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("occupied")}
-        >
-          <span className="admin-number">{counts.occupied}</span>
-          <span className="admin-label">使用中</span>
-        </div>
-        <div
-          className={`admin-mini-stat admin-danger${siteFilter === "maintenance" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("maintenance")}
-        >
-          <span className="admin-number">{counts.maintenance}</span>
-          <span className="admin-label">維護中</span>
-        </div>
-        <div
-          className={`admin-mini-stat${siteFilter === "preparing" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("preparing")}
-        >
-          <span className="admin-number">{counts.preparing}</span>
-          <span className="admin-label">準備中</span>
-        </div>
-      </div>
-
-      <div className="admin-table-container">
-        <table className="admin-data-table">
-          <thead>
-            <tr>
-              <th>站點ID</th>
-              <th>站點名稱</th>
-              <th>地址</th>
-              <th>充電器數量</th>
-              <th>可用數量</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSites.map((site) => {
-              // 轉成字串比較 site_id，避免 number vs string 差異造成過濾失敗
-              const siteChargers = chargers.filter((c) => String(c.site_id) === String(site.site_id));
-              // 使用 normalizeStatus(c) 判斷是否為 'available'（比直接比對 c.status 更可靠）
-              const availableCount = siteChargers.filter((c) => normalizeStatus(c) === "available").length;
-
-              return (
-                <tr key={site.site_id}>
-                  <td>{site.site_id}</td>
-                  <td>{site.site_name}</td>
-                  <td>{site.address}</td>
-                  <td>{siteChargers.length}</td>
-                  <td>
-                    <span className={`admin-badge ${availableCount > 0 ? "admin-success" : "admin-danger"}`}>
-                      {availableCount}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewSite(site)}>
-                      查看詳情
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {showSiteModal && selectedSite && (
-        <SiteDetailModal
-          formatWarning={formatWarning}
-          site={selectedSite}
-          editSite={editSite}
-          isEditing={isEditingSite}
-          creating={creatingSite}
-          saving={saving}
-          stats={editSite?._stats ?? { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 }}
-          chargers={chargers.filter(c => String(c.site_id) === String(selectedSite.site_id))} // <--- 傳入該站點充電器資料
-          onEdit={() => setIsEditingSite(true)}
-          onCancel={() => {
-            setEditSite(selectedSite);
-            setIsEditingSite(false);
-            setCreatingSite(false);
-          }}
-          onSave={handleSaveSite}
-          onChange={handleSiteFieldChange}
-          onClose={() => !saving && setShowSiteModal(false)}
-        />
-      )}
-    </div>
   );
 };
 
