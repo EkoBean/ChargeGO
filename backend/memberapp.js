@@ -43,13 +43,6 @@ app.get('/user/:uid', (req, res) => {
     });
 });
 
-// 取得會員訂單
-app.get('/user/:uid/orders', (req, res) => {
-    db.query('SELECT * FROM order_record WHERE uid = ?', [req.params.uid], (err, results) => {
-        if (err) return res.status(500).json({ error: err });
-        res.json(results);
-    });
-});
 
 // 註冊會員 API
 app.post('/mber_register', (req, res) => {
@@ -246,12 +239,14 @@ app.get('/', (req, res) => {
 });
 
 // 取得目前登入會員的租借紀錄（透過 session）
-app.get('/user/session/orders', (req, res) => {
+app.get('/user/:uid/orders', (req, res) => {
     if (!req.session.user || !req.session.user.uid) {
         return res.status(401).json({ success: false, message: '尚未登入' });
     }
     const uid = req.session.user.uid;
-    db.query('SELECT * FROM order_record WHERE uid = ?', [uid], (err, results) => {
+    db.query(`SELECT 
+        order_ID, uid, start_date, end, total_amount, comment, rental_site_id, return_site_id, order_status, charger_id
+        FROM order_record WHERE uid = ?`, [uid], (err, results) => {
         if (err) return res.status(500).json({ success: false, error: err });
         res.json({ success: true, orders: results });
     });

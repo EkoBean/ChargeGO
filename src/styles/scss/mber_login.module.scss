@@ -73,7 +73,7 @@
   text-align: center;
   font-family: "Mantou sans", serif;
   font-size: 36px;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-weight: 100;
   margin-bottom: 0;
   letter-spacing: 2px;
@@ -83,7 +83,7 @@
 }
 
 .login-arrow {
-  background: linear-gradient(90deg, #6b4f1d 0%, #ffd600 100%);
+  background: linear-gradient(90deg, mb.$brown 0%, #ffd600 100%);
   font-size: 23px;
   margin-left: 8px;
   background-clip: text;
@@ -102,7 +102,7 @@
 
 // 錯誤訊息樣式
 .login-error-message {
-  color: #d32f2f;
+  color: mb.$danger;
   background: #fff3e0;
   border-radius: 8px;
   padding: 10px 16px;
@@ -124,7 +124,7 @@
 
 .login-forgot {
   text-align: right;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-size: 0.95rem;
   margin-bottom: 8px;
 }
@@ -142,7 +142,7 @@
   margin-bottom: 16px;
   cursor: pointer;
   background: #ffd600;
-  color: #6b4f1d;
+  color: mb.$brown;
   transition: 0.2s;
   box-sizing: border-box;
   overflow: hidden;
@@ -273,7 +273,7 @@
     color: #fff;
     cursor: pointer;
     z-index: 20;
-    background: #66ff50;
+    background: mb.$success;
     border-radius: 50%;
     padding: 8px 16px;
     transition: 0.2s ease;
@@ -320,7 +320,7 @@
   color: #fff;
   cursor: pointer;
   z-index: 20;
-  background: #66ff50;
+  background: mb.$success;
   border-radius: 50%;
   padding: 8px 16px;
   transition: 0.2s ease;
@@ -338,7 +338,7 @@
     color: #fff;
     cursor: pointer;
     z-index: 20;
-    background: #66ff50;
+    background: mb.$success;
     border-radius: 50%;
     padding: 8px 16px;
     transition: 0.2s ease;
@@ -357,7 +357,7 @@
 .input-icon {
   width: 38px;
   height: 38px;
-  background: #66ff50;
+  background: mb.$success;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -400,13 +400,13 @@
   padding: 8px 12px;
   font-size: 1.2rem;
   font-weight: bold;
-  color: #6b4f1d;
+  color: mb.$brown;
 }
 
 .captcha-refresh {
   background: none;
   border: none;
-  color: #6b4f1d;
+  color: mb.$brown;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
@@ -421,7 +421,7 @@
 .alreadyRegistered {
   background: none;
   border: none;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-size: 0.95rem;
   text-align: right;
   margin-bottom: 12px;
@@ -438,7 +438,7 @@
   text-align: center;
   font-family: "Mantou sans", serif;
   font-size: 38px;
-  color: #6b4f1d;
+  color: mb.$brown;
   font-weight: 100;
   margin: 0 auto;
   letter-spacing: 2px;

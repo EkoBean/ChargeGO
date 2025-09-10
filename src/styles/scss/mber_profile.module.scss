@@ -112,7 +112,7 @@
   }
   span {
     font-size: 1rem;
-    color: #6b4f1d;
+    color: mb.$brown;
     font-weight: bold;
     letter-spacing: 2px;
   }
@@ -157,7 +157,7 @@
       border-radius: 8px;
       border: 1px solid #ffd600;
       background: #fff9e3;
-      color: #6b4f1d;
+      color: mb.$brown;
       font-size: 1rem;
       padding: 4px 8px;
       margin-left: 8px;
@@ -184,7 +184,7 @@
   font-weight: bold;
   cursor: pointer;
   background: #ffd600;
-  color: #6b4f1d;
+  color: mb.$brown;
   box-shadow: 0 2px 8px rgba(255, 214, 0, 0.12);
   transition: 0.2s;
 }
@@ -216,7 +216,7 @@
     align-items: center;
     gap: 2px;
     font-size: 1.1rem;
-    color: #6b4f1d;
+    color: mb.$brown;
     cursor: pointer;
     transition: 0.2s;
     img {
