@@ -31,29 +31,22 @@ $color-shop-circle: #69f05b;
   justify-content: center;
   margin-top: 4px;
 }
-@media (min-width: 575.98px) {
-  // 小於 576px
-  .mallNavbar {
-    display: none !important;
-  }
-}
 
 .mallBody {
   height: 100vh; // 或 height: 100vh;
   overflow: hidden; // 防止滾動撐高
-
-  // background: linear-gradient(
-  //   180deg,
-  //   #fece00 0.02%,
-  //   #fee471 11.35%,
-  //   #fff 75.99%
-  // );
+  background: linear-gradient(
+    180deg,
+    #fece00 0.02%,
+    #fee471 11.35%,
+    #fff 75.99%
+  );
 }
 .mallMain {
   z-index: 3;
   top: 23vh; /* 距離視窗頂端 10% 高度 */
 
-  width: 100vw;
+  width: 100%;
   height: 80vh;
   overflow: auto;
   position: relative;
@@ -65,7 +58,17 @@ $color-shop-circle: #69f05b;
   // 也可以寫成一行
   border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
 }
-
+@media (min-width: 575.98px) {
+  .mallNavbar {
+    display: none !important;
+  }
+  .mallMain {
+    left: 10%;
+    right: 10%;
+    width: 80% // 讓左右距離生效
+;
+  }
+}
 // ==========================
 // coupon禮物箱navbar跟main
 // ==========================

@@ -3,14 +3,14 @@ $primary: #ffce00;
 @use "../../../node_modules/bootstrap/scss/bootstrap";
 @import url("https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css");
 
-body {
-  font-family: "Arial", sans-serif;
-  background-color: $primary;
-  // min-height: 200vh;
-  // padding-top: 80px;
-  /* color: $primary; // 需要時可加這行 */
-  /* 為固定導航欄預留空間 */
-}
+// body {
+//   font-family: "Arial", sans-serif;
+//   background-color: $primary;
+//   // min-height: 200vh;
+//   // padding-top: 80px;
+//   /* color: $primary; // 需要時可加這行 */
+//   /* 為固定導航欄預留空間 */
+// }
 
 .content {
   position: relative;
