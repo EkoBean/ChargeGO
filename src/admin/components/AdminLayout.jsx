@@ -30,43 +30,43 @@ const AdminLayout = ({ children, onLogout }) => {
         <aside className="admin-sidebar">
           <nav className="admin-sidebar-nav">
             <NavLink 
-              to="/dashboard" 
+              to="/admin/dashboard" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               📊 總覽
             </NavLink>
             <NavLink 
-              to="/users" 
+              to="/admin/users" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               👥 用戶管理
             </NavLink>
             <NavLink 
-              to="/sites" 
+              to="/admin/sites" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               📍 站點管理
             </NavLink>
             <NavLink 
-              to="/orders" 
+              to="/admin/orders" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               🛒 租借紀錄
             </NavLink>
             <NavLink 
-              to="/events" 
+              to="/admin/events" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               📣 活動發送
             </NavLink>
             <NavLink 
-              to="/employee-log" 
+              to="/admin/employee-log" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               🧾 職員操作紀錄
             </NavLink>
             <NavLink 
-              to="/tasks" 
+              to="/admin/tasks" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
               ✅ 任務管理
