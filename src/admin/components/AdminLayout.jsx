@@ -51,7 +51,7 @@ const AdminLayout = ({ children, onLogout }) => {
               to="/orders" 
               className={({isActive}) => `admin-nav-item ${isActive ? 'admin-active' : ''}`}
             >
-              🛒 點數商城訂單
+              🛒 租借紀錄
             </NavLink>
             <NavLink 
               to="/events" 

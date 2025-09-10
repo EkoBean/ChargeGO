@@ -18,6 +18,7 @@ export const AdminDataProvider = ({ children }) => {
     totalChargers: 0,
     activeChargers: 0,
     todayOrders: 0,
+    totalOrders: 0,  // 新增總訂單數欄位
     revenue: 0,
   });
 
@@ -51,7 +52,10 @@ export const AdminDataProvider = ({ children }) => {
       ]);
 
       // 更新狀態
-      setDashboardStats(statsData);
+      setDashboardStats({
+        ...statsData,
+        totalOrders: ordersData.length  // 使用訂單數組的長度來設置總訂單數
+      });
       setUsers(usersData);
       setSites(sitesData);
       setChargers(chargersData);
