@@ -31,7 +31,7 @@ function App() {
       {/* <NavBarWebsite /> */}
       <Routes>
         {/* index */}
-        <Route path="/" element={<WebSite />} />
+        <Route path="/Website" element={<WebSite />} />
 
         {/* map index */}
         <Route path="/MapIndex" element={<MapIndex />} />
