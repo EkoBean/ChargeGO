@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBarAPP from "../../components/NavBarAPP";
+import Notify from "../../components/notify";
 import styles from "../../styles/scss/mber_info.module.scss";
 
 const mber_Info = () => {
@@ -60,7 +61,7 @@ const mber_Info = () => {
         </span>
 
         <div className={styles.mber_info_header}>
-          <img src="./Iconimg/notify.svg" />
+          <Notify />
         </div>
         <div className={styles.mber_info_title}>
           <img src="../../../public/user.svg" />

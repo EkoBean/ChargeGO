@@ -1,0 +1,47 @@
+@use './tokens.module.scss' as n;
+
+.notify {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.bell {
+  transition: transform 0.3s;
+}
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-15deg); }
+  40% { transform: rotate(15deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+.notify:hover .bell {
+  animation: shake 0.5s;
+}
+.counter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+}
+.counter span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  color: n.$danger;
+  font-weight: bold;
+}
+.counter img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+}
+
