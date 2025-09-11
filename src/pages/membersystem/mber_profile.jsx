@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_profile.module.scss";
 import NavBarAPP from "../../components/NavBarAPP";
+import Notify from "../../components/notify";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
@@ -13,11 +14,6 @@ const mber_Profile = () => {
   // 返回按鈕點擊事件
   const backBtnClick = () => {
     return () => navigate(-1);
-  };
-
-  // 通知按鈕點擊事件
-  const notifyBtnClick = () => {
-    return () => navigate("/mber_info");
   };
 
   // 取得 user 資料（登入狀態由 session 驗證）
@@ -50,7 +46,7 @@ const mber_Profile = () => {
 
   // 處理會員資料修改
   const handleEditProfile = () => {
-      navigate("/mber_edit");
+    navigate("/mber_edit");
     // 這裡可以實現資料修改的功能
   };
 
@@ -108,12 +104,7 @@ const mber_Profile = () => {
           </div>
         </div>
         <div className={styles.mber_info_header}>
-          <img
-            src="/Iconimg/notify.svg"
-            alt="通知按鈕"
-            className={styles.notify_btn}
-            onClick={notifyBtnClick()}
-          />
+          <Notify />
         </div>
         <div className={styles.mber_info_main}>
           {/* 頭像 */}
@@ -123,8 +114,11 @@ const mber_Profile = () => {
           {/* 卡片列 */}
           <div className={styles.mber_info_cards}>
             <div className={styles.card}>
-              <img src="/Iconimg/wallet.svg" alt="信用卡資料"
-              onClick={() => navigate("/mber_addCreditcard")} />
+              <img
+                src="/Iconimg/wallet.svg"
+                alt="信用卡資料"
+                onClick={() => navigate("/mber_addCreditcard")}
+              />
               <span>信用卡資料</span>
             </div>
             <div className={styles.card}>
@@ -133,7 +127,7 @@ const mber_Profile = () => {
                 alt="帳單紀錄"
                 onClick={() => navigate("/mber_rentRecord")}
               />
-             
+
               <span>租借紀錄</span>
             </div>
             <div className={styles.card}>

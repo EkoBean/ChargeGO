@@ -10,7 +10,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MapIndex from "./mapIndex/mapIndex";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
-import Login from "./Login/Login";
 import Mbre_login from "./membersystem/mber_login";
 import Mber_register from "./membersystem/mber_register";
 import Mber_Profile from "./membersystem/mber_profile";
