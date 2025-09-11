@@ -145,7 +145,7 @@ const mber_Login = () => {
             <button
               type="button"
               className={styles["forgot-link"]}
-              onClick={() => alert("請聯繫客服重設密碼")}
+              onClick={() => navigate("/mber_forgotpwd")}
             >
               忘記密碼
             </button>
