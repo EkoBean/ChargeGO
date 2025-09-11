@@ -4,7 +4,7 @@ import styles from "../../styles/scss/mall_index.module.scss";
 import NavBarPhone from "../../components/NavBarApp";
 const Coupon = () => {
   // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
-  const initialUid = sessionStorage.getItem("uid") || "2";
+  const initialUid = sessionStorage.getItem("uid") || "3";
   const [userId, setUserId] = useState(initialUid);
   const [userPoint, setUserPoint] = useState(null);
 
@@ -128,7 +128,7 @@ const Coupon = () => {
           <img src="/Iconimg/backBtn.svg" alt="backBtn" />
         </button>
 
-        <div className={styles.navbarCenterSection}>
+        <div className={styles.navbarCenterSectionForCouponBox}>
           <div className={styles.couponPoint}>
             <div className={styles.couponText}>
               <img src="/Iconimg/greenpoint.svg" alt="point" />
@@ -165,7 +165,6 @@ const Coupon = () => {
             </button>
           </li>
         </ul>
-
         <div className={styles.couponBoxList + " mt-3"}>
           {activeTab === "store" && (
             <>
