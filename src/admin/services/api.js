@@ -22,8 +22,8 @@ const ApiService = {
       });
 
       const responseText = await response.text();
-      console.log('API 回應狀態:', response.status); // 加入 debug
-      console.log('API 回應內容:', responseText); // 加入 debug
+      // console.log('API 回應狀態:', response.status); // 加入 debug
+      // console.log('API 回應內容:', responseText); // 加入 debug
 
       let data;
       try {
@@ -162,7 +162,7 @@ const ApiService = {
   // ========== update sites ======================
   async updateSite(site_id, payload) {
     const body = {
-      site_id: Number(site_id),
+      site_id: site_id,
       country: payload.country,
       site_name: payload.site_name ?? payload.siteName,
       address: payload.address,
