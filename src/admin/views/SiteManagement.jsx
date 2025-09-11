@@ -4,12 +4,24 @@ import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
 import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
+
+// Google Maps
+import {
+  APIProvider,
+} from "@vis.gl/react-google-maps";
+
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+
 import OperationLogger from '../../../backend/operationLogger';
 
 //站點管理主畫面
 const SiteManagement = () => {
   // 從 context 取得 sites, chargers, setSites, loading, error, loadAllData
   const { sites, chargers, setSites, loading, error, loadAllData } = useAdminData();
+
+  // Google Maps 狀態
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   // debug: 確認 chargers 內容（印出第一筆完整物件以了解欄位）
   if (Array.isArray(chargers) && chargers.length > 0) {
@@ -72,8 +84,8 @@ const SiteManagement = () => {
   // ('' ->message content, null -> warning type)
   const [formatWarning, setFormatWarning] = useState({ message: '', type: null });
 
-  // =========== functions pack ================
-
+  // =========================== functions pack ===================================
+  // =====================lat lng format checker ==========================
   const checker = {
     isDemical8: (n) => {
       const str = String(n);
@@ -89,7 +101,95 @@ const SiteManagement = () => {
     },
   };
 
-  // ==========================================
+  // ==================== get address from latlng by geocoder ========================
+  function getSetAddress(coord) {
+    if (isGoogleMapsLoaded && coord) {
+      let lat, lng;
+
+      // 檢查是否為 LatLng 物件（lat 為數字）
+      if (typeof coord.lat === 'number' && typeof coord.lng === 'number') {
+        // LatLng 物件：直接使用數字
+        lat = coord.lat;
+        lng = coord.lng;
+      } else {
+        // 普通物件：lat/lng 可能是字串，轉為數字
+        lat = parseFloat(coord.lat || coord.latitude);
+        lng = parseFloat(coord.lng || coord.longitude);
+
+        // 檢查是否為有效數字
+        if (isNaN(lat) || isNaN(lng)) {
+          console.error('Invalid coordinates:', coord);
+          return;
+        }
+      }
+      // 格式化為 8 位小數
+      const coordArray = {
+        latitude: parseFloat(lat.toFixed(8)),
+        longitude: parseFloat(lng.toFixed(8)),
+      };
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode(
+        // request
+        { location: { lat: coordArray.latitude, lng: coordArray.longitude }, region: 'TW', language: 'zh-TW' },
+        // callback
+        (result, status) => {
+          // console.log(result);
+          if (status === "OK" && result[0]) {
+            console.log('result :>> ', result);
+            const addressComp = result[0].address_components;
+            // 一級行政區
+            const country = addressComp.find(x => x.types.includes('administrative_area_level_1'))?.long_name || '';
+            // 地址
+            // 二級行政區
+            const administrativeLv2 = addressComp.find(x => x.types.includes('administrative_area_level_2'))?.long_name || '';
+            // 街道名稱
+            const route = addressComp.find(x => x.types.includes('route'))?.long_name || '';
+            // 門牌號碼
+            let streetNumber = addressComp.find(x => x.types.includes('street_number'))?.long_name || '';
+            if (streetNumber.includes('號') === false) { streetNumber = streetNumber + '號' }
+
+            // console.log('streetNumber :>> ', route);
+            const addressFull = `${administrativeLv2}${route}${streetNumber}`;
+
+            setEditSite((prev) => ({
+              ...prev,
+              address: addressFull,
+              country: country,
+              latitude: coordArray.latitude,
+              longitude: coordArray.longitude,
+            }))
+          }
+          else {
+            setEditSite((prev) => ({
+              ...prev,
+              latitude: coordArray.latitude,
+              longitude: coordArray.longitude,
+            }))
+            alert("無法取得地址，請手動輸入");
+          }
+        })
+    }
+
+  }
+  // get coordinate from address
+  function getsetCoordinate(address) {
+        if (isGoogleMapsLoaded && address) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode(
+        // request
+        { address: address, region: 'TW', language: 'zh-TW' },
+        (result, status)=>{
+          const location = result[0]?.geometry?.location;
+          setEditSite((prev) => ({
+            ...prev,
+            latitude: location.lat().toFixed(8),
+            longitude: location.lng().toFixed(8),
+          }))
+        }
+      )
+        }
+  }
+  // ===========================================================================
 
   // handleViewSite 定義
   const handleViewSite = async (site) => {
@@ -153,55 +253,87 @@ const SiteManagement = () => {
     setShowSiteModal(true);
   };
   // debug ===========testing editSite changes============
-  useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
-  useEffect(() => { console.log('formatWarning :>> ', formatWarning); }, [formatWarning])
+  // useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
 
-  // ===================================================
+  // debug ===================================================
 
+
+  //============ changing the data by user interact ================
+  // ================== keydown input on form =================
   const handleSiteFieldChange = (e) => {
-    if (!e || !e.target) return;
+    if (!e || !e.target ) return;
     const { name, value } = e.target;
-    // debug=================================
-    console.log(name, value);
-    // =====================================
 
-    setEditSite((prev) => {
-      // check the coordinate format
-      if (name === "longitude" || name === "latitude") {
-
-        // 檢查小數位數是否為 8 位
-        if (!checker.isDemical8(value)) {
-          setFormatWarning({ message: "小數位數必須為 8 位。", type: name });
-          return {
-            ...prev, [name]: value
+    // check the coordinate format
+    // handle latitude & longitude
+    if (name === "longitude" || name === "latitude") {
+      if (name === 'longitude' & !checker.isValidLng(value)) {
+        setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+      }
+      else if (name === "latitude" & !checker.isValidLat(value)) {
+        setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+      }
+      // 檢查小數位數是否為 8 位
+      else if (!checker.isDemical8(value)) {
+        setFormatWarning({ message: "小數位數必須為 8 位。", type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        return;
+      }
+      else {
+        setEditSite((prev) => {
+          const newEditSite = { ...prev, [name]: value };
+          // 在 callback 中構造 coord，使用最新的 newEditSite
+          const coord = {
+            lat: parseFloat(newEditSite.latitude),
+            lng: parseFloat(newEditSite.longitude)
+          };
+          // 檢查兩個座標都有效才呼叫
+          if (!isNaN(coord.lat) && !isNaN(coord.lng)) {
+            getSetAddress(coord);
           }
-        }
-        // 檢查台灣經緯度範圍
-        if (name === "longitude") {
-          if (!checker.isValidLng(value)) {
-            setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
-            return {
-              ...prev, [name]: value
-            };
-          }
-        } else if (name === "latitude") {
-          if (!checker.isValidLat(value)) {
-            setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
-            return {
-              ...prev, [name]: value
-            };
-          }
-        }
+          return newEditSite;
+        });
         setFormatWarning("");
       }
-      else if (name) {
-        if (!value) {
-          setFormatWarning({ message: '必填欄位不可為空', type: name });
-        }
+    }
+    // handle other fields
+    else {
+      if (!value) {
+        setFormatWarning({ message: `必填欄位不可為空`, type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        
       }
-      return { ...prev, [name]: value };
-    });
+      else {
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        setFormatWarning("");
+      }
+    }
   };
+
+  // ================== end of keydown input on form ====================
+  // =========== click on map =================
+  const handleMapClick = (event) => {
+    if (!isGoogleMapsLoaded) return;
+    const coord = event.detail.latLng
+    // ============ debug ============
+    // console.log('coord :>> ', coord);
+    getSetAddress(coord);
+  }
+  // =========== end of click on map ============
+  // ============ click on '查詢地圖' ============
+  const searchByAddress = () => {
+    if (!isGoogleMapsLoaded && !editSite) return;
+    const address = editSite?.country + editSite?.address;
+    getsetCoordinate(address)
+
+  }
+
+
+  // ============ end of click on '查詢地圖' ============
+
+  // ================ end of changing the data by user interact ================
 
   // press the save button in SiteDetailModal.jsx
   const handleSaveSite = async () => {
@@ -264,7 +396,7 @@ const SiteManagement = () => {
         }
 
         setSites((prev) => prev.map((s) => (s.site_id === updated.site_id ? { ...s, ...updated } : s)));
-        setShowSiteModal(true); 
+        setShowSiteModal(true);
         setIsEditingSite(false);
         setEditSite(updated.site);
         setSelectedSite(updated.site);
@@ -274,6 +406,7 @@ const SiteManagement = () => {
       alert(`站點儲存失敗：${err.message || "請稍後再試"}`);
     } finally {
       setSaving(false);
+      loadAllData();
     }
   };
 
@@ -297,126 +430,136 @@ const SiteManagement = () => {
   }
 
   return (
-    <div className="admin-sites-content">
-      <div className="admin-content-header">
-        <h2>站點管理</h2>
-        <div>
-          <button className="btn admin-btn" onClick={loadAllData}>
-            🔄 刷新資料
-          </button>
-          <button className="btn admin-btn admin-primary" onClick={handleAddSite}>
-            ➕ 新增站點
-          </button>
+    <APIProvider
+      apiKey={APIkey}
+      region='TW'
+      libraries={['places']}
+      onLoad={() => setIsGoogleMapsLoaded(true)}
+    >
+      <div className="admin-sites-content">
+        <div className="admin-content-header">
+          <h2>站點管理</h2>
+          <div>
+            <button className="btn admin-btn" onClick={loadAllData}>
+              🔄 刷新資料
+            </button>
+            <button className="btn admin-btn admin-primary" onClick={handleAddSite}>
+              ➕ 新增站點
+            </button>
+          </div>
         </div>
+
+        <div className="admin-stats-row">
+          <div
+            className={`admin-mini-stat admin-primary${siteFilter === "all" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("all")}
+          >
+            <span className="admin-number">{sites.length}</span>
+            <span className="admin-label">總站點數</span>
+          </div>
+          <div
+            className={`admin-mini-stat admin-success${siteFilter === "available" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("available")}
+          >
+            <span className="admin-number">{counts.available}</span>
+            <span className="admin-label">可用充電器</span>
+          </div>
+          <div
+            className={`admin-mini-stat admin-warning${siteFilter === "occupied" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("occupied")}
+          >
+            <span className="admin-number">{counts.occupied}</span>
+            <span className="admin-label">使用中</span>
+          </div>
+          <div
+            className={`admin-mini-stat admin-danger${siteFilter === "maintenance" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("maintenance")}
+          >
+            <span className="admin-number">{counts.maintenance}</span>
+            <span className="admin-label">維護中</span>
+          </div>
+          <div
+            className={`admin-mini-stat${siteFilter === "preparing" ? " admin-card-selected" : ""}`}
+            style={{ cursor: "pointer" }}
+            onClick={() => setSiteFilter("preparing")}
+          >
+            <span className="admin-number">{counts.preparing}</span>
+            <span className="admin-label">準備中</span>
+          </div>
+        </div>
+
+        <div className="admin-table-container">
+          <table className="admin-data-table">
+            <thead>
+              <tr>
+                <th>站點ID</th>
+                <th>站點名稱</th>
+                <th>地址</th>
+                <th>充電器數量</th>
+                <th>可用數量</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSites.map((site) => {
+                // 轉成字串比較 site_id，避免 number vs string 差異造成過濾失敗
+                const siteChargers = chargers.filter((c) => String(c.site_id) === String(site.site_id));
+                // 使用 normalizeStatus(c) 判斷是否為 'available'（比直接比對 c.status 更可靠）
+                const availableCount = siteChargers.filter((c) => normalizeStatus(c) === "available").length;
+
+                return (
+                  <tr key={site.site_id}>
+                    <td>{site.site_id}</td>
+                    <td>{site.site_name}</td>
+                    <td>{site.country + site.address}</td>
+                    <td>{siteChargers.length}</td>
+                    <td>
+                      <span className={`admin-badge ${availableCount > 0 ? "admin-success" : "admin-danger"}`}>
+                        {availableCount}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewSite(site)}>
+                        查看詳情
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {showSiteModal && selectedSite && (
+          <SiteDetailModal
+            formatWarning={formatWarning}
+            site={selectedSite}
+            editSite={editSite}
+            isEditing={isEditingSite}
+            creating={creatingSite}
+            saving={saving}
+            stats={editSite?._stats ?? { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 }}
+            chargers={chargers.filter(c => String(c.site_id) === String(selectedSite.site_id))} // <--- 傳入該站點充電器資料
+            onEdit={() => setIsEditingSite(true)}
+            onCancel={() => {
+              setEditSite(selectedSite);
+              setIsEditingSite(false);
+              setCreatingSite(false);
+            }}
+            onSave={handleSaveSite}
+            onChange={handleSiteFieldChange}
+            onMapClick={handleMapClick}
+            onSearchClick={searchByAddress}
+            onClose={() => !saving && setShowSiteModal(false)}
+          />
+        )}
       </div>
+    </APIProvider>
 
-      <div className="admin-stats-row">
-        <div
-          className={`admin-mini-stat admin-primary${siteFilter === "all" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("all")}
-        >
-          <span className="admin-number">{sites.length}</span>
-          <span className="admin-label">總站點數</span>
-        </div>
-        <div
-          className={`admin-mini-stat admin-success${siteFilter === "available" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("available")}
-        >
-          <span className="admin-number">{counts.available}</span>
-          <span className="admin-label">可用充電器</span>
-        </div>
-        <div
-          className={`admin-mini-stat admin-warning${siteFilter === "occupied" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("occupied")}
-        >
-          <span className="admin-number">{counts.occupied}</span>
-          <span className="admin-label">使用中</span>
-        </div>
-        <div
-          className={`admin-mini-stat admin-danger${siteFilter === "maintenance" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("maintenance")}
-        >
-          <span className="admin-number">{counts.maintenance}</span>
-          <span className="admin-label">維護中</span>
-        </div>
-        <div
-          className={`admin-mini-stat${siteFilter === "preparing" ? " admin-card-selected" : ""}`}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSiteFilter("preparing")}
-        >
-          <span className="admin-number">{counts.preparing}</span>
-          <span className="admin-label">準備中</span>
-        </div>
-      </div>
-
-      <div className="admin-table-container">
-        <table className="admin-data-table">
-          <thead>
-            <tr>
-              <th>站點ID</th>
-              <th>站點名稱</th>
-              <th>地址</th>
-              <th>充電器數量</th>
-              <th>可用數量</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSites.map((site) => {
-              // 轉成字串比較 site_id，避免 number vs string 差異造成過濾失敗
-              const siteChargers = chargers.filter((c) => String(c.site_id) === String(site.site_id));
-              // 使用 normalizeStatus(c) 判斷是否為 'available'（比直接比對 c.status 更可靠）
-              const availableCount = siteChargers.filter((c) => normalizeStatus(c) === "available").length;
-
-              return (
-                <tr key={site.site_id}>
-                  <td>{site.site_id}</td>
-                  <td>{site.site_name}</td>
-                  <td>{site.address}</td>
-                  <td>{siteChargers.length}</td>
-                  <td>
-                    <span className={`admin-badge ${availableCount > 0 ? "admin-success" : "admin-danger"}`}>
-                      {availableCount}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewSite(site)}>
-                      查看詳情
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {showSiteModal && selectedSite && (
-        <SiteDetailModal
-          formatWarning={formatWarning}
-          site={selectedSite}
-          editSite={editSite}
-          isEditing={isEditingSite}
-          creating={creatingSite}
-          saving={saving}
-          stats={editSite?._stats ?? { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 }}
-          chargers={chargers.filter(c => String(c.site_id) === String(selectedSite.site_id))} // <--- 傳入該站點充電器資料
-          onEdit={() => setIsEditingSite(true)}
-          onCancel={() => {
-            setEditSite(selectedSite);
-            setIsEditingSite(false);
-            setCreatingSite(false);
-          }}
-          onSave={handleSaveSite}
-          onChange={handleSiteFieldChange}
-          onClose={() => !saving && setShowSiteModal(false)}
-        />
-      )}
-    </div>
   );
 };
 
