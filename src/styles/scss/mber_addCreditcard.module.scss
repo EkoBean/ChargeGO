@@ -1,0 +1,203 @@
+@use "./tokens.module.scss" as mb;
+
+.mber_addCreditcard {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.creditcard-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.payment-text,
+.cardIconText {
+  font-family: "Mantou sans", serif;
+  font-size: 2rem;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 8px;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.form-label {
+  font-size: 1rem;
+  color: mb.$brown;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.creditcard-form {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.form-row {
+  font-weight: bold;
+  font-size: medium;
+  color: mb.$brown;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.form-label {
+  text-align: left;
+}
+
+.form-input {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: right;
+}
+.form-input-cvv {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 100px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.form-input-small {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 80px;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.form-row > .form-input,
+.form-row > .form-input-cvv,
+.form-row > .form-input-small {
+  flex: 1 1 0;
+}
+
+.submit-btn,
+.cancel-btn {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.3rem;
+  letter-spacing: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background: #ffd600;
+  color: mb.$brown;
+  transition: 0.2s;
+}
+
+.cancel-btn {
+  margin-bottom: 32px;
+}
+
+.submit-btn:hover,
+.cancel-btn:hover {
+  background: #ffc107;
+  transform: scale(1.05);
+}
+
+.back-icon {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 2rem;
+  color: #fff;
+  background: mb.$success;
+  border-radius: 50%;
+  padding: 8px 16px;
+  cursor: pointer;
+  z-index: 20;
+  transition: 0.2s;
+}
+.back-icon:hover {
+  color: #ffd600;
+  transform: scaleX(1.2);
+}
+
+@media screen and (max-width: 600px) {
+  .creditcard-container {
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-input,
+  .form-input-cvv,
+  .form-input-small {
+    width: 100%;
+  }
+
+  .form-input-cvv {
+    width: 100%;
+  }
+
+  .submit-btn,
+  .cancel-btn {
+    font-size: 1rem;
+  }
+}

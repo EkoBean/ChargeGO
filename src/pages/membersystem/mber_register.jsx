@@ -1,49 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import styles from "../../styles/scss/mber_register.module.scss";
-import ChargegoLogo from "../../components/ChargegoLogo";
-import NavBarAPP from "../../components/NavBarAPP";
+import styles from "../../styles/scss/mber_register.module.scss"; 
+import crypto from "crypto-js";
+
 const mber_Register = () => {
   // 註冊表單狀態
   const [form, setForm] = useState({
-    username: "",
+    login_id: "",
+    user_name: "",
     password: "",
     confirmPassword: "",
     email: "",
     telephone: "",
-    county: "", // 新增 county 欄位
+    county: "",
     address: "",
     credit_card_number: "",
-    credit_card_date: "",
+    credit_card_month: "", // 月份
+    credit_card_year: "", // 年份
+    cvv: "", // 新增 CVV 欄位
     subpwd: "",
     agreerule: false,
     event: true,
   });
-  // 驗證碼
-  const [captchaValue, setCaptchaValue] = useState(() =>
-    Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-  );
+  // 驗證碼（6位英數字）
+  const [captchaValue, setCaptchaValue] = useState("");
   // 註冊成功
   const [isSuccess, setIsSuccess] = useState(false);
   // 轉跳頁面倒數計時
   const [countdown, setCountdown] = useState(3);
   // 導向網站
   const navigate = useNavigate();
+  // 驗證碼初始化
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+  // 產生新驗證碼
+  const refreshCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaValue(code);
+  };
   // 表單變更處理
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     let v = type === "checkbox" ? checked : value;
     // 數字欄位簡單過濾
     if (name === "telephone") v = v.replace(/\D/g, "").slice(0, 15);
-    if (name === "credit_card_number") v = v.replace(/\D/g, "").slice(0, 16);
-    if (name === "credit_card_date") v = v.replace(/[^0-9/]/g, "").slice(0, 5);
+    if (name === "credit_card_number") {
+      let digits = value.replace(/\D/g, "").slice(0, 16);
+      v = digits.replace(/(.{4})/g, "$1 ").trim();
+    }
+    if (name === "credit_card_month") v = v.replace(/\D/g, "").slice(0, 2);
+    if (name === "credit_card_year") v = v.replace(/\D/g, "").slice(0, 2);
+    if (name === "cvv") v = v.replace(/\D/g, "").slice(0, 4); // CVV 最多 4 碼
     setForm((prev) => ({ ...prev, [name]: v }));
   };
   // 驗證表單有無錯誤
   const validate = () => {
     // 必填欄位檢查
-    if (!form.username.trim()) return "帳號必填";
+    if (!form.login_id.trim()) return "帳號必填";
+    if (!form.user_name.trim()) return "姓名必填";
     if (!form.password) return "密碼必填";
     if (!form.confirmPassword) return "確認密碼必填";
     if (!form.email.trim()) return "Email 必填";
@@ -51,23 +71,26 @@ const mber_Register = () => {
     if (!form.county.trim()) return "縣市必填";
     if (!form.address.trim()) return "地址必填";
     if (!form.credit_card_number.trim()) return "信用卡號必填";
-    if (!form.credit_card_date.trim()) return "信用卡到期日必填";
+    if (!form.credit_card_month.trim()) return "信用卡到期月必填";
+    if (!form.credit_card_year.trim()) return "信用卡到期年必填";
+    if (!form.cvv.trim()) return "安全碼(CVV)必填"; // 新增 CVV 必填
     if (!form.subpwd.trim()) return "驗證碼必填";
     // 其他驗證
-    if (form.subpwd !== String(captchaValue)) return "驗證碼錯誤";
+    if (form.subpwd !== captchaValue) return "驗證碼錯誤";
     if (form.password !== form.confirmPassword) return "密碼與確認密碼不一致";
     if (!form.agreerule) return "請勾選同意使用者規範";
-    if (form.username == form.password) return "帳號密碼不可相同";
+    if (form.login_id == form.password) return "帳號密碼不可相同";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "Email 格式錯誤";
     if (form.telephone && form.telephone.length < 8) return "電話格式不正確";
-    if (form.credit_card_number && form.credit_card_number.length !== 16)
+    if (form.credit_card_number && form.credit_card_number.length !== 19)
       return "信用卡號需 16 碼數字";
-    if (
-      form.credit_card_date &&
-      !/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.credit_card_date)
-    )
-      return "到期日格式需為 MM/YY";
+    if (form.credit_card_month && (parseInt(form.credit_card_month) < 1 || parseInt(form.credit_card_month) > 12))
+      return "到期月需為 01~12";
+    if (form.credit_card_year && !/^\d{2}$/.test(form.credit_card_year))
+      return "到期年需為 2 碼數字";
+    if (form.cvv && (form.cvv.length < 3 || form.cvv.length > 4))
+      return "安全碼(CVV)需 3~4 碼數字"; // 新增 CVV 格式驗證
     return null;
   };
   // 表單提交處理
@@ -79,16 +102,23 @@ const mber_Register = () => {
       return;
     }
     try {
+      // 前端雜湊密碼（SHA256取前10碼）
+      const hashedPwd = crypto.SHA256(form.password).toString(crypto.enc.Hex).slice(0, 10);
+      // 將信用卡號中間8碼遮蔽
+      const maskedCardNumber = form.credit_card_number.replace(/(\d{4}) (\d{4}) (\d{4}) (\d{4})/, (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`);
       const payload = {
-        user_name: form.username,
-        password: form.password,
+        login_id: form.login_id,
+        user_name: form.user_name,
+        password: hashedPwd, // 送出雜湊後的密碼
         email: form.email,
         telephone: form.telephone,
-        country: form.county, // 傳送 county 作為 country 欄位
+        country: form.county,
         address: form.address,
-        credit_card_number: form.credit_card_number,
-        credit_card_date: form.credit_card_date,
-        status: "0", // 修正為字串型態，符合 enum
+        credit_card_number: maskedCardNumber,
+        credit_card_month: form.credit_card_month,
+        credit_card_year: form.credit_card_year,
+        cvv: form.cvv, // 新增 CVV 欄位
+        status: "0",
       };
       const res = await axios.post(
         "http://localhost:3000/mber_register",
@@ -121,20 +151,23 @@ const mber_Register = () => {
   // 清空表單
   const handleClear = () => {
     setForm({
-      username: "",
+      login_id: "",
+      user_name: "",
       password: "",
       confirmPassword: "",
       email: "",
       telephone: "",
-      county: "", // 清空 county
+      county: "",
       address: "",
       credit_card_number: "",
-      credit_card_date: "",
+      credit_card_month: "", // 月份
+      credit_card_year: "", // 年份
+      cvv: "", // 新增 CVV 欄位
       subpwd: "",
       agreerule: false,
       event: true,
     });
-    setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
+    refreshCaptcha();
   };
 
   // 如果註冊成功，顯示成功訊息和倒數計時
@@ -159,8 +192,7 @@ const mber_Register = () => {
   return (
     <div className={styles["register-bg"]}>
       {/* 手機版專用區塊 */}
-      <ChargegoLogo className={styles["mobile-only-logo"]} />
-      <NavBarAPP />
+   
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
           {/* 返回上頁按鈕 */}
@@ -180,14 +212,29 @@ const mber_Register = () => {
             <div className={styles["register-form-row"]}>
               {/* 帳號 */}
               <div className={styles["register-input-group"]}>
-                <label htmlFor="username" className={styles["register-label"]}>
+                <label htmlFor="login_id" className={styles["register-label"]}>
                   帳號：
                 </label>
                 <input
                   className={styles["register-input"]}
-                  id="username"
-                  name="username"
-                  value={form.username}
+                  id="login_id"
+                  name="login_id"
+                  value={form.login_id}
+                  onChange={handleChange}
+                  required
+                  type="text"
+                />
+              </div>
+              {/* 姓名 */}
+              <div className={styles["register-input-group"]}>
+                <label htmlFor="user_name" className={styles["register-label"]}>
+                  姓名：
+                </label>
+                <input
+                  className={styles["register-input"]}
+                  id="user_name"
+                  name="user_name"
+                  value={form.user_name}
                   onChange={handleChange}
                   required
                   type="text"
@@ -320,27 +367,68 @@ const mber_Register = () => {
                   type="text"
                   value={form.credit_card_number}
                   onChange={handleChange}
-                  maxLength={16}
+                  maxLength={19}
                   placeholder="16 碼"
                 />
               </div>
-              {/* 信用卡到期日 */}
+              {/* 信用卡到期月 */}
               <div className={styles["register-input-group"]}>
                 <label
-                  htmlFor="credit_card_date"
+                  htmlFor="credit_card_month"
                   className={styles["register-label"]}
                 >
-                  信用卡到期日：
+                  信用卡到期月：
                 </label>
                 <input
                   className={styles["register-input"]}
-                  id="credit_card_date"
-                  name="credit_card_date"
+                  id="credit_card_month"
+                  name="credit_card_month"
                   type="text"
-                  value={form.credit_card_date}
+                  value={form.credit_card_month}
                   onChange={handleChange}
-                  placeholder="MM/YY"
-                  maxLength={5}
+                  maxLength={2}
+                  placeholder="MM"
+                  required
+                />
+              </div>
+              {/* 信用卡到期年 */}
+              <div className={styles["register-input-group"]}>
+                <label
+                  htmlFor="credit_card_year"
+                  className={styles["register-label"]}
+                >
+                  信用卡到期年：
+                </label>
+                <input
+                  className={styles["register-input"]}
+                  id="credit_card_year"
+                  name="credit_card_year"
+                  type="text"
+                  value={form.credit_card_year}
+                  onChange={handleChange}
+                  maxLength={2}
+                  placeholder="YY"
+                  required
+                />
+              </div>
+              {/* 安全碼(CVV) */}
+              <div className={styles["register-input-group"]}>
+                <label
+                  htmlFor="cvv"
+                  className={styles["register-label"]}
+                >
+                  安全碼(CVV)：
+                </label>
+                <input
+                  className={styles["register-input"]}
+                  id="cvv"
+                  name="cvv"
+                  type="text"
+                  value={form.cvv}
+                  onChange={handleChange}
+                  maxLength={4}
+                  placeholder="3~4 碼"
+                  required
                 />
               </div>
               {/* 驗證碼 */}
@@ -355,11 +443,7 @@ const mber_Register = () => {
                 <button
                   type="button"
                   className={styles["captcha-refresh"]}
-                  onClick={() =>
-                    setCaptchaValue(
-                      Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-                    )
-                  }
+                  onClick={refreshCaptcha}
                 >
                   重新產生
                 </button>
@@ -414,7 +498,7 @@ const mber_Register = () => {
               </div>
             </div>
             {/* 按鈕 */}
-            <div className={styles["button-group"]}>
+            <div >
               <button
                 className={styles["correct-btn"]}
                 id="mber_register"
@@ -423,7 +507,7 @@ const mber_Register = () => {
                 註冊
               </button>
               <button
-                className={styles["leave-btn"]}
+                className={styles["correct-btn"]}
                 id="clear"
                 type="button"
                 onClick={handleClear}
@@ -431,7 +515,7 @@ const mber_Register = () => {
                 清除
               </button>
               <button
-                className={styles["alreadyRegistered"]}
+                className={styles.loginLink}
                 type="button"
                 onClick={() => navigate("/mber_login")}
               >
@@ -446,3 +530,5 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
+
+
