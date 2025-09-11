@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import crypto from 'crypto'; 
-import session from 'express-session'; 
-import cookieParser from 'cookie-parser'; 
+import crypto from 'crypto';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import db from './db.js'; // 引入 db.js
 
 const app = express();
@@ -43,37 +43,31 @@ app.get('/user/:uid', (req, res) => {
     });
 });
 
-// 取得會員訂單
-app.get('/user/:uid/orders', (req, res) => {
-    db.query('SELECT * FROM order_record WHERE uid = ?', [req.params.uid], (err, results) => {
-        if (err) return res.status(500).json({ error: err });
-        res.json(results);
-    });
-});
 
 // 註冊會員 API
 app.post('/mber_register', (req, res) => {
     const {
+        login_id,
         user_name,
-        telephone,
+        password, // 已是雜湊值
         email,
-        password,
+        telephone,
         country,
         address,
-        credit_card_number,
-        credit_card_date
+        credit_card_number, // 信用卡號
+        credit_card_month, // MM
+        credit_card_year, // YY
+        cvv // CVV
     } = req.body;
 
-
-
-    // 檢查 username 或 email 是否重複
+    // 檢查 login_id 或 email 是否重複
     db.query(
-        'SELECT user_name, email FROM user WHERE user_name = ? OR email = ?',
-        [user_name, email],
+        'SELECT login_id, email FROM user WHERE login_id = ? OR email = ?',
+        [login_id, email],
         (err, results) => {
             if (err) return res.status(500).json({ error: err });
             if (results.length > 0) {
-                if (results[0].user_name === user_name) {
+                if (results[0].login_id === login_id) {
                     return res.json({ success: false, message: '帳號已被註冊' });
                 }
                 if (results[0].email === email) {
@@ -88,30 +82,38 @@ app.post('/mber_register', (req, res) => {
             const total_carbon_footprint = 0;
             const status = "0";
 
-            // 密碼雜湊（10碼）
-            const hashed_password = hashPassword(password);
-
+            // 先新增 user 資料
             db.query(
-                `INSERT INTO user (user_name, telephone, email, password, country, address, blacklist, wallet, point, total_carbon_footprint, credit_card_number, credit_card_date, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO user (
+                    login_id, user_name, telephone, email, password, country, address,
+                    blacklist, wallet, point, total_carbon_footprint, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
+                    login_id,
                     user_name,
                     telephone,
                     email,
-                    hashed_password, // 存雜湊值
+                    password, // 已是雜湊值
                     country,
                     address,
                     blacklist,
                     wallet,
                     point,
                     total_carbon_footprint,
-                    credit_card_number,
-                    credit_card_date,
                     status,
                 ],
                 (err2, result) => {
                     if (err2) return res.status(500).json({ error: err2 });
-                    res.json({ success: true, uid: result.insertId });
+                    const uid = result.insertId;
+                    // 新增 user_creditcard 資料
+                    db.query(
+                        `INSERT INTO user_creditcard (uid, user_name, creditcard, CVV, MM, YY) VALUES (?, ?, ?, ?, ?, ?)`,
+                        [uid, user_name, credit_card_number, cvv, credit_card_month, credit_card_year],
+                        (err3, result2) => {
+                            if (err3) return res.status(500).json({ error: err3 });
+                            res.json({ success: true, uid });
+                        }
+                    );
                 }
             );
         }
@@ -120,11 +122,11 @@ app.post('/mber_register', (req, res) => {
 
 // 登入 API
 app.post('/mber_login', (req, res) => {
-    const { user_name, password } = req.body;
-
+    const { login_id, password } = req.body;
+    // 前端已雜湊，直接比對
     db.query(
-        'SELECT uid, user_name, status, blacklist, email, telephone, country, address FROM user WHERE user_name = ? AND password = ?',
-        [user_name, password],
+        'SELECT uid, login_id, user_name, status, blacklist, email, telephone, country, address FROM user WHERE login_id = ? AND password = ?',
+        [login_id, password],
         (err, results) => {
             if (err) return res.status(500).json({ success: false, error: err.message });
 
@@ -145,7 +147,7 @@ app.post('/mber_login', (req, res) => {
             }
 
             // 登入成功，將 user 資料存入 session
-            req.session.user = user;
+            req.session.user = user; // session cookie 會自動儲存於瀏覽器
 
             return res.json({
                 success: true,
@@ -156,14 +158,14 @@ app.post('/mber_login', (req, res) => {
     );
 });
 
-// 檢查是否登入 API (前端可用來驗證登入狀態)
+// 檢查是否登入 API (前端可用來驗證登入狀態，並取得 user 資料)
 app.post('/check-auth', (req, res) => {
     // 直接從 session 取得 user
     if (req.session.user) {
         return res.json({
             success: true,
             authenticated: true,
-            user: req.session.user
+            user: req.session.user // 提供 user 資料給前端
         });
     } else {
         return res.json({
@@ -241,18 +243,20 @@ app.get('/user/:uid/coupons', (req, res) => {
         }
     );
 });
-  
+
 app.get('/', (req, res) => {
     res.send('伺服器連線成功！');
 });
 
 // 取得目前登入會員的租借紀錄（透過 session）
-app.get('/user/session/orders', (req, res) => {
+app.get('/user/:uid/orders', (req, res) => {
     if (!req.session.user || !req.session.user.uid) {
         return res.status(401).json({ success: false, message: '尚未登入' });
     }
     const uid = req.session.user.uid;
-    db.query('SELECT * FROM order_record WHERE uid = ?', [uid], (err, results) => {
+    db.query(`SELECT 
+        order_ID, uid, start_date, end, total_amount, comment, rental_site_id, return_site_id, order_status, charger_id
+        FROM order_record WHERE uid = ?`, [uid], (err, results) => {
         if (err) return res.status(500).json({ success: false, error: err });
         res.json({ success: true, orders: results });
     });
@@ -287,8 +291,51 @@ app.get('/user/:uid/points', (req, res) => {
     });
 });
 
+// 會員資料修改 API
+app.post('/update-user', (req, res) => {
+    const { uid, user_name, telephone, email, country, address } = req.body;
+    if (!uid) return res.status(400).json({ success: false, message: '缺少 uid' });
+    db.query(
+        'UPDATE user SET user_name = ?, telephone = ?, email = ?, country = ?, address = ? WHERE uid = ?',
+        [user_name, telephone, email, country, address, uid],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err });
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: '找不到該會員或未更新' });
+            }
+            // 更新 session user 資料
+            if (req.session.user && req.session.user.uid === uid) {
+                req.session.user.user_name = user_name;
+                req.session.user.telephone = telephone;
+                req.session.user.email = email;
+                req.session.user.country = country;
+                req.session.user.address = address;
+            }
+            res.json({ success: true, message: '會員資料已更新' });
+        }
+    );
+});
+
+// 新增信用卡 API
+app.post('/user/add-creditcard', (req, res) => {
+    const { userId, user_name, cardNumber, cvv, expMonth, expYear } = req.body;
+    if (!userId || !cardNumber || !cvv || !expMonth || !expYear) {
+        return res.status(400).json({ success: false, message: '缺少必要欄位' });
+    }
+    db.query(
+        `INSERT INTO user_creditcard (uid, user_name, creditcard, CVV, MM, YY) VALUES (?, ?, ?, ?, ?, ?)`,
+        [userId, user_name, cardNumber, cvv, expMonth, expYear],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, error: err });
+            res.json({ success: true });
+        }
+    );
+});
+
 // 伺服器啟動
 app.listen(3000, () => {
     console.log('API server running on port 3000');
 });
+
+
 
