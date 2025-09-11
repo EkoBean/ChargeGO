@@ -25,10 +25,16 @@ const StaffLogs = () => {
     CREATE_USER: '新增用戶',       
     DELETE_USER: '刪除用戶',
     // 新增訂單相關操作
-    CREATE_ORDER: '新增訂單',
-    UPDATE_ORDER: '修改訂單',
-    DELETE_ORDER: '刪除訂單',
-    VIEW_ORDER: '查看訂單',       
+    CREATE_ORDER: '新增租借訂單',
+    UPDATE_ORDER: '修改租借訂單',
+    DELETE_ORDER: '刪除租借訂單',
+    VIEW_ORDER: '查看租借訂單',
+    // 新增活動相關操作
+    CREATE_EVENT: '建立活動',
+    UPDATE_EVENT: '修改活動',
+    DELETE_EVENT: '刪除活動',
+    SEND_EVENT: '發送活動通知',
+    VIEW_EVENT: '查看活動',
     'log in': '登入系統',
     'log out': '登出系統',
     'changed userinfo': '修改用戶資訊'
@@ -55,44 +61,82 @@ const StaffLogs = () => {
     if (!logContent) return { action: '未知操作' };
     
     try {
-      // 處理新的簡化格式 "ACTION-{...}" 或 "ACTION - {...}"
+      // 嘗試分析日誌內容格式
       if (logContent.includes('-{')) {
-        const parts = logContent.split('-{');
-        if (parts.length >= 2) {
-          const action = parts[0].trim();
-          const detailsStr = '{' + parts.slice(1).join('-{');
-          let details = {};
-          
-          try {
-            details = JSON.parse(detailsStr);
-          } catch {
-            details = {};
-          }
-          
-          return { action, details };
-        }
-      }
-      
-      // 處理舊格式 "ACTION - {...}"
-      const parts = logContent.split(' - ');
-      if (parts.length >= 2) {
-        const action = parts[0];
-        const detailsStr = parts.slice(1).join(' - ');
-        let details = {};
-        
+        const [action, jsonStr] = logContent.split('-');
+        let details;
         try {
-          details = JSON.parse(detailsStr);
-        } catch {
-          details = { content: detailsStr };
+          details = JSON.parse(jsonStr);
+        } catch (e) {
+          console.warn('無法解析日誌JSON部分:', jsonStr);
+          details = { raw: jsonStr };
         }
         
-        return { action, details };
+        // 根據不同操作類型，格式化描述
+        let description = '';
+        switch (action) {
+          case 'UPDATE_ORDER':
+            // 簡化顯示，只顯示訂單ID
+            const orderId = details.id || '未知';
+            description = `訂單 #${orderId}`;
+            // 移除用戶名稱、時間等額外資訊的顯示
+            break;
+          case 'CREATE_ORDER':
+            description = `訂單 #${details.id || '未知'}`;
+            break;
+          case 'DELETE_ORDER':
+            description = `訂單 #${details.id || '未知'}`;
+            break;
+          case 'VIEW_ORDER':
+            description = `訂單 #${details.id || '未知'}`;
+            break;
+          case 'UPDATE_USER':
+            description = `用戶 #${details.uid || details.id || '未知'}`;
+            break;
+          case 'CREATE_USER':
+            description = `用戶 #${details.uid || details.id || '未知'}`;
+            break;
+          case 'DELETE_USER':
+            description = `用戶 #${details.uid || details.id || '未知'}`;
+            break;
+          case 'CREATE_SITE':
+          case 'UPDATE_SITE':
+          case 'DELETE_SITE':
+            description = `站點 #${details.id || '未知'}`;
+            break;
+          case 'CREATE_CHARGER':
+          case 'UPDATE_CHARGER':
+          case 'DELETE_CHARGER':
+            description = `充電器 #${details.id || '未知'}`;
+            break;
+          case 'CREATE_EVENT':
+          case 'UPDATE_EVENT':
+          case 'DELETE_EVENT':
+          case 'SEND_EVENT':
+          case 'VIEW_EVENT':
+            description = `活動 #${details.id || '未知'}`;
+            break;
+          default:
+            // 對於其他操作，只顯示基本ID資訊
+            if (details.id) {
+              description = `#${details.id}`;
+            } else {
+              description = '';
+            }
+        }
+        
+        return {
+          action: action,
+          details: details,
+          description: description
+        };
       }
       
-      // 如果只是簡單的操作名稱
-      return { action: logContent };
-    } catch {
-      return { action: logContent || '未知操作' };
+      // 如果不是我們預期的格式，直接返回原內容
+      return { action: logContent, description: '' };
+    } catch (error) {
+      console.error('解析日誌內容錯誤:', error);
+      return { action: logContent || '未知操作', description: '解析錯誤' };
     }
   };
 
@@ -189,14 +233,21 @@ const StaffLogs = () => {
                 </thead>
                 <tbody>
                   {filteredLogs.map((log, index) => {
-                    const { action } = parseLogContent(log.log);
+                    const { action, description } = parseLogContent(log.log);
                     
                     return (
                       <tr key={index}>
                         <td>{formatDate(log.employee_log_date)}</td>
                         <td>{log.employee_id || 'N/A'}</td>
                         <td>{log.employee_name || '未知員工'}</td>
-                        <td>{actionLabels[action] || action}</td>
+                        <td>
+                          {actionLabels[action] || action}
+                          {description && (
+                            <span style={{ marginLeft: '8px', color: '#666' }}>
+                              {description}
+                            </span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}

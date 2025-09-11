@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ApiService from '../../services/api';
 
+// 發送活動通知給用戶
 const SendEventModal = ({ event, onClose, onSuccess }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,7 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
   // 發送通知
   const handleSend = async () => {
     if (selectedUsers.length === 0) {
-      setError('請至少選擇一個用戶');
+      setError('請選擇至少一位用戶');
       return;
     }
 
@@ -77,19 +78,31 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
       setSending(true);
       setError('');
       
+      // 確保日誌格式正確
+      const logContent = `SEND_EVENT-${JSON.stringify({
+        title: event.event_title,
+        user_count: selectedUsers.length, // 確保這個屬性名稱和 parseLogContent 中的一致
+        event_id: event.event_id
+      })}`;
+      
+      console.log('準備發送的日誌內容:', logContent); // 新增除錯日誌
+
       const response = await ApiService.request('/api/events/send-notification', {
         method: 'POST',
         body: JSON.stringify({
           event_id: event.event_id,
           user_ids: selectedUsers,
-          send_all: false
+          operator_id: localStorage.getItem('employeeId'),
+          log_content: logContent
         })
       });
 
-      onSuccess(`成功發送通知給 ${selectedUsers.length} 位用戶`, selectedUsers.length);
+      console.log('發送結果:', response); // 新增除錯日誌
+      onSuccess?.(`成功發送通知給 ${selectedUsers.length} 位用戶`);
+      onClose?.();
     } catch (err) {
       console.error('發送通知失敗:', err);
-      setError(`發送通知失敗: ${err.message}`);
+      setError(err.message || '發送通知失敗');
     } finally {
       setSending(false);
     }
@@ -106,11 +119,13 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
         body: JSON.stringify({
           event_id: event.event_id,
           send_all: true,
-          status_filter: statusFilter
+          status_filter: statusFilter,
+          operator_id: localStorage.getItem('employeeId') // 加入操作者ID
         })
       });
 
       const count = response.sent_count || filteredUsers.length;
+
       onSuccess(`成功發送通知給所有用戶 (${count} 人)`, count);
     } catch (err) {
       console.error('發送通知失敗:', err);
