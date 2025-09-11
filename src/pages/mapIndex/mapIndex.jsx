@@ -866,7 +866,7 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      <NavBarAPP />
+      {/* <NavBarAPP /> */}
       <APIProvider
         apiKey={APIkey}
         region="TW"
