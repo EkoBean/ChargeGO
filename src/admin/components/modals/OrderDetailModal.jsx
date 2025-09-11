@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+// 租借詳情與編輯表單
 const OrderDetailModal = ({
   order,
   editOrder,
@@ -9,29 +9,36 @@ const OrderDetailModal = ({
   siteChargers,
   onEdit,
   onCancel,
-  onSave,
+  onSave,  // 這是保存訂單的回調函數
   onChange,
   onClose,
-  getOrderStatusText
+  getOrderStatusText,
+  currentOperator  // 新增：當前操作員工ID或對象
 }) => {
   const [showStatusConfirm, setShowStatusConfirm] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
 
   // 將 charger.status 標準化為語意字串
   const normalizeChargerStatus = (charger) => {
-    const raw = charger?.status ?? charger?.charger_status ?? '';
-    const s = String(raw).trim();
-    const n = Number(s);
-    // DB 定義對應
-    if (n === -1 || n === 0) return 'maintenance';
-    if (n === 1) return 'occupied';
-    if (n === 2 || n === 3) return 'available';
-    if (n === 4) return 'preparing';
-    const lower = s.toLowerCase();
-    if (lower.includes('avail') || lower === 'available') return 'available';
-    if (lower.includes('occup') || lower === 'occupied') return 'occupied';
-    if (lower.includes('maint') || lower.includes('repair')) return 'maintenance';
-    return 'unknown';
+    // 轉換為數字類型
+    const statusNum = parseInt(charger.status);
+    
+    switch (statusNum) {
+      case -1:
+        return { text: "故障", color: "danger", disabled: true };
+      case 0:
+        return { text: "進廠維修", color: "secondary", disabled: true };
+      case 1:
+        return { text: "出租中", color: "warning", disabled: true };
+      case 2:
+        return { text: "待租借(滿電)", color: "success", disabled: false };
+      case 3:
+        return { text: "待租借(30%-99%)", color: "primary", disabled: false };
+      case 4:
+        return { text: "準備中(<30%)", color: "warning", disabled: false, warning: "電量低於30%，可能無法長時間使用" };
+      default:
+        return { text: "未知", color: "secondary", disabled: true };
+    }
   };
 
   // 處理租借狀態變更
@@ -65,6 +72,52 @@ const OrderDetailModal = ({
     setPendingStatus(null);
   };
 
+  // 修改保存按鈕的點擊處理，移除操作員ID的強制要求
+  const handleSave = () => {
+    // 直接呼叫父組件的onSave方法
+    onSave(editOrder);
+  };
+  
+  // 添加日期格式化函數
+  const formatDateTimeLocal = (dateString) => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      
+      // 轉換為 datetime-local 輸入框需要的格式: YYYY-MM-DDTHH:MM
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } catch (error) {
+      console.error('日期格式化錯誤:', error);
+      return '';
+    }
+  };
+
+  // 處理日期輸入變更
+  const handleDateTimeChange = (field, value) => {
+    if (!value) {
+      onChange({ target: { name: field, value: null } });
+      return;
+    }
+    
+    try {
+      // 將 datetime-local 的值轉換為 ISO 字符串
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        onChange({ target: { name: field, value: date.toISOString() } });
+      }
+    } catch (error) {
+      console.error('日期處理錯誤:', error);
+    }
+  };
+
   return (
     <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
       <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -82,7 +135,7 @@ const OrderDetailModal = ({
                 </button>
                 <button 
                   className="btn admin-btn admin-small admin-primary" 
-                  onClick={onSave} 
+                  onClick={handleSave}  // 使用我們的新處理函數
                   disabled={saving}
                 >
                   {saving ? "儲存中..." : "儲存"}
@@ -237,9 +290,9 @@ const OrderDetailModal = ({
                         background: '#fff'
                       }}
                     >
-                      <option value="0">租借中</option>
-                      <option value="1">已歸還</option>
-                      <option value="-1">已取消</option>
+                      <option key="status-0" value="0">租借中</option>
+                      <option key="status-1" value="1">已歸還</option>
+                      <option key="status-n1" value="-1">已取消</option>
                     </select>
                     <small className="admin-input-hint">
                       {(editOrder?.order_status === "1" || editOrder?.order_status === "-1") ? 
@@ -296,18 +349,17 @@ const OrderDetailModal = ({
                     <label>出借時間</label>
                     <input 
                       type="datetime-local" 
-                      value={editOrder?.start_date ? 
-                        new Date(new Date(editOrder.start_date).getTime() - new Date().getTimezoneOffset() * 60000)
-                          .toISOString().slice(0, 16) : ""} 
-                      disabled 
+                      name="start_date"
+                      value={formatDateTimeLocal(editOrder?.start_date)}
+                      onChange={(e) => handleDateTimeChange('start_date', e.target.value)}
                       style={{
                         padding: '10px 14px',
                         borderRadius: 8,
                         border: '1px solid #e3e8ee',
-                        background: '#f7fafd',
-                        color: '#666',
+                        background: '#fff',
                         minHeight: 38
                       }}
+                      required
                     />
                   </div>
                   
@@ -318,23 +370,8 @@ const OrderDetailModal = ({
                       <input 
                         type="datetime-local" 
                         name="end"
-                        value={editOrder?.end ? 
-                          new Date(new Date(editOrder.end).getTime() - new Date().getTimezoneOffset() * 60000)
-                            .toISOString().slice(0, 16) : ""} 
-                        onChange={(e) => {
-                          const dateValue = e.target.value;
-                          if (dateValue) {
-                            const localDate = new Date(dateValue);
-                            onChange({
-                              target: {
-                                name: 'end',
-                                value: localDate.toISOString()
-                              }
-                            });
-                          } else {
-                            onChange(e);
-                          }
-                        }}
+                        value={formatDateTimeLocal(editOrder?.end)}
+                        onChange={(e) => handleDateTimeChange('end', e.target.value)}
                         required
                         style={{
                           padding: '10px 14px',
@@ -430,10 +467,10 @@ const OrderDetailModal = ({
                         minHeight: 38
                       }}
                     >
-                      <option value="標準計費">標準計費</option>
-                      <option value="時間計費">時間計費</option>
-                      <option value="固定費用">固定費用</option>
-                      <option value="免費使用">免費使用</option>
+                      <option key="charge-standard" value="標準計費">標準計費</option>
+                      <option key="charge-time" value="時間計費">時間計費</option>
+                      <option key="charge-fixed" value="固定費用">固定費用</option>
+                      <option key="charge-free" value="免費使用">免費使用</option>
                     </select>
                   </div>
                   
@@ -456,8 +493,8 @@ const OrderDetailModal = ({
                         minHeight: 38
                       }}
                     >
-                      <option value="0">未支付</option>
-                      <option value="1">已支付</option>
+                      <option key="payment-0" value="0">未支付</option>
+                      <option key="payment-1" value="1">已支付</option>
                     </select>
                   </div>
                 </div>

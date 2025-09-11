@@ -26,20 +26,25 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
     setSaving(true);
     
     try {
-      // 修正：使用 ApiService.createEvent 而不是直接呼叫 request
-      await ApiService.createEvent(newEvent);
+      const employeeId = localStorage.getItem('employeeId');
+      console.log('當前操作員工ID:', employeeId);
+
+      // 整合活動資料和操作者ID
+      const eventData = {
+        ...newEvent,
+        operator_id: parseInt(employeeId, 10)
+      };
+
+      console.log('準備提交活動資料:', eventData);
       
-      // 重設表單並通知父組件成功
-      setNewEvent({
-        event_title: '',
-        event_content: '',
-        site_id: '',
-        event_start_date: '',
-        event_end_date: ''
-      });
-      onSuccess('活動已成功建立！');
+      const result = await ApiService.createEvent(eventData);
+      console.log('活動建立結果:', result);
+      
+      onSuccess?.(`活動 "${newEvent.event_title}" 已成功建立！`);
+      onClose();
     } catch (err) {
-      setError(err.message || '建立活動失敗，請稍後再試');
+      console.error('建立活動失敗:', err);
+      setError(err.message || '建立活動失敗');
     } finally {
       setSaving(false);
     }

@@ -8,7 +8,6 @@ class OperationLogger {
       
       // 檢查是否有 employeeId
       if (!employeeId) {
-        // 對於某些操作（如登入失敗），仍然要記錄，但使用 null 作為 employeeId
         if (action === 'LOGIN_FAILED') {
           employeeId = null;
         } else {
@@ -16,7 +15,6 @@ class OperationLogger {
           return;
         }
       } else {
-        // 確保 employee_id 是數字
         employeeId = parseInt(employeeId);
         if (isNaN(employeeId)) {
           console.warn('employee_id 不是有效數字:', localStorage.getItem('employeeId'));
@@ -24,71 +22,77 @@ class OperationLogger {
         }
       }
       
-      // 大幅縮短日誌內容，確保不超過資料庫限制
+      // 簡化日誌內容，移除不必要的資訊
       let logContent = action;
       
-      // 只記錄最核心的資訊，避免超長
       if (details && Object.keys(details).length > 0) {
         const coreInfo = {};
         
         switch (action) {
           case 'LOGIN':
           case 'LOGIN_FAILED':
-            if (details.email) coreInfo.email = details.email.substring(0, 20); // 限制長度
+            if (details.email) coreInfo.email = details.email.substring(0, 20);
             if (details.status) coreInfo.status = details.status;
             break;
           case 'LOGOUT':
-            if (details.session_duration) {
-              const minutes = Math.floor(details.session_duration / 60);
-              coreInfo.duration = `${minutes}min`;
-            }
+            // 移除會話時間顯示
             break;
           case 'UPDATE_USER':
-            if (details.user_id) coreInfo.uid = details.user_id;
-            if (details.user_name) coreInfo.name = details.user_name.substring(0, 10);
-            // 只記錄變更數量，不記錄具體內容
-            if (details.changed_fields && Array.isArray(details.changed_fields)) {
-              coreInfo.changes = `${details.changed_fields.length}項`;
-            }
+          case 'CREATE_USER':
+          case 'DELETE_USER':
+            if (details.user_id || details.uid) coreInfo.id = details.user_id || details.uid;
+            if (details.status) coreInfo.result = details.status;
+            break;
+          case 'UPDATE_ORDER':
+          case 'CREATE_ORDER':
+          case 'DELETE_ORDER':
+          case 'VIEW_ORDER':
+            // 只記錄訂單ID，移除其他資訊
+            if (details.id || details.order_id) coreInfo.id = details.id || details.order_id;
             if (details.status) coreInfo.result = details.status;
             break;
           case 'CREATE_SITE':
           case 'UPDATE_SITE':
           case 'DELETE_SITE':
-            if (details.site_id) coreInfo.id = details.site_id;
-            if (details.site_name) coreInfo.name = details.site_name.substring(0, 15);
+            if (details.site_id || details.id) coreInfo.id = details.site_id || details.id;
             if (details.status) coreInfo.result = details.status;
             break;
           case 'CREATE_CHARGER':
           case 'UPDATE_CHARGER':
           case 'DELETE_CHARGER':
-            if (details.charger_id) coreInfo.id = details.charger_id;
+            if (details.charger_id || details.id) coreInfo.id = details.charger_id || details.id;
+            if (details.status) coreInfo.result = details.status;
+            break;
+          case 'CREATE_EVENT':
+          case 'UPDATE_EVENT':
+          case 'DELETE_EVENT':
+          case 'SEND_EVENT':
+          case 'VIEW_EVENT':
+            if (details.event_id || details.id) coreInfo.id = details.event_id || details.id;
             if (details.status) coreInfo.result = details.status;
             break;
           default:
-            // 對於其他操作，只記錄最基本資訊
+            // 對於其他操作，只記錄基本資訊
             if (details.id) coreInfo.id = details.id;
             if (details.status) coreInfo.result = details.status;
         }
         
         if (Object.keys(coreInfo).length > 0) {
-          // 進一步縮短 JSON 字串
           let infoStr = JSON.stringify(coreInfo);
           
-          // 如果還是太長，只保留操作結果
+          // 如果還是太長，只保留ID和結果
           if (infoStr.length > 50) {
-            if (coreInfo.result) {
-              infoStr = `{"result":"${coreInfo.result}"}`;
-            } else {
-              infoStr = '{}';
-            }
+            const simplified = {};
+            if (coreInfo.id) simplified.id = coreInfo.id;
+            if (coreInfo.result) simplified.result = coreInfo.result;
+            infoStr = JSON.stringify(simplified);
           }
           
           logContent = `${action}-${infoStr}`;
         }
       }
       
-      // 嚴格限制總長度在 100 字符以內（假設資料庫是 varchar(100)）
+      // 嚴格限制總長度
       if (logContent.length > 100) {
         logContent = logContent.substring(0, 97) + '...';
       }
@@ -99,7 +103,6 @@ class OperationLogger {
       };
 
       console.log('準備發送日誌數據:', logData);
-      console.log('日誌長度:', logContent.length);
 
       const response = await fetch('http://127.0.0.1:3000/api/employee_log', {
         method: 'POST',
@@ -121,7 +124,6 @@ class OperationLogger {
       return result;
     } catch (err) {
       console.error('記錄操作日誌失敗:', err);
-      // 不拋出錯誤，避免影響主要功能
     }
   }
 
@@ -146,7 +148,13 @@ class OperationLogger {
     CREATE_ORDER: 'CREATE_ORDER',
     UPDATE_ORDER: 'UPDATE_ORDER',
     DELETE_ORDER: 'DELETE_ORDER',
-    VIEW_ORDER: 'VIEW_ORDER'
+    VIEW_ORDER: 'VIEW_ORDER',
+    // 新增活動相關操作
+    CREATE_EVENT: 'CREATE_EVENT',
+    UPDATE_EVENT: 'UPDATE_EVENT',
+    DELETE_EVENT: 'DELETE_EVENT',
+    SEND_EVENT: 'SEND_EVENT',
+    VIEW_EVENT: 'VIEW_EVENT'
   };
 }
 

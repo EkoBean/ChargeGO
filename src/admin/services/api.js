@@ -63,9 +63,26 @@ const ApiService = {
   async getSites() {
     return this.request('/api/sites');
   },
+  // 在 ApiService 對象中修改現有的 getSiteChargers 方法
 
   async getSiteChargers(siteId) {
-    return this.request(`/api/sites/${siteId}/chargers`);
+    try {
+      const data = await this.request(`/api/sites/${siteId}/chargers`);
+
+      // 確保每個充電器對象都有租借信息字段，即使後端沒有返回
+      return data.map(charger => ({
+        ...charger,
+        is_rented: charger.is_rented || 0,
+        current_renter: charger.current_renter || null,
+        current_renter_uid: charger.current_renter_uid || null,
+        rented_since: charger.rented_since || null,
+        current_order_id: charger.current_order_id || null,
+        current_order_status: charger.current_order_status || null
+      }));
+    } catch (error) {
+      console.error(`無法獲取站點 ${siteId} 的充電器:`, error);
+      throw error;
+    }
   },
 
   // 充電器相關 API
@@ -180,7 +197,7 @@ const ApiService = {
       body: JSON.stringify(body),
     });
   },
-  // ===========  create site ======================
+  // ===========  create site  ======================
   async createSite(payload) {
     console.log('Creating site with payload:', payload);
 
@@ -208,27 +225,39 @@ const ApiService = {
 
   // 訂單 CRUD start_date取今天
   async updateOrder(order_ID, payload) {
-    const body = {
-      uid: payload.uid != null ? Number(payload.uid) : undefined,
-      start_date: payload.start_date ? this._normalizeDateTime(payload.start_date) : undefined,
-      end: payload.end === '' ? null : this._normalizeDateTime(payload.end),
-      rental_site_id: payload.rental_site_id != null ? Number(payload.rental_site_id) : undefined, // 改這裡
-      return_site_id: payload.return_site_id != null ? Number(payload.return_site_id) : undefined, // 新增這裡
-      order_status: payload.order_status,
-      charger_id: payload.charger_id != null ? Number(payload.charger_id) : undefined,
-      comment: typeof payload.comment !== 'undefined' ? String(payload.comment) : undefined,
-      total_amount: payload.total_amount != null ? Number(payload.total_amount) : undefined, // 新增這裡
+    console.log(`更新訂單 #${order_ID}，原始資料:`, payload);
+    
+    // 格式化日期時間欄位
+    const normalizedPayload = {
+      ...payload
     };
-
-    // 移除 undefined 欄位
-    Object.keys(body).forEach(key =>
-      body[key] === undefined && delete body[key]
-    );
-
-    return this.request(`/api/orders/${order_ID}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
+    
+    // 處理 start_date
+    if (payload.start_date) {
+      normalizedPayload.start_date = this._formatDateTimeForMySQL(payload.start_date);
+      console.log(`start_date 格式化: ${payload.start_date} -> ${normalizedPayload.start_date}`);
+    }
+    
+    // 處理 end
+    if (payload.end) {
+      normalizedPayload.end = this._formatDateTimeForMySQL(payload.end);
+      console.log(`end 格式化: ${payload.end} -> ${normalizedPayload.end}`);
+    }
+    
+    console.log('格式化後的資料:', normalizedPayload);
+    
+    try {
+      const data = await this.request(`/api/orders/${order_ID}`, {
+        method: 'PUT',
+        body: JSON.stringify(normalizedPayload)
+      });
+      
+      console.log(`訂單 #${order_ID} 更新成功:`, data);
+      return data;
+    } catch (error) {
+      console.error(`更新訂單 #${order_ID} 失敗:`, error);
+      throw error;
+    }
   },
 
   // 獲取單個用戶資訊 - 加強錯誤處理
@@ -370,12 +399,19 @@ const ApiService = {
   async createEvent(payload) {
     console.log('Creating event with payload:', payload);
 
+    // 確保 operator_id 存在
+    if (!payload.operator_id) {
+      console.warn('Missing operator_id, using from localStorage');
+      payload.operator_id = parseInt(localStorage.getItem('employeeId'), 10);
+    }
+
     const body = {
       event_title: String(payload.event_title || "").trim(),
       event_content: String(payload.event_content || "").trim(),
       site_id: payload.site_id || null,
       event_start_date: payload.event_start_date,
-      event_end_date: payload.event_end_date
+      event_end_date: payload.event_end_date,
+      operator_id: payload.operator_id // 確保傳遞 operator_id
     };
 
     // 驗證必填欄位
@@ -384,6 +420,7 @@ const ApiService = {
     if (!body.event_content) errors.push("活動內容不能為空");
     if (!body.event_start_date) errors.push("開始時間不能為空");
     if (!body.event_end_date) errors.push("結束時間不能為空");
+    if (!body.operator_id) errors.push("操作者ID不能為空");
 
     if (errors.length > 0) {
       throw new Error(errors.join('; '));
@@ -392,7 +429,7 @@ const ApiService = {
     console.log('Normalized event body:', body);
 
     try {
-      const result = await this.request(`/api/events`, {
+      const result = await this.request('/api/events', {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -513,6 +550,29 @@ const ApiService = {
     return this.request(`/api/missions/${missionId}`, {
       method: 'DELETE',
     });
+  },
+
+  // 添加日期格式化方法
+  _formatDateTimeForMySQL(dateValue) {
+    if (!dateValue) return null;
+    
+    try {
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return null;
+      
+      // 轉換為 MySQL DATETIME 格式: YYYY-MM-DD HH:MM:SS
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } catch (error) {
+      console.error('日期格式化錯誤:', error);
+      return null;
+    }
   },
 };
 

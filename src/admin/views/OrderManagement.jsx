@@ -7,6 +7,9 @@ import OrderDetailModal from "../components/modals/OrderDetailModal";
 import CreateOrderModal from "../components/modals/CreateOrderModal";
 import ApiService from "../services/api";
 
+// 引入操作日誌記錄器
+import OperationLogger from '../../../backend/operationLogger';
+
 // 訂單管理頁面
 const OrderManagement = () => {
   const {
@@ -97,6 +100,38 @@ const OrderManagement = () => {
       .catch(() => setOrderSiteChargers([]));
   }, [showDetailModal, editOrder?.site_id]);
 
+  // 當 Modal 中選擇站點變化時載入充電器
+  useEffect(() => {
+    // 只有在創建或編輯模式下，且有選擇站點時才加載充電器
+    if (!editOrder?.rental_site_id) {
+      setOrderSiteChargers([]);
+      return;
+    }
+
+    // 不管是在哪個 modal，都從 editOrder.rental_site_id 獲取
+    ApiService.getSiteChargers(editOrder.rental_site_id)
+      .then(chargers => {
+        console.log(`成功載入站點 ${editOrder.rental_site_id} 的充電器:`, chargers);
+        
+        // 過濾重複的 charger_id
+        const uniqueChargers = [];
+        const seenIds = new Set();
+        
+        chargers.forEach(charger => {
+          if (!seenIds.has(charger.charger_id)) {
+            seenIds.add(charger.charger_id);
+            uniqueChargers.push(charger);
+          }
+        });
+        
+        setOrderSiteChargers(uniqueChargers);
+      })
+      .catch(error => {
+        console.error('載入站點充電器失敗:', error);
+        setOrderSiteChargers([]);
+      });
+  }, [editOrder?.rental_site_id]);
+
   // 根據訂單狀態回傳不同顏色的 Badge
   const getStatusBadge = (status) => {
     switch (status) {
@@ -150,7 +185,7 @@ const OrderManagement = () => {
     if (!editOrder.charger_id) errors.push('充電器');
     
     // 根據訂單狀態追加驗證
-    if (status === "1" || status === "-1") { // 已完成或已取消
+    if (status === "1" || status === "-1") {
       if (!editOrder.return_site_id) errors.push('歸還站點');
       if (!editOrder.end) errors.push('結束時間');
     }
@@ -162,7 +197,7 @@ const OrderManagement = () => {
 
     setSaving(true);
     try {
-      // 準備更新資料
+      // 準備更新資料，移除 operator_id
       const updateData = {
         uid: Number(editOrder.uid),
         start_date: editOrder.start_date,
@@ -173,6 +208,7 @@ const OrderManagement = () => {
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
         total_amount: editOrder.total_amount || 0
+        // 移除 operator_id: 1
       };
       
       console.log('準備傳送的更新資料:', updateData);
@@ -180,6 +216,17 @@ const OrderManagement = () => {
       // 呼叫更新 API
       const updatedOrder = await ApiService.updateOrder(selectedOrder.order_ID, updateData);
       console.log('訂單更新成功:', updatedOrder);
+      
+      // 使用 OperationLogger 記錄操作（這裡會自動處理員工ID）
+      try {
+        await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_ORDER, {
+          id: updatedOrder.order_ID || selectedOrder.order_ID,
+          user_name: updatedOrder.user_name || editOrder.user_name,
+          status: 'success'
+        });
+      } catch (logError) {
+        console.warn('記錄操作日誌失敗:', logError);
+      }
       
       // 更新訂單列表
       setOrders(prev => prev.map(order => 
@@ -199,6 +246,18 @@ const OrderManagement = () => {
       
     } catch (error) {
       console.error('更新訂單失敗:', error);
+      
+      // 記錄失敗操作
+      try {
+        await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_ORDER, {
+          id: editOrder.order_ID || selectedOrder?.order_ID,
+          status: 'failed',
+          error: error.message || '未知錯誤'
+        });
+      } catch (logError) {
+        console.warn('記錄失敗操作日誌失敗:', logError);
+      }
+      
       alert(`更新訂單失敗: ${error.message}`);
     } finally {
       setSaving(false);
@@ -286,18 +345,37 @@ const OrderManagement = () => {
   // 新增：處理用戶ID變更時自動帶入用戶名稱
   const handleUserIdChange = async (e) => {
     const { name, value } = e.target;
-    
-    // 更新用戶ID
-    setEditOrder(prev => ({ ...prev, [name]: value, user_name: '' }));
-    
-    // 如果輸入的是有效的用戶ID，嘗試獲取用戶資訊
-    if (name === 'uid' && value && /^\d+$/.test(value)) {
+    // 若是修改 uid，先清掉 user_name；其它欄位保留原本 user_name
+    setEditOrder(prev => ({ 
+      ...prev, 
+      [name]: value, 
+      ...(name === 'uid' ? { user_name: '' } : {}) 
+    }));
+
+    // 只在 uid 欄位且有值時嘗試查詢（允許數字字串）
+    if (name === 'uid' && value !== "" && value != null) {
+      const id = Number(value);
+      if (!Number.isFinite(id)) return;
+
       try {
-        const user = await ApiService.getUserById(Number(value));
-        setEditOrder(prev => ({ ...prev, user_name: user.user_name }));
+        const user = await ApiService.getUserById(id);
+        // 對回傳欄位做備援：user_name / name / username / display_name
+        const uname = user?.user_name || user?.name || user?.username || user?.display_name || '';
+        // 只在目前 editOrder 的 uid 與查詢時相同時才更新（避免 race）
+        setEditOrder(prev => {
+          if (String(prev.uid) === String(value) || String(prev.uid) === String(id)) {
+            return { ...prev, user_name: uname };
+          }
+          return prev;
+        });
       } catch (error) {
         console.error('獲取用戶資訊失敗:', error);
-        setEditOrder(prev => ({ ...prev, user_name: '用戶不存在' }));
+        setEditOrder(prev => {
+          if (String(prev.uid) === String(value) || String(prev.uid) === String(id)) {
+            return { ...prev, user_name: '' }; // 顯示用戶不存在也可以改成 '用戶不存在'
+          }
+          return prev;
+        });
       }
     }
   };
@@ -323,6 +401,21 @@ const OrderManagement = () => {
     
     if (errors.length > 0) {
       alert(`請填寫所有必要欄位: ${errors.join(', ')}`);
+      return;
+    }
+
+    // 在建立或編輯訂單前，檢查選擇的充電器是否已被租借
+    const selectedChargerId = editOrder.charger_id;
+    
+    // 查找該充電器是否已被其他進行中訂單租借
+    const existingRental = orderSiteChargers.find(charger => 
+      charger.charger_id === parseInt(selectedChargerId) && 
+      charger.is_rented && 
+      (editOrder?.order_ID !== charger.current_order_id) // 排除當前編輯的訂單
+    );
+
+    if (existingRental) {
+      alert(`此充電器 (${selectedChargerId}) 已被 ${existingRental.current_renter} 租借中，請選擇其他充電器。`);
       return;
     }
 
@@ -615,7 +708,7 @@ const OrderManagement = () => {
           siteChargers={orderSiteChargers}
           onCancel={() => setShowCreateModal(false)}
           onSave={handleSaveOrder}
-          onChange={handleOrderFieldChange}
+          onChange={handleUserIdChange} // <- 改這裡，讓 uid 輸入會呼 API 並帶入 user_name
           onClose={() => setShowCreateModal(false)}
         />
       )}

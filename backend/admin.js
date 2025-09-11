@@ -1,4 +1,5 @@
 //後端
+// pkill -f node 停止所有 node 進程防止卡死
 import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql';
@@ -256,7 +257,7 @@ app.patch('/api/sites', async (req, res) => {
     if (updateSite.affectedRows === 0) {
       return res.status(404).json({ message: "site not found" });
     }
-    
+
     return res.json({ message: "site updated", site: req.body });
   }
   catch (err) {
@@ -329,25 +330,25 @@ app.get("/api/chargers", (req, res) => {
 app.get("/api/orders", (req, res) => {
   console.log('獲取所有訂單請求');
 
-  const q = `
-    SELECT o.order_ID,
-           o.uid,
-           u.user_name, u.telephone, u.email,
-           o.start_date, o.end,
-           o.rental_site_id, rs.site_name as rental_site_name,
-           o.return_site_id, rts.site_name as return_site_name,
-           o.order_status, o.charger_id,
-           c.status AS charger_status,
-           o.comment, o.total_amount 
-    FROM order_record o
-    LEFT JOIN user u ON o.uid = u.uid
-    LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
-    LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-    LEFT JOIN charger c ON o.charger_id = c.charger_id
-    ORDER BY o.order_ID DESC
-  `;
+  const selectQuery = `
+  SELECT o.order_ID,
+   o.uid,
+   u.user_name, u.telephone, u.email,
+   o.start_date, o.end,
+   o.rental_site_id, rs.site_name as rental_site_name,
+   o.return_site_id, rts.site_name as return_site_name,
+   o.order_status, o.charger_id,
+   c.status AS charger_status,
+   o.comment, o.total_amount  -- 確認這裡有包含 total_amount
+FROM order_record o
+LEFT JOIN user u ON o.uid = u.uid
+LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
+LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
+LEFT JOIN charger c ON o.charger_id = c.charger_id
+ORDER BY o.order_ID DESC
+`;
 
-  connect.query(q, (err, rows) => {
+  connect.query(selectQuery, (err, rows) => {
     if (err) {
       console.error("[ERROR] GET /api/orders failed:", err);
       return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
@@ -469,22 +470,22 @@ app.post("/api/orders", (req, res) => {
       }
 
       // 查詢並返回完整的訂單資料
-      const selectQuery = `
-        SELECT o.order_ID,
-         o.uid,
-         u.user_name, u.telephone, u.email,
-         o.start_date, o.end,
-         o.rental_site_id, rs.site_name as rental_site_name,
-         o.return_site_id, rts.site_name as return_site_name,
-         o.order_status, o.charger_id,
-         c.status AS charger_status,
-         o.comment, o.total_amount  // 確認這裡有包含 total_amount
-  FROM order_record o
-  LEFT JOIN user u ON o.uid = u.uid
-  LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
-  LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-  LEFT JOIN charger c ON o.charger_id = c.charger_id
-  ORDER BY o.order_ID DESC
+     const selectQuery = `
+  SELECT o.order_ID,
+   o.uid,
+   u.user_name, u.telephone, u.email,
+   o.start_date, o.end,
+   o.rental_site_id, rs.site_name as rental_site_name,
+   o.return_site_id, rts.site_name as return_site_name,
+   o.order_status, o.charger_id,
+   c.status AS charger_status,
+   o.comment, o.total_amount  -- 確認這裡有包含 total_amount
+FROM order_record o
+LEFT JOIN user u ON o.uid = u.uid
+LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
+LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
+LEFT JOIN charger c ON o.charger_id = c.charger_id
+ORDER BY o.order_ID DESC
 `;
       
       connect.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
@@ -568,28 +569,6 @@ app.put("/api/users/:uid", (req, res) => {
 
       if (result.affectedRows === 0) {
         return res.status(404).json({ message: "找不到指定的用戶" });
-      }
-
-      // 記錄操作日誌到 employee_log
-      const logContent = `UPDATE_USER - {"user_id":${uid},"user_name":"${user_name || originalUser.user_name}","changed_fields":${JSON.stringify(changedFields)},"updated_time":"${new Date().toISOString()}","status":"success"}`;
-      
-      // 這裡假設操作者資訊在請求標頭中，或者您需要從前端傳送
-      const operatorId = req.body.operator_id || null; // 前端需要傳送操作者ID
-      
-      if (operatorId) {
-        const logInsertQuery = `
-          INSERT INTO employee_log (employee_id, log, employee_log_date)
-          VALUES (?, ?, NOW())
-        `;
-        
-        connect.query(logInsertQuery, [operatorId, logContent], (logErr) => {
-          if (logErr) {
-            console.error('記錄操作日誌失敗:', logErr);
-            // 不影響主要功能，只記錄錯誤
-          } else {
-            console.log('用戶更新操作記錄成功');
-          }
-        });
       }
 
       // 查詢並返回完整的用戶資料
@@ -698,6 +677,38 @@ app.post('/api/employee/login', (req, res) => {
   });
 });
 
+// 新增操作日誌 API 端點
+
+app.post("/api/employee_log", (req, res) => {
+  const { employee_id, log } = req.body;
+  
+  console.log('收到操作日誌記錄請求:', { employee_id, log });
+  
+  // 驗證必要欄位
+  if (!employee_id && employee_id !== 0 && employee_id !== null) {
+    return res.status(400).json({ error: "缺少員工ID" });
+  }
+  
+  if (!log) {
+    return res.status(400).json({ error: "缺少日誌內容" });
+  }
+  
+  // 插入日誌記錄
+  const query = `
+    INSERT INTO employee_log (employee_id, log, employee_log_date)
+    VALUES (?, ?, NOW())
+  `;
+  
+  connect.query(query, [employee_id, log], (err, result) => {
+    if (err) {
+      console.error('記錄操作日誌失敗:', err);
+      return res.status(500).json({ error: "記錄日誌失敗", details: err.message });
+    }
+    
+    console.log('操作日誌記錄成功:', result);
+    res.json({ success: true, log_id: result.insertId });
+  });
+});
 
 // 新增：獲取員工操作日誌 API
 app.get("/api/employee_log", (req, res) => {
@@ -791,114 +802,205 @@ app.post("/api/employee_log", (req, res) => {
   });
 });
 
-// 更新訂單
+// 更新訂單 API，添加更嚴格的日期格式驗證
 app.put("/api/orders/:order_ID", (req, res) => {
   const order_ID = req.params.order_ID;
   const { 
     uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, 
-    total_amount, fee, paid_amount, charge_method, payment_status 
+    total_amount, fee, paid_amount, charge_method, payment_status
   } = req.body;
 
   console.log('接收到更新租借記錄請求:', { order_ID, ...req.body });
   
+  // 嚴格的日期格式驗證和轉換函數
+  const validateAndFormatDateTime = (dateStr, fieldName) => {
+    if (!dateStr) return null;
+    
+    console.log(`處理 ${fieldName}:`, dateStr);
+    
+    // 如果已經是 MySQL 格式，直接返回
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateStr)) {
+      console.log(`${fieldName} 已是 MySQL 格式:`, dateStr);
+      return dateStr;
+    }
+    
+    // 嘗試解析各種可能的日期格式
+    let date;
+    try {
+      if (dateStr.includes('T')) {
+        // ISO 8601 格式
+        date = new Date(dateStr);
+      } else if (dateStr.includes('-') && dateStr.includes(':')) {
+        // 可能是其他格式
+        date = new Date(dateStr);
+      } else {
+        throw new Error('不支援的日期格式');
+      }
+      
+      if (isNaN(date.getTime())) {
+        throw new Error('無效的日期');
+      }
+      
+      // 轉換為 MySQL DATETIME 格式
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      const mysqlFormat = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      console.log(`${fieldName} 轉換為 MySQL 格式:`, mysqlFormat);
+      return mysqlFormat;
+      
+    } catch (error) {
+      console.error(`${fieldName} 格式化錯誤:`, error);
+      return null;
+    }
+  };
+
   // 建構動態更新語句
   const updateFields = [];
   const updateValues = [];
 
-  if (uid !== undefined) {
-    updateFields.push('uid = ?');
-    updateValues.push(uid);
-  }
-  if (start_date !== undefined) {
-    updateFields.push('start_date = ?');
-    updateValues.push(start_date);
-  }
-  if (end !== undefined) {
-    updateFields.push('end = ?');
-    updateValues.push(end);
-  }
-  if (rental_site_id !== undefined) {
-    updateFields.push('rental_site_id = ?');
-    updateValues.push(rental_site_id);
-  }
-  if (return_site_id !== undefined) {
-    updateFields.push('return_site_id = ?');
-    updateValues.push(return_site_id);
-  }
-  if (order_status !== undefined) {
-    updateFields.push('order_status = ?');
-    updateValues.push(order_status);
-  }
-  if (charger_id !== undefined) {
-    updateFields.push('charger_id = ?');
-    updateValues.push(charger_id);
-  }
-  if (comment !== undefined) {
-    updateFields.push('comment = ?');
-    updateValues.push(comment);
-  }
-  if (total_amount !== undefined) {
-    updateFields.push('total_amount = ?');
-    updateValues.push(total_amount);
-  }
+  // 先獲取原始訂單資料以比較變更
+  connect.query('SELECT * FROM order_record WHERE order_ID = ?', [order_ID], (selectErr, originalData) => {
+    if (selectErr) {
+      console.error('獲取原始訂單資料失敗:', selectErr);
+      return res.status(500).json({ error: "獲取訂單資料失敗", message: selectErr.message });
+    }
+    
+    if (originalData.length === 0) {
+      return res.status(404).json({ message: "找不到指定訂單" });
+    }
+    
+    const originalOrder = originalData[0];
 
-  if (updateFields.length === 0) {
-    return res.status(400).json({ message: "沒有提供要更新的欄位" });
-  }
-
-  // 添加 order_ID 到 WHERE 條件
-  updateValues.push(order_ID);
-
-  const updateQuery = `
-    UPDATE order_record 
-    SET ${updateFields.join(', ')} 
-    WHERE order_ID = ?
-  `;
-
-  console.log('執行更新 SQL:', updateQuery);
-  console.log('參數:', updateValues);
-
-  connect.query(updateQuery, updateValues, (updateErr, result) => {
-    if (updateErr) {
-      console.error('更新訂單失敗:', updateErr);
-      return res.status(500).json({ error: "更新訂單失敗", code: updateErr.code, message: updateErr.message });
+    if (uid !== undefined && String(uid) !== String(originalOrder.uid)) {
+      updateFields.push('uid = ?');
+      updateValues.push(uid);
+    }
+    
+    // 處理 start_date - 嚴格驗證
+    if (start_date !== undefined) {
+      const validatedStartDate = validateAndFormatDateTime(start_date, 'start_date');
+      if (validatedStartDate === null && start_date !== null) {
+        return res.status(400).json({ 
+          error: "start_date 格式錯誤", 
+          message: `無法解析日期格式: ${start_date}` 
+        });
+      }
+      
+      if (validatedStartDate && validatedStartDate !== originalOrder.start_date) {
+        updateFields.push('start_date = ?');
+        updateValues.push(validatedStartDate);
+      }
+    }
+    
+    // 處理 end - 嚴格驗證
+    if (end !== undefined) {
+      const validatedEnd = validateAndFormatDateTime(end, 'end');
+      if (validatedEnd === null && end !== null) {
+        return res.status(400).json({ 
+          error: "end 格式錯誤", 
+          message: `無法解析日期格式: ${end}` 
+        });
+      }
+      
+      if (validatedEnd !== originalOrder.end) {
+        updateFields.push('end = ?');
+        updateValues.push(validatedEnd);
+      }
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "找不到指定的訂單" });
+    // 處理其他欄位...
+    if (rental_site_id !== undefined && String(rental_site_id) !== String(originalOrder.rental_site_id)) {
+      updateFields.push('rental_site_id = ?');
+      updateValues.push(rental_site_id);
+    }
+    
+    if (return_site_id !== undefined && String(return_site_id) !== String(originalOrder.return_site_id)) {
+      updateFields.push('return_site_id = ?');
+      updateValues.push(return_site_id);
+    }
+    
+    if (order_status !== undefined && String(order_status) !== String(originalOrder.order_status)) {
+      updateFields.push('order_status = ?');
+      updateValues.push(order_status);
+    }
+    
+    if (charger_id !== undefined && String(charger_id) !== String(originalOrder.charger_id)) {
+      updateFields.push('charger_id = ?');
+      updateValues.push(charger_id);
+    }
+    
+    if (comment !== undefined && comment !== originalOrder.comment) {
+      updateFields.push('comment = ?');
+      updateValues.push(comment);
+    }
+    
+    if (total_amount !== undefined && String(total_amount) !== String(originalOrder.total_amount)) {
+      updateFields.push('total_amount = ?');
+      updateValues.push(total_amount);
     }
 
-    // 查詢並返回完整的訂單資料
-    const selectQuery = `
-      SELECT o.order_ID,
-             o.uid,
-             u.user_name, u.telephone, u.email,
-             o.start_date, o.end,
-             o.rental_site_id, rs.site_name as rental_site_name,
-             o.return_site_id, rts.site_name as return_site_name,
-             o.order_status, o.charger_id,
-             c.status AS charger_status,
-             o.comment, o.total_amount 
-      FROM order_record o
-      LEFT JOIN user u ON o.uid = u.uid
-      LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
-      LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-      LEFT JOIN charger c ON o.charger_id = c.charger_id
-      WHERE o.order_ID = ?
+    if (updateFields.length === 0) {
+      return res.status(400).json({ message: "沒有提供要更新的欄位" });
+    }
+
+    // 添加 order_ID 到 WHERE 條件
+    updateValues.push(order_ID);
+
+    const updateQuery = `
+      UPDATE order_record 
+      SET ${updateFields.join(', ')} 
+      WHERE order_ID = ?
     `;
 
-    connect.query(selectQuery, [order_ID], (selectErr, orderRows) => {
-      if (selectErr) {
-        console.error('查詢更新後訂單失敗:', selectErr);
-        return res.status(500).json({ error: "查詢更新後訂單失敗", code: selectErr.code, message: selectErr.message });
+    console.log('執行更新 SQL:', updateQuery);
+    console.log('參數:', updateValues);
+
+    connect.query(updateQuery, updateValues, (updateErr, result) => {
+      if (updateErr) {
+        console.error('更新訂單失敗:', updateErr);
+        return res.status(500).json({ error: "更新訂單失敗", code: updateErr.code, message: updateErr.message });
       }
 
-      console.log('訂單更新成功:', orderRows[0]);
-      res.json(orderRows[0]);
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "找不到指定的訂單" });
+      }
+
+      // 查詢並返回完整的訂單資料
+      const selectQuery = `
+        SELECT o.order_ID,
+               o.uid,
+               u.user_name, u.telephone, u.email,
+               o.start_date, o.end,
+               o.rental_site_id, rs.site_name as rental_site_name,
+               o.return_site_id, rts.site_name as return_site_name,
+               o.order_status, o.charger_id,
+               c.status AS charger_status,
+               o.comment, o.total_amount 
+        FROM order_record o
+        LEFT JOIN user u ON o.uid = u.uid
+        LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
+        LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
+        LEFT JOIN charger c ON o.charger_id = c.charger_id
+        WHERE o.order_ID = ?
+      `;
+
+      connect.query(selectQuery, [order_ID], (selectErr, orderRows) => {
+        if (selectErr) {
+          console.error('查詢更新後訂單失敗:', selectErr);
+          return res.status(500).json({ error: "查詢更新後訂單失敗", code: selectErr.code, message: selectErr.message });
+        }
+
+        console.log('訂單更新成功:', orderRows[0]);
+        res.json(orderRows[0]);
+      });
     });
   });
 });
-
 
 // 修正獲取所有活動 - 移除可能不存在的 creator_id 欄位
 app.get("/api/events", (req, res) => {
@@ -930,41 +1032,74 @@ app.get("/api/events", (req, res) => {
   });
 });
 
-// 修正新增活動 - 移除 creator_id
+// 修改新增活動 API
 app.post("/api/events", (req, res) => {
-  const { event_title, event_content, site_id, event_start_date, event_end_date } = req.body;
+  const { 
+    event_title, 
+    event_content, 
+    site_id, 
+    event_start_date, 
+    event_end_date, 
+    operator_id 
+  } = req.body;
 
   console.log('接收到新增活動請求:', req.body);
+  console.log('操作者ID:', operator_id);
 
-  // 基本驗證
-  if (!event_title || !event_content || !event_start_date || !event_end_date) {
-    return res.status(400).json({ error: '活動標題、內容和時間為必填欄位' });
+  if (!operator_id) {
+    console.error('缺少操作者ID');
+    return res.status(400).json({ error: '缺少操作者ID' });
   }
 
-  const query = `
+  // 1. 先建立活動
+  const eventQuery = `
     INSERT INTO event (event_title, event_content, site_id, event_start_date, event_end_date)
     VALUES (?, ?, ?, ?, ?)
   `;
 
-  const values = [event_title, event_content, site_id || null, event_start_date, event_end_date];
+  const eventValues = [
+    event_title, 
+    event_content, 
+    site_id || null, 
+    event_start_date, 
+    event_end_date
+  ];
 
-  console.log('執行插入 SQL:', query);
-  console.log('參數:', values);
-
-  connect.query(query, values, (err, result) => {
+  connect.query(eventQuery, eventValues, (err, result) => {
     if (err) {
-      console.error('Error creating event:', err);
-      return res.status(500).json({
-        error: '建立活動失敗',
-        details: err.message,
-        code: err.code
-      });
+      console.error('建立活動失敗:', err);
+      
+      // 記錄失敗操作
+      const logContent = `CREATE_EVENT-{"title":"${event_title.substring(0, 20)}","status":"failed"}`;
+      const logQuery = `
+        INSERT INTO employee_log (employee_id, log, employee_log_date)
+        VALUES (?, ?, NOW())
+      `;
+      
+      connect.query(logQuery, [operator_id, logContent]);
+      return res.status(500).json({ error: '建立活動失敗', message: err.message });
     }
 
-    console.log('活動建立成功, ID:', result.insertId);
-    res.status(201).json({
-      event_id: result.insertId,
-      message: '活動建立成功'
+    const eventId = result.insertId;
+    
+    // 2. 記錄操作日誌
+    const logContent = `CREATE_EVENT-{"event_id":${eventId},"title":"${event_title.substring(0, 20)}","status":"success"}`;
+    const logQuery = `
+      INSERT INTO employee_log (employee_id, log, employee_log_date)
+      VALUES (?, ?, NOW())
+    `;
+    
+    connect.query(logQuery, [operator_id, logContent], (logErr) => {
+      if (logErr) {
+        console.error('記錄操作日誌失敗:', logErr);
+      }
+      
+      // 3. 無論日誌是否記錄成功，都返回活動建立成功的訊息
+      res.status(201).json({ 
+        success: true,
+        event_id: eventId,
+        message: '活動建立成功'
+      });
     });
   });
 });
@@ -1145,6 +1280,28 @@ app.get("/api/users", (req, res) => {
   });
 });
 
+// 新增：取得單一用戶（供前端 GET /api/users/:uid 使用）
+app.get("/api/users/:uid", (req, res) => {
+  const uid = req.params.uid;
+  if (!uid) return res.status(400).json({ message: "缺少 uid" });
+
+  connect.query(
+    `SELECT uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint
+     FROM user WHERE uid = ? LIMIT 1`,
+    [uid],
+    (err, rows) => {
+      if (err) {
+        console.error("[ERROR] GET /api/users/:uid failed:", err);
+        return res.status(500).json({ error: "DB error", code: err.code, message: err.message });
+      }
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ message: "user not found" });
+      }
+      res.json(rows[0]);
+    }
+  );
+});
+
 // 新增：獲取活動發送統計
 app.get("/api/events/send-counts", (req, res) => {
   console.log('查詢活動發送統計...');
@@ -1176,86 +1333,104 @@ app.get("/api/events/send-counts", (req, res) => {
 });
 
 // 新增：發送活動通知 API
-app.post("/api/events/send-notification", (req, res) => {
-  const { event_id, user_ids, send_all, status_filter } = req.body;
+app.post("/api/events/send-notification", async (req, res) => {
+  const { event_id, user_ids, operator_id, send_all, status_filter } = req.body;
 
-  console.log('發送活動通知請求:', req.body);
+  console.log('接收到發送活動通知請求:', {
+    event_id,
+    user_ids,
+    operator_id,
+    send_all,
+    status_filter
+  });
 
-  // 先獲取活動詳情
-  connect.query(
-    'SELECT * FROM event WHERE event_id = ?',
-    [event_id],
-    (err, eventResult) => {
-      if (err) {
-        console.error('獲取活動詳情失敗:', err);
-        return res.status(500).json({ error: '獲取活動詳情失敗' });
-      }
+  try {
+    // 1. 先獲取活動詳情
+    const [event] = await connect.queryAsync(
+      'SELECT * FROM event WHERE event_id = ?',
+      [event_id]
+    );
 
-      if (eventResult.length === 0) {
-        return res.status(404).json({ error: '活動不存在' });
-      }
-
-      const event = eventResult[0];
-
-      // 根據發送類型構建查詢
-      let userQuery = '';
-      let userParams = [];
-
-      if (send_all) {
-        // 根據狀態篩選發送給所有用戶
-        if (status_filter === 'normal') {
-          userQuery = 'SELECT uid FROM user WHERE blacklist = 0';
-        } else if (status_filter === 'blacklist') {
-          userQuery = 'SELECT uid FROM user WHERE blacklist = 1';
-        } else {
-          userQuery = 'SELECT uid FROM user';
-        }
-      } else if (user_ids && Array.isArray(user_ids)) {
-        // 發送給指定用戶
-        userQuery = `SELECT uid FROM user WHERE uid IN (${user_ids.map(() => '?').join(',')})`;
-        userParams = user_ids;
-      } else {
-        return res.status(400).json({ error: '無效的發送參數' });
-      }
-
-      // 獲取目標用戶
-      connect.query(userQuery, userParams, (err, users) => {
-        if (err) {
-          console.error('獲取用戶列表失敗:', err);
-          return res.status(500).json({ error: '獲取用戶列表失敗' });
-        }
-
-        if (users.length === 0) {
-          return res.status(400).json({ error: '沒有找到符合條件的用戶' });
-        }
-
-        // 準備插入通知的資料
-        const notices = users.map(user => [
-          user.uid,
-          `活動通知：${event.event_title}`,
-          event.event_content,
-          new Date() // notice_date
-        ]);
-
-        // 批次插入通知到 notice 表
-        const insertNoticeQuery = 'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?';
-
-        connect.query(insertNoticeQuery, [notices], (err, noticeResult) => {
-          if (err) {
-            console.error('插入通知失敗:', err);
-            return res.status(500).json({ error: '發送通知失敗' });
-          }
-
-          console.log(`成功發送活動通知給 ${users.length} 位用戶`);
-          res.json({
-            message: `活動通知已成功發送給 ${users.length} 位用戶`,
-            sent_count: users.length,
-            event_title: event.event_title
-          });
-        });
-      });
+    if (!event) {
+      return res.status(404).json({ error: '找不到指定活動' });
     }
-  );
+
+    // 2. 根據發送類型構建用戶查詢
+    let userQuery = '';
+    let userParams = [];
+
+    if (send_all) {
+      // 全部用戶情況
+      switch (status_filter) {
+        case 'normal':
+          userQuery = 'SELECT uid, user_name FROM user WHERE blacklist = 0';
+          break;
+        case 'blacklist':
+          userQuery = 'SELECT uid, user_name FROM user WHERE blacklist = 1';
+          break;
+        default:
+          userQuery = 'SELECT uid, user_name FROM user';
+      }
+    } else if (Array.isArray(user_ids) && user_ids.length > 0) {
+      // 指定用戶情況
+      userQuery = `SELECT uid, user_name FROM user WHERE uid IN (${user_ids.map(() => '?').join(',')})`;
+      userParams = user_ids;
+    } else {
+      return res.status(400).json({ error: '無效的發送參數' });
+    }
+
+    // 3. 查詢目標用戶
+    console.log('執行用戶查詢:', userQuery, userParams);
+    const users = await connect.queryAsync(userQuery, userParams);
+
+    if (users.length === 0) {
+      return res.status(400).json({ error: '沒有找到符合條件的用戶' });
+    }
+
+    // 4. 準備批次插入通知
+    const noticeValues = users.map(user => [
+      user.uid,
+      `活動通知：${event.event_title}`,
+      event.event_content,
+      new Date()
+    ]);
+
+    // 5. 插入通知記錄
+    const noticeResult = await connect.queryAsync(
+      'INSERT INTO notice (uid, notice_title, notice_content, notice_date) VALUES ?',
+      [noticeValues]
+    );
+
+    // 6. 記錄操作日誌
+    const logContent = `SEND_EVENT-${JSON.stringify({
+      event_id: event.event_id,
+      title: event.event_title,
+      users: users.length,
+      type: send_all ? 'all' : 'selected',
+      status: 'success'
+    })}`;
+
+    await connect.queryAsync(
+      'INSERT INTO employee_log (employee_id, log, employee_log_date) VALUES (?, ?, NOW())',
+      [operator_id, logContent]
+    );
+
+    // 7. 返回成功響應
+    console.log(`成功發送活動通知給 ${users.length} 位用戶`);
+    res.json({
+      success: true,
+      message: `活動通知發送成功`,
+      sent_count: users.length,
+      event_title: event.event_title
+    });
+
+  } catch (err) {
+    console.error('發送活動通知失敗:', err);
+    res.status(500).json({ 
+      error: '發送活動通知失敗', 
+      message: err.message 
+    });
+  }
 });
 
 // 新增：獲取活動詳細發送記錄 API（可選）
