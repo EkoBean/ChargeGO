@@ -1,32 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_rentRecord.module.scss";
-import ChargegoLogo from "../../components/ChargegoLogo";
 import NavBarAPP from "../../components/NavBarAPP";
 
 const mber_RentRecord = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_BASE = "http://localhost:3000";
 
   useEffect(() => {
-    fetch("http://localhost:3000/user/session/orders", {
+    // 先判斷是否登入
+    fetch(`${API_BASE}/check-auth`, {
+      method: "POST",
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setOrders(data.orders);
+        if (!data.authenticated) {
+          alert("請先登入");
+          navigate("/mber_login");
+          return;
         }
-        setLoading(false);
+        // 已登入才取得租借紀錄
+        fetch(`${API_BASE}/user/session/orders`, {
+          credentials: "include",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              console.log('取得的租借紀錄:', data.orders); // 除錯用
+              setOrders(data.orders);
+            }
+            setLoading(false);
+          })
+          .catch(() => setLoading(false));
       })
-      .catch(() => setLoading(false));
-  }, []);
+      .catch(() => {
+        alert("請先登入");
+        navigate("/mber_login");
+      });
+  }, [navigate]);
 
   return (
     <div className={styles.mber_rentRecord}>
-      <div className={styles.record_header}>
         <NavBarAPP />
+      <div className={styles.record_header}>
         <h2>租借紀錄 </h2>
       </div>
       <div className={styles.record_body}>
@@ -37,26 +57,18 @@ const mber_RentRecord = () => {
             <div className={styles.record_empty}>目前沒有租借紀錄</div>
           ) : (
             orders.map((order) => (
-              <div className={styles.record_item} key={order.order_id}>
-                <div className={styles.order_card}>
-                  <div>
-                    <span className={styles.orderLabel}>訂單編號：</span>
-                    <span>{order.order_id}</span>
-                  </div>
-                  <div>
-                    <span className={styles.orderLabel}>租借日期：</span>
-                    <span>{order.rent_date}</span>
-                  </div>
-                  <div>
-                    <span className={styles.orderLabel}>歸還日期：</span>
-                    <span>{order.return_date || "尚未歸還"}</span>
-                  </div>
-                  <div>
-                    <span className={styles.orderLabel}>租借狀態：</span>
-                    <span>{order.status}</span>
-                  </div>
-                  {/* 可依需求顯示更多欄位 */}
-                </div>
+              <div className={styles.order_card} key={order.order_ID}>
+                <h4>訂單編號：{order.order_ID}</h4>
+                <p>租借起始日期：{order.start_date}</p>
+                <p>結束日期：{order.end}</p>
+                <p>訂單金額：{order.total_amount}</p>
+                <p>訂單狀態：{order.order_status}</p>
+                <p>租借站點：{order.rental_site_id}</p>
+                <p>歸還站點：{order.return_site_id}</p>
+                <p>充電樁編號：{order.charger_id}</p>
+                <p>備註：{order.comment}</p>
+                <button className={styles.more_btn}>查看更多</button>
+                <hr />
               </div>
             ))
           )}
