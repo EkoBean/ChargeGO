@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
@@ -6,18 +6,29 @@ import styles from "../../styles/scss/mber_login.module.scss";
 
 const mber_Login = () => {
   const [form, setForm] = useState({
-    username: "",
+    login_id: "",
     password: "",
     captcha: "",
   });
-  // 產生驗證碼
-  const [captchaValue, setCaptchaValue] = useState(() =>
-    Math.floor(Math.random() * (999999 - 100000 + 1) + 100000)
-  );
-  // 更新驗證碼
+  const [generatedCaptcha, setGeneratedCaptcha] = useState("");
   const [error, setError] = useState("");
-  // 導向
   const navigate = useNavigate();
+
+  // 驗證碼初始化
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
+  // 更新驗證碼
+  const refreshCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setGeneratedCaptcha(code);
+  };
+
   // 處理表單變更
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +40,7 @@ const mber_Login = () => {
     setError("");
 
     // 必填欄位檢查
-    if (!form.username.trim()) {
+    if (!form.login_id.trim()) {
       setError("請輸入帳號");
       return;
     }
@@ -41,7 +52,7 @@ const mber_Login = () => {
       setError("請輸入驗證碼");
       return;
     }
-    if (form.captcha !== String(captchaValue)) {
+    if (form.captcha !== generatedCaptcha) {
       setError("驗證碼錯誤");
       alert("驗證碼錯誤");
       return;
@@ -58,8 +69,8 @@ const mber_Login = () => {
       const res = await axios.post(
         "http://localhost:3000/mber_login",
         {
-          user_name: form.username,
-          password: hashedPwd,
+          login_id: form.login_id, // login_id
+          password: hashedPwd, // hashed_password
         },
         { withCredentials: true }
       );
@@ -82,10 +93,6 @@ const mber_Login = () => {
       setError(serverMsg || "系統錯誤，請稍後再試");
       console.error("登入錯誤:", err);
     }
-  };
-  // 重新產生驗證碼
-  const refreshCaptcha = () => {
-    setCaptchaValue(Math.floor(Math.random() * (999999 - 100000 + 1) + 100000));
   };
 
   return (
@@ -117,10 +124,10 @@ const mber_Login = () => {
             {/* 帳號欄位 */}
             <input
               type="text"
-              name="username"
+              name="login_id"
               className={styles["login-input"]}
               placeholder="帳號"
-              value={form.username}
+              value={form.login_id}
               onChange={handleChange}
               required
             />
@@ -145,7 +152,7 @@ const mber_Login = () => {
             {/* 驗證碼顯示與刷新 */}
             <div className={styles["captcha-row"]}>
               <span className={styles["captcha-label"]}>驗證碼</span>
-              <span className={styles["captcha-value"]}>{captchaValue}</span>
+              <span className={styles["captcha-value"]}>{generatedCaptcha}</span>
               <button
                 type="button"
                 className={styles["captcha-refresh"]}
