@@ -30,6 +30,15 @@ $color-shop-circle: #69f05b;
   align-items: center;
   justify-content: center;
   margin-top: 4px;
+  @media (min-width: 576px) {
+    position: absolute; // 改為絕對定位
+    top: 20%;
+    left: 10%;
+    margin: 0;
+    z-index: 10; // 確保它浮動在 mallMain 上方
+    flex-direction: column; // 讓子元素垂直排列
+    align-items: flex-start;
+  }
 }
 
 .mallBody {
@@ -52,23 +61,25 @@ $color-shop-circle: #69f05b;
   position: relative;
   background-color: white;
   position: fixed; /* 固定在視窗底部 */
-
-  // 左右上角圓角
-
-  // 也可以寫成一行
   border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
-}
-@media (min-width: 575.98px) {
-  .mallNavbar {
-    display: none !important;
-  }
-  .mallMain {
+  // 桌面版樣式
+  @media (min-width: 576px) {
     left: 10%;
     right: 10%;
-    width: 80% // 讓左右距離生效
-;
+    width: 80%;
+    top: auto; // 取消 top 的固定值
+    position: relative; // 讓 mallMain 變成可滾動的區塊，而非固定在底部
+    margin-top: 115px; // 將內容往下推，為上方圓圈保留空間
   }
 }
+// @media (min-width: 576px) {
+//   .mallMain {
+//     left: 10%;
+//     right: 10%;
+//     width: 80%; // 讓左右距離生效
+//     margin-top: 115px; // 數值需要根據你 .mallNavbar 的實際高度來調整
+//   }
+// }
 // ==========================
 // coupon禮物箱navbar跟main
 // ==========================
@@ -95,11 +106,24 @@ $color-shop-circle: #69f05b;
   border-bottom-right-radius: 50% 40px;
   flex-shrink: 0;
   // margin-bottom: 2rem;
-}
-@media (min-width: 575.98px) {
-  // 小於 576px
-  .couponNavbar {
-    display: none !important;
+  // 桌面版樣式
+  @media (min-width: 576px) {
+    background-color: transparent;
+
+    position: absolute; // 改為絕對定位
+    top: 20%;
+    left: 45%;
+    margin: 0;
+    z-index: 10; // 確保它浮動在 mallMain 上方
+    flex-direction: column; // 讓子元素垂直排列
+    align-items: flex-start;
+  }
+  @media (max-width: 992px) {
+    top: 23%;
+  }
+  @media (max-width: 768px) and (min-width: 576px) {
+    top: 18%;
+    left: 40%;
   }
 }
 .couponMain {
@@ -113,11 +137,15 @@ $color-shop-circle: #69f05b;
   background-color: transparent; /* alpha 值 0~1 */
 
   position: fixed; /* 固定在視窗底部 */
-
-  // 左右上角圓角
-
-  // 也可以寫成一行
-  // border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
+  // 桌面版樣式
+  @media (min-width: 576px) {
+    left: 10%;
+    right: 10%;
+    width: 80%;
+    top: auto; // 取消 top 的固定值
+    position: relative; // 讓 mallMain 變成可滾動的區塊，而非固定在底部
+    margin-top: 115px; // 將內容往下推，為上方圓圈保留空間
+  }
 }
 //navbar
 .navbarLeftSection {
@@ -127,12 +155,33 @@ $color-shop-circle: #69f05b;
   transform: translateY(-50%);
   border: none;
   background-color: transparent;
+  @media (min-width: 576px) {
+    display: none;
+  }
 }
 .navbarCenterSection {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  // 桌面版樣式：垂直排列並靠左
+  @media (min-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.navbarCenterSectionForCouponBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // 桌面版樣式：垂直排列並靠左
+  @media (min-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 .navbarRightSection {
   position: absolute;
@@ -142,6 +191,9 @@ $color-shop-circle: #69f05b;
   border: none;
   background-color: transparent;
   cursor: pointer;
+  @media (min-width: 576px) {
+    display: none;
+  }
 }
 //navbarCenterSection內的設定
 .pointCircle {
@@ -252,7 +304,7 @@ $color-shop-circle: #69f05b;
 }
 
 // ==========================
-// mall所有頁面標題
+// shoptitle所有頁面標題
 // ==========================
 .malltitle {
   color: var(--brown, #6c4023);
@@ -276,7 +328,7 @@ $color-shop-circle: #69f05b;
   overflow-y: auto;
   padding-right: 10px;
   padding-left: 10px;
-
+  align-items: center;
   margin: 0 12px;
   padding-top: 30px;
   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
@@ -306,9 +358,7 @@ $color-shop-circle: #69f05b;
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
   flex-shrink: 0; // 避免因為 list 捲動壓縮
-  @media (min-width: 1200px) {
-    width: calc(70% - 12px); // 桌機兩欄，保留gap
-  }
+
   // margin-left: 30px;
   display: flex;
   justify-content: space-between;
@@ -381,18 +431,53 @@ $color-shop-circle: #69f05b;
     }
   }
 }
+.missiontitle {
+  color: var(--brown, #6c4023);
+  font-family: Inter;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 4.8px;
+  padding: 12px;
+  width: 100%;
+  max-width: calc(100% - 24px * 2); // 手機 margin 12px -> 24px
+  margin: 0 auto; // 置中對齊
+  padding: 12px 0;
+}
+
+@media (min-width: 768px) {
+  .missiontitle {
+    max-width: calc(100% - 24px * 2); // missionList 平板 margin 24px
+  }
+}
+
+@media (min-width: 1200px) {
+  .missiontitle {
+    max-width: calc(100% - 48px * 2); // missionList 桌機 margin 48px
+  }
+}
+
 // ==========================
 // 商店兌換券購買列表
 // ==========================
+/* wrapper 讓左右按鈕定位 */
+.storeWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+/* 原本的 list：保留你原先的屬性，並補上 smooth scroll 與左右內距 */
 .storeCouponList {
   display: flex;
   overflow-x: auto;
-
-  padding-bottom: 8px;
   gap: 12px;
-  margin-left: 24px;
-  margin-right: 24px;
-  // 隱藏 scrollbar（可選）
+  padding: 8px 24px; /* 上下內距 + 留按鈕空間 */
+  margin-left: 0; /* 你原先有 margin-left/right，視需要移或保留 */
+  margin-right: 0;
+  scroll-behavior: smooth;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -476,6 +561,49 @@ $color-shop-circle: #69f05b;
     }
   }
 }
+@media (min-width: 768px) {
+  // 小於 576px
+  .storeCouponCard {
+    min-width: 250px;
+    max-width: 250px;
+    height: 350px;
+    max-height: 350px;
+  }
+}
+/* 按鈕（預設隱藏） */
+.scrollBtn {
+  display: none; /* 預設手機不顯示 */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  background-size: 60%; // 圖片大小可調整
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  z-index: 10;
+  padding: 0;
+}
+
+/* 左右位置 */
+.leftBtn {
+  left: 8px;
+}
+.rightBtn {
+  right: 8px;
+}
+/* 在平板/桌機以上顯示按鈕（你要的是大於 768px） */
+@media (min-width: 768px) {
+  .scrollBtn {
+    display: flex;
+  }
+  /* 可選：在大螢幕時讓 list 兩邊多出空間，按鈕不會擠到內容 */
+  .storeCouponList {
+    padding: 8px 56px; /* 左右各留 56px 給按鈕 (視需要調整) */
+  }
+}
 // ==========================
 // 租借兌換券購買列表
 // ==========================
@@ -523,7 +651,7 @@ $color-shop-circle: #69f05b;
   align-items: center; // ✅ 文字靠上，不會被擠到中間
   background: #fff;
   border-radius: 0 50px 0 0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  filter: drop-shadow(0 2px 10.7px rgba(0, 0, 0, 0.18));
   overflow: hidden;
   padding: 16px;
   position: relative;
@@ -598,6 +726,58 @@ $color-shop-circle: #69f05b;
     z-index: 5; // 遮在上面
   }
 }
+.rentalWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .rentalCouponList {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin: 0 40px; // 給按鈕留空間
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .scrollBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    z-index: 2;
+    display: none; // 預設隱藏
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+  }
+
+  .leftBtn {
+    left: 0;
+  }
+  .rightBtn {
+    right: 0;
+  }
+
+  @media (min-width: 768px) {
+    .scrollBtn {
+      display: flex; // 平板以上才出現
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
 // ==========================
 // coupon禮物箱列表
 // ==========================
@@ -623,8 +803,9 @@ $color-shop-circle: #69f05b;
   }
 
   // 平板以上
-  @media (min-width: 768px) {
+  @media (min-width: 576px) {
     margin: 0 24px;
+    height: 90%;
   }
 
   // 桌機以上
@@ -724,6 +905,8 @@ $color-shop-circle: #69f05b;
     line-height: normal;
     letter-spacing: 3.2px;
     white-space: nowrap;
+    width: 100%;
+    // max-width: calc(100% - 24px * 2);
     &:hover {
       color: #666;
     }

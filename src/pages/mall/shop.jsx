@@ -3,6 +3,9 @@ import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss";
 import NavBarPhone from "../../components/NavBarApp";
 class Shop extends Component {
+  // 在 class Shop 的最上方（state 下面或 constructor 裡）
+  storeListRef = React.createRef();
+
   state = {
     products: [],
     selectedProduct: null,
@@ -11,6 +14,21 @@ class Shop extends Component {
     modalType: "",
     userId: sessionStorage.getItem("uid") || "", // 直接從 session 讀 uid
     userPoint: null, // 新增
+  };
+  // 向左或向右滾動 list，direction = -1 (左) 或 1 (右)
+  scrollStoreList = (direction) => {
+    const el = this.storeListRef.current;
+    if (!el) return;
+
+    // 嘗試抓到第一張卡片的寬度（包含 gap）
+    const firstCard = el.firstElementChild;
+    const gap = 12; // 跟你 CSS gap: 12px 一致，若改 CSS 要同步修改這裡
+    const cardWidth = firstCard ? firstCard.offsetWidth + gap : 300;
+
+    el.scrollBy({
+      left: direction * cardWidth,
+      behavior: "smooth",
+    });
   };
 
   // ✅ 抓取點數 API
@@ -245,29 +263,52 @@ class Shop extends Component {
           {storeCoupons.length > 0 && (
             <>
               <h4 className={styles.malltitle}>兌換商家折扣</h4>
-              <div className={styles.storeCouponList}>
-                {storeCoupons.map((p) => (
-                  <div className={styles.storeCouponCard} key={p.id}>
-                    <div className={styles.couponTop}>
-                      <h6 className={styles.couponName}>{p.name}</h6>
-                      <p className={styles.couponPoints}>點數: {p.points}</p>
+              <div className={styles.storeWrapper}>
+                <button
+                  type="button"
+                  className={`${styles.scrollBtn} ${styles.leftBtn}`}
+                  onClick={() => this.scrollStoreList(-1)}
+                  aria-label="上一張"
+                >
+                  <img
+                    src="public\Iconimg\leftscrollbutton 72.svg"
+                    alt="左移"
+                  />
+                </button>
+
+                <div className={styles.storeCouponList} ref={this.storeListRef}>
+                  {storeCoupons.map((p) => (
+                    <div className={styles.storeCouponCard} key={p.id}>
+                      <div className={styles.couponTop}>
+                        <h6 className={styles.couponName}>{p.name}</h6>
+                        <p className={styles.couponPoints}>點數: {p.points}</p>
+                      </div>
+                      <div className={styles.couponActions}>
+                        <button
+                          className={styles["btn-detail"]}
+                          onClick={() => this.handleShowDetail(p)}
+                        >
+                          詳細
+                        </button>
+                        <button
+                          className={styles["btn-redeem"]}
+                          onClick={() => this.handleRedeem(p)}
+                        >
+                          兌換
+                        </button>
+                      </div>
                     </div>
-                    <div className={styles.couponActions}>
-                      <button
-                        className={styles["btn-detail"]}
-                        onClick={() => this.handleShowDetail(p)}
-                      >
-                        詳細
-                      </button>
-                      <button
-                        className={styles["btn-redeem"]}
-                        onClick={() => this.handleRedeem(p)}
-                      >
-                        兌換
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className={`${styles.scrollBtn} ${styles.rightBtn}`}
+                  onClick={() => this.scrollStoreList(1)}
+                  aria-label="下一張"
+                >
+                  <img src="public\Iconimg\rightscrollbar.svg" alt="右移" />
+                </button>
               </div>
             </>
           )}

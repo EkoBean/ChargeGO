@@ -228,8 +228,6 @@ class Mission extends Component {
           </button>
         </div>
         <div className={styles.mallMain}>
-          <h2 className={styles.malltitle}>任務</h2>
-
           <div className={styles["filter-row"]}>
             <div>
               <label htmlFor="userId">使用者 ID（會同步到 session）</label>
@@ -251,7 +249,7 @@ class Mission extends Component {
             </div>
             <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
           </div>
-
+          <div className={styles.missiontitle}>任務</div>
           {loading ? (
             <div className={styles["loading-text"]}>任務資料載入中...</div>
           ) : error ? (
