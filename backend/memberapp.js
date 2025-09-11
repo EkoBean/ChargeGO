@@ -4,6 +4,9 @@ import crypto from 'crypto';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import db from './db.js'; // 引入 db.js
+import nodemailer from 'nodemailer';
+
+
 
 const app = express();
 app.use(express.json());
@@ -331,6 +334,7 @@ app.post('/user/add-creditcard', (req, res) => {
         }
     );
 });
+
 
 // 伺服器啟動
 app.listen(3000, () => {
