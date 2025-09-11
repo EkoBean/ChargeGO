@@ -108,14 +108,33 @@ const SiteManagement = () => {
   // ==================== get address from latlng by geocoder ========================
   function getSetAddress(coord) {
     if (isGoogleMapsLoaded && coord) {
-      const coordArray = {
-        latitude: parseFloat(coord.lat.toFixed(8)),
-        longitude: parseFloat(coord.lng.toFixed(8)),
+      let lat, lng;
+
+      // 檢查是否為 LatLng 物件（lat 為數字）
+      if (typeof coord.lat === 'number' && typeof coord.lng === 'number') {
+        // LatLng 物件：直接使用數字
+        lat = coord.lat;
+        lng = coord.lng;
+      } else{
+        // 普通物件：lat/lng 可能是字串，轉為數字
+        lat = parseFloat(coord.lat || coord.latitude);
+        lng = parseFloat(coord.lng || coord.longitude);
+
+        // 檢查是否為有效數字
+        if (isNaN(lat) || isNaN(lng)) {
+          console.error('Invalid coordinates:', coord);
+          return;
+        }
       }
+      // 格式化為 8 位小數
+      const coordArray = {
+        latitude: parseFloat(lat.toFixed(8)),
+        longitude: parseFloat(lng.toFixed(8)),
+      };
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode(
         // request
-        { location: { lat: coord.lat, lng: coord.lng }, region: 'TW', language:'zh-TW' },
+        { location: { lat: coordArray.latitude, lng: coordArray.longitude }, region: 'TW', language: 'zh-TW' },
         // callback
         (result, status) => {
           console.log(result);
@@ -135,7 +154,7 @@ const SiteManagement = () => {
 
             // console.log('streetNumber :>> ', route);
             const addressFull = `${administrativeLv2}${route}${streetNumber}`;
-          
+
             setEditSite((prev) => ({
               ...prev,
               address: addressFull,
@@ -217,55 +236,69 @@ const SiteManagement = () => {
 
 
   //============ changing the data by user interact ================
-  // ===== keydown input on form =====
+  // ================== keydown input on form =================
   const handleSiteFieldChange = (e) => {
     if (!e || !e.target) return;
     const { name, value } = e.target;
-    // debug=================================
-    console.log(name, value);
-    // =====================================
 
     // check the coordinate format
+    // handle latitude & longitude
     if (name === "longitude" || name === "latitude") {
-
+      if (name === 'longitude' & !checker.isValidLng(value)) {
+        setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+      }
+      else if (name === "latitude" & !checker.isValidLat(value)) {
+        setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+      }
       // 檢查小數位數是否為 8 位
-      if (!checker.isDemical8(value)) {
+      else if (!checker.isDemical8(value)) {
         setFormatWarning({ message: "小數位數必須為 8 位。", type: name });
         setEditSite((prev) => ({ ...prev, [name]: value }));
         return;
       }
-      // 檢查台灣經緯度範圍
-      if (name === "longitude") {
-        if (!checker.isValidLng(value)) {
-          setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
-          setEditSite((prev) => ({ ...prev, [name]: value }));
-
-        }
-      } else if (name === "latitude") {
-        if (!checker.isValidLat(value)) {
-          setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
-          setEditSite((prev) => ({ ...prev, [name]: value }));
-          return;
-        }
+      else {
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        setFormatWarning("");
       }
-      setFormatWarning("");
     }
-    else if (name) {
+    // handle other fields
+    else {
       if (!value) {
-        setFormatWarning({ message: '必填欄位不可為空', type: name });
+        setFormatWarning({ message: `必填欄位不可為空`, type: name });
+      }
+      else {
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        setFormatWarning("");
       }
     }
-    const coord = {lat: editSite?.latitude, lng: editSite?.longitude};
-    // getSetAddress(coord);
   };
+  // ============== update address by change lat lng =================
+  useEffect(() => {
+    if (
+      editSite?.latitude &&
+      editSite?.longitude &&
+      isGoogleMapsLoaded &&
+      checker.isValidLng(editSite.longitude) &&
+      checker.isValidLat(editSite.latitude) &&
+      checker.isDemical8(editSite.longitude) &&
+      checker.isDemical8(editSite.latitude)
+    ) {
+      const coord = { lat: editSite.latitude, lng: editSite.longitude };
+      getSetAddress(coord);
+    }
+  }, [editSite?.latitude, editSite?.longitude, isGoogleMapsLoaded]);
+  // ================== end of keydown input on form ====================
+
 
   // =========== click on map =================
   const handleMapClick = (event) => {
     if (!isGoogleMapsLoaded) return;
     const coord = event.detail.latLng
+    // ============ debug ============
+    console.log('coord :>> ', coord);
     getSetAddress(coord);
-
-
   }
 
 
