@@ -30,6 +30,7 @@ const SiteDetailModal = ({
   onSave,
   formatWarning,
   onChange,
+  onMapClick,
   onClose,
   // 新增 stats prop，來自 SiteManagement 計算
   stats = { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 },
@@ -79,8 +80,8 @@ const SiteDetailModal = ({
     const markerRef = useAdvancedMarkerRef();
 
     const mapCenter = {
-      lat: Number(site?.latitude || 25.033964),
-      lng: Number(site?.longitude || 121.564468),
+      lat: Number(editSite?.latitude || site?.latitude || 25.033964),
+      lng: Number(editSite?.longitude || site?.longitude || 121.564468),
     }
 
     return (
@@ -92,6 +93,7 @@ const SiteDetailModal = ({
         disableDefaultUI={true}
         draggingCursor={"default"}
         draggableCursor={"default"}
+        onClick={isEditing && onMapClick}
         // use without map Id, keep it default style in admin system
         mapId={"DEMO_MAP_ID"}
       >
@@ -243,7 +245,6 @@ const SiteDetailModal = ({
                       <input
                         type="number"
                         name="longitude"
-                        step="0.00000001"
                         min="-180"
                         max="180"
                         value={editSite?.longitude || ""}
@@ -263,7 +264,6 @@ const SiteDetailModal = ({
                       <input
                         type="number"
                         name="latitude"
-                        step="0.00000001"
                         min="-90"
                         max="90"
                         value={editSite?.latitude || ""}
