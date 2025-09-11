@@ -88,8 +88,8 @@ const SiteManagement = () => {
   // ('' ->message content, null -> warning type)
   const [formatWarning, setFormatWarning] = useState({ message: '', type: null });
 
-  // =========== functions pack ================
-  // lat lng format checker
+  // =========================== functions pack ===================================
+  // =====================lat lng format checker ==========================
   const checker = {
     isDemical8: (n) => {
       const str = String(n);
@@ -104,22 +104,23 @@ const SiteManagement = () => {
       return !isNaN(v) && v >= 21.5 && v <= 25.5;
     },
   };
-  // get address from latlng by geocoder
-  function getAddress(coord) {
+
+  // ==================== get address from latlng by geocoder ========================
+  function getSetAddress(coord) {
     if (isGoogleMapsLoaded && coord) {
       const coordArray = {
         latitude: parseFloat(coord.lat.toFixed(8)),
         longitude: parseFloat(coord.lng.toFixed(8)),
-        // =========== geocoder : serach adress from latlng =================
       }
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode(
         // request
-        { location: { lat: coord.lat, lng: coord.lng }, region: 'TW' },
+        { location: { lat: coord.lat, lng: coord.lng }, region: 'TW', language:'zh-TW' },
         // callback
         (result, status) => {
           console.log(result);
           if (status === "OK" && result[0]) {
+            console.log('result :>> ', result);
             const addressComp = result[0].address_components;
             // 一級行政區
             const country = addressComp.find(x => x.types.includes('administrative_area_level_1'))?.long_name || '';
@@ -134,7 +135,7 @@ const SiteManagement = () => {
 
             // console.log('streetNumber :>> ', route);
             const addressFull = `${administrativeLv2}${route}${streetNumber}`;
-
+          
             setEditSite((prev) => ({
               ...prev,
               address: addressFull,
@@ -155,7 +156,7 @@ const SiteManagement = () => {
     }
 
   }
-  // ==========================================
+  // ===========================================================================
 
   // handleViewSite 定義
   const handleViewSite = async (site) => {
@@ -224,49 +225,45 @@ const SiteManagement = () => {
     console.log(name, value);
     // =====================================
 
-    setEditSite((prev) => {
-      // check the coordinate format
-      if (name === "longitude" || name === "latitude") {
+    // check the coordinate format
+    if (name === "longitude" || name === "latitude") {
 
-        // 檢查小數位數是否為 8 位
-        if (!checker.isDemical8(value)) {
-          setFormatWarning({ message: "小數位數必須為 8 位。", type: name });
-          return {
-            ...prev, [name]: value
-          }
-        }
-        // 檢查台灣經緯度範圍
-        if (name === "longitude") {
-          if (!checker.isValidLng(value)) {
-            setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
-            return {
-              ...prev, [name]: value
-            };
-          }
-        } else if (name === "latitude") {
-          if (!checker.isValidLat(value)) {
-            setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
-            return {
-              ...prev, [name]: value
-            };
-          }
-        }
-        setFormatWarning("");
+      // 檢查小數位數是否為 8 位
+      if (!checker.isDemical8(value)) {
+        setFormatWarning({ message: "小數位數必須為 8 位。", type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        return;
       }
-      else if (name) {
-        if (!value) {
-          setFormatWarning({ message: '必填欄位不可為空', type: name });
+      // 檢查台灣經緯度範圍
+      if (name === "longitude") {
+        if (!checker.isValidLng(value)) {
+          setFormatWarning({ message: "經度不在台灣範圍內（ 119.5-122.5）。", type: name });
+          setEditSite((prev) => ({ ...prev, [name]: value }));
+
+        }
+      } else if (name === "latitude") {
+        if (!checker.isValidLat(value)) {
+          setFormatWarning({ message: "緯度不在台灣範圍內（21.5-25.5）。", type: name });
+          setEditSite((prev) => ({ ...prev, [name]: value }));
+          return;
         }
       }
-      return { ...prev, [name]: value };
-    });
+      setFormatWarning("");
+    }
+    else if (name) {
+      if (!value) {
+        setFormatWarning({ message: '必填欄位不可為空', type: name });
+      }
+    }
+    const coord = {lat: editSite?.latitude, lng: editSite?.longitude};
+    // getSetAddress(coord);
   };
 
   // =========== click on map =================
   const handleMapClick = (event) => {
     if (!isGoogleMapsLoaded) return;
     const coord = event.detail.latLng
-    getAddress(coord);
+    getSetAddress(coord);
 
 
   }
