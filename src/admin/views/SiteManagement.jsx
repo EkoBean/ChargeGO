@@ -515,7 +515,7 @@ const SiteManagement = () => {
                   <tr key={site.site_id}>
                     <td>{site.site_id}</td>
                     <td>{site.site_name}</td>
-                    <td>{site.address}</td>
+                    <td>{site.country + site.address}</td>
                     <td>{siteChargers.length}</td>
                     <td>
                       <span className={`admin-badge ${availableCount > 0 ? "admin-success" : "admin-danger"}`}>
