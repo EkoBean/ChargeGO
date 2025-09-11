@@ -233,31 +233,17 @@ class Mission extends Component {
         </div>
         {/* mission的main */}
         <div className={styles.mallMain}>
-          <div className={styles.missiontitle}>
-            任務
-            <div className={styles["filter-column"]}>
-              {/* <div>
-              <label htmlFor="userId">使用者 ID（會同步到 session）</label>
-              <input
-                type="text"
-                id="userId"
-                value={userId}
-                onChange={this.handleInputChange}
-              />
-            </div> */}
-              <div>
-                <label htmlFor="filterDate">篩選日期</label>
-                <input
-                  type="date"
-                  id="filterDate"
-                  value={filterDate}
-                  onChange={this.handleInputChange}
-                />
-              </div>
-              <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
-            </div>
+          <div className={styles.missiontitle}>任務</div>
+          <div className={styles.missiondatefilter}>
+            <label htmlFor="filterDate">日期</label>
+            <input
+              type="date"
+              id="filterDate"
+              value={filterDate}
+              onChange={this.handleInputChange}
+            />
+            <button onClick={() => this.fetchMissions()}>確認</button>
           </div>
-
           {loading ? (
             <div className={styles["loading-text"]}>任務資料載入中...</div>
           ) : error ? (
