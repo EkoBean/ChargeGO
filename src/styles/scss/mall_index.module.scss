@@ -32,12 +32,15 @@ $color-shop-circle: #69f05b;
   margin-top: 4px;
   @media (min-width: 576px) {
     position: absolute; // 改為絕對定位
-    top: 20%;
+    top: 15%;
     left: 10%;
     margin: 0;
     z-index: 10; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
+  }
+  @media (max-width: 992px) and (min-width: 576px) {
+    top: 20%;
   }
 }
 
@@ -54,6 +57,7 @@ $color-shop-circle: #69f05b;
 .mallMain {
   z-index: 3;
   top: 23vh; /* 距離視窗頂端 10% 高度 */
+  padding-top: 20px;
 
   width: 100%;
   height: 80vh;
@@ -64,6 +68,7 @@ $color-shop-circle: #69f05b;
   border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
   // 桌面版樣式
   @media (min-width: 576px) {
+    padding-top: 50px;
     left: 10%;
     right: 10%;
     width: 80%;

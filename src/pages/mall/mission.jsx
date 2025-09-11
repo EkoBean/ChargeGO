@@ -9,13 +9,16 @@ class Mission extends Component {
     mission: [],
     loading: false,
     error: null,
-    userId: sessionStorage.getItem("uid") || "1",
+    userId: sessionStorage.getItem("uid") || "",
     filterDate: this.getTodayDate(),
     userPoint: null,
     claimingMissionId: null,
   };
 
   componentDidMount() {
+    console.log("Component mounted.");
+    console.log("Initial userId from state:", this.state.userId);
+    console.log("filterDate", this.state.filterDate);
     window.addEventListener("storage", this.handleStorageChange);
     this.fetchMissions();
     this.refreshUserPoint();
@@ -172,8 +175,9 @@ class Mission extends Component {
   };
 
   handleInputChange = (event) => {
-    const { id, value } = event.target;
-
+    const { id, value } = event.target; // 新增這兩行來查看 id 和 value 的內容
+    console.log("觸發事件的元素 id:", id);
+    console.log("觸發事件的元素 value:", value);
     if (id === "userId") {
       sessionStorage.setItem("uid", value);
       this.setState({ userId: value }, () => {
@@ -199,8 +203,8 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
-        {/* <ChargegoLogo className="mobile-only-logo" /> 只在手機版顯示 */}
         <NavBarPhone />
+        {/* mission的navbar */}
         <div className={styles.mallNavbar}>
           <button className={styles.navbarLeftSection}>
             <img src="/Iconimg/backBtn.svg" alt="backBtn" />
@@ -227,9 +231,12 @@ class Mission extends Component {
             <img src="/Iconimg/notify.svg" alt="notify" />
           </button>
         </div>
+        {/* mission的main */}
         <div className={styles.mallMain}>
-          <div className={styles["filter-row"]}>
-            <div>
+          <div className={styles.missiontitle}>
+            任務
+            <div className={styles["filter-column"]}>
+              {/* <div>
               <label htmlFor="userId">使用者 ID（會同步到 session）</label>
               <input
                 type="text"
@@ -237,19 +244,20 @@ class Mission extends Component {
                 value={userId}
                 onChange={this.handleInputChange}
               />
+            </div> */}
+              <div>
+                <label htmlFor="filterDate">篩選日期</label>
+                <input
+                  type="date"
+                  id="filterDate"
+                  value={filterDate}
+                  onChange={this.handleInputChange}
+                />
+              </div>
+              <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
             </div>
-            <div>
-              <label htmlFor="filterDate">篩選日期</label>
-              <input
-                type="date"
-                id="filterDate"
-                value={filterDate}
-                onChange={this.handleInputChange}
-              />
-            </div>
-            <button onClick={() => this.fetchMissions()}>獲取任務資料</button>
           </div>
-          <div className={styles.missiontitle}>任務</div>
+
           {loading ? (
             <div className={styles["loading-text"]}>任務資料載入中...</div>
           ) : error ? (

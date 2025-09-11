@@ -226,7 +226,7 @@ class Shop extends Component {
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>
-          {/* UID 控制區塊（僅測試用，可隱藏） */}
+          {/* UID 控制區塊（僅測試用，可隱藏）
           <div
             className="mb-4 p-3 border rounded"
             style={{ backgroundColor: "#f8f9fa" }}
@@ -257,7 +257,7 @@ class Shop extends Component {
             <small className="text-muted">
               Session UID 會即時更新到兌換功能中。
             </small>
-          </div>
+          </div> */}
 
           {/* 商家優惠券兌換 */}
           {storeCoupons.length > 0 && (
