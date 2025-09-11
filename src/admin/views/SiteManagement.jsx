@@ -8,12 +8,6 @@ import ApiService from '../services/api';
 // Google Maps
 import {
   APIProvider,
-  Map,
-  useMap,
-  useAdvancedMarkerRef,
-  AdvancedMarker,
-  Pin,
-  InfoWindow,
 } from "@vis.gl/react-google-maps";
 
 const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -115,7 +109,7 @@ const SiteManagement = () => {
         // LatLng 物件：直接使用數字
         lat = coord.lat;
         lng = coord.lng;
-      } else{
+      } else {
         // 普通物件：lat/lng 可能是字串，轉為數字
         lat = parseFloat(coord.lat || coord.latitude);
         lng = parseFloat(coord.lng || coord.longitude);
@@ -137,7 +131,7 @@ const SiteManagement = () => {
         { location: { lat: coordArray.latitude, lng: coordArray.longitude }, region: 'TW', language: 'zh-TW' },
         // callback
         (result, status) => {
-          console.log(result);
+          // console.log(result);
           if (status === "OK" && result[0]) {
             console.log('result :>> ', result);
             const addressComp = result[0].address_components;
@@ -174,6 +168,24 @@ const SiteManagement = () => {
         })
     }
 
+  }
+  // get coordinate from address
+  function getsetCoordinate(address) {
+        if (isGoogleMapsLoaded && address) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode(
+        // request
+        { address: address, region: 'TW', language: 'zh-TW' },
+        (result, status)=>{
+          const location = result[0]?.geometry?.location;
+          setEditSite((prev) => ({
+            ...prev,
+            latitude: location.lat().toFixed(8),
+            longitude: location.lng().toFixed(8),
+          }))
+        }
+      )
+        }
   }
   // ===========================================================================
 
@@ -229,16 +241,15 @@ const SiteManagement = () => {
     setShowSiteModal(true);
   };
   // debug ===========testing editSite changes============
-  useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
-  // useEffect(() => { console.log('formatWarning :>> ', formatWarning); }, [formatWarning])
+  // useEffect(() => { console.log('editSite :>> ', editSite); }, [editSite])
 
-  // ===================================================
+  // debug ===================================================
 
 
   //============ changing the data by user interact ================
   // ================== keydown input on form =================
   const handleSiteFieldChange = (e) => {
-    if (!e || !e.target) return;
+    if (!e || !e.target ) return;
     const { name, value } = e.target;
 
     // check the coordinate format
@@ -259,7 +270,19 @@ const SiteManagement = () => {
         return;
       }
       else {
-        setEditSite((prev) => ({ ...prev, [name]: value }));
+        setEditSite((prev) => {
+          const newEditSite = { ...prev, [name]: value };
+          // 在 callback 中構造 coord，使用最新的 newEditSite
+          const coord = {
+            lat: parseFloat(newEditSite.latitude),
+            lng: parseFloat(newEditSite.longitude)
+          };
+          // 檢查兩個座標都有效才呼叫
+          if (!isNaN(coord.lat) && !isNaN(coord.lng)) {
+            getSetAddress(coord);
+          }
+          return newEditSite;
+        });
         setFormatWarning("");
       }
     }
@@ -267,6 +290,8 @@ const SiteManagement = () => {
     else {
       if (!value) {
         setFormatWarning({ message: `必填欄位不可為空`, type: name });
+        setEditSite((prev) => ({ ...prev, [name]: value }));
+        
       }
       else {
         setEditSite((prev) => ({ ...prev, [name]: value }));
@@ -274,33 +299,29 @@ const SiteManagement = () => {
       }
     }
   };
-  // ============== update address by change lat lng =================
-  useEffect(() => {
-    if (
-      editSite?.latitude &&
-      editSite?.longitude &&
-      isGoogleMapsLoaded &&
-      checker.isValidLng(editSite.longitude) &&
-      checker.isValidLat(editSite.latitude) &&
-      checker.isDemical8(editSite.longitude) &&
-      checker.isDemical8(editSite.latitude)
-    ) {
-      const coord = { lat: editSite.latitude, lng: editSite.longitude };
-      getSetAddress(coord);
-    }
-  }, [editSite?.latitude, editSite?.longitude, isGoogleMapsLoaded]);
+
   // ================== end of keydown input on form ====================
-
-
   // =========== click on map =================
   const handleMapClick = (event) => {
     if (!isGoogleMapsLoaded) return;
     const coord = event.detail.latLng
     // ============ debug ============
-    console.log('coord :>> ', coord);
+    // console.log('coord :>> ', coord);
     getSetAddress(coord);
   }
+  // =========== end of click on map ============
+  // ============ click on '查詢地圖' ============
+  const searchByAddress = () => {
+    if (!isGoogleMapsLoaded && !editSite) return;
+    const address = editSite?.country + editSite?.address;
+    getsetCoordinate(address)
 
+  }
+
+
+  // ============ end of click on '查詢地圖' ============
+
+  // ================ end of changing the data by user interact ================
 
   // press the save button in SiteDetailModal.jsx
   const handleSaveSite = async () => {
@@ -318,7 +339,6 @@ const SiteManagement = () => {
       if (!checker.isDemical8(longitude) || !checker.isDemical8(latitude)) {
         throw new Error("經度/緯度小數位數必須為 8 位");
       }
-
 
       const payload = {
         site_name,
@@ -347,6 +367,7 @@ const SiteManagement = () => {
       alert(`站點儲存失敗：${err.message || "請稍後再試"}`);
     } finally {
       setSaving(false);
+      loadAllData();
     }
   };
 
@@ -493,6 +514,7 @@ const SiteManagement = () => {
             onSave={handleSaveSite}
             onChange={handleSiteFieldChange}
             onMapClick={handleMapClick}
+            onSearchClick={searchByAddress}
             onClose={() => !saving && setShowSiteModal(false)}
           />
         )}

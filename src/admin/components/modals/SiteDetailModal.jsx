@@ -31,6 +31,7 @@ const SiteDetailModal = ({
   formatWarning,
   onChange,
   onMapClick,
+  onSearchClick,
   onClose,
   // 新增 stats prop，來自 SiteManagement 計算
   stats = { totalChargers: 0, available: 0, occupied: 0, maintenance: 0, todayOrders: 0 },
@@ -76,13 +77,41 @@ const SiteDetailModal = ({
   const selectedSiteChargers = chargers.filter(c => c.site_id === site.site_id);
 
   function PreviewMap() {
-    const map = useMap();
-    const markerRef = useAdvancedMarkerRef();
-
-    const mapCenter = {
-      lat: Number(editSite?.latitude || site?.latitude || 25.033964),
-      lng: Number(editSite?.longitude || site?.longitude || 121.564468),
+    const cityCenters = {
+      "基隆市": { lat: 25.1314, lng: 121.7444 },
+      "台北市": { lat: 25.0330, lng: 121.5654 },
+      "新北市": { lat: 25.0160, lng: 121.4628 },
+      "桃園市": { lat: 24.9936, lng: 121.3010 },
+      "新竹市": { lat: 24.8138, lng: 120.9675 },
+      "新竹縣": { lat: 24.7033, lng: 121.0794 },
+      "苗栗縣": { lat: 24.5602, lng: 120.8214 },
+      "台中市": { lat: 24.1477, lng: 120.6736 },
+      "彰化縣": { lat: 24.0518, lng: 120.5161 },
+      "南投縣": { lat: 23.9609, lng: 120.9714 },
+      "雲林縣": { lat: 23.7092, lng: 120.4313 },
+      "嘉義市": { lat: 23.4800, lng: 120.4491 },
+      "嘉義縣": { lat: 23.4518, lng: 120.2555 },
+      "台南市": { lat: 22.9999, lng: 120.2269 },
+      "高雄市": { lat: 22.6273, lng: 120.3014 },
+      "屏東縣": { lat: 22.5510, lng: 120.5488 },
+      "宜蘭縣": { lat: 24.7298, lng: 121.7463 },
+      "花蓮縣": { lat: 23.9911, lng: 121.6111 },
+      "台東縣": { lat: 22.7932, lng: 121.0714 },
+      "澎湖縣": { lat: 23.5655, lng: 119.5662 },
+      "金門縣": { lat: 24.4321, lng: 118.3186 },
+      "連江縣": { lat: 26.1603, lng: 119.9499 },
     }
+
+    const mapCenter = creating
+      ? (editSite && editSite.country
+          ? cityCenters[editSite.country]
+          : { lat: 25.033964, lng: 121.564468 })
+      : ({
+          lat: Number(editSite?.latitude || site?.latitude || 25.033964),
+          lng: Number(editSite?.longitude || site?.longitude || 121.564468),
+        });
+
+
 
     return (
       <Map
@@ -97,7 +126,7 @@ const SiteDetailModal = ({
         // use without map Id, keep it default style in admin system
         mapId={"DEMO_MAP_ID"}
       >
-        {!creating &&
+        {editSite.latitude && editSite.longitude && 
           <AdvancedMarker position={mapCenter} />
         }
       </Map>
@@ -192,32 +221,32 @@ const SiteDetailModal = ({
 
                       </label>
                       <div style={{ display: "flex", gap: 8 }}>
-                      <select name="country" id="country" value={editSite?.country || null} required
-                        onChange={onChange}>
-                        <option value="">請選擇縣市</option>
-                        <option value="基隆市">基隆市</option>
-                        <option value="台北市">台北市</option>
-                        <option value="新北市">新北市</option>
-                        <option value="桃園市">桃園市</option>
-                        <option value="新竹市">新竹市</option>
-                        <option value="新竹縣">新竹縣</option>
-                        <option value="苗栗縣">苗栗縣</option>
-                        <option value="台中市">台中市</option>
-                        <option value="彰化縣">彰化縣</option>
-                        <option value="南投縣">南投縣</option>
-                        <option value="雲林縣">雲林縣</option>
-                        <option value="嘉義市">嘉義市</option>
-                        <option value="嘉義縣">嘉義縣</option>
-                        <option value="台南市">台南市</option>
-                        <option value="高雄市">高雄市</option>
-                        <option value="屏東縣">屏東縣</option>
-                        <option value="宜蘭縣">宜蘭縣</option>
-                        <option value="花蓮縣">花蓮縣</option>
-                        <option value="台東縣">台東縣</option>
-                        <option value="澎湖縣">澎湖縣</option>
-                        <option value="金門縣">金門縣</option>
-                        <option value="連江縣">連江縣</option>
-                      </select>
+                        <select name="country" id="country" value={editSite?.country || null} required
+                          onChange={onChange}>
+                          <option value="">請選擇縣市</option>
+                          <option value="基隆市">基隆市</option>
+                          <option value="台北市">台北市</option>
+                          <option value="新北市">新北市</option>
+                          <option value="桃園市">桃園市</option>
+                          <option value="新竹市">新竹市</option>
+                          <option value="新竹縣">新竹縣</option>
+                          <option value="苗栗縣">苗栗縣</option>
+                          <option value="台中市">台中市</option>
+                          <option value="彰化縣">彰化縣</option>
+                          <option value="南投縣">南投縣</option>
+                          <option value="雲林縣">雲林縣</option>
+                          <option value="嘉義市">嘉義市</option>
+                          <option value="嘉義縣">嘉義縣</option>
+                          <option value="台南市">台南市</option>
+                          <option value="高雄市">高雄市</option>
+                          <option value="屏東縣">屏東縣</option>
+                          <option value="宜蘭縣">宜蘭縣</option>
+                          <option value="花蓮縣">花蓮縣</option>
+                          <option value="台東縣">台東縣</option>
+                          <option value="澎湖縣">澎湖縣</option>
+                          <option value="金門縣">金門縣</option>
+                          <option value="連江縣">連江縣</option>
+                        </select>
                         <input
                           type="text"
                           name="address"
@@ -230,6 +259,7 @@ const SiteDetailModal = ({
                         <button
                           type="button"
                           className="btn admin-btn admin-small"
+                          onClick={onSearchClick}
                         >
                           查詢地圖
                         </button>
