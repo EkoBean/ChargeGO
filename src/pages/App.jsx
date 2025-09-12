@@ -20,7 +20,7 @@ import Mber_edit from "./membersystem/mber_edit";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
 import Mber_addCreditcard from "./membersystem/mber_addCreditcard";
 import Coupon from "./mall/coupon";
-import CheckoutCoupons from "./mall/coupon";
+import CheckoutCoupons from "./mall/checkout_coupon";
 import Task from "./membersystem/Task";
 
 // index
