@@ -16,8 +16,7 @@ import {
   InfoWindow,
 } from "@vis.gl/react-google-maps";
 
-// Bootstrap Icons
-import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 // environment variables
 const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -25,6 +24,7 @@ const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 
 // ================= Constants ============================
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const mapId = "7ade7c4e6e2cc1087f2619a5";
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
@@ -652,7 +652,7 @@ function MapIndex() {
             </div>
             {returnWarning ? (
               <div
-                className={`${styles.alert} ${styles.alertDanger} ${styles.returnWarning}`}
+                className={`alert alert-danger ${styles.returnWarning}`}
                 style={{ opacity: rentOpen ? 0 : 0.7 }}
               >
                 <i className="bi bi-exclamation-triangle-fill"></i>

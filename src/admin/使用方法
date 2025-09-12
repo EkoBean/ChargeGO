@@ -1,0 +1,8 @@
+使用方式: React   Node.js (charger_site.cjs)  MySQL(localhost)
+React 前端搭配 Node.js 後端 API 來載入真實資料
+
+前端： React AdminDashboard 這類元件會呼叫 ApiService 來取得用戶、站點、訂單等資料等。
+ApiService 會發送 HTTP 請求 例如 fetch到 Node.js 後端 API。
+
+後端: Node.js 像 charger_site.cjs 連接 MySQL 資料庫，
+提供 RESTful API 例如 /user/list, /api/sites 給前端呼叫，回傳真實資料。
