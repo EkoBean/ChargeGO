@@ -48,7 +48,7 @@ const mber_RentRecord = () => {
 
   return (
     <div className={styles.mber_rentRecord}>
-        <NavBarAPP />
+        <NavBarApp />
       <div className={styles.record_header}>
         <h2>租借紀錄 </h2>
       </div>

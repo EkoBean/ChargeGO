@@ -195,7 +195,7 @@ class Shop extends Component {
     return (
       // <div className={styles.container + " py-4"}>
       <div className={styles.mallBody}>
-        <NavBarPhone />
+        <NavBarApp />
 
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}

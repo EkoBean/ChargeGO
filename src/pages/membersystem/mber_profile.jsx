@@ -91,7 +91,7 @@ const mber_Profile = () => {
 
   return (
     <div className={styles.mber_info}>
-      <NavBarAPP className={styles.mobile_only_nav} />
+      <NavBarApp className={styles.mobile_only_nav} />
       {/* Header */}
       <div className={styles.info_container}>
         <span
