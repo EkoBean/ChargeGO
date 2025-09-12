@@ -335,6 +335,68 @@ app.post('/user/add-creditcard', (req, res) => {
     );
 });
 
+// 發送信箱驗證碼 API
+app.post('/api/send-captcha', async (req, res) => {
+    const { email, code } = req.body;
+    if (!email || !code) return res.status(400).json({ message: '缺少 email 或 code' });
+
+    db.query('SELECT uid FROM user WHERE email = ?', [email], async (err, results) => {
+        if (err) return res.status(500).json({ message: '資料庫錯誤', error: err.message });
+        if (results.length === 0) return res.status(404).json({ message: '查無此Email' });
+
+        const expireTime = new Date(Date.now() + 5 * 60 * 1000); // 5分鐘後
+        db.query(
+            'UPDATE user SET code = ?, code_expire = ? WHERE email = ?',
+            [code, expireTime, email],
+            async (err2) => {
+                if (err2) return res.status(500).json({ message: '更新驗證碼失敗', error: err2.message });
+                // 使用 nodemailer 寄送驗證碼
+                // gmail 需要開啟「低安全性應用程式存取權」
+                try {
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        auth: {
+                            user: 'rcsatie112@gmail.com',
+                            pass: 'sdkm ehxg fsds phkv'
+                        }
+                    });
+                    await transporter.sendMail({
+                        from: 'rcsatie112@gmail.com',
+                        to: email,
+                        subject: '您的驗證碼',
+                        text: `您的驗證碼是：${code}，5分鐘內有效。`
+                    });
+                    res.json({ message: '驗證碼已寄出' });
+                } catch (e) {
+                    console.error('Email send error:', e); // 顯示詳細錯誤
+                    res.status(500).json({ message: '寄送Email失敗', error: e.message, detail: e });
+                }
+            });
+    });
+});
+
+// 重設密碼 API
+app.post('/api/reset-password', (req, res) => {
+    const { email, newPassword, captcha } = req.body;
+    if (!email || !newPassword || !captcha) return res.status(400).json({ message: '缺少 email、newPassword 或 captcha' });
+
+    // 先查詢驗證碼
+    db.query('SELECT code, code_expire FROM user WHERE email = ?', [email], (err, results) => {
+        if (err) return res.status(500).json({ message: '資料庫錯誤', error: err.message });
+        if (results.length === 0) return res.status(404).json({ message: '查無此Email' });
+
+        const { code, code_expire } = results[0];
+        const now = new Date();
+        if (code !== captcha) return res.status(400).json({ message: '驗證碼錯誤' });
+        if (now > code_expire) return res.status(400).json({ message: '驗證碼已過期' });
+
+        const hashedPassword = hashPassword(newPassword);
+        db.query('UPDATE user SET password = ? WHERE email = ?', [hashedPassword, email], (err2, result) => {
+            if (err2) return res.status(500).json({ message: '資料庫錯誤', error: err2.message });
+            res.json({ message: '密碼已重設' });
+        });
+    });
+});
 
 // 伺服器啟動
 app.listen(3000, () => {

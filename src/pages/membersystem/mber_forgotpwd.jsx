@@ -12,23 +12,60 @@ const mber_ForgotPwd = () => {
     captcha: "",
   });
   const [msg, setMsg] = useState("");
+  const [timer, setTimer] = useState(0);
+  const [isSending, setIsSending] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  // 計時器
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+  // 產生驗證碼
+  const generateCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
 
   // 請求驗證碼
   const handleSendCaptcha = async () => {
+    if (isSending || timer > 0) {
+      alert("驗證碼已送出，請稍候");
+      return;
+    }
+    if (!form.email) {
+      setMsg("請先輸入Email");
+      return;
+    }
+    const captchaCode = generateCaptcha();
+    setIsSending(true);
+    setTimer(300); // 5分鐘
     try {
       await axios.post("http://localhost:3000/api/send-captcha", {
         email: form.email,
+        code: captchaCode,
       });
       setMsg("驗證碼已寄出，請檢查您的信箱");
     } catch (err) {
       setMsg("寄送失敗：" + (err.response?.data?.message || "請稍後再試"));
+      setIsSending(false);
+      setTimer(0);
     }
   };
+
+  useEffect(() => {
+    if (timer === 0) setIsSending(false);
+  }, [timer]);
 
   // 送出重設密碼
   const handleSubmit = async (e) => {
@@ -120,8 +157,9 @@ const mber_ForgotPwd = () => {
                 type="button"
                 onClick={handleSendCaptcha}
                 className={styles.captchaButton}
+                disabled={isSending || timer > 0}
               >
-                再次請求驗證碼
+                {timer > 0 ? `重新獲取(${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")})` : "獲取驗證碼"}
               </button>
             </div>
 
