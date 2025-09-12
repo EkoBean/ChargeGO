@@ -1,23 +1,23 @@
 import express from "express";
-import cors from "cors";
-import mysql from "mysql";
 import util from "util";
+import db from "../db.js";
+const pool = db;
 
-var app = express();
+const app = express.Router();
 
-app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+// app.use(express.static("public"));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cors());
 
-var pool = mysql.createPool({
-  user: "abuser",
-  password: "123456",
-  host: "localhost",
-  port: 3306,
-  database: "charger_database",
-  connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
-});
+// const pool = mysql.createPool({
+//   user: "abuser",
+//   password: "123456",
+//   host: "localhost",
+//   port: 3306,
+//   database: "charger_database",
+//   connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
+// });
 // 將連線池的 query 方法轉換成 Promise 版本
 // 這樣所有的路由都可以使用 async/await 語法，程式碼更清晰
 pool.query = util.promisify(pool.query);
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
   res.send("API is running and ready to go!");
 });
 //任務查詢
-app.get("/mission/:user_id/:date", async function (req, res) {
+app.get("/:user_id/:date", async function (req, res) {
   const { user_id, date } = req.params;
 
   const query = `
@@ -57,7 +57,7 @@ app.get("/mission/:user_id/:date", async function (req, res) {
   // 執行 SQL 查詢
   try {
     // 使用 await 等待查詢結果，這裡使用 pool.query
-    const results = await pool.query(query, [user_id, date, date, date]);
+    const results = await pool.queryAsyncAsync(query, [user_id, date, date, date]);
     res.json(results);
   } catch (err) {
     console.error("執行查詢時發生錯誤:", err);
@@ -76,7 +76,7 @@ app.post("/usermission/claim", async (req, res) => {
 
   try {
     // Step 1: 查詢任務狀態與獎勵點數
-    const rows = await pool.query(
+    const rows = await pool.queryAsyncAsync(
       `SELECT
         um.is_completed,
         um.is_claimed,
@@ -106,10 +106,10 @@ app.post("/usermission/claim", async (req, res) => {
     }
 
     // Step 3: 使用交易處理 領取 + 加點數
-    await pool.query("START TRANSACTION");
+    await pool.queryAsyncAsync("START TRANSACTION");
 
     // 標記為已領取
-    const updateMissionRes = await pool.query(
+    const updateMissionRes = await pool.queryAsyncAsync(
       `UPDATE user_missions 
        SET is_claimed = 1 
        WHERE user_mission_id = ?`,
@@ -121,7 +121,7 @@ app.post("/usermission/claim", async (req, res) => {
     const rewardPoints = Number(mission.reward_points) || 0;
 
     // 增加點數
-    const updateUserRes = await pool.query(
+    const updateUserRes = await pool.queryAsyncAsync(
       `UPDATE user 
        SET point = point + ? 
        WHERE uid = ?`,
@@ -130,10 +130,10 @@ app.post("/usermission/claim", async (req, res) => {
     console.log("updateUserRes:", updateUserRes);
 
     // commit
-    await pool.query("COMMIT");
+    await pool.queryAsyncAsync("COMMIT");
 
     // 讀出更新後的 point
-    const userRows = await pool.query(
+    const userRows = await pool.queryAsyncAsync(
       "SELECT point FROM `user` WHERE uid = ?",
       [user_id]
     );
@@ -146,7 +146,7 @@ app.post("/usermission/claim", async (req, res) => {
     });
   } catch (err) {
     try {
-      await pool.query("ROLLBACK");
+      await pool.queryAsyncAsync("ROLLBACK");
     } catch (rbErr) {
       console.error("ROLLBACK 失敗:", rbErr);
     }
@@ -178,7 +178,7 @@ app.get("/update/orderrecord/:user_id/:date", async (req, res) => {
         `;
 
     // 修正這裡的參數，將開始日期設為 startOfMonthISO
-    const results = await pool.query(sql, [
+    const results = await pool.queryAsync(sql, [
       userId,
       startOfMonthISO,
       startOfNextMonthISO,
@@ -227,7 +227,7 @@ app.get("/get/orderrecord/:user_id/:date", async (req, res) => {
         `;
 
     // 使用 await 執行查詢，並取得所有符合條件的資料列
-    const records = await pool.query(sql, [
+    const records = await pool.queryAsync(sql, [
       userId,
       startOfMonthISO,
       startOfNextMonthISO,
@@ -272,7 +272,7 @@ app.post("/update/monthRental", async (req, res) => {
             WHERE uid = ? AND end IS NOT NULL AND  start_date >= ? AND  end < ?;
         `;
     // 這裡需要使用 pool.query與資料庫連接
-    const [monthlyResult] = await pool.query(monthlyRentalsQuery, [
+    const [monthlyResult] = await pool.queryAsync(monthlyRentalsQuery, [
       userId,
       startOfMonth,
       startOfNextMonth,
@@ -310,13 +310,13 @@ app.post("/update/monthRental", async (req, res) => {
         AND missions.mission_start_date >= ?
         AND missions.mission_end_date < ?
   `;
-    await pool.query(updateMonthlyQueryProgress, [
+    await pool.queryAsync(updateMonthlyQueryProgress, [
       monthlyRentalCount,
       userId,
       startOfMonth,
       startOfNextMonth,
     ]);
-    await pool.query(updateMonthlyQueryIsCompleted, [
+    await pool.queryAsync(updateMonthlyQueryIsCompleted, [
       userId,
       startOfMonth,
       startOfNextMonth,
@@ -350,7 +350,7 @@ app.post("/update/monthHours", async (req, res) => {
                 FROM order_record
                 WHERE uid = ? AND start_date>=?;
             `;
-    const [totalHoursResult] = await pool.query(totalHoursQuery, [
+    const [totalHoursResult] = await pool.queryAsync(totalHoursQuery, [
       userId,
       startOfMonth,
     ]);
@@ -386,13 +386,13 @@ app.post("/update/monthHours", async (req, res) => {
         AND missions.mission_start_date >= ?
         AND missions.mission_end_date < ?
   `;
-    await pool.query(updateMonthlyQueryProgress, [
+    await pool.queryAsync(updateMonthlyQueryProgress, [
       totalRentalHours,
       userId,
       startOfMonth,
       startOfNextMonth,
     ]);
-    await pool.query(updateMonthlyQueryIsCompleted, [
+    await pool.queryAsync(updateMonthlyQueryIsCompleted, [
       userId,
       startOfMonth,
       startOfNextMonth,
@@ -405,8 +405,11 @@ app.post("/update/monthHours", async (req, res) => {
   }
 });
 // 伺服器啟動
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-  console.log("資料庫連線池已建立。");
-});
+// const PORT = process.env.PORT || 4000;
+// app.listen(PORT, () => {
+//   console.log(`API server running on port ${PORT}`);
+//   console.log("資料庫連線池已建立。");
+// });
+
+
+export default app;

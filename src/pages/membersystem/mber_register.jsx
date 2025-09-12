@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss"; 
 import crypto from "crypto-js";
+  const API_BASE = "http://localhost:3000";
 
 const mber_Register = () => {
   // 註冊表單狀態
@@ -121,7 +122,7 @@ const mber_Register = () => {
         status: "0",
       };
       const res = await axios.post(
-        "http://localhost:3000/mber_register",
+        "${API_BASE}/api/member/mber_register",
         payload,
         { withCredentials: true }
       );

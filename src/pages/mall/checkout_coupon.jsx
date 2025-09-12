@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
-import styles from "../../styles/scss/mall_index.module.scss"; // 新增匯入
+import styles from "../../styles/scss/mall_index.module.scss"; 
+
+const API_URL = import.meta.env.VITE_API_URL
 
 class CheckoutCoupons extends Component {
   state = {
@@ -39,7 +41,7 @@ class CheckoutCoupons extends Component {
     });
 
     try {
-      const res = await axios.get(`http://localhost:4002/mycoupons/${userId}`);
+      const res = await axios.get(`${API_URL}/api/coupon/mycoupons/${userId}`);
       this.setState({ coupons: res.data });
     } catch (err) {
       console.error(err);
@@ -53,7 +55,7 @@ class CheckoutCoupons extends Component {
     const { userId } = this.state;
     try {
       const res = await axios.get(
-        `http://localhost:4002/coupon-info/${userId}/${couponId}`
+        `${API_URL}/api/coupon/coupon-info/${userId}/${couponId}`
       );
       this.setState({ couponInfo: res.data }, this.calculateFinalAmount);
     } catch (err) {

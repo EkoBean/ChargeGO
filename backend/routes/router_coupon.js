@@ -1,23 +1,25 @@
 import express from "express";
 import cors from "cors";
-import mysql from "mysql";
 import util from "util";
 
-var app = express();
+import db from "../db.js"; 
+const pool = db; 
 
-app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+const app = express.Router();
 
-var pool = mysql.createPool({
-  user: "abuser",
-  password: "123456",
-  host: "localhost",
-  port: 3306,
-  database: "charger_database",
-  connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
-});
+// app.use(express.static("public"));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cors());
+
+// const pool = mysql.createPool({
+//   user: "abuser",
+//   password: "123456",
+//   host: "localhost",
+//   port: 3306,
+//   database: "charger_database",
+//   connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
+// });
 // ⭐ 把 pool.query 包成 async/await 可用的 Promise 版本
 pool.query = util.promisify(pool.query);
 // 取得優惠券
@@ -28,7 +30,7 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
 
   try {
     // 1. 先將過期優惠券改為 expired
-    await pool.query(
+    await pool.queryAsync(
       `UPDATE coupons
        SET status = 'expired'
        WHERE user_id = ? AND expires_at < NOW()`,
@@ -36,7 +38,7 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
     );
 
     // 2. 查詢尚未過期或狀態非 expired 的優惠券
-    const coupons = await pool.query(
+    const coupons = await pool.queryAsync(
       `SELECT c.coupon_id, c.template_id, c.status, c.expires_at, c.code, t.type, t.name
        FROM coupons c
        LEFT JOIN coupon_templates t ON c.template_id = t.template_id
@@ -61,7 +63,7 @@ app.post("/redeem/:couponCode", async (req, res) => {
 
   console.log(typeof coupon_id);
   try {
-    const result = await pool.query(
+    const result = await pool.queryAsync(
       `UPDATE coupons
        SET status = 'used'
        WHERE coupon_id = ? AND status = 'active'`,
@@ -88,7 +90,7 @@ app.get("/mycoupons/:user_id", async (req, res) => {
 
   try {
     // 先更新過期的
-    await pool.query(
+    await pool.queryAsync(
       `UPDATE coupons
        SET is_expired = 1
        WHERE user_id = ? AND expires_at < NOW()`,
@@ -96,7 +98,7 @@ app.get("/mycoupons/:user_id", async (req, res) => {
     );
 
     // 查詢符合三種 type 的 coupon
-    const coupons = await pool.query(
+    const coupons = await pool.queryAsync(
       `SELECT c.coupon_id, c.template_id, c.status,c.is_expired, c.expires_at, t.name, t.type
        FROM coupons c
        JOIN coupon_templates t ON c.template_id = t.template_id
@@ -119,7 +121,7 @@ app.get("/coupon-info/:user_id/:coupon_id", async (req, res) => {
   const { user_id, coupon_id } = req.params;
 
   try {
-    const results = await pool.query(
+    const results = await pool.queryAsync(
       `SELECT c.coupon_id, t.type, t.value
        FROM coupons c
        JOIN coupon_templates t ON c.template_id = t.template_id
@@ -178,7 +180,7 @@ app.post("/use-coupon", async (req, res) => {
   }
 
   try {
-    const result = await pool.query(
+    const result = await pool.queryAsync(
       `UPDATE coupons
        SET status = 'used'
        WHERE coupon_id = ?`,
@@ -195,8 +197,9 @@ app.post("/use-coupon", async (req, res) => {
     res.status(500).json({ error: "資料庫錯誤" });
   }
 });
-const PORT = process.env.PORT || 4002;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-  console.log("資料庫連線池已建立。");
-});
+// const PORT = process.env.PORT || 4002;
+// app.listen(PORT, () => {
+//   console.log(`API server running on port ${PORT}`);
+//   console.log("資料庫連線池已建立。");
+// });
+export default app; 

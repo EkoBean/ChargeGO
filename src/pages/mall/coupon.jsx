@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import styles from "../../styles/scss/mall_index.module.scss";
-import NavBarPhone from "../../components/NavBarApp";
+import NavBarAPP from "../../components/NavBarApp";
+
+const API_URL = import.meta.env.VITE_API_URL
 const Coupon = () => {
   // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
   const initialUid = sessionStorage.getItem("uid") || "3";
@@ -20,7 +22,7 @@ const Coupon = () => {
       return null;
     }
     try {
-      const res = await fetch(`http://localhost:4005/checkpoints/${uid}`);
+      const res = await fetch(`${API_URL}/api/point/checkpoints/${uid}`);
       if (!res.ok) throw new Error("fetch point failed");
       const data = await res.json();
       const point = data?.point ?? null;
@@ -44,7 +46,7 @@ const Coupon = () => {
     const fetchCoupons = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4002/mycouponsparam/${userId}`
+          `${API_URL}/api/coupon/mycouponsparam/${userId}`
         );
         if (!response.ok) throw new Error("fetch coupons failed");
         const data = await response.json();
@@ -121,7 +123,7 @@ const Coupon = () => {
 
   return (
     <div className={styles.couponBody}>
-      <NavBarPhone />
+      <NavBarAPP />
 
       <div className={styles.couponNavbar}>
         <button className={styles.navbarLeftSection}>

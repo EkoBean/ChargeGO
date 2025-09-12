@@ -20,7 +20,7 @@ import {
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 // environment variables
-const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 
@@ -749,7 +749,7 @@ function MapIndex() {
           const getInfo = async () => {
             try {
               const res = await axios.get(
-                `http://localhost:3000/api/map/infoWindow/${siteId}`
+                `${API_URL}/api/map/infoWindow/${siteId}`
               );
               setInfo(res.data);
             } catch (error) {

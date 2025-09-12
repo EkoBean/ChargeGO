@@ -15,7 +15,10 @@ const app = express();
 
 // ======= Middleware between session, sitezone ========
 app.use(express.json());
-app.use(cookieParser()); // 新增
+app.use(cookieParser()); 
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
     origin: 'http://localhost:5173', // 前端網址
     credentials: true // 允許跨域帶 cookie
@@ -37,9 +40,10 @@ app.use('/api/mission', missionRoutes)
 app.use('/api/shop', shopRoutes)
 app.use('/api/point', pointRouters)
 
-app.get('/', (req, res) => {
-    res.send('server.js is running.');
-}); 
+// start server listening
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });
+// app.get('/', (req, res) => {
+//     res.send('server.js is running.');
+// }); 

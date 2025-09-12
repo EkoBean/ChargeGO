@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBarAPP from "../../components/NavBarAPP";
+import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mber_edit.module.scss";
 
 const mber_edit = () => {
@@ -18,7 +18,7 @@ const mber_edit = () => {
 
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    fetch(`${API_BASE}/check-auth`, {
+    fetch(`${API_BASE}/api/member/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +81,7 @@ const mber_edit = () => {
     };
 
     try {
-      const response = await fetch(`${API_BASE}/update-user`, {
+      const response = await fetch(`${API_BASE}/api/member/update-user`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -103,7 +103,7 @@ const mber_edit = () => {
 
   return (
     <div className={styles.mber_edit}>
-      <NavBarAPP />
+      <NavBarApp />
       <div className={styles.edit_container}>
         <div className={styles.mobile_arc_bg}>
           <span

@@ -64,7 +64,7 @@ const mber_Profile = () => {
         });
         if (response.ok) {
           // 再次取得最新 user 狀態
-          fetch(`${API_BASE}/check-auth`, {
+          fetch(`${API_BASE}/api/member/check-auth`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
