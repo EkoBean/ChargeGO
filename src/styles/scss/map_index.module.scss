@@ -128,6 +128,7 @@ $search-bar-radius: 1.4rem;
 
 // HUD styles
 .hud-container {
+  color: g.$brown;
   position: fixed;
   z-index: 1000;
   width: 100vw;
@@ -150,8 +151,10 @@ $search-bar-radius: 1.4rem;
       box-shadow: gray 0px 0px 5px 0px;
 
       i {
-        color: black;
+        color: g.$brown;
         font-size: 5rem;
+        align-items: center;
+        text-align: center;
       }
     }
   }
@@ -197,7 +200,7 @@ $search-bar-radius: 1.4rem;
       box-shadow: gray 0px 0px 5px 0px;
 
       i {
-        color: black;
+        color: g.$brown;
         font-size: 1.5rem;
       }
     }
