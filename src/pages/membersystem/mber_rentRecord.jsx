@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_rentRecord.module.scss";
-import NavBarAPP from "../../components/NavBarAPP";
+import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_RentRecord = () => {

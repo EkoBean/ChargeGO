@@ -4,9 +4,9 @@ import styles from "../../styles/scss/mall_index.module.scss";
 import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 
-const API_URL = import.meta.env.VITE_API_URL
-const pointBasePath = apiRoutes.point
-const couponBasePath = apiRoutes.coupon
+const API_URL = import.meta.env.VITE_API_URL;
+const pointBasePath = apiRoutes.point;
+const couponBasePath = apiRoutes.coupon;
 const Coupon = () => {
   // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
   const initialUid = sessionStorage.getItem("uid") || "3";

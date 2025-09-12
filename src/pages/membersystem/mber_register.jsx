@@ -6,7 +6,7 @@ import crypto from "crypto-js";
 import { apiRoutes } from "../../components/apiRoutes";
 
 
-const memberBasePath = apiRoutes.member
+const memberBasePath = apiRoutes.member;
 
 const mber_Register = () => {
   // 註冊表單狀態
