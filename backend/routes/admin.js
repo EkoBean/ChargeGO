@@ -2,9 +2,10 @@
 // pkill -f node 停止所有 node 進程防止卡死
 import express from 'express';
 import cors from 'cors';
-import mysql from 'mysql';
+import db from './db.js';
+const connect = db;
 
-const app = express();
+const app = express.Router();
 
 app.use(cors());
 app.use(express.json());
@@ -13,13 +14,13 @@ app.use(express.json());
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // === DB 連線：charger_database ===
-var connect = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "",
-  database: "charger_database"
-});
+// var connect = mysql.createConnection({
+//   host: "localhost",
+//   port: 3306,
+//   user: "root",
+//   password: "",
+//   database: "charger_database"
+// });
 
 // === DB 連線：bank ===
 // 該功能已取消
@@ -36,10 +37,10 @@ global.Promise = Promise;
 Promise.promisifyAll(connect);
 
 // 啟動伺服器
-app.listen(3000, () => {
-  console.log("Web伺服器就緒 → http://127.0.0.1:3000");
-  console.log("「Ctrl + C」可結束伺服器程式.");
-});
+// app.listen(3000, () => {
+//   console.log("Web伺服器就緒 → http://127.0.0.1:3000");
+//   console.log("「Ctrl + C」可結束伺服器程式.");
+// });
 
 // 連線 DB（開機檢查）
 connect.connect(function (err) {
