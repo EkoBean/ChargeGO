@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss";
-import NavBarPhone from "../../components/NavBarApp";
+import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 
-const API_URL = import.meta.env.VITE_API_URL ;
+const API_URL = import.meta.env.VITE_API_URL;
 
-const pointBasePath = apiRoutes.point
-const shopBasePath = apiRoutes.shop
+const pointBasePath = apiRoutes.point;
+const shopBasePath = apiRoutes.shop;
 
 class Shop extends Component {
   // 在 class Shop 的最上方（state 下面或 constructor 裡）

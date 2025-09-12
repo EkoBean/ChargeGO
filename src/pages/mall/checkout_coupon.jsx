@@ -3,9 +3,9 @@ import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss"; 
 import { apiRoutes } from "../../components/apiRoutes";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
-const couponBasePath = apiRoutes.coupon
+const couponBasePath = apiRoutes.coupon;
 
 class CheckoutCoupons extends Component {
   state = {

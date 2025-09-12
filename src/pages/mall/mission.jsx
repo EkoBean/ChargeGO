@@ -4,9 +4,9 @@ import axios from "axios";
 import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
 import { apiRoutes } from "../../components/apiRoutes";
-const API_URL = import.meta.env.VITE_API_URL
-const pointBasePath = apiRoutes.point
-const missionBasePath = apiRoutes.mission
+const API_URL = import.meta.env.VITE_API_URL;
+const pointBasePath = apiRoutes.point;
+const missionBasePath = apiRoutes.mission;
 
 
 class Mission extends Component {
