@@ -2,7 +2,7 @@
 // pkill -f node 停止所有 node 進程防止卡死
 import express from 'express';
 import cors from 'cors';
-import db from './db.js';
+import db from '../db.js';
 const connect = db;
 
 const app = express.Router();
@@ -43,17 +43,17 @@ Promise.promisifyAll(connect);
 // });
 
 // 連線 DB（開機檢查）
-connect.connect(function (err) {
-  if (err) {
-    console.error("charger_database 連線失敗：", err && err.code);
-  } else {
-    console.log("charger_database 連線成功");
-    connect.query("SELECT COUNT(*) AS cnt FROM user", (e, r) => {
-      if (e) console.error("user 表查詢失敗：", e.code);
-      else console.log("user 表筆數：", r[0].cnt);
-    });
-  }
-});
+// connect.connect(function (err) {
+//   if (err) {
+//     console.error("charger_database 連線失敗：", err && err.code);
+//   } else {
+//     console.log("charger_database 連線成功");
+//     connect.query("SELECT COUNT(*) AS cnt FROM user", (e, r) => {
+//       if (e) console.error("user 表查詢失敗：", e.code);
+//       else console.log("user 表筆數：", r[0].cnt);
+//     });
+//   }
+// });
 
 // connBank.connect(function (err) {
 //   if (err) {
@@ -1751,3 +1751,4 @@ app.delete("/api/employees/:id", (req, res) => {
 
 
 
+export default app;

@@ -3,8 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_forgotpwd.module.scss";
+import { apiRoutes } from "../../components/apiRoutes";
 
 const API_BASE = import.meta.env.VITE_API_URL;
+
+const memberBasePath = apiRoutes.member;
 
 const mber_ForgotPwd = () => {
   const [form, setForm] = useState({
@@ -23,7 +26,7 @@ const mber_ForgotPwd = () => {
   // 請求驗證碼
   const handleSendCaptcha = async () => {
     try {
-      await axios.post(`${API_BASE}/api/send-captcha`, {
+      await axios.post(`${API_BASE}${memberBasePath}/send-captcha`, {
         email: form.email,
       });
       setMsg("驗證碼已寄出，請檢查您的信箱");
@@ -40,7 +43,7 @@ const mber_ForgotPwd = () => {
       return;
     }
     try {
-      await axios.post("${API_BASE}/api/reset-password", {
+      await axios.post("${API_BASE}${memberBasePath}/reset-password", {
         email: form.email,
         pwd: crypto.SHA256(form.pwd).toString(crypto.enc.Hex).slice(0, 10),
         captcha: form.captcha,

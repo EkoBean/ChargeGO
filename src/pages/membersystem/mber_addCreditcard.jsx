@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mber_addCreditcard.module.scss"; // 改用 module
+import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_AddCreditcard = () => {
   const [user, setUser] = useState(null);
@@ -13,11 +14,12 @@ const mber_AddCreditcard = () => {
   const [expYear, setExpYear] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const API_BASE = import.meta.env.VITE_API_URL;
+  const memberBasePath = apiRoutes.member;
   const navigate = useNavigate();
   const formRef = useRef(null);
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    fetch(`${API_BASE}/api/member/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -48,7 +50,7 @@ const mber_AddCreditcard = () => {
         (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`
       );
       const res = await axios.post(
-        `${API_BASE}/api/member/user/add-creditcard`,
+        `${API_BASE}${memberBasePath}/user/add-creditcard`,
         {
           userId: user.uid,
           user_name: cardHolder,

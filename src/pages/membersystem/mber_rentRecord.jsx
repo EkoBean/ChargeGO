@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_rentRecord.module.scss";
 import NavBarAPP from "../../components/NavBarAPP";
+import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_RentRecord = () => {
   const navigate = useNavigate();
@@ -9,9 +10,11 @@ const mber_RentRecord = () => {
   const [loading, setLoading] = useState(true);
   const API_BASE = import.meta.env.VITE_API_BASE;
 
+  const memberBasePath = apiRoutes.member;
+
   useEffect(() => {
     // 先判斷是否登入
-    fetch(`${API_BASE}/api/member/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -24,7 +27,7 @@ const mber_RentRecord = () => {
           return;
         }
         // 已登入才取得租借紀錄
-        fetch(`${API_BASE}/api/member/user/session/orders`, {
+        fetch(`${API_BASE}${memberBasePath}/user/session/orders`, {
           credentials: "include",
         })
           .then((res) => res.json())

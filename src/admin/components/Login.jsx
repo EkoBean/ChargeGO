@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import OperationLogger from '../../../backend/operationLogger';
 import '../../styles/scss/adminstyle/AdminLogin.scss';
+import { apiRoutes } from '../../components/apiRoutes';
 
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -13,7 +14,7 @@ const Login = ({ onLogin }) => {
     setError('');
     
     try {
-      const res = await fetch('http://127.0.0.1:3000/api/employee/login', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE}${apiRoutes.employee}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
