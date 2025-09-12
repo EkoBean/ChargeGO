@@ -19,11 +19,13 @@ import {
 
 
 // environment variables
-const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+import { apiRoutes } from "../../components/apiRoutes";
+const basePath = apiRoutes.map;
 
 
 // ================= Constants ============================
-const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const mapId = "7ade7c4e6e2cc1087f2619a5";
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
@@ -67,7 +69,7 @@ function MapIndex() {
   useEffect(() => {
     const getStations = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/stations`);
+        const res = await axios.get(`${API_URL}${basePath}/stations`);
         setStations(res.data);
       } catch (error) {
         console.error(error);
@@ -400,7 +402,7 @@ function MapIndex() {
         useEffect(() => {
           let mounted = true;
           axios
-            .get(`${API_URL}/api/checkRental/${uid}`)
+            .get(`${API_URL}${basePath}/checkRental/${uid}`)
             .then((res) => {
               if (!mounted) return;
               if (res.data.renting) {
@@ -432,7 +434,7 @@ function MapIndex() {
 
           // ====== axios patch ======
           axios
-            .patch(`${API_URL}/api/rent`, { deviceId, uid })
+            .patch(`${API_URL}${basePath}/rent`, { deviceId, uid })
             .then((res) => {
               if (res.data.success) {
                 if (startTime) {
@@ -442,7 +444,7 @@ function MapIndex() {
                   setRentMessage("Unknown issue, please contact support.");
                   setRentalStatus(false);
                   console.warn(
-                    'Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
+                    'Get to check "api/map/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/map/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
                   );
                 } else {
                   setRentMessage("租借成功");
@@ -490,7 +492,7 @@ function MapIndex() {
         // =============== return button =================
         function handleReturn(overtimeComfirm) {
           axios
-            .patch(`${API_URL}/api/return`, {
+            .patch(`${API_URL}${basePath}/return`, {
               returnSite,
               batteryAmount,
               deviceId,
@@ -522,7 +524,7 @@ function MapIndex() {
                   setRentMessage("Unknown issue, please contact support.");
                   setRentalStatus(false);
                   console.warn(
-                    'Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
+                    'Get to check "api/map/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/map/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
                   );
                 }
               }
@@ -748,7 +750,7 @@ function MapIndex() {
           const getInfo = async () => {
             try {
               const res = await axios.get(
-                `http://localhost:3000/api/infoWindow/${siteId}`
+                `${API_URL}${basePath}/infoWindow/${siteId}`
               );
               setInfo(res.data);
             } catch (error) {
@@ -863,9 +865,11 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      <APIProvider apiKey={APIkey}
-        region='TW'
-        libraries={['places']}
+      {/* <NavBarAPP /> */}
+      <APIProvider
+        apiKey={APIkey}
+        region="TW"
+        libraries={["places"]}
         onLoad={() => setIsGoogleMapsLoaded(true)}
       >
         {isGoogleMapsLoaded && (

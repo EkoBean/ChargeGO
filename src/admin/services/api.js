@@ -1,5 +1,5 @@
-//前端
-const API_BASE_URL = 'http://127.0.0.1:3000';
+//node charger_site.cjs
+const API_BASE_URL = import.meta.env.VITE_API_BASE;
 
 const defaultOptions = {
   headers: {
@@ -8,9 +8,13 @@ const defaultOptions = {
 };
 
 const ApiService = {
+  basePath: 'api/admin',
+
+  // general request method
   async request(endpoint, options = {}) {
     try {
-      console.log('發送 API 請求:', `${API_BASE_URL}${endpoint}`); // 加入 debug
+      const fullEndpoint = `${this.basePath}${endpoint}`;
+      console.log('發送 API 請求:', `${API_BASE_URL}${fullEndpoint}`); // 加入 debug
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...defaultOptions,
@@ -104,14 +108,15 @@ const ApiService = {
     return this.request('/api/employees');
   },
 
-  // 銀行卡片相關 API
-  async getBankCards() {
-    return this.request('/bank/cards');
-  },
+  // // 銀行卡片相關 API
+  // 停用銀行卡片相關 API
+  // async getBankCards() {
+  //   return this.request('/bank/cards');
+  // },
 
-  async getUserCardMatch(uid) {
-    return this.request(`/user/${uid}/card/match`);
-  },
+  // async getUserCardMatch(uid) {
+  //   return this.request(`/user/${uid}/card/match`);
+  // },
 
   // 統計資料 API
   async getDashboardStats() {

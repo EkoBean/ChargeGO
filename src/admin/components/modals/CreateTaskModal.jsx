@@ -84,7 +84,7 @@ const CreateTaskModal = ({ onClose, onSuccess }) => {
       setError('');
       
       // 直接使用 ApiService.request，並使用後端期望的欄位名稱
-      const response = await ApiService.request('/api/missions', {
+      const response = await ApiService.request(apiRoutes.missions, {
         method: 'POST',
         body: JSON.stringify({
           title: formData.title,                    // 後端使用 title
