@@ -62,8 +62,11 @@ const StaffLogs = () => {
     
     try {
       // 嘗試分析日誌內容格式
-      if (logContent.includes('-{')) {
-        const [action, jsonStr] = logContent.split('-');
+      // 找到第一個 '-' 作為 action 與 JSON 的分隔（避免 JSON 裡的 - 破壞解析）
+      const dashIndex = logContent.indexOf('-');
+      if (dashIndex > 0) {
+        const action = logContent.substring(0, dashIndex);
+        const jsonStr = logContent.substring(dashIndex + 1);
         let details;
         try {
           details = JSON.parse(jsonStr);
@@ -114,7 +117,9 @@ const StaffLogs = () => {
           case 'DELETE_EVENT':
           case 'SEND_EVENT':
           case 'VIEW_EVENT':
-            description = `活動 #${details.id || '未知'}`;
+            // 優先顯示活動標題，若沒有則顯示活動ID
+            const evTitle = details.title || details.event_title;
+            description = evTitle ? `活動：${evTitle}` : `活動 #${details.id || '未知'}`;
             break;
           default:
             // 對於其他操作，只顯示基本ID資訊
