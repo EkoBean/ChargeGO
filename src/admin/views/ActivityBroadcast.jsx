@@ -4,6 +4,7 @@ import CreateEventModal from '../components/modals/CreateEventModal';
 import SendEventModal from '../components/modals/SendEventModal';
 import LoadingScreen from "../components/LoadingScreen";
 import ErrorScreen from "../components/ErrorScreen";
+import { apiRoutes } from '../../components/apiRoutes';
 
 // 活動管理頁面
 const ActivityBroadcast = () => {
@@ -30,7 +31,7 @@ const ActivityBroadcast = () => {
       setError(''); // 清除之前的錯誤
       console.log('開始載入活動資料...'); // 加入 debug 日誌
       
-      const data = await ApiService.request('/api/events');
+      const data = await ApiService.request(apiRoutes.events);
       console.log('活動資料載入成功:', data); // 加入 debug 日誌
       
       setEvents(Array.isArray(data) ? data : []);
@@ -45,7 +46,7 @@ const ActivityBroadcast = () => {
   // 獲取活動發送統計
   const fetchEventSendCounts = async () => {
     try {
-      const data = await ApiService.request('/api/events/send-counts');
+      const data = await ApiService.request(`${apiRoutes.events}/send-counts`);
       setEventSendCounts(data || {});
     } catch (err) {
       console.error('載入發送統計失敗:', err);

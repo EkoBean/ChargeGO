@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_profile.module.scss";
 import NavBarAPP from "../../components/NavBarAPP";
-// import NavBarWebsite from "../../components/NavBarWebsite";
+import Notify from "../../components/notify";
+import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
@@ -11,19 +12,16 @@ const mber_Profile = () => {
   const navigate = useNavigate();
   const API_BASE = "http://localhost:3000";
 
+  const memberBasePath = apiRoutes.member;
+
   // 返回按鈕點擊事件
   const backBtnClick = () => {
     return () => navigate(-1);
   };
 
-  // 通知按鈕點擊事件
-  const notifyBtnClick = () => {
-    return () => navigate("/mber_info");
-  };
-
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    fetch(`${API_BASE}/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -51,7 +49,7 @@ const mber_Profile = () => {
 
   // 處理會員資料修改
   const handleEditProfile = () => {
-    alert("資料修改功能即將開放");
+    navigate("/mber_edit");
     // 這裡可以實現資料修改的功能
   };
 
@@ -59,7 +57,7 @@ const mber_Profile = () => {
   const handleDeactivateAccount = async () => {
     if (window.confirm("確定要申請停權帳號嗎？")) {
       try {
-        const response = await fetch(`${API_BASE}/api/user/deactivate`, {
+        const response = await fetch(`${API_BASE}${memberBasePath}/user/deactivate`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -69,7 +67,7 @@ const mber_Profile = () => {
         });
         if (response.ok) {
           // 再次取得最新 user 狀態
-          fetch(`${API_BASE}/check-auth`, {
+          fetch(`${API_BASE}${memberBasePath}/check-auth`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -93,40 +91,37 @@ const mber_Profile = () => {
 
   return (
     <div className={styles.mber_info}>
-      {/* <NavBarWebsite /> */}
       <NavBarAPP className={styles.mobile_only_nav} />
       {/* Header */}
       <div className={styles.info_container}>
         <span
-          className={styles.back_icon + " " + styles.mobile_only_back}
+          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
           onClick={() => window.history.back()}
           title="回到上頁"
         >
           ◀︎
         </span>
-
         <div className={styles.mobile_arc_bg}>
           <div className={styles.mobile_arc_content}>
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
         </div>
         <div className={styles.mber_info_header}>
-          <img
-            src="/Iconimg/notify.svg"
-            alt="通知按鈕"
-            className={styles.notify_btn}
-            onClick={notifyBtnClick()}
-          />
+          <Notify />
         </div>
         <div className={styles.mber_info_main}>
           {/* 頭像 */}
           <div className={styles.avatar}>
-            <img src="/Iconimg/user.svg" alt="用戶頭像" />
+            <img src="../../../public/user.svg" alt="用戶頭像" />
           </div>
           {/* 卡片列 */}
           <div className={styles.mber_info_cards}>
             <div className={styles.card}>
-              <img src="/Iconimg/wallet.svg" alt="信用卡資料" />
+              <img
+                src="/Iconimg/wallet.svg"
+                alt="信用卡資料"
+                onClick={() => navigate("/mber_addCreditcard")}
+              />
               <span>信用卡資料</span>
             </div>
             <div className={styles.card}>
@@ -135,6 +130,7 @@ const mber_Profile = () => {
                 alt="帳單紀錄"
                 onClick={() => navigate("/mber_rentRecord")}
               />
+
               <span>租借紀錄</span>
             </div>
             <div className={styles.card}>
@@ -144,6 +140,10 @@ const mber_Profile = () => {
           </div>
           {/* 會員資料區塊 */}
           <div className={styles.mber_info_profile}>
+            <div>
+              <span>帳號｜</span>
+              <span>{user?.login_id || "testuser"}</span>
+            </div>
             <div>
               <span>會員姓名｜</span>
               <span>{user?.user_name || "王大明"}</span>
@@ -187,6 +187,10 @@ const mber_Profile = () => {
                 <option value="澎湖縣">澎湖縣</option>
                 <option value="金門縣">金門縣</option>
               </select>
+            </div>
+            <div>
+              <span>地址｜</span>
+              <span>{user?.address || ""}</span>
             </div>
           </div>
         </div>
