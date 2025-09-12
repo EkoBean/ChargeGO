@@ -3,6 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_forgotpwd.module.scss";
+import { apiRoutes } from "../../components/apiRoutes";
+
+const API_BASE = import.meta.env.VITE_API_URL;
+
+const memberBasePath = apiRoutes.member;
 
 const mber_ForgotPwd = () => {
   const [form, setForm] = useState({
@@ -52,7 +57,7 @@ const mber_ForgotPwd = () => {
     setIsSending(true);
     setTimer(300); // 5分鐘
     try {
-      await axios.post("http://localhost:3000/api/send-captcha", {
+      await axios.post(`${API_BASE}${memberBasePath}/send-captcha`, {
         email: form.email,
         code: captchaCode,
       });
@@ -77,7 +82,7 @@ const mber_ForgotPwd = () => {
     }
     try {
       const trimmedPwd = form.pwd.trim();
-      await axios.post("http://localhost:3000/api/reset-password", {
+      await axios.post("${API_BASE}${memberBasePath}/reset-password", {
         email: form.email,
         newPassword: crypto
           .SHA256(trimmedPwd)

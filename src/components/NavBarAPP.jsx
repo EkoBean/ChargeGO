@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../styles/scss/NavBarAPP.module.scss";
 
-export default function NavBarAPP() {
+export default function NavBarApp() {
   const icons = [
     {
       id: styles.myprofile,

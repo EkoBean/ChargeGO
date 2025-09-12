@@ -1,17 +1,15 @@
+$primary: #ffce00;
+
+@use "../../../node_modules/bootstrap/scss/bootstrap";
 @import url("https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css");
-// * {
-//     margin: 0;
-//     padding: 0;
-//     box-sizing: border-box;
-// }
 
 // body {
-//     font-family: 'Arial', sans-serif;
-//     overflow-x: hidden;
-//     background-color: #ffce00 !important;
-//     min-height: 200vh;
-//     padding-top: 80px;
-//     /* 為固定導航欄預留空間 */
+//   font-family: "Arial", sans-serif;
+//   background-color: $primary;
+//   // min-height: 200vh;
+//   // padding-top: 80px;
+//   /* color: $primary; // 需要時可加這行 */
+//   /* 為固定導航欄預留空間 */
 // }
 
 .content {
@@ -22,7 +20,7 @@
 
 .logo-section {
   position: fixed;
-  top: 90%; /* 從 50% 改為 60%，整個版面下移 */
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
@@ -39,8 +37,8 @@
   max-width: 1000px;
   min-width: 250px;
   margin-bottom: 1rem;
-  left: -10vw;
-  top: -1vw;
+  left: -23vw;
+  top: 15vw;
   opacity: 1;
   transform: scale(1);
   display: block;
@@ -59,16 +57,17 @@
   }
 }
 
-.logo {
+.header-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   font-family: "akagi-pro", sans-serif;
   font-weight: 900;
   font-style: normal;
   font-size: 100px;
   color: #fff;
-  margin-bottom: 1rem;
-  display: inline-block;
-  position: relative;
-  top: 450px;
+  display: block;
   text-align: center;
   white-space: nowrap;
   opacity: 1;
@@ -78,9 +77,9 @@
 
 .gradient-logo {
   position: absolute;
-  top: 0;
+  top: -500px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 200%);
   font-size: 100px;
   font-weight: 900;
   font-family: "akagi-pro", sans-serif;
@@ -111,8 +110,9 @@
 .logo-Charge {
   display: inline-block;
   opacity: 0;
-  transform: translateX(-200px);
+  transform: translateX(50px);
   vertical-align: baseline;
+  font-family: "Akagi Pro Fat" sans-serif;
   /* 移除自動動畫 */
 }
 
@@ -148,14 +148,14 @@
 
 .tagline {
   position: absolute;
-  top: 160px;
   left: 0;
+  top: 80%;
+  transform: translateY(-50%);
   width: 100vw;
-  height: 100%;
+  height: auto;
   margin-top: 2rem;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(100px);
   transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
   display: block;
   object-fit: contain;
@@ -164,19 +164,34 @@
 
 .taglineCover {
   position: absolute;
-  top: 160px;
-  left: 0;
+  left: -0.5%;
+  top: 91%;
+  transform: translateY(-50%);
   width: 100vw;
-  height: 100%;
+  height: auto;
   margin-top: 2rem;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(100px);
   transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
   display: block;
   object-fit: contain;
   z-index: 50;
-  pointer-events: none;
+}
+
+.show-tagline {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: taglineMoveIn 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+@keyframes taglineMoveIn {
+  from {
+    transform: translate(-50%, calc(-50% + 200px));
+  }
+
+  to {
+    transform: translate(-50%, -50%);
+  }
 }
 
 .content-section {
@@ -283,16 +298,12 @@
 
 /* 黃線 SVG 路徑樣式 */
 #yellowLine {
-  position: absolute;
+  position: fixed;
   left: 50%;
   /* 水平置中 */
-  bottom: 80px;
-  /* 距離底部 80px，可自行調整 */
-  margin-top: 0.5em;
-  /* 距離上方 2rem，可自行調整 */
+  bottom: -2%;
   transform: translateX(-50%);
-  width: 1990px;
-  max-width: 2000px;
+  width: 100vw;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
@@ -301,374 +312,52 @@
 }
 
 #yellowLine.show {
-  opacity: 1 !important;
-  visibility: visible !important;
+  opacity: 1;
+  visibility: visible;
 }
 
-/* 響應式調整（由大到小） */
-@media (max-width: 1440px) {
-  .logo {
-    font-size: 8rem;
-    position: relative;
-    top: 450px; /* 修正：加單位或設為 0 */
-    z-index: 10;
-    opacity: 1;
-  }
+/* .navbar-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 100;
+} */
 
-  .gradient-logo {
-    font-size: 8rem;
-    position: absolute;
-    top: -250px; /* 往上移一點 */
-    /* left: 50%;
-        transform: translateX(-50%); */
-  }
-
-  .arrow {
-    width: 80vw;
-    /* max-width: 1440px; */
-    left: -5vw;
-    position: relative;
-    top: 400px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -10px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -490px;
-    left: -8px;
-  }
-
-  /* 修改這裡，移除 left/transform，改用 right */
-  #yellowLine {
-    max-width: 1440px;
-    position: relative;
-    right: 18px;
-    /* 這裡調整 right 數值 */
-    bottom: 890px;
-    left: auto;
-    /* 覆蓋主樣式 */
-    transform: none;
-    /* 覆蓋主樣式 */
-  }
-
-  .cls-1 {
-    stroke-width: 30px;
-  }
+/* 服務據點介紹區域靠右且在導覽列下方 */
+.service-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2rem;
+  margin: 4rem auto;
+  max-width: 1440px;
+  width: 100%;
 }
 
-@media (max-width: 1024px) and (max-width: 1439px) {
-  .logo {
-    font-size: 8rem;
-    position: relative;
-    top: 250px; /* 修正：加單位或設為 0 */
-    z-index: 10;
-    opacity: 1;
-  }
-
-  .gradient-logo {
-    font-size: 8rem;
-    position: absolute;
-    top: -250px; /* 往上移一點 */
-    /* left: 50%;
-        transform: translateX(-50%); */
-  }
-
-  .arrow {
-    width: 80vw;
-    /* max-width: 1440px; */
-    left: -10vw;
-    position: relative;
-    top: 200px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -50px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -400px;
-    left: -8px;
-  }
-
-  /* 修改這裡，移除 left/transform，改用 right */
-  #yellowLine {
-    max-width: 1024px;
-    position: relative;
-    right: 18px;
-    /* 這裡調整 right 數值 */
-    bottom: 700px;
-    left: auto;
-    /* 覆蓋主樣式 */
-    transform: none;
-    /* 覆蓋主樣式 */
-  }
-
-  .cls-1 {
-    stroke-width: 30px;
-  }
+.service-intro-right {
+  flex: 1;
+  font-family: "Mantou Sans", sans-serif;
+  color: #333;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  z-index: 70;
+  /* 移除 top: 50vw; 和 right: 50px; */
 }
 
-@media (max-width: 768px) {
-  .logo {
-    font-size: 6rem;
-    position: relative;
-    top: 50px; /* 修正：加單位或設為 0 */
-    z-index: 10;
-    opacity: 1;
-  }
-
-  .gradient-logo {
-    font-size: 6rem;
-    position: absolute;
-    top: -100px; /* 往上移一點 */
-    /* left: 50%;
-        transform: translateX(-50%); */
-  }
-
-  .arrow {
-    width: 80vw;
-    /* max-width: 1440px; */
-    left: -10vw;
-    position: relative;
-    top: 50px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -50px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -320px;
-    left: -5px;
-  }
-
-  /* 修改這裡，移除 left/transform，改用 right */
-  #yellowLine {
-    max-width: 768px;
-    position: relative;
-    right: 14px;
-    /* 這裡調整 right 數值 */
-    bottom: 540px;
-    left: auto;
-    /* 覆蓋主樣式 */
-    transform: none;
-    /* 覆蓋主樣式 */
-  }
-
-  .cls-1 {
-    stroke-width: 30px;
-  }
+.service-intro-left {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@media (max-width: 480px) {
-  .logo {
-    font-size: 5rem;
-  }
-
-  .gradient-logo {
-    font-size: 5rem;
-    position: relative;
-    top: -500px;
-  }
-
-  .arrow {
-    width: 90vw;
-    max-width: 480px;
-    left: -13vw;
-    position: relative;
-    top: 20px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -138px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -320px;
-    left: -5px;
-  }
-
-  #yellowLine {
-    max-width: 480px;
-    left: 48%;
-    transform: translateX(-50%);
-    position: relative;
-    top: -460px;
-  }
-
-  .cls-1 {
-    stroke-width: 40px;
-  }
+.title {
+  align-items: center;
 }
 
-@media (max-width: 414px) {
-  .logo {
-    font-size: 4rem;
-    position: relative;
-    top: -100px; /* 修正：加單位或設為 0 */
-    z-index: 10;
-    opacity: 1;
-  }
-
-  .gradient-logo {
-    font-size: 4rem;
-    position: absolute;
-    top: -100px; /* 往上移一點 */
-    /* left: 50%;
-        transform: translateX(-50%); */
-  }
-
-  .arrow {
-    width: 90vw;
-    max-width: 480px;
-    left: -10vw;
-    position: relative;
-    top: 20px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -150px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -310px;
-    left: -3px;
-  }
-
-  /* 修改這裡，移除 left/transform，改用 right */
-  #yellowLine {
-    max-width: 414px;
-    left: 50%;
-    transform: translateX(-50%);
-    position: relative;
-    top: -430px;
-  }
-
-  .cls-1 {
-    stroke-width: 30px;
-  }
-}
-
-@media (max-width: 375px) {
-  .logo {
-    font-size: 3rem;
-    position: relative;
-    top: -100px; /* 修正：加單位或設為 0 */
-    z-index: 10;
-    opacity: 1;
-  }
-
-  .gradient-logo {
-    font-size: 3rem;
-    position: absolute;
-    top: -100px; /* 往上移一點 */
-    /* left: 50%;
-        transform: translateX(-50%); */
-  }
-
-  .arrow {
-    width: 80vw;
-    left: -8vw;
-    position: relative;
-    top: -100px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -130px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -280px;
-    left: -3px;
-  }
-
-  /* 修改這裡，移除 left/transform，改用 right */
-  #yellowLine {
-    max-width: 375px;
-    left: 50%;
-    transform: translateX(-50%);
-    position: relative;
-    top: -385px;
-  }
-
-  .cls-1 {
-    stroke-width: 30px;
-  }
-}
-
-@media (max-width: 320px) {
-  .logo {
-    font-size: 3rem;
-    position: relative;
-    top: -100px; /* 修正：加單位或設為 0 */
-    z-index: 10;
-    opacity: 1;
-  }
-
-  .gradient-logo {
-    font-size: 3rem;
-    position: absolute;
-    top: -100px; /* 往上移一點 */
-    /* left: 50%;
-        transform: translateX(-50%); */
-  }
-
-  .arrow {
-    width: 80vw;
-    left: -8vw;
-    position: relative;
-    top: -100px;
-  }
-
-  .tagline {
-    font-size: 1.3rem;
-    position: relative;
-    top: -150px;
-  }
-
-  .taglineCover {
-    font-size: 1.3rem;
-    position: relative;
-    top: -280px;
-    left: -3px;
-  }
-
-  /* 修改這裡，移除 left/transform，改用 right */
-  #yellowLine {
-    max-width: 320px;
-    left: 48.7%;
-    transform: translateX(-50%);
-    position: relative;
-    top: -380px;
-  }
-
-  .cls-1 {
-    stroke-width: 30px;
-  }
+p {
+  font-family: "Arial", "Microsoft JhengHei", sans-serif;
 }

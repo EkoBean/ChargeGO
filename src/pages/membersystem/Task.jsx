@@ -1,5 +1,6 @@
-import "../../styles/scss/Task.module.scss";
-import NavbarWebsite from "../../components/NavbarWebsite";
+import '../../styles/scss/Task.module.scss';
+// import NavbarWebsite from '../../components/NavbarWebsite';
+const API_BASE = "http://localhost:3000";
 
 export default function Task() {
   // 範例靜態資料
@@ -24,7 +25,7 @@ export default function Task() {
 
   return (
     <div className="container">
-      <NavbarWebsite />
+      {/* <NavbarWebsite /> */}
       {/* 直接放在 container 內，main 外 */}
       <div className="points-circle-wrapper">
         <div className="circle points-circle">

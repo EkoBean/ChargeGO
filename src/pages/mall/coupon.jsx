@@ -1,20 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import styles from "../../styles/scss/mall_index.module.scss"; // 新增匯入
+import styles from "../../styles/scss/mall_index.module.scss";
+import NavBarApp from "../../components/NavBarApp";
+import { apiRoutes } from "../../components/apiRoutes";
 
+const API_URL = import.meta.env.VITE_API_URL;
+const pointBasePath = apiRoutes.point;
+const couponBasePath = apiRoutes.coupon;
 const Coupon = () => {
-  const userId = 2;
+  // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
+  const initialUid = sessionStorage.getItem("uid") || "3";
+  const [userId, setUserId] = useState(initialUid);
+  const [userPoint, setUserPoint] = useState(null);
+
   const [coupons, setCoupons] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("store"); // 🔹 React 控制 tab
+  const [activeTab, setActiveTab] = useState("store");
 
+  // 取得使用者點數
+  const getUserPoint = useCallback(async (uid) => {
+    if (!uid) {
+      setUserPoint(null);
+      return null;
+    }
+    try {
+      const res = await fetch(`${API_URL}${pointBasePath}/checkpoints/${uid}`);
+      if (!res.ok) throw new Error("fetch point failed");
+      const data = await res.json();
+      const point = data?.point ?? null;
+      setUserPoint(point);
+      return point;
+    } catch (err) {
+      console.error("抓取點數失敗:", err);
+      setUserPoint(null);
+      return null;
+    }
+  }, []);
+
+  // refresh 封裝（給外部呼叫）
+  const refreshUserPoint = useCallback(() => {
+    return getUserPoint(userId);
+  }, [getUserPoint, userId]);
+
+  // 抓優惠券（會在 userId 變動時重新抓）
   useEffect(() => {
+    let mounted = true;
     const fetchCoupons = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4002/mycouponsparam/${userId}`
+          `${API_URL}${couponBasePath}/mycouponsparam/${userId}`
         );
+        if (!response.ok) throw new Error("fetch coupons failed");
         const data = await response.json();
 
         const formatted = data.map((c) => ({
@@ -25,13 +62,35 @@ const Coupon = () => {
           expiresAt: c.expires_at,
         }));
 
-        setCoupons(formatted);
+        if (mounted) setCoupons(formatted);
       } catch (err) {
         console.error("抓取優惠券失敗:", err);
+        if (mounted) setCoupons([]);
       }
     };
+
     fetchCoupons();
-  }, []);
+    // 同步抓點數
+    getUserPoint(userId);
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, getUserPoint]);
+
+  // 監聽其他分頁對 sessionStorage uid 的變動
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "uid") {
+        const newUid = e.newValue || "2";
+        setUserId(newUid);
+        // 把 UI 的 userId 與 session sync（雖然 session 已變）
+        getUserPoint(newUid);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [getUserPoint]);
 
   const handleCouponClick = (coupon) => {
     if (!coupon.isUsed) {
@@ -45,6 +104,16 @@ const Coupon = () => {
     setSelectedCoupon(null);
   };
 
+  // optional: 當在 modal 中模擬掃描完成並希望標示為已使用時，你可以呼叫一個 API 再 refreshUserPoint()
+  // 例如：
+  // const markUsedAndRefresh = async (couponId) => {
+  //   await fetch(`http://localhost:4002/usecoupon/${couponId}`, { method: "POST", body: JSON.stringify({ userId }) });
+  //   await refreshUserPoint();
+  //   // 重新抓優惠券列表
+  //   const res = await fetch(`http://localhost:4002/mycouponsparam/${userId}`);
+  //   setCoupons(await res.json());
+  // };
+
   const storeCoupons = coupons.filter(
     (c) => c.type === "store_gift" || c.type === "store_discount"
   );
@@ -56,12 +125,34 @@ const Coupon = () => {
   );
 
   return (
-    <div className="d-flex">
-      <main className={styles.container + " flex-grow-1 py-4"}>
-        <h2 className="mb-4">兌換券</h2>
+    <div className={styles.couponBody}>
+      <NavBarApp />
 
-        {/* 🔹 Tabs 導覽 (用 React 控制 activeTab) */}
-        <ul className="nav nav-tabs">
+      <div className={styles.couponNavbar}>
+        <button className={styles.navbarLeftSection}>
+          <img src="/Iconimg/backBtn.svg" alt="backBtn" />
+        </button>
+
+        <div className={styles.navbarCenterSectionForCouponBox}>
+          <div className={styles.couponPoint}>
+            <div className={styles.couponText}>
+              <img src="/Iconimg/greenpoint.svg" alt="point" />
+              點數
+            </div>
+            <div className={styles.couponNumber}>
+              {userPoint !== null ? userPoint : "載入中"}
+            </div>
+            <div className={styles.couponText}>目前持有優惠劵</div>
+          </div>
+        </div>
+
+        <button className={styles.navbarRightSection}>
+          <img src="/Iconimg/notify.svg" alt="notify" />
+        </button>
+      </div>
+
+      <div className={styles.couponMain}>
+        <ul className={`nav nav-tabs ${styles.customTabs}`}>
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === "store" ? "active" : ""}`}
@@ -79,131 +170,101 @@ const Coupon = () => {
             </button>
           </li>
         </ul>
-
-        {/* 🔹 Tabs 內容 */}
-        <div className={styles.taskList + " mt-3"}>
-          {/* 商家優惠券 */}
+        <div className={styles.couponBoxList + " mt-3"}>
           {activeTab === "store" && (
             <>
-              {
-                //沒有商家優惠券
-                storeCoupons.length === 0 ? (
-                  <p className="text-muted">目前沒有商家優惠券</p>
-                ) : (
-                  //有商家優惠券
-                  storeCoupons.map((coupon) => (
-                    <div
-                      key={coupon.id}
-                      className={
-                        styles.taskCard + " rounded-3 shadow-sm p-3 mb-3"
-                      }
-                    >
-                      <div className={styles.taskLeft}>
-                        <h5 className="fw-bold mb-0">{coupon.title}</h5>
-                        <small className="text-muted">
-                          有效期至：
-                          {new Date(coupon.expiresAt).toLocaleDateString()}
-                        </small>
-                      </div>
-                      <div className={styles.taskRight}>
-                        <button
-                          className={`btn ${
-                            coupon.isUsed ? "disabled" : styles.claimBtn
-                          } rounded-pill fw-bold`}
-                          disabled={coupon.isUsed}
-                          onClick={() => handleCouponClick(coupon)}
-                        >
-                          {coupon.isUsed ? "已使用" : "領取"}
-                        </button>
-                      </div>
+              {storeCoupons.length === 0 ? (
+                <p className="text-muted">目前沒有商家優惠券</p>
+              ) : (
+                storeCoupons.map((coupon) => (
+                  <div key={coupon.id} className={styles.storeCouponCardInBox}>
+                    <div className={styles.cardLeft}>
+                      <h5 className="fw-bold mb-0">{coupon.title}</h5>
+                      <small className="text-muted">
+                        有效期至：
+                        {new Date(coupon.expiresAt).toLocaleDateString()}
+                      </small>
                     </div>
-                  ))
-                )
-              }
+                    <div className={styles.cardRight}>
+                      <button
+                        className={`btn ${
+                          coupon.isUsed ? "disabled" : styles.claimBtn
+                        } rounded-pill fw-bold`}
+                        disabled={coupon.isUsed}
+                        onClick={() => handleCouponClick(coupon)}
+                      >
+                        {coupon.isUsed ? "已使用" : "領取"}
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </>
           )}
 
-          {/* 租借優惠券 */}
           {activeTab === "rental" && (
             <>
-              {
-                //沒有租借優惠券
-                rentalCoupons.length === 0 ? (
-                  <p className="text-muted">目前沒有租借優惠券</p>
-                ) : (
-                  //有租借優惠券
-                  rentalCoupons.map((coupon) => (
-                    <div
-                      key={coupon.id}
-                      className={
-                        styles.taskCard + " rounded-3 shadow-sm p-3 mb-3"
-                      }
-                    >
-                      <div className={styles.taskLeft}>
-                        <h5 className="fw-bold mb-0">{coupon.title}</h5>
-                        <small className="text-muted">
-                          有效期至：
-                          {new Date(coupon.expiresAt).toLocaleDateString()}
-                        </small>
-                      </div>
-                      <div className={styles.taskRight}>
-                        {coupon.isUsed === false ? (
-                          <button
-                            className={styles.claimBtn + " " + styles.disabled}
-                            disabled
-                          >
-                            未使用
-                          </button>
-                        ) : coupon.isUsed === true ? (
-                          <span className={styles["claimed-text"]}>已使用</span>
-                        ) : null}
-                      </div>
+              {rentalCoupons.length === 0 ? (
+                <p className="text-muted">目前沒有租借優惠券</p>
+              ) : (
+                rentalCoupons.map((coupon) => (
+                  <div
+                    key={coupon.id}
+                    className={`${styles.rentalCouponCard} ${
+                      coupon.isUsed ? styles.used : ""
+                    }`}
+                  >
+                    <div className={styles.couponInfo}>
+                      <h5 className={styles.couponName}>{coupon.title}</h5>
+                      <small className={styles.couponDetails}>
+                        有效期至：
+                        {new Date(coupon.expiresAt).toLocaleDateString()}
+                      </small>
                     </div>
-                  ))
-                )
-              }
+                  </div>
+                ))
+              )}
             </>
           )}
         </div>
-      </main>
 
-      {/* Modal 保持商家優惠券功能 */}
-      {showModal && selectedCoupon && (
-        <div className="modal show d-block" tabIndex="-1" role="dialog">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">優惠券兌換</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeModal}
-                ></button>
-              </div>
-              <div className="modal-body text-center">
-                <p>{selectedCoupon.title}</p>
-                <div className="my-3">
-                  <QRCodeCanvas
-                    value={`coupon-${selectedCoupon.id}-user-${userId}`}
-                    size={150}
-                    level="H"
-                    style={{ cursor: "pointer" }}
-                  />
+        {showModal && selectedCoupon && (
+          <div className="modal show d-block" tabIndex="-1" role="dialog">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">優惠券兌換</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={closeModal}
+                  ></button>
                 </div>
-                <p className="text-muted mt-2">點擊 QR Code 模擬掃描</p>
-                <p className="text-muted mt-2">
-                  請在櫃台出示此 QR Code 進行兌換
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-primary" onClick={closeModal}>
-                  關閉
-                </button>
+                <div className="modal-body text-center">
+                  <p>{selectedCoupon.title}</p>
+                  <div className="my-3">
+                    <QRCodeCanvas
+                      value={`coupon-${selectedCoupon.id}-user-${userId}`}
+                      size={150}
+                      level="H"
+                      style={{ cursor: "pointer" }}
+                    />
+                  </div>
+                  <p className="text-muted mt-2">點擊 QR Code 模擬掃描</p>
+                  <p className="text-muted mt-2">
+                    請在櫃台出示此 QR Code 進行兌換
+                  </p>
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-primary" onClick={closeModal}>
+                    關閉
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
