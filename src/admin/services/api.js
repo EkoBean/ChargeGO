@@ -1,4 +1,4 @@
-//node charger_site.cjs
+//前端呼叫後端 API 
 const API_BASE_URL = import.meta.env.VITE_API_BASE;
 
 const defaultOptions = {
@@ -8,15 +8,15 @@ const defaultOptions = {
 };
 
 const ApiService = {
-  basePath: 'api/admin',
+  basePath: '/api/admin',  // 修正：添加前綴斜槓
 
   // general request method
   async request(endpoint, options = {}) {
     try {
       const fullEndpoint = `${this.basePath}${endpoint}`;
-      console.log('發送 API 請求:', `${API_BASE_URL}${fullEndpoint}`); // 加入 debug
+      console.log('發送 API 請求:', `${API_BASE_URL}${fullEndpoint}`); // 保持 debug
 
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${fullEndpoint}`, {  // 修正：使用 fullEndpoint
         ...defaultOptions,
         ...options,
         headers: {
