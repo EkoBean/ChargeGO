@@ -5,6 +5,7 @@ import styles from "../../styles/scss/mber_profile.module.scss";
 import NavBarApp from "../../components/NavBarApp";
 import Notify from "../../components/notify";
 import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
@@ -94,13 +95,7 @@ const mber_Profile = () => {
       <NavBarApp className={styles.mobile_only_nav} />
       {/* Header */}
       <div className={styles.info_container}>
-        <span
-          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-          onClick={() => window.history.back()}
-          title="回到上頁"
-        >
-          ◀︎
-        </span>
+        <BackIcon className={'d-sm-none'} />
         <div className={styles.mobile_arc_bg}>
           <div className={styles.mobile_arc_content}>
             <h2 className={styles.mber_info_title}>會員資料</h2>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mber_addCreditcard.module.scss"; // 改用 module
 import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
 
 const mber_AddCreditcard = () => {
   const [user, setUser] = useState(null);
@@ -85,16 +86,10 @@ const mber_AddCreditcard = () => {
   return (
     <div className={styles.mber_addCreditcard}>
       <NavBarApp />
+      <BackIcon className={'d-sm-none'} />
 
       <div className={styles.creditcardContainer}>
-        {/* 返回鍵 */}
-        <span
-          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-          onClick={() => window.history.back()}
-          title="回到上頁"
-        >
-          ◀︎
-        </span>
+
         {/* 標題區域 */}
         <div className={styles.titleSection}>
           <div className={styles.paymentText}>付款方式</div>
@@ -124,7 +119,7 @@ const mber_AddCreditcard = () => {
           {/* 信用卡號 */}
           <div className={styles.formRow}>
             <label className={styles.formLabel}>信用卡號</label>
-            
+
             <input
               className={styles.formInput}
               type="text"
