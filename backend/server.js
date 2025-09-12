@@ -36,13 +36,13 @@ app.use(session({
     }
 }));
 
-app.use('/api/map', mapRoutes)
-app.use('/api/member', memberRoutes)
-app.use('/api/coupon', couponRoutes)
-app.use('/api/mission', missionRoutes)
-app.use('/api/shop', shopRoutes)
-app.use('/api/point', pointRouters)
-app.use('/api/admin', adminRouters)
+app.use(apiRoutes.map, mapRoutes)
+app.use(apiRoutes.member, memberRoutes)
+app.use(apiRoutes.coupon, couponRoutes)
+app.use(apiRoutes.mission, missionRoutes)
+app.use(apiRoutes.shop, shopRoutes)
+app.use(apiRoutes.point, pointRouters)
+app.use(apiRoutes.admin, adminRouters)
 
 // start server listening
 app.listen(3000, () => {
