@@ -134,7 +134,7 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
       };
       const logContent = `SEND_EVENT-${JSON.stringify(logPayload)}`;
 
-      const response = await ApiService.request('/api/events/send-notification', {
+      const response = await ApiService.request('/events/send-notification', {
         method: 'POST',
         body: JSON.stringify({
           event_id: event.event_id,
