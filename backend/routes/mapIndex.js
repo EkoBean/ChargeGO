@@ -1,19 +1,23 @@
 import express, { json, urlencoded } from 'express';
 const app = express();
 import cors from 'cors';
+import db from '../db.js'; // 引入 db.js
+
+
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(cors());
 
 // ================== mySql define ====================
-import { createConnection } from 'mysql';
-const connection = createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'charger_database'
-});
+const connection = db;
+// import { createConnection } from 'mysql';
+// const connection = createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '',
+//     database: 'charger_database'
+// });
 
 // bluebird for promise
 import Promise from "bluebird";
@@ -24,12 +28,12 @@ Promise.promisifyAll(connection);
 import { dbQueries as mapQuery } from './map_dbQuery.js';
 
 //============= mySql DB connect and error handling ==============
-connection.connect((err) => {
-    if (err) {
-        console.error('Database connection failed: ' + err.stack);
-        return;
-    }
-});
+// connection.connect((err) => {
+//     if (err) {
+//         console.error('Database connection failed: ' + err.stack);
+//         return;
+//     }
+// });
 
 app.listen(3000, () => {
     console.log('click to open http://localhost:3000');
@@ -38,7 +42,7 @@ app.listen(3000, () => {
 
 // ================== main API ====================
 // get all stations
-app.get('/api/stations', (req, res) => {
+app.get('/stations', (req, res) => {
     connection.query(mapQuery.selectAllStations, (error, results) => {
         if (error) {
             console.error('Error fetching stations:', error);
@@ -49,7 +53,7 @@ app.get('/api/stations', (req, res) => {
 });
 
 // get info window data
-app.get('/api/infoWindow/:siteId', (req, res) => {
+app.get('/infoWindow/:siteId', (req, res) => {
     const siteId = req.params.siteId;
     connection.query(mapQuery.selectInfoWindow, [siteId], (error, results) => {
         if (error) {
@@ -61,7 +65,7 @@ app.get('/api/infoWindow/:siteId', (req, res) => {
 });
 
 // check user rental status
-app.get('/api/checkRental/:uid', (req, res) => {
+app.get('/checkRental/:uid', (req, res) => {
     const uid = req.params.uid;
     connection.query(mapQuery.checkUser, [uid], (error, results) => {
         if (error) {
@@ -83,7 +87,7 @@ app.get('/api/checkRental/:uid', (req, res) => {
 })
 
 // rent a charger
-app.patch('/api/rent', async (req, res) => {
+app.patch('/rent', async (req, res) => {
     const { deviceId, uid } = req.body || {};
     const now = new Date();
     try {
@@ -156,7 +160,7 @@ app.patch('/api/rent', async (req, res) => {
 
 
 // return a charger
-app.patch('/api/return', async (req, res) => {
+app.patch('/return', async (req, res) => {
 
     const { batteryAmount, returnSite, deviceId, uid, overtimeConfirm } = req.body;
     const now = new Date();

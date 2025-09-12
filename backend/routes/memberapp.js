@@ -3,27 +3,27 @@ import cors from 'cors';
 import crypto from 'crypto';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import db from './db.js'; // 引入 db.js
+import db from '../db.js'; // 引入 db.js
 import nodemailer from 'nodemailer';
 
 
-
-const app = express();
-app.use(express.json());
-app.use(cookieParser()); // 新增
-app.use(cors({
-    origin: 'http://localhost:5173', // 前端網址
-    credentials: true // 允許跨域帶 cookie
-}));
-app.use(session({
-    secret: 'your_secret_key', // 請改成安全的字串
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 1天
-    }
-}));
+// !!moved to server.js!!
+// const app = express();
+// app.use(express.json());
+// app.use(cookieParser()); // 新增
+// app.use(cors({
+//     origin: 'http://localhost:5173', // 前端網址
+//     credentials: true // 允許跨域帶 cookie
+// }));
+// app.use(session({
+//     secret: 'your_secret_key', // 請改成安全的字串
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//         httpOnly: true,
+//         maxAge: 24 * 60 * 60 * 1000 // 1天
+//     }
+// }));
 
 // 密碼雜湊函式（SHA256取前10碼）
 function hashPassword(password) {
