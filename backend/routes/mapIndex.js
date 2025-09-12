@@ -25,7 +25,7 @@ global.Promise = Promise;
 Promise.promisifyAll(connection);
 
 // db queries import
-import { dbQueries as mapQuery } from './map_dbQuery.js';
+import { dbQueries as mapQuery } from '../queries/map_dbQuery.js';
 
 //============= mySql DB connect and error handling ==============
 // connection.connect((err) => {
@@ -35,9 +35,9 @@ import { dbQueries as mapQuery } from './map_dbQuery.js';
 //     }
 // });
 
-app.listen(3000, () => {
-    console.log('click to open http://localhost:3000');
-});
+// app.listen(3000, () => {
+//     console.log('click to open http://localhost:3000');
+// });
 
 
 // ================== main API ====================

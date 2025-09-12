@@ -5,10 +5,11 @@ import cookieParser from 'cookie-parser';
 import db from './db.js'; 
 
 import mapRoutes from './routes/mapIndex.js';
-import memberRoutes from './routes/memberRoutes.js';
-import couponRoutes from './routes/couponRoutes.js';
-import missionRoutes from './routes/missionRoutes.js';
-import shopRoutes from './routes/shopRoutes.js';
+import memberRoutes from './routes/memberapp.js';
+import couponRoutes from './routes/router_coupon.js';
+import missionRoutes from './routes/router_mission.js';
+import shopRoutes from './routes/router_shop.js';
+import pointRouters from './routes/router_point.js';
 
 const app = express();
 
@@ -30,3 +31,15 @@ app.use(session({
 }));
 
 app.use('/api/map', mapRoutes)
+app.use('/api/member', memberRoutes)
+app.use('/api/coupon', couponRoutes)
+app.use('/api/mission', missionRoutes)
+app.use('/api/shop', shopRoutes)
+app.use('/api/point', pointRouters)
+
+app.get('/', (req, res) => {
+    res.send('server.js is running.');
+}); 
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+});
