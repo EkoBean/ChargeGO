@@ -21,10 +21,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 // environment variables
 const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 
 // ================= Constants ============================
-const APIkey = ;
 
 const mapId = "7ade7c4e6e2cc1087f2619a5";
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
