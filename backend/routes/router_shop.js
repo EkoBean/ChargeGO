@@ -1,23 +1,25 @@
 import express from "express";
 import cors from "cors";
-import mysql from "mysql";
+import db from "../db.js";
+const pool = db;
 import util from "util";
 
-var app = express();
 
-app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+const app = express.Router();
 
-var pool = mysql.createPool({
-  user: "abuser",
-  password: "123456",
-  host: "localhost",
-  port: 3306,
-  database: "charger_database",
-  connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
-});
+// app.use(express.static("public"));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cors());
+
+// const pool = mysql.createPool({
+//   user: "abuser",
+//   password: "123456",
+//   host: "localhost",
+//   port: 3306,
+//   database: "charger_database",
+//   connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
+// });
 // 將連線池的 query 方法轉換成 Promise 版本
 // 這樣所有的路由都可以使用 async/await 語法，程式碼更清晰
 pool.query = util.promisify(pool.query);
@@ -28,7 +30,7 @@ app.get("/", (req, res) => {
 app.get("/products", async (req, res) => {
   const query = `
  SELECT * FROM coupon_templates;`;
-  const results = await pool.query(query);
+  const results = await pool.queryAsync(query);
   res.json(results);
 });
 
@@ -41,7 +43,7 @@ app.post("/buycoupons", async (req, res) => {
     const { template_id, user_id } = req.body;
 
     // 取出 優惠券模板中 的截止日期、消耗點數
-    const [templaterows] = await pool.query(
+    const [templaterows] = await pool.queryAsync(
       "SELECT validity_days, point FROM coupon_templates WHERE template_id = ?",
       [template_id]
     );
@@ -56,7 +58,7 @@ app.post("/buycoupons", async (req, res) => {
     console.log("validity_days", validity_days);
     console.log("coupon_point", coupon_point);
     // 新增 coupon
-    const couponResult = await pool.query(
+    const couponResult = await pool.queryAsync(
       `INSERT INTO coupons (template_id, user_id, source_type, status, issued_at, expires_at)
        VALUES (?, ?, 'shop_purchase', 'active', NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))`,
       [template_id, user_id, validity_days]
@@ -65,7 +67,7 @@ app.post("/buycoupons", async (req, res) => {
     const coupon_id = couponResult.insertId;
     console.log("coupon_id", coupon_id);
     // 新增 shop_orders
-    const orderResult = await pool.query(
+    const orderResult = await pool.queryAsync(
       `INSERT INTO shop_orders
         (user_id, template_id, price, coupon_id, order_status)
        VALUES (?, ?, ?, ?, 'completed')`,
@@ -75,7 +77,7 @@ app.post("/buycoupons", async (req, res) => {
     const order_id = orderResult.insertId;
     //使用者點數減少
 
-    const pointsDeduct = await pool.query(
+    const pointsDeduct = await pool.queryAsync(
       `UPDATE user
         SET point = point - ?
         WHERE uid = ?;`,
@@ -104,7 +106,7 @@ app.get("/checkpoints", async (req, res) => {
       return res.status(400).json({ error: "缺少 user_id 或 template_id" });
     }
     //查模板
-    const [templaterows] = await pool.query(
+    const [templaterows] = await pool.queryAsync(
       "SELECT point FROM coupon_templates WHERE template_id = ?",
       [template_id]
     );
@@ -116,7 +118,7 @@ app.get("/checkpoints", async (req, res) => {
     const requiredPoints = templaterows.point;
     console.log("需求點數", requiredPoints);
     //查用戶點數
-    const [userRows] = await pool.query(
+    const [userRows] = await pool.queryAsync(
       "SELECT point FROM user WHERE uid = ?",
       [user_id]
     );
@@ -139,8 +141,11 @@ app.get("/checkpoints", async (req, res) => {
 app.post("/points/deduct", async (req, res) => {
   const query = ``;
 });
-const PORT = process.env.PORT || 4001;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-  console.log("資料庫連線池已建立。");
-});
+// const PORT = process.env.PORT || 4001;
+// app.listen(PORT, () => {
+//   console.log(`API server running on port ${PORT}`);
+//   console.log("資料庫連線池已建立。");
+// });
+
+
+export default app;

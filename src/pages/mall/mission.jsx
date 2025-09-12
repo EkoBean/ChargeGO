@@ -3,6 +3,8 @@ import axios from "axios";
 // import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo"; // 修正 import 路徑
 import NavBarPhone from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
+const API_URL = import.meta.env.VITE_API_URL
+
 
 class Mission extends Component {
   state = {
@@ -41,7 +43,7 @@ class Mission extends Component {
     if (!userId) return null;
     try {
       const res = await axios.get(
-        `http://localhost:4005/checkpoints/${userId}`
+        `${API_URL}/api/point/checkpoints/${userId}`
       );
       return res.data?.point ?? null;
     } catch (err) {
@@ -84,17 +86,17 @@ class Mission extends Component {
     this.setState({ loading: true, error: null, mission: [] });
 
     try {
-      await axios.post(`http://localhost:4000/update/monthRental`, {
+      await axios.post(`${API_URL}/api/mission/update/monthRental`, {
         userId,
         filterDate,
       });
-      await axios.post(`http://localhost:4000/update/monthHours`, {
+      await axios.post(`${API_URL}/api/mission/update/monthHours`, {
         userId,
         filterDate,
       });
 
       const missionsResponse = await axios.get(
-        `http://localhost:4000/mission/${userId}/${filterDate}`
+        `${API_URL}/api/mission/${userId}/${filterDate}`
       );
 
       if (Array.isArray(missionsResponse.data)) {
@@ -132,7 +134,7 @@ class Mission extends Component {
       this.setState({ claimingMissionId: userMissionId });
 
       const response = await axios.post(
-        "http://localhost:4000/usermission/claim",
+        `${API_URL}/api/mission/usermission/claim`,
         {
           user_mission_id: userMissionId,
           user_id: userId,

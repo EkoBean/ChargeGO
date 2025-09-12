@@ -1,16 +1,16 @@
 import express, { json, urlencoded } from 'express';
-const app = express();
+const app = express.Router();
 import cors from 'cors';
-import db from '../db.js'; // 引入 db.js
+import db from '../db.js'; 
+const connection = db;
 
 
 
-app.use(json());
-app.use(urlencoded({ extended: true }));
-app.use(cors());
+// app.use(json());
+// app.use(urlencoded({ extended: true }));
+// app.use(cors());
 
 // ================== mySql define ====================
-const connection = db;
 // import { createConnection } from 'mysql';
 // const connection = createConnection({
 //     host: 'localhost',
@@ -221,3 +221,6 @@ app.patch('/return', async (req, res) => {
         return res.status(500).json({ success: false, err, message: '租借錯誤' });
     }
 });
+
+
+export default app;

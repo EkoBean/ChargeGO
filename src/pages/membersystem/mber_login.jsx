@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const mber_Login = () => {
   const [form, setForm] = useState({
     login_id: "",
@@ -67,7 +69,7 @@ const mber_Login = () => {
 
       // 登入 API 呼叫
       const res = await axios.post(
-        "http://localhost:3000/mber_login",
+        `${API_BASE}/api/member/mber_login`,
         {
           login_id: form.login_id, // login_id
           password: hashedPwd, // hashed_password

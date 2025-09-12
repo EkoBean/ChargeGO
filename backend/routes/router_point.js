@@ -1,23 +1,24 @@
 import express from "express";
 import cors from "cors";
-import mysql from "mysql";
+import db from "../db.js";
+const pool = db; 
 import util from "util";
 
-var app = express();
+const app = express.Router();
 
-app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+// app.use(express.static("public"));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cors());
 
-var pool = mysql.createPool({
-  user: "abuser",
-  password: "123456",
-  host: "localhost",
-  port: 3306,
-  database: "charger_database",
-  connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
-});
+// var pool = mysql.createPool({
+//   user: "abuser",
+//   password: "123456",
+//   host: "localhost",
+//   port: 3306,
+//   database: "charger_database",
+//   connectionLimit: 10, // 設定連線池的大小，可以根據你的需求調整
+// });
 // 將連線池的 query 方法轉換成 Promise 版本
 // 這樣所有的路由都可以使用 async/await 語法，程式碼更清晰
 pool.query = util.promisify(pool.query);
@@ -32,7 +33,7 @@ app.get("/checkpoints/:uid", async (req, res) => {
     const { uid } = req.params;
 
     // 查詢資料庫
-    const [rows] = await pool.query("SELECT point FROM `user` WHERE uid = ?", [
+    const [rows] = await pool.queryAsync("SELECT point FROM `user` WHERE uid = ?", [
       uid,
     ]);
     console.log(rows);
@@ -51,8 +52,11 @@ app.get("/checkpoints/:uid", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 4005;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-  console.log("資料庫連線池已建立。");
-});
+// const PORT = process.env.PORT || 4005;
+// app.listen(PORT, () => {
+//   console.log(`API server running on port ${PORT}`);
+//   console.log("資料庫連線池已建立。");
+// });
+
+
+export default app;

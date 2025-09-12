@@ -5,10 +5,10 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import db from '../db.js'; // 引入 db.js
 import nodemailer from 'nodemailer';
+const app = express.Router();
 
 
 // !!moved to server.js!!
-// const app = express();
 // app.use(express.json());
 // app.use(cookieParser()); // 新增
 // app.use(cors({
@@ -337,9 +337,9 @@ app.post('/user/add-creditcard', (req, res) => {
 
 
 // 伺服器啟動
-app.listen(3000, () => {
-    console.log('API server running on port 3000');
-});
+// app.listen(3000, () => {
+//     console.log('API server running on port 3000');
+// });
 
 
-
+export default app;
