@@ -11,9 +11,11 @@ import MapIndex from "./mapIndex/mapIndex";
 import Mission from "./mall/mission";
 import Shop from "./mall/shop";
 import Mbre_login from "./membersystem/mber_login";
+import Mber_ForgotPwd from "./membersystem/mber_forgotpwd";
 import Mber_register from "./membersystem/mber_register";
 import Mber_Profile from "./membersystem/mber_profile";
 import Mber_info from "./membersystem/mber_info";
+import Mber_contact from "./membersystem/mber_contact";
 import Mber_edit from "./membersystem/mber_edit";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
 import Mber_addCreditcard from "./membersystem/mber_addCreditcard";
@@ -44,9 +46,11 @@ function App() {
         {/* membersystem */}
         <Route path="/" element={<Mbre_login />} />
         <Route path="/mber_login" element={<Mbre_login />} />
+        <Route path="/mber_forgotpwd" element={<Mber_ForgotPwd />} />
         <Route path="/mber_register" element={<Mber_register />} />
         <Route path="/mber_profile" element={<Mber_Profile />} />
         <Route path="/mber_info" element={<Mber_info />} />
+        <Route path="/mber_contact" element={<Mber_contact />} />
         <Route path="/mber_edit" element={<Mber_edit />} />
         <Route path="/mber_rentRecord" element={<Mber_RentRecord />} />
         <Route path="/mber_addCreditcard" element={<Mber_addCreditcard />} />
