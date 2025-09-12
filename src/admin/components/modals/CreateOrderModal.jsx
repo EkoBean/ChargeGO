@@ -151,6 +151,36 @@ const CreateOrderModal = ({
       if (onChange) onChange(e);
     }
   };
+
+  // 儲存後：呼叫 onSave 並記錄操作日誌（CREATE_ORDER）
+  const handleSave = async () => {
+    try {
+      // 期待 onSave 回傳新訂單或 server 回應 (含 id 或 order_id)
+      const result = await onSave?.();
+
+      // 取得訂單 ID（優先使用 onSave 回傳，否則使用 editOrder）
+      const orderId = result?.order_id || result?.id || editOrder?.order_id || editOrder?.id;
+
+      if (orderId) {
+        const logContent = `CREATE_ORDER-${JSON.stringify({ id: orderId })}`;
+        try {
+          await ApiService.request('/api/employee_log', {
+            method: 'POST',
+            body: JSON.stringify({
+              employee_id: Number(localStorage.getItem('employeeId')) || null,
+              log: logContent
+            })
+          });
+          console.log('CREATE_ORDER 日誌已送出:', logContent);
+        } catch (logErr) {
+          console.error('建立 CREATE_ORDER 日誌失敗:', logErr);
+        }
+      }
+    } catch (err) {
+      // onSave 本身失敗，讓呼叫端處理錯誤
+      console.error('儲存訂單或建立日誌時發生錯誤:', err);
+    }
+  };
   
   return (
     <Modal show={true} onHide={onClose} size="lg" backdrop="static">
@@ -413,7 +443,7 @@ const CreateOrderModal = ({
         </Button>
         <Button 
           variant="primary" 
-          onClick={onSave} 
+          onClick={handleSave} 
           disabled={saving || !validateForm()}
         >
           {saving ? '儲存中...' : '儲存'}

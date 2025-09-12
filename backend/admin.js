@@ -677,69 +677,6 @@ app.post('/api/employee/login', (req, res) => {
   });
 });
 
-// 新增操作日誌 API 端點
-
-app.post("/api/employee_log", (req, res) => {
-  const { employee_id, log } = req.body;
-  
-  console.log('收到操作日誌記錄請求:', { employee_id, log });
-  
-  // 驗證必要欄位
-  if (!employee_id && employee_id !== 0 && employee_id !== null) {
-    return res.status(400).json({ error: "缺少員工ID" });
-  }
-  
-  if (!log) {
-    return res.status(400).json({ error: "缺少日誌內容" });
-  }
-  
-  // 插入日誌記錄
-  const query = `
-    INSERT INTO employee_log (employee_id, log, employee_log_date)
-    VALUES (?, ?, NOW())
-  `;
-  
-  connect.query(query, [employee_id, log], (err, result) => {
-    if (err) {
-      console.error('記錄操作日誌失敗:', err);
-      return res.status(500).json({ error: "記錄日誌失敗", details: err.message });
-    }
-    
-    console.log('操作日誌記錄成功:', result);
-    res.json({ success: true, log_id: result.insertId });
-  });
-});
-
-// 新增：獲取員工操作日誌 API
-app.get("/api/employee_log", (req, res) => {
-  console.log('獲取員工操作日誌請求');
-
-  const q = `
-    SELECT 
-      el.employee_log_date,
-      el.employee_id,
-      e.employee_name,
-      el.log
-    FROM employee_log el
-    LEFT JOIN employee e ON el.employee_id = e.employee_id
-    ORDER BY el.employee_log_date DESC
-  `;
-
-  connect.query(q, [], (err, rows) => {
-    if (err) {
-      console.error('獲取員工操作日誌失敗:', err);
-      return res.status(500).json({ 
-        error: '獲取操作日誌失敗', 
-        code: err.code, 
-        message: err.message 
-      });
-    }
-
-    console.log(`返回 ${rows.length} 筆員工操作日誌`);
-    res.json(rows);
-  });
-});
-
 // 新增：記錄員工操作日誌 API
 app.post("/api/employee_log", (req, res) => {
   const { employee_id, log } = req.body;
@@ -801,6 +738,39 @@ app.post("/api/employee_log", (req, res) => {
     });
   });
 });
+
+
+
+// 新增：獲取員工操作日誌 API
+app.get("/api/employee_log", (req, res) => {
+  console.log('獲取員工操作日誌請求');
+
+  const q = `
+    SELECT 
+      el.employee_log_date,
+      el.employee_id,
+      e.employee_name,
+      el.log
+    FROM employee_log el
+    LEFT JOIN employee e ON el.employee_id = e.employee_id
+    ORDER BY el.employee_log_date DESC
+  `;
+
+  connect.query(q, [], (err, rows) => {
+    if (err) {
+      console.error('獲取員工操作日誌失敗:', err);
+      return res.status(500).json({ 
+        error: '獲取操作日誌失敗', 
+        code: err.code, 
+        message: err.message 
+      });
+    }
+
+    console.log(`返回 ${rows.length} 筆員工操作日誌`);
+    res.json(rows);
+  });
+});
+
 
 // 更新訂單 API，添加更嚴格的日期格式驗證
 app.put("/api/orders/:order_ID", (req, res) => {
