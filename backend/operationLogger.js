@@ -69,6 +69,11 @@ class OperationLogger {
           case 'SEND_EVENT':
           case 'VIEW_EVENT':
             if (details.event_id || details.id) coreInfo.id = details.event_id || details.id;
+<<<<<<< HEAD
+            // 若有活動標題，一併記錄
+            if (details.title || details.event_title) coreInfo.title = details.title || details.event_title;
+=======
+>>>>>>> 76e9bd1b1321bfd21a983fcb7d5350157bbaa20c
             if (details.status) coreInfo.result = details.status;
             break;
           default:
