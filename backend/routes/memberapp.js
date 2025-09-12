@@ -127,6 +127,7 @@ app.post('/mber_register', (req, res) => {
 app.post('/mber_login', (req, res) => {
     const { login_id, password } = req.body;
     // 前端已雜湊，直接比對
+    console.log('login_id :>> ', login_id);
     db.query(
         'SELECT uid, login_id, user_name, status, blacklist, email, telephone, country, address FROM user WHERE login_id = ? AND password = ?',
         [login_id, password],
