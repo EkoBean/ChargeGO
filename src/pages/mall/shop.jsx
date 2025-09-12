@@ -3,6 +3,7 @@ import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss";
 import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
+import Notify from "../../components/notify";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -195,6 +196,8 @@ class Shop extends Component {
     return (
       // <div className={styles.container + " py-4"}>
       <div className={styles.mallBody}>
+        <Notify style={{ position: 'fixed', right: '3%', top: '2.5%', zIndex: '999' }} />
+
         <NavBarApp />
 
         <div className={styles.mallNavbar}>
@@ -225,11 +228,7 @@ class Shop extends Component {
             </div>
           </div>
 
-          {/* 右上角通知鈴鐺*/}
-          <button className={styles.navbarRightSection}>
-            {/* 右上角通知鈴鐺 */}
-            <img src="/Iconimg/notify.svg" alt="notify" />
-          </button>
+
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>

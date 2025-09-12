@@ -4,6 +4,7 @@ import axios from "axios";
 import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
 import { apiRoutes } from "../../components/apiRoutes";
+import Notify from "../../components/notify";
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
 const missionBasePath = apiRoutes.mission;
@@ -208,6 +209,8 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
+        <Notify style={{ position: 'fixed', right: '3%', top: '2.5%', zIndex: '999' }} />
+
         <NavBarApp />
         {/* mission的navbar */}
         <div className={styles.mallNavbar}>
@@ -232,9 +235,7 @@ class Mission extends Component {
             </div>
           </div>
 
-          <button className={styles.navbarRightSection}>
-            <img src="/Iconimg/notify.svg" alt="notify" />
-          </button>
+
         </div>
         {/* mission的main */}
         <div className={styles.mallMain}>
@@ -273,8 +274,8 @@ class Mission extends Component {
                       <div className={styles.endDate}>
                         {item.mission_end_date
                           ? `至${new Date(
-                              item.mission_end_date
-                            ).toLocaleDateString("zh-TW")}`
+                            item.mission_end_date
+                          ).toLocaleDateString("zh-TW")}`
                           : "無期限"}
                       </div>
 
