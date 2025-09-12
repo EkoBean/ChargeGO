@@ -390,8 +390,8 @@ app.post('/api/reset-password', (req, res) => {
         if (code !== captcha) return res.status(400).json({ message: '驗證碼錯誤' });
         if (now > code_expire) return res.status(400).json({ message: '驗證碼已過期' });
 
-        const hashedPassword = hashPassword(newPassword);
-        db.query('UPDATE user SET password = ? WHERE email = ?', [hashedPassword, email], (err2, result) => {
+        // 不再重複雜湊，直接存入 newPassword
+        db.query('UPDATE user SET password = ? WHERE email = ?', [newPassword, email], (err2, result) => {
             if (err2) return res.status(500).json({ message: '資料庫錯誤', error: err2.message });
             res.json({ message: '密碼已重設' });
         });
