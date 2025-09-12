@@ -60,8 +60,10 @@ const mber_Login = () => {
 
     // 密碼雜湊（10碼）
     try {
+      const trimmedLoginId = form.login_id.trim();
+      const trimmedPassword = form.password.trim();
       const hashedPwd = crypto
-        .SHA256(form.password)
+        .SHA256(trimmedPassword)
         .toString(crypto.enc.Hex)
         .slice(0, 10);
 
@@ -69,7 +71,7 @@ const mber_Login = () => {
       const res = await axios.post(
         "http://localhost:3000/mber_login",
         {
-          login_id: form.login_id, // login_id
+          login_id: trimmedLoginId, // login_id
           password: hashedPwd, // hashed_password
         },
         { withCredentials: true }
