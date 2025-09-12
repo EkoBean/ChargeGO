@@ -2,14 +2,17 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_profile.module.scss";
-import NavBarAPP from "../../components/NavBarAPP";
+import NavBarApp from "../../components/NavBarApp";
 import Notify from "../../components/notify";
+import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
   const [country, setCountry] = useState("");
   const navigate = useNavigate();
   const API_BASE = "http://localhost:3000";
+
+  const memberBasePath = apiRoutes.member;
 
   // 返回按鈕點擊事件
   const backBtnClick = () => {
@@ -18,7 +21,7 @@ const mber_Profile = () => {
 
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    fetch(`${API_BASE}/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -54,7 +57,7 @@ const mber_Profile = () => {
   const handleDeactivateAccount = async () => {
     if (window.confirm("確定要申請停權帳號嗎？")) {
       try {
-        const response = await fetch(`${API_BASE}/api/user/deactivate`, {
+        const response = await fetch(`${API_BASE}${memberBasePath}/user/deactivate`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -64,7 +67,7 @@ const mber_Profile = () => {
         });
         if (response.ok) {
           // 再次取得最新 user 狀態
-          fetch(`${API_BASE}/check-auth`, {
+          fetch(`${API_BASE}${memberBasePath}/check-auth`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },

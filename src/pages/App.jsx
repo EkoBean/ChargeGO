@@ -1,6 +1,7 @@
 // ======scss==========
 // import "../styles/scss/global.scss";
 import React, { useEffect } from "react";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 // =========== Routers =================
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -20,13 +21,19 @@ import Mber_edit from "./membersystem/mber_edit";
 import Mber_RentRecord from "./membersystem/mber_rentRecord";
 import Mber_addCreditcard from "./membersystem/mber_addCreditcard";
 import Coupon from "./mall/coupon";
-import CheckoutCoupons from "./mall/coupon";
+import CheckoutCoupons from "./mall/checkout_coupon";
 import Task from "./membersystem/Task";
+
+// index
+import WebSite from './ImageWebsite/WebSite'
 
 function App() {
   return (
     <>
       <Routes>
+        {/* index */}
+        <Route path="/" element={<WebSite />} />
+
         {/* map index */}
         <Route path="/MapIndex" element={<MapIndex />} />
 

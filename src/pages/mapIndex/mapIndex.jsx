@@ -16,17 +16,16 @@ import {
   InfoWindow,
 } from "@vis.gl/react-google-maps";
 
-// Bootstrap Icons
-import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 // environment variables
-const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+import { apiRoutes } from "../../components/apiRoutes";
+const basePath = apiRoutes.map;
 
-// testing compoenet
-import NavBarAPP from "../../components/NavBarAPP";
 
 // ================= Constants ============================
-const APIkey = "AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg";
 
 const mapId = "7ade7c4e6e2cc1087f2619a5";
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
@@ -70,7 +69,7 @@ function MapIndex() {
   useEffect(() => {
     const getStations = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/stations`);
+        const res = await axios.get(`${API_URL}${basePath}/stations`);
         setStations(res.data);
       } catch (error) {
         console.error(error);
@@ -403,7 +402,7 @@ function MapIndex() {
         useEffect(() => {
           let mounted = true;
           axios
-            .get(`${API_URL}/api/checkRental/${uid}`)
+            .get(`${API_URL}${basePath}/checkRental/${uid}`)
             .then((res) => {
               if (!mounted) return;
               if (res.data.renting) {
@@ -435,7 +434,7 @@ function MapIndex() {
 
           // ====== axios patch ======
           axios
-            .patch(`${API_URL}/api/rent`, { deviceId, uid })
+            .patch(`${API_URL}${basePath}/rent`, { deviceId, uid })
             .then((res) => {
               if (res.data.success) {
                 if (startTime) {
@@ -445,7 +444,7 @@ function MapIndex() {
                   setRentMessage("Unknown issue, please contact support.");
                   setRentalStatus(false);
                   console.warn(
-                    'Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
+                    'Get to check "api/map/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/map/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
                   );
                 } else {
                   setRentMessage("租借成功");
@@ -493,7 +492,7 @@ function MapIndex() {
         // =============== return button =================
         function handleReturn(overtimeComfirm) {
           axios
-            .patch(`${API_URL}/api/return`, {
+            .patch(`${API_URL}${basePath}/return`, {
               returnSite,
               batteryAmount,
               deviceId,
@@ -525,7 +524,7 @@ function MapIndex() {
                   setRentMessage("Unknown issue, please contact support.");
                   setRentalStatus(false);
                   console.warn(
-                    'Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
+                    'Get to check "api/map/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/map/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
                   );
                 }
               }
@@ -563,13 +562,13 @@ function MapIndex() {
                 </p>
                 <div className={`${styles.handleBtns}`}>
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary}`}
+                    className='btn btn-primary'
                     onClick={handleOvertime}
                   >
                     確認歸還
                   </button>
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary} ${styles.cancel}`}
+                    className='btn btn-primary cancel'
                     onClick={() => setOvertimeReturnWindow(false)}
                   >
                     取消
@@ -585,7 +584,7 @@ function MapIndex() {
             <div className={`${styles.buttons}`}>
               {buttonlinks.map((button, index) => (
                 <button
-                  type="btn btn-primary"
+                  className='btn btn-primary'
                   key={index}
                   onClick={() => button.action(button.url)}
                 >
@@ -597,7 +596,7 @@ function MapIndex() {
               ))}
             </div>
             <div className={`${styles.qrCode}`}>
-              <button type="btn btn-primary" onClick={handleRent}>
+              <button className='btn btn-primary' onClick={handleRent}>
                 <i className="bi bi-qr-code-scan"></i>
               </button>
             </div>
@@ -617,7 +616,7 @@ function MapIndex() {
                       您已超過三天未歸還，請盡速歸還以免影響信用紀錄
                     </p>
                     <button
-                      className={`${styles.btn} ${styles.btnPrimary}`}
+                      className='btn btn-primary'
                       onClick={handleReturn}
                     >
                       歸還裝置
@@ -625,7 +624,7 @@ function MapIndex() {
                   </>
                 ) : (
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary}`}
+                    className='btn btn-primary'
                     onClick={handleReturn}
                   >
                     歸還裝置
@@ -639,7 +638,7 @@ function MapIndex() {
                   <p>扣款金額 {rentalFee}元</p>
 
                   <button
-                    className={`${styles.btn} ${styles.btnPrimary}`}
+                    className='btn btn-primary'
                     onClick={() => (
                       rentWindowRef.current(false),
                       setRentMessage(""),
@@ -654,7 +653,7 @@ function MapIndex() {
             </div>
             {returnWarning ? (
               <div
-                className={`${styles.alert} ${styles.alertDanger} ${styles.returnWarning}`}
+                className={`alert alert-danger ${styles.returnWarning}`}
                 style={{ opacity: rentOpen ? 0 : 0.7 }}
               >
                 <i className="bi bi-exclamation-triangle-fill"></i>
@@ -751,7 +750,7 @@ function MapIndex() {
           const getInfo = async () => {
             try {
               const res = await axios.get(
-                `http://localhost:3000/api/infoWindow/${siteId}`
+                `${API_URL}${basePath}/infoWindow/${siteId}`
               );
               setInfo(res.data);
             } catch (error) {
