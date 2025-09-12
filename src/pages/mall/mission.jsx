@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import axios from "axios";
 // import ChargegoLogo from "../../components/ChargegoLogo/ChargegoLogo"; // 修正 import 路徑
-import NavBarPhone from "../../components/NavBarApp";
+import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
+import { apiRoutes } from "../../components/apiRoutes";
 const API_URL = import.meta.env.VITE_API_URL
+const pointBasePath = apiRoutes.point
+const missionBasePath = apiRoutes.mission
 
 
 class Mission extends Component {
@@ -43,7 +46,7 @@ class Mission extends Component {
     if (!userId) return null;
     try {
       const res = await axios.get(
-        `${API_URL}/api/point/checkpoints/${userId}`
+        `${API_URL}${pointBasePath}/checkpoints/${userId}`
       );
       return res.data?.point ?? null;
     } catch (err) {
@@ -86,17 +89,17 @@ class Mission extends Component {
     this.setState({ loading: true, error: null, mission: [] });
 
     try {
-      await axios.post(`${API_URL}/api/mission/update/monthRental`, {
+      await axios.post(`${API_URL}${missionBasePath}/update/monthRental`, {
         userId,
         filterDate,
       });
-      await axios.post(`${API_URL}/api/mission/update/monthHours`, {
+      await axios.post(`${API_URL}${missionBasePath}/update/monthHours`, {
         userId,
         filterDate,
       });
 
       const missionsResponse = await axios.get(
-        `${API_URL}/api/mission/${userId}/${filterDate}`
+        `${API_URL}${missionBasePath}/${userId}/${filterDate}`
       );
 
       if (Array.isArray(missionsResponse.data)) {
@@ -134,7 +137,7 @@ class Mission extends Component {
       this.setState({ claimingMissionId: userMissionId });
 
       const response = await axios.post(
-        `${API_URL}/api/mission/usermission/claim`,
+        `${API_URL}${missionBasePath}/usermission/claim`,
         {
           user_mission_id: userMissionId,
           user_id: userId,
@@ -205,7 +208,7 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
-        <NavBarPhone />
+        <NavBarApp />
         {/* mission的navbar */}
         <div className={styles.mallNavbar}>
           <button className={styles.navbarLeftSection}>

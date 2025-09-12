@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mber_edit.module.scss";
+import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_edit = () => {
   const [user, setUser] = useState(null);
@@ -16,9 +17,11 @@ const mber_edit = () => {
   const navigate = useNavigate();
   const API_BASE = "http://localhost:3000";
 
+  const memberBasePath = apiRoutes.member;
+
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    fetch(`${API_BASE}/api/member/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +84,7 @@ const mber_edit = () => {
     };
 
     try {
-      const response = await fetch(`${API_BASE}/api/member/update-user`, {
+      const response = await fetch(`${API_BASE}${memberBasePath}/update-user`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

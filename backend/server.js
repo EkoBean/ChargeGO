@@ -10,6 +10,9 @@ import couponRoutes from './routes/router_coupon.js';
 import missionRoutes from './routes/router_mission.js';
 import shopRoutes from './routes/router_shop.js';
 import pointRouters from './routes/router_point.js';
+import adminRouters from './routes/admin.js';
+
+import { apiRoutes } from '../src/components/apiRoutes.js';
 
 const app = express();
 
@@ -39,6 +42,7 @@ app.use('/api/coupon', couponRoutes)
 app.use('/api/mission', missionRoutes)
 app.use('/api/shop', shopRoutes)
 app.use('/api/point', pointRouters)
+app.use('/api/admin', adminRouters)
 
 // start server listening
 app.listen(3000, () => {

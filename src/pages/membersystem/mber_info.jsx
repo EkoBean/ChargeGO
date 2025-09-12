@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import NavBarApp from "../../components/NavBarApp";
 import Notify from "../../components/notify";
 import styles from "../../styles/scss/mber_info.module.scss";
+import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_Info = () => {
   const [user, setUser] = useState(null);
   const [notices, setNotices] = useState([]); // 新增通知 state
   const API_BASE = import.meta.env.VITE_API_URL;
+  const memberBasePath = apiRoutes.member;
   const navigate = useNavigate();
 
   // 返回按鈕點擊事件
@@ -21,7 +23,7 @@ const mber_Info = () => {
 
   useEffect(() => {
     // 取得 user 資料
-    fetch(`${API_BASE}/api/member/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -31,7 +33,7 @@ const mber_Info = () => {
         if (data.authenticated && data.user) {
           setUser(data.user);
           // 取得通知資料
-          fetch(`${API_BASE}/api/member/user/${data.user.uid}/notices`, {
+          fetch(`${API_BASE}${memberBasePath}/user/${data.user.uid}/notices`, {
             credentials: "include",
           })
             .then((res) => res.json())
