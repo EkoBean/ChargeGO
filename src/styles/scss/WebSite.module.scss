@@ -15,14 +15,6 @@ h1.akagi {
 $primary: #ffce00;
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
-
-// body {
-//     font-family: 'Arial', sans-serif;
-//     background-color: $primary;
-//     min-height: 200vh;
-//     padding-top: 0;
-// }
-
 .content {
     position: relative;
     z-index: 2;
@@ -160,11 +152,11 @@ $primary: #ffce00;
     z-index: 35;
 }
 
-.tagline {
+.tagline, .taglineCover {
     position: absolute;
     left: 0;
     top: 10%;
-    transform: translateY(-50%);
+    // transform: translateX(-50%);
     width: 100vw;
     height: auto;
     margin-top: 2rem;
@@ -174,22 +166,23 @@ $primary: #ffce00;
     display: block;
     object-fit: contain;
     z-index: 30;
+    pointer-events: none;
 }
 
 .taglineCover {
-    position: absolute;
-    left: -0.5%;
-    top: 25%;
-    transform: translateY(-50%);
-    width: 100vw;
-    height: auto;
-    margin-top: 2rem;
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
-    display: block;
-    object-fit: contain;
     z-index: 50;
+}
+
+.taglineGroup svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: absolute;
+    // left: 50%;
+    top: 10%;
+    // transform: translate(-50%, -50%);
+    pointer-events: none;
+    /* 不要有邊線，黃色邊線只給 .yellowLine 用 */
 }
 
 .show-tagline {
@@ -203,7 +196,7 @@ $primary: #ffce00;
     position: fixed;
     left: 50%;
     /* 水平置中 */
-    bottom: 2%;
+    bottom: 10%;
     transform: translateX(-50%);
     width: 100vw;
     pointer-events: none;
@@ -211,6 +204,42 @@ $primary: #ffce00;
     visibility: hidden;
     transition: opacity 0.6s ease, visibility 0.6s ease;
     z-index: 40;
+    /* 讓路徑初始不可見 */
+    
+    /* 針對內部 path 動畫 */
+    & path {
+        stroke-dasharray: 3000; /* 根據實際路徑長度調整 */
+        stroke-dashoffset: 3000;
+        transition: stroke-dashoffset 1.5s;
+    }
+}
+
+@keyframes yellowLineAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes yellowLineDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.yellowLine.show {
+    opacity: 1;
+    visibility: visible;
+    animation: yellowLineAppear 0.8s cubic-bezier(0.77,0,0.175,1) forwards;
+    
+    /* 讓 path 動畫從左到右 */
+    & path {
+        animation: yellowLineDraw 1.2s linear forwards;
+    }
 }
 
 .show {
@@ -614,17 +643,11 @@ $primary: #ffce00;
     z-index: 2;
 }
 
-.how-arrow {
-    font-size: 3rem;
-    color: #51ff3e;
-    font-weight: bold;
-    margin: 0 8px 0 -16px;
-    user-select: none;
-    z-index: 1;
-}
-
 .how-step-content {
     font-size: 1.6rem;
+    margin-left: 0;
+    text-align: center;
+    flex: none;
 }
 
 // footer 區域
@@ -682,4 +705,112 @@ $primary: #ffce00;
 .footer-download-btn:hover {
   background: #51ff3e;
   color: #fff;
+}
+
+@media (max-width: 900px) {
+  .about-us, .service-intro {
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 0;
+    max-width: 98vw;
+    margin: 80px auto 0 auto;
+    min-height: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .about-us-right, .service-intro-left {
+    padding: 0 8vw;
+    max-width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  .about-us-right h2, .service-intro h2 {
+    font-size: 2rem;
+    margin-bottom: 5%;
+  }
+  .about-us-right p, .service-intro p {
+    font-size: 1rem;
+  }
+  .bg-lightning,
+  .bg-lightning-right,
+  .how-lightning {
+    top: 40%;
+  }
+  .bg-lightning img, .bg-lightning-right img, .how-lightning img {
+    width: 230px;
+  }
+  .taglineGroup {
+    height: 120px;
+    min-height: 100px;
+    max-height: 180px;
+  }
+  .gradient-logo, .header-logo {
+    font-size: 2.5rem;
+  }
+  .how-to-rent-wrapper {
+    flex-direction: column;
+    min-height: 200px;
+    margin-bottom: 20%;
+  }
+  .how-to-rent {
+    width: 100%;
+    padding: 0 8vw;
+  }
+  .how-title {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+  .how-steps {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .how-step {
+    width: 90vw;
+    height: auto;
+    padding: 20px 0 20px 16px;
+    font-size: 1.1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+  }
+
+  .how-lightning img {
+    display: none;
+  }
+
+  .how-step-num {
+    font-size: 1.3rem;
+    width: 50px;
+    height: 50px;
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+  }
+  .how-step-content {
+    font-size: 1.5rem;
+    margin-left: -15%;
+    text-align: center;
+    flex: 1;
+    font-family: 'Mantou Sans';
+    color: #7F5A3C;
+    font-size: 100;
+  }
+  .how-arrow {
+    font-size: 2rem;
+    margin: 0 0 0 0;
+    transform: rotate(90deg);
+  }
+  .footer-gradient-text {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+  .footer-download-btn {
+    font-size: 1.2rem;
+    padding: 10px 24px;
+  }
 }
