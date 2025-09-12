@@ -439,6 +439,16 @@ const OrderManagement = () => {
       const savedOrder = await ApiService.createOrder(orderData);
       console.log('訂單建立成功:', savedOrder);
       
+      // 新增：記錄操作日誌
+      try {
+        await OperationLogger.log(OperationLogger.ACTIONS.CREATE_ORDER, {
+          order_ID: savedOrder.order_ID || savedOrder.id
+        });
+        console.log('CREATE_ORDER 日誌已記錄');
+      } catch (logError) {
+        console.warn('記錄操作日誌失敗:', logError);
+      }
+      
       // 將新訂單添加到列表最前面
       setOrders(prev => {
         const updatedOrders = [savedOrder, ...prev];

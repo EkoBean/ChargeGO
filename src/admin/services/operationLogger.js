@@ -22,76 +22,49 @@ class OperationLogger {
         }
       }
       
-      // 簡化日誌內容，移除不必要的資訊
-      let logContent = action;
-      
-      if (details && Object.keys(details).length > 0) {
-        const coreInfo = {};
+      // 修改：直接使用中文格式的 logContent
+      let logContent = '';
+      if (action === 'CREATE_ORDER' && details.order_ID) {
+        logContent = `新增租借訂單 #${details.order_ID}`;
+      } else if (action === 'CREATE_EVENT' && details.event_title) {
+        logContent = `建立活動 ${details.event_title}`;
+      } else if (action === 'UPDATE_USER') {
+        logContent = `修改用戶資訊`;
+      } else if (action === 'LOGIN') {
+        logContent = `登入系統`;
+      } else if (action === 'LOGOUT') {
+        logContent = `登出系統`;
+      } else {
+        // 通用中文格式：動作 + 詳細資訊
+        const actionText = {
+          'CREATE_SITE': '新增站點',
+          'UPDATE_SITE': '更新站點',
+          'DELETE_SITE': '刪除站點',
+          'CREATE_CHARGER': '新增充電器',
+          'UPDATE_CHARGER': '更新充電器',
+          'DELETE_CHARGER': '刪除充電器',
+          'VIEW_REPORTS': '查看報表',
+          'EXPORT_DATA': '匯出資料',
+          'CREATE_USER': '新增用戶',
+          'DELETE_USER': '刪除用戶',
+          'UPDATE_ORDER': '修改租借訂單',
+          'DELETE_ORDER': '刪除租借訂單',
+          'VIEW_ORDER': '查看租借訂單',
+          'UPDATE_EVENT': '修改活動',
+          'DELETE_EVENT': '刪除活動',
+          'SEND_EVENT': '發送活動通知',
+          'VIEW_EVENT': '查看活動',
+          'LOGIN_FAILED': '登入失敗'
+        }[action] || action;
         
-        switch (action) {
-          case 'LOGIN':
-          case 'LOGIN_FAILED':
-            if (details.email) coreInfo.email = details.email.substring(0, 20);
-            if (details.status) coreInfo.status = details.status;
-            break;
-          case 'LOGOUT':
-            // 移除會話時間顯示
-            break;
-          case 'UPDATE_USER':
-          case 'CREATE_USER':
-          case 'DELETE_USER':
-            if (details.user_id || details.uid) coreInfo.id = details.user_id || details.uid;
-            if (details.status) coreInfo.result = details.status;
-            break;
-          case 'UPDATE_ORDER':
-          case 'CREATE_ORDER':
-          case 'DELETE_ORDER':
-          case 'VIEW_ORDER':
-            // 只記錄訂單ID，移除其他資訊
-            if (details.id || details.order_id) coreInfo.id = details.id || details.order_id;
-            if (details.status) coreInfo.result = details.status;
-            break;
-          case 'CREATE_SITE':
-          case 'UPDATE_SITE':
-          case 'DELETE_SITE':
-            if (details.site_id || details.id) coreInfo.id = details.site_id || details.id;
-            if (details.status) coreInfo.result = details.status;
-            break;
-          case 'CREATE_CHARGER':
-          case 'UPDATE_CHARGER':
-          case 'DELETE_CHARGER':
-            if (details.charger_id || details.id) coreInfo.id = details.charger_id || details.id;
-            if (details.status) coreInfo.result = details.status;
-            break;
-          case 'CREATE_EVENT':
-          case 'UPDATE_EVENT':
-          case 'DELETE_EVENT':
-          case 'SEND_EVENT':
-          case 'VIEW_EVENT':
-            if (details.event_id || details.id) coreInfo.id = details.event_id || details.id;
-            if (details.status) coreInfo.result = details.status;
-            break;
-          default:
-            // 對於其他操作，只記錄基本資訊
-            if (details.id) coreInfo.id = details.id;
-            if (details.status) coreInfo.result = details.status;
-        }
-        
-        if (Object.keys(coreInfo).length > 0) {
-          let infoStr = JSON.stringify(coreInfo);
-          
-          // 如果還是太長，只保留ID和結果
-          if (infoStr.length > 50) {
-            const simplified = {};
-            if (coreInfo.id) simplified.id = coreInfo.id;
-            if (coreInfo.result) simplified.result = coreInfo.result;
-            infoStr = JSON.stringify(simplified);
-          }
-          
-          logContent = `${action}-${infoStr}`;
+        if (details && Object.keys(details).length > 0) {
+          const detailsStr = Object.entries(details).map(([key, value]) => `${key}: ${value}`).join(', ');
+          logContent = `${actionText} (${detailsStr})`;
+        } else {
+          logContent = actionText;
         }
       }
-      
+
       // 嚴格限制總長度
       if (logContent.length > 100) {
         logContent = logContent.substring(0, 97) + '...';
