@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import ApiService from '../../services/api';
-import { apiRoutes } from '../../../components/apiRoutes';
 
 // 發送活動通知給用戶
 const SendEventModal = ({ event, onClose, onSuccess }) => {
@@ -24,7 +23,7 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
       setError('');
       console.log('開始載入用戶資料...');
       
-      const data = await ApiService.request(apiRoutes.users);
+      const data = await ApiService.request('/users');
       console.log('用戶資料載入成功:', data);
       
       if (!Array.isArray(data)) {
@@ -90,7 +89,7 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
       
       console.log('準備發送的日誌內容:', logContent);
 
-      const response = await ApiService.request(`${apiRoutes.events}/send-notification`, {
+      const response = await ApiService.request('/events/send-notification', {
         method: 'POST',
         body: JSON.stringify({
           event_id: event.event_id,
