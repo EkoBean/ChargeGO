@@ -208,13 +208,16 @@ $color-shop-circle: #69f05b;
     // 平板以上
     @media (min-width: 576px) {
       margin: 0 24px 0 24px;
+      align-items: center; // 卡片置中
+      justify-content: center;
+
+
     }
 
     // 桌機以上
     @media (min-width: 1200px) {
       margin: 0 48px 0 48px;
       // flex-direction: column; // 保持每張卡片換行
-      // align-items: center; // 卡片置中
     }
 
 
@@ -249,9 +252,7 @@ $color-shop-circle: #69f05b;
   // coupon禮物箱列表
   // ==========================
   .couponBoxList {
-    display: flex;
-    flex-direction: column; // 手機預設為單列
-    gap: 1rem;
+
     height: 100%;
 
     overflow-y: auto;
@@ -260,7 +261,7 @@ $color-shop-circle: #69f05b;
 
     margin: 0 8px;
     padding-top: 2rem;
-    padding-bottom: 20vh;
+    padding-bottom: 10rem;
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -281,6 +282,14 @@ $color-shop-circle: #69f05b;
       margin: 0 48px;
       flex-direction: column; // 保持每張卡片換行
       align-items: center; // 卡片置中
+    }
+
+    .couponBoxListInner {
+      display: flex;
+      flex-direction: column; // 手機預設為單列
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
     }
   }
 }
@@ -883,42 +892,43 @@ $color-shop-circle: #69f05b;
 // ==========================
 // 租借兌換券購買列表
 // ==========================
-.rentalCouponList {
-  display: flex;
-  flex-direction: column; // 手機預設為單列
-  gap: 24px;
-  height: 300px;
-  overflow-y: auto;
-  padding-right: 6px;
-  margin: 0 12px;
-  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
+// .rentalCouponList {
+//   display: flex;
+//   flex-direction: column; // 手機預設為單列
+//   gap: 24px;
+//   height: 300px;
+//   overflow-y: auto;
+//   padding-right: 6px;
+//   margin: 0 12px;
+//   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+//   &::-webkit-scrollbar {
+//     width: 6px;
+//   }
 
-  &::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
+//   &::-webkit-scrollbar-thumb {
+//     background: #ccc;
+//     border-radius: 4px;
+//   }
 
-  // 平板以上
-  @media (min-width: 768px) {
-    margin: 0 24px;
-  }
+//   // 平板以上
+//   @media (min-width: 768px) {
+//     margin: 0 24px;
+//   }
 
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px;
-    flex-direction: column; // 保持每張卡片換行
-    align-items: center; // 卡片置中
-  }
-}
+//   // 桌機以上
+//   @media (min-width: 1200px) {
+//     margin: 0 48px;
+//     flex-direction: column; // 保持每張卡片換行
+//     align-items: center; // 卡片置中
+//   }
+// }
 
 .rentalCouponCard {
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
   flex-shrink: 0; // 避免因為 list 捲動壓縮
+  max-width: 500px;
 
   @media (min-width: 1200px) {
     width: calc(70% - 12px); // 桌機兩欄，保留gap
