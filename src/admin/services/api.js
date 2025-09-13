@@ -8,7 +8,7 @@ const defaultOptions = {
 };
 
 const ApiService = {
-  basePath: '/api/admin',  // 保持不變
+  basePath: '/api/admin',  
 
   // 用戶相關 API
   async getUsers() {
