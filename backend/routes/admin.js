@@ -77,13 +77,13 @@ app.get("/", (req, res) => {
   res.send(`
     <h3>伺服器運作正常，試試以下 API：</h3>
     <ul>
-      <li><a href="admin/user/list">/user/list</a>（charger_database.user）</li>
-      <li><a href="admin/sites">/admin/sites</a>（站點）</li>
-      <li><a href="admin/chargers">/admin/chargers</a>（行充含站點）</li>
-      <li><a href="admin/orders">/admin/orders</a>（訂單含關聯）</li>
-      <li><a href="admin/employee_log">/admin/employee_log</a>（職員操作紀錄）</li>
-      <li><a href="admin/employees">/admin/employees</a>（員工清單）</li>
-      <li><a href="admin/events">/admin/events</a>（活動清單）</li>
+      <li><a href="/api/admin/user/list">/api/admin/user/list</a>（charger_database.user）</li>
+      <li><a href="/api/admin/sites">/api/admin/sites</a>（站點）</li>
+      <li><a href="/api/admin/chargers">/api/admin/chargers</a>（行充含站點）</li>
+      <li><a href="/api/admin/orders">/api/admin/orders</a>（訂單含關聯）</li>
+      <li><a href="/api/admin/employee_log">/api/admin/employee_log</a>（職員操作紀錄）</li>
+      <li><a href="/api/admin/employees">/api/admin/employees</a>（員工清單）</li>
+      <li><a href="/api/admin/events">/api/admin/events</a>（活動清單）</li>
     </ul>
   `);
 });

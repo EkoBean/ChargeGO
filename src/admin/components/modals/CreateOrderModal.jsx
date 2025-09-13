@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Alert } from 'react-bootstrap';
 import ApiService from '../../services/api';
-import OperationLogger from '../../services/operationLogger.js';  // 新增匯入
 
 // 建立訂單表單
 const CreateOrderModal = ({
@@ -164,11 +163,8 @@ const CreateOrderModal = ({
       const orderId = result?.order_id || result?.id || editOrder?.order_id || editOrder?.id;
 
       if (orderId) {
-        // 使用 OperationLogger 記錄日誌
-        await OperationLogger.log(OperationLogger.ACTIONS.CREATE_ORDER, {
-          order_ID: orderId
-        });
-        console.log('CREATE_ORDER 日誌已記錄:', orderId);
+        // 已移除 OperationLogger：以 console 替代或改為呼叫後端日誌 API
+        console.log('CREATE_ORDER', orderId);
       }
     } catch (err) {
       // onSave 本身失敗，讓呼叫端處理錯誤

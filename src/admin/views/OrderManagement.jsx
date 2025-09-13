@@ -7,9 +7,6 @@ import OrderDetailModal from "../components/modals/OrderDetailModal";
 import CreateOrderModal from "../components/modals/CreateOrderModal";
 import ApiService from "../services/api";
 
-// 引入操作日誌記錄器
-import OperationLogger from '../services/operationLogger.js';
-
 // 訂單管理頁面
 const OrderManagement = () => {
   const {
@@ -217,16 +214,8 @@ const OrderManagement = () => {
       const updatedOrder = await ApiService.updateOrder(selectedOrder.order_ID, updateData);
       console.log('訂單更新成功:', updatedOrder);
       
-      // 使用 OperationLogger 記錄操作（這裡會自動處理員工ID）
-      try {
-        await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_ORDER, {
-          id: updatedOrder.order_ID || selectedOrder.order_ID,
-          user_name: updatedOrder.user_name || editOrder.user_name,
-          status: 'success'
-        });
-      } catch (logError) {
-        console.warn('記錄操作日誌失敗:', logError);
-      }
+      // 已移除 OperationLogger：以 console 替代
+      console.log('UPDATE_ORDER success', updatedOrder.order_ID);
       
       // 更新訂單列表
       setOrders(prev => prev.map(order => 
@@ -247,16 +236,8 @@ const OrderManagement = () => {
     } catch (error) {
       console.error('更新訂單失敗:', error);
       
-      // 記錄失敗操作
-      try {
-        await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_ORDER, {
-          id: editOrder.order_ID || selectedOrder?.order_ID,
-          status: 'failed',
-          error: error.message || '未知錯誤'
-        });
-      } catch (logError) {
-        console.warn('記錄失敗操作日誌失敗:', logError);
-      }
+      // 已移除 OperationLogger：簡單記錄錯誤
+      console.warn('UPDATE_ORDER failed', { order_ID: editOrder?.order_ID || selectedOrder?.order_ID, error: error.message });
       
       alert(`更新訂單失敗: ${error.message}`);
     } finally {
@@ -439,15 +420,8 @@ const OrderManagement = () => {
       const savedOrder = await ApiService.createOrder(orderData);
       console.log('訂單建立成功:', savedOrder);
       
-      // 新增：記錄操作日誌
-      try {
-        await OperationLogger.log(OperationLogger.ACTIONS.CREATE_ORDER, {
-          order_ID: savedOrder.order_ID || savedOrder.id
-        });
-        console.log('CREATE_ORDER 日誌已記錄');
-      } catch (logError) {
-        console.warn('記錄操作日誌失敗:', logError);
-      }
+      // 已移除 OperationLogger：以 console 替代
+      console.log('CREATE_ORDER', savedOrder.order_ID || savedOrder.id);
       
       // 將新訂單添加到列表最前面
       setOrders(prev => {
