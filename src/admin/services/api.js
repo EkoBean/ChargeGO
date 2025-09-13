@@ -1,5 +1,6 @@
-//前端呼叫後端 API 
-const API_BASE_URL = import.meta.env.VITE_API_BASE;
+// 前端呼叫後端 API
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:3000';
 
 const defaultOptions = {
   headers: {
@@ -8,7 +9,49 @@ const defaultOptions = {
 };
 
 const ApiService = {
-  basePath: '/api/admin',  
+  basePath: '/api/admin',
+
+  // 添加 request 方法
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE_URL}${this.basePath}${endpoint}`;
+    const config = { ...defaultOptions, ...options };
+    
+    try {
+      console.log('Requesting URL:', url);  // 添加日誌以便調試
+      const response = await fetch(url, config);
+      console.log('Response status:', response.status);  // 添加日誌
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(`API request failed for ${endpoint}:`, error);
+      throw error;
+    }
+  },
+
+  // 添加 getDashboardStats 方法（前端計算統計）
+  async getDashboardStats() {
+    // 由於後端沒有專用統計 API，這裡返回預設值
+    // 前端會在 AdminDataContext 中從載入的資料計算實際統計
+    return {
+      totalUsers: 0,
+      totalSites: 0,
+      totalChargers: 0,
+      activeChargers: 0,
+      todayOrders: 0,
+      totalOrders: 0,
+      revenue: 0,
+    };
+  },
+
+  // 添加 updateUser 方法
+  async updateUser(uid, payload) {
+    return this.request(`/user/${uid}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
 
   // 用戶相關 API
   async getUsers() {
@@ -93,9 +136,9 @@ const ApiService = {
       site_id: payload.site_id || null,
       event_start_date: payload.event_start_date,
       event_end_date: payload.event_end_date,
-      operator_id: payload.operator_id // 確保傳遞 operator_id
+      operator_id: payload.operator_id  // 確保傳遞
     };
-
+    
     // 驗證必填欄位
     const errors = [];
     if (!body.event_title) errors.push("活動標題不能為空");
