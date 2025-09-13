@@ -125,8 +125,8 @@ $color-shop-circle: #69f05b;
     background-color: transparent;
 
     position: absolute; // 改為絕對定位
-    top: 20%;
-    left: 45%;
+    // top: 20%;
+    // left: 50%;
     margin: 0;
     z-index: 10; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
