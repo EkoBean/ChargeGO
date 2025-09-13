@@ -3,7 +3,31 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminDataProvider } from './context/AdminDataContext';
 import AdminLayout from './components/AdminLayout';
 import Login from './components/Login';
-import OperationLogger from './services/operationLogger.js';
+
+const logOperation = async (action, details = {}) => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const employeeIdRaw = localStorage.getItem('employeeId');
+    const employee_id = employeeIdRaw ? parseInt(employeeIdRaw, 10) : null;
+    const log = details.log || (() => {
+      if (action === 'LOGOUT') return `登出系統`;
+      if (action === 'LOGIN') return `登入系統`;
+      return action;
+    })();
+
+    const payload = { employee_id, log };
+    await fetch('http://127.0.0.1:3000/api/employee_log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.warn('記錄操作日誌失敗:', err);
+  }
+};
 
 import AdminDashboard from './views/AdminDashboard';
 import UserManagement from './views/UserManagement';
@@ -48,12 +72,9 @@ function App() {
   // 修改登出處理函數，加入操作記錄
   const handleLogout = async () => {
     try {
-      // 記錄登出操作
-      await OperationLogger.log(OperationLogger.ACTIONS.LOGOUT, {
-        employee_name: localStorage.getItem('employeeName') || '未知員工',
-        logout_time: new Date().toISOString(),
-        session_duration: calculateSessionDuration(),
-        status: 'success'
+      // 記錄登出操作（使用內部 logOperation）
+      await logOperation('LOGOUT', {
+        log: `登出系統 - ${localStorage.getItem('employeeName') || '未知員工'}，停留 ${calculateSessionDuration()} 秒`
       });
     } catch (err) {
       console.warn('記錄登出操作失敗:', err);
