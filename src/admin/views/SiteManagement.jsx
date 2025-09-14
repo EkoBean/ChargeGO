@@ -238,7 +238,11 @@ const SiteManagement = () => {
 
   // handleAddSite 定義
   const handleAddSite = () => {
-    const blank = { site_name: "", address: "" };
+    const blank = { 
+      site_name: "", 
+      address: "", 
+      country: ""  // 添加預設值，避免 select value 為 null
+    };
     setSelectedSite(blank);
     setEditSite(blank);
     setIsEditingSite(true);

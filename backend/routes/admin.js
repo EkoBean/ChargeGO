@@ -772,7 +772,6 @@ app.get("/employee_log", (req, res) => {
   });
 });
 
-
 // 更新訂單 API，添加更嚴格的日期格式驗證
 app.put("/orders/:order_ID", (req, res) => {
   const order_ID = req.params.order_ID;
@@ -1004,7 +1003,7 @@ app.get("/events", (req, res) => {
 });
 
 // 修改新增活動 
-app.post("/events", (req, res) => {
+app.post("/events", async (req, res) => {
   const { 
     event_title, 
     event_content, 
@@ -1015,64 +1014,72 @@ app.post("/events", (req, res) => {
   } = req.body;
 
   console.log('接收到新增活動請求:', req.body);
-  console.log('操作者ID:', operator_id);
 
-  if (!operator_id) {
-    console.error('缺少操作者ID');
-    return res.status(400).json({ error: '缺少操作者ID' });
-  }
+  try {
+    // 1. 取得最後一筆活動編號
+    const [lastEvent] = await connect.queryAsync(
+      'SELECT event_id FROM event ORDER BY event_id DESC LIMIT 1'
+    );
+    
+    const nextEventId = lastEvent ? Number(lastEvent.event_id) + 1 : 1;
+    
+    // 2. 插入新活動
+    const insertQuery = `
+      INSERT INTO event (
+        event_id,
+        event_title, 
+        event_content, 
+        site_id, 
+        event_start_date, 
+        event_end_date
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `;
 
-  // 1. 先建立活動
-  const eventQuery = `
-    INSERT INTO event (event_title, event_content, site_id, event_start_date, event_end_date)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+    const values = [
+      nextEventId,
+      event_title,
+      event_content,
+      site_id || null,
+      event_start_date,
+      event_end_date
+    ];
 
-  const eventValues = [
-    event_title, 
-    event_content, 
-    site_id || null, 
-    event_start_date, 
-    event_end_date
-  ];
+    console.log('執行新增活動 SQL:', insertQuery);
+    console.log('參數:', values);
 
-  connect.query(eventQuery, eventValues, (err, result) => {
-    if (err) {
-      console.error('建立活動失敗:', err);
-      
-      // 記錄失敗操作
-      const logContent = `CREATE_EVENT-{"title":"${event_title.substring(0, 20)}","status":"failed"}`;
-      const logQuery = `
-        INSERT INTO employee_log (employee_id, log, employee_log_date)
-        VALUES (?, ?, NOW())
-      `;
-      
-      connect.query(logQuery, [operator_id, logContent]);
-      return res.status(500).json({ error: '建立活動失敗', message: err.message });
+    const result = await connect.queryAsync(insertQuery, values);
+
+    // 3. 如果有提供 operator_id，記錄操作日誌
+    if (operator_id) {
+      const logContent = `CREATE_EVENT-{"event_id":${nextEventId},"title":"${event_title.substring(0, 20)}","status":"success"}`;
+      await connect.queryAsync(
+        'INSERT INTO employee_log (employee_id, log, employee_log_date) VALUES (?, ?, NOW())',
+        [operator_id, logContent]
+      );
     }
 
-    const eventId = result.insertId;
-    
-    // 2. 記錄操作日誌
-    const logContent = `CREATE_EVENT-{"event_id":${eventId},"title":"${event_title.substring(0, 20)}","status":"success"}`;
-    const logQuery = `
-      INSERT INTO employee_log (employee_id, log, employee_log_date)
-      VALUES (?, ?, NOW())
-    `;
-    
-    connect.query(logQuery, [operator_id, logContent], (logErr) => {
-      if (logErr) {
-        console.error('記錄操作日誌失敗:', logErr);
-      }
-      
-      // 3. 無論日誌是否記錄成功，都返回活動建立成功的訊息
-      res.status(201).json({ 
-        success: true,
-        event_id: eventId,
-        message: '活動建立成功'
-      });
+    // 4. 查詢並返回新建立的活動資料
+    const [newEvent] = await connect.queryAsync(`
+      SELECT e.*, IFNULL(s.site_name, '全站活動') as site_name
+      FROM event e
+      LEFT JOIN charger_site s ON e.site_id = s.site_id
+      WHERE e.event_id = ?
+    `, [nextEventId]);
+
+    res.status(201).json({
+      success: true,
+      message: '活動建立成功',
+      event: newEvent
     });
-  });
+
+  } catch (err) {
+    console.error('建立活動失敗:', err);
+    res.status(500).json({
+      error: '建立活動失敗',
+      message: err.message,
+      details: err.stack
+    });
+  }
 });
 
 // 更新活動
