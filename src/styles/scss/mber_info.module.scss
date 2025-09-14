@@ -122,6 +122,13 @@
       border-radius: 0 0 100% 100%;
 
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+      @media (min-width: 576px) {
+        border-radius: 0 0 50% 50%;
+        background-color: transparent;
+        box-shadow: none;
+        
+      }
       .mber_contact_buttons {
         display: flex;
         gap: 2.5rem;
