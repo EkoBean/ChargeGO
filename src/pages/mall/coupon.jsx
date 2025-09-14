@@ -5,13 +5,16 @@ import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 import Notify from "../../components/notify";
 import BackIcon from "../../components/backIcon";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
 const couponBasePath = apiRoutes.coupon;
+const memberBasePath = apiRoutes.member;
+
 const Coupon = () => {
   // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
-  const initialUid = sessionStorage.getItem("user") || "3";
+  const navigate = useNavigate(); // 加這行
   // Session不是這樣拿的，你要去呼叫API跟後端拿，前端沒辦法直接用一個function就拿到session
   // 下面這個你參考一下
   //  這是從价堂那邊的code抓過來改的，還有一些宣告跟函數引入你自己去他那邊找，也可以到我的mapindex裡面找
@@ -43,13 +46,44 @@ const Coupon = () => {
   //     navigate("/mber_login");
   //   });
   // }, [navigate]);
-  const [userId, setUserId] = useState(initialUid);
+  const [userId, setUserId] = useState(null);
   const [userPoint, setUserPoint] = useState(null);
 
   const [coupons, setCoupons] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("store");
+  //檢查登入狀態
+  useEffect(() => {
+    // 取得 user 資料
+    fetch(`${API_URL}${memberBasePath}/check-auth`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+          setUserId(data.user.uid); // 加這行
+
+          // 取得通知資料
+          fetch(`${API_URL}${memberBasePath}/user/${data.user.uid}/notices`, {
+            credentials: "include",
+          })
+            .then((res) => res.json())
+            .then((data) => setNotices(data))
+            .catch(() => setNotices([]));
+        } else {
+          alert("請先登入");
+          navigate("/mber_login");
+        }
+      })
+      .catch(() => {
+        alert("請先登入");
+        navigate("/mber_login");
+      });
+  }, [navigate]);
 
   // 取得使用者點數
   const getUserPoint = useCallback(async (uid) => {
@@ -78,6 +112,8 @@ const Coupon = () => {
 
   // 抓優惠券（會在 userId 變動時重新抓）
   useEffect(() => {
+    if (!userId) return; // 沒有 userId 不執行
+
     let mounted = true;
     const fetchCoupons = async () => {
       try {
@@ -111,20 +147,6 @@ const Coupon = () => {
     };
   }, [userId, getUserPoint]);
 
-  // 監聽其他分頁對 sessionStorage uid 的變動
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === "uid") {
-        const newUid = e.newValue || "2";
-        setUserId(newUid);
-        // 把 UI 的 userId 與 session sync（雖然 session 已變）
-        getUserPoint(newUid);
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, [getUserPoint]);
-
   const handleCouponClick = (coupon) => {
     if (!coupon.isUsed) {
       setSelectedCoupon(coupon);
@@ -155,21 +177,23 @@ const Coupon = () => {
         <NavBarApp />
 
         <div className={styles.couponNavbar}>
-
-
           <div className={styles.navbarCenterSectionForCouponBox}>
             <div className={styles.couponPoint}>
               <div className={styles.couponText}>
                 {/* <img src="/Iconimg/greenpoint.svg" alt="point" /> */}
                 目前持有點數
               </div>
-              <div style={{ transform: 'translateY(-0.5rem)' }} className={styles.couponNumber}>
+              <div
+                style={{ transform: "translateY(-0.5rem)" }}
+                className={styles.couponNumber}
+              >
                 {userPoint !== null ? userPoint : "載入中"}
               </div>
-              <div style={{ fontSize: '1.3rem', marginTop: '0.5rem' }}>目前持有的優惠券</div>
+              <div style={{ fontSize: "1.3rem", marginTop: "0.5rem" }}>
+                目前持有的優惠券
+              </div>
             </div>
           </div>
-
         </div>
 
         <div className={styles.couponMain}>
@@ -199,7 +223,10 @@ const Coupon = () => {
                     <p className="text-muted">目前沒有商家優惠券</p>
                   ) : (
                     storeCoupons.map((coupon) => (
-                      <div key={coupon.id} className={styles.storeCouponCardInBox}>
+                      <div
+                        key={coupon.id}
+                        className={styles.storeCouponCardInBox}
+                      >
                         <div className={styles.cardLeft}>
                           <h5 className="fw-bold mb-0">{coupon.title}</h5>
                           <small className="text-muted">
@@ -209,8 +236,9 @@ const Coupon = () => {
                         </div>
                         <div className={styles.cardRight}>
                           <button
-                            className={`btn  ${coupon.isUsed ? "disabled" : styles.claimBtn
-                              } rounded-pill fw-bold`}
+                            className={`btn  ${
+                              coupon.isUsed ? "disabled" : styles.claimBtn
+                            } rounded-pill fw-bold`}
                             disabled={coupon.isUsed}
                             onClick={() => handleCouponClick(coupon)}
                           >
@@ -231,8 +259,9 @@ const Coupon = () => {
                     rentalCoupons.map((coupon) => (
                       <div
                         key={coupon.id}
-                        className={`${styles.rentalCouponCard} ${coupon.isUsed ? styles.used : ""
-                          }`}
+                        className={`${styles.rentalCouponCard} ${
+                          coupon.isUsed ? styles.used : ""
+                        }`}
                       >
                         <div className={styles.couponInfo}>
                           <h5 className={styles.couponName}>{coupon.title}</h5>

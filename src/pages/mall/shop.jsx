@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const pointBasePath = apiRoutes.point;
 const shopBasePath = apiRoutes.shop;
-
+const memberBasePath = apiRoutes.member; // ← 加這行
 class Shop extends Component {
   // 在 class Shop 的最上方（state 下面或 constructor 裡）
   storeListRef = React.createRef();
@@ -20,9 +20,32 @@ class Shop extends Component {
     showDetailModal: false,
     showModal: false,
     modalType: "",
-    userId: sessionStorage.getItem("uid") || "", // 直接從 session 讀 uid
+    userId: "", // 直接從 session 讀 uid
     userPoint: null, // 新增
   };
+  // 檢查登入狀態
+  async checkAuth() {
+    try {
+      const res = await axios.post(
+        `${API_URL}${memberBasePath}/check-auth`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      const data = res.data;
+      if (data.authenticated && data.user) {
+        sessionStorage.setItem("uid", data.user.uid);
+        this.setState({ userId: data.user.uid });
+      } else {
+        Notify.error("請先登入");
+        window.location.href = "/mber_login";
+      }
+    } catch (err) {
+      Notify.error("請先登入");
+      window.location.href = "/mber_login";
+    }
+  }
   // 向左或向右滾動 list，direction = -1 (左) 或 1 (右)
   scrollStoreList = (direction) => {
     const el = this.storeListRef.current;
@@ -62,16 +85,9 @@ class Shop extends Component {
     }
   };
 
-  // 每秒檢查 session uid 是否更新
-  // 每秒檢查 session uid 是否更新
-  checkSessionUid = () => {
-    const uid = sessionStorage.getItem("uid") || "";
-    if (uid !== this.state.userId) {
-      this.setState({ userId: uid });
-    }
-  };
+  async componentDidMount() {
+    await this.checkAuth(); // 先檢查登入
 
-  componentDidMount() {
     // 監聽 storage 事件，當其他地方更新 sessionStorage.uid 時觸發
     window.addEventListener("storage", this.handleStorageChange);
 
@@ -127,12 +143,15 @@ class Shop extends Component {
     }
 
     try {
-      const balanceRes = await axios.get(`${API_URL}${pointBasePath}/checkpoints`, {
-        params: {
-          user_id: userId,
-          template_id: product.id,
-        },
-      });
+      const balanceRes = await axios.get(
+        `${API_URL}${pointBasePath}/checkpoints`,
+        {
+          params: {
+            user_id: userId,
+            template_id: product.id,
+          },
+        }
+      );
 
       if (!balanceRes.data.sufficient) {
         this.setState({
@@ -143,10 +162,13 @@ class Shop extends Component {
         return;
       }
 
-      const redeemRes = await axios.post(`${API_URL}${shopBasePath}/buycoupons`, {
-        template_id: product.id,
-        user_id: userId,
-      });
+      const redeemRes = await axios.post(
+        `${API_URL}${shopBasePath}/buycoupons`,
+        {
+          template_id: product.id,
+          user_id: userId,
+        }
+      );
 
       if (redeemRes.data.success) {
         this.setState(
@@ -227,8 +249,6 @@ class Shop extends Component {
               <img src="/Iconimg/quest.svg" alt="任務" />
             </div>
           </div>
-
-
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>
