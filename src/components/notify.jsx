@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "../styles/scss/notify.module.scss";
 import { apiRoutes } from "./apiRoutes";
 const API_URL = import.meta.env.VITE_API_URL ;
 
@@ -32,9 +31,9 @@ export default function Notify({style}) {
     navigate("/mber_info");
   };
   return (
-    <figure style={style ?? null} className={styles.notify} onClick={notifyBtnClick}>
-      <img src="../../public/notibell.svg" className={styles.bell} />
-      <div className={styles.counter}>
+    <figure style={style ?? null} className={'notify'} onClick={notifyBtnClick}>
+      <img src="../../public/notibell.svg" className={'bell'} />
+      <div className={'counter'}>
         <span>{count}</span>
         <img src="../../public/circle.svg" />
       </div>

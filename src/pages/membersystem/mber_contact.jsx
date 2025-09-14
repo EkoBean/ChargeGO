@@ -9,7 +9,7 @@ import BackIcon from "../../components/backIcon";
 const mber_contact = () => {
   const [user, setUser] = useState(null);
   const [notices, setNotices] = useState([]); // 新增通知 state
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = import.meta.env.VITE_API_URL;
   const memberBasePath = apiRoutes.member;
   const navigate = useNavigate();
 
@@ -54,31 +54,18 @@ const mber_contact = () => {
   return (
     <div className={styles.mberInfoPage}>
       <NavBarApp />
+      <BackIcon className={'d-sm-none'} />
+      <Notify />
       <div className={styles.mber_info_container}>
-        <BackIcon className={'d-sm-none'} />
         <div className={styles.mber_info_header}>
-          <Notify />
-        </div>
-        <div className={styles.mber_info_title}>
-          <img src="../../../public/user.svg" />
-          <h1>{user?.user_name || "會員名稱"}</h1>
-          <h2>帳號通知 </h2>
         </div>
         <div className={styles.mber_info_section}>
-          {/* 根據通知資料渲染 */}
-          {notices.length === 0 ? (
-            <p>目前沒有通知</p>
-          ) : (
-            notices.map((notice) => (
-              <div className={styles.mber_info_info} key={notice.notice_id}>
-                <h4>{notice.notice_title}</h4>
-                <p>{notice.notice_content}</p>
-                <span>{notice.notice_date}</span>
-                <button className={styles.more_btn}>查看更多</button>
-                <hr />
-              </div>
-            ))
-          )}
+          <div className={styles.mber_info_info}>
+            <h4>h4</h4>
+            <p>p</p>
+            <span>date</span>
+            <hr />
+          </div>
         </div>
       </div>
     </div>

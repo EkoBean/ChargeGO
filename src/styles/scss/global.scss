@@ -81,3 +81,76 @@ a {
 }
 
 // ==============================================
+
+// =========== notification bell ===========
+figure.notify {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+
+  top: 3%;
+  right: 5%;
+
+
+  .bell {
+    transition: transform 0.3s;
+    &:hover{
+      animation: shake 0.5s;
+    }
+  }
+
+  @keyframes shake {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    20% {
+      transform: rotate(-15deg);
+    }
+
+    40% {
+      transform: rotate(15deg);
+    }
+
+    60% {
+      transform: rotate(-10deg);
+    }
+
+    80% {
+      transform: rotate(10deg);
+    }
+
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+
+  .counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  .counter span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    color: $danger;
+    font-weight: bold;
+  }
+
+  .counter img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+  }
+}
