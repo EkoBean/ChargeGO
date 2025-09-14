@@ -35,7 +35,7 @@ $color-shop-circle: #69f05b;
     top: 15%;
     left: 10%;
     margin: 0;
-    z-index: 10; // 確保它浮動在 mallMain 上方
+    z-index: 8; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
   }
@@ -92,7 +92,6 @@ $color-shop-circle: #69f05b;
 // ==========================
 .couponBody {
   min-height: 100vh; // 或 height: 100vh;
-  // width: 100vw;
   background: linear-gradient(
     180deg,
     bs.$primary 0.02%,
@@ -122,7 +121,7 @@ $color-shop-circle: #69f05b;
     top: 20%;
     left: 45%;
     margin: 0;
-    z-index: 10; // 確保它浮動在 mallMain 上方
+    z-index: 3; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
   }
@@ -997,4 +996,11 @@ $color-shop-circle: #69f05b;
       font-weight: bold;
     }
   }
+}
+/* 將 z-index 增加到 1060 */
+.modal-content {
+  /* 讓模態框向下偏移 50%，然後再向上偏移自身高度的 50%，達成置中 */
+  z-index: 1056;
+  top: 100%;
+  transform: translateY(-50%);
 }
