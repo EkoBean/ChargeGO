@@ -1,0 +1,68 @@
+/* 前端樣式 */
+/* 註解掉全域選擇器，避免影響整個專案 */
+/*
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+*/
+
+.admin-logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.admin-logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.admin-logo.admin-react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes admin-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 註解掉全域標籤選擇器，避免影響整個專案 */
+  /*
+  a:nth-of-type(2) .admin-logo {
+    animation: admin-logo-spin infinite 20s linear;
+  }
+  */
+  .admin-app-link:nth-of-type(2) .admin-logo {
+    animation: admin-logo-spin infinite 20s linear;
+  }
+}
+
+.admin-card {
+  padding: 2em;
+}
+
+.admin-read-the-docs {
+  color: #888;
+}
+
+/* 您可以在此添加App特定的樣式，大部分樣式已經在AdminDashboard.css中定義 */
+.admin-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
