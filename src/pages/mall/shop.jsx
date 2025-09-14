@@ -196,7 +196,7 @@ class Shop extends Component {
     return (
       // <div className={styles.container + " py-4"}>
       <div className={styles.mallBody}>
-        <Notify style={{ position: 'fixed', right: '3%', top: '2.5%', zIndex: '999' }} />
+        <Notify />
 
         <NavBarApp />
 
