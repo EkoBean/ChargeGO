@@ -1,69 +1,40 @@
 // ==============================================
-// 自訂 Bootstrap 變數
+// 直接定義變數（或用 @import 匯入 tokens.module.scss）
 // ==============================================
+@use "./tokens.module.scss" as *;
 
 
-// 字體變數
-$font-family-base: 'Arial', 'Microsoft JhengHei', sans-serif !default;
-$font-size-base: 1rem !default;
-
-
-// ==============================================
-// 匯入 Bootstrap (使用 @use)
-// ==============================================
+// 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
 @use "../../../node_modules/bootstrap/scss/bootstrap" as bs with (
-  $primary: #f0be52,
-  $secondary: #f16100,
-  $success: #00ff3c,
-  $danger: #d65562,
-  $font-family-base: $font-family-base,
-  $font-size-base: $font-size-base,
-  // 間距變數
-  // $spacer: $spacer
+  $primary: $primary,
+  $secondary: $secondary,
+  $success: $success,
+  $danger: $danger
 );
 
 // ==============================================
 // 自訂樣式
 // ==============================================
-
+$font-family-base: "Arial", "Microsoft JhengHei", sans-serif;
+$font-size-base: 1rem;
 
 // 全域樣式
 body {
   font-family: $font-family-base;
   line-height: 1.6;
+  background: #ffce00;
 }
 
-// 自訂按鈕樣式
-.btn-custom {
-  background-color: #ff6b6b;
-  border-color: #ff6b6b;
-  color: white;
-
-  &:hover {
-    background-color: #ff5252;
-    border-color: #ff5252;
-  }
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+a {
+  color: $brown;
+  text-decoration: none;
 }
 
-// 自訂卡片樣式
-.card-custom {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-
-  .card-header {
-    background-color: bs.$primary;
-    color: white;
-    border-radius: 10px 10px 0 0;
-  }
-}
-
-// 響應式設計範例
-@media (max-width: 768px) {
-  .container {
-    padding: 0 15px;
-  }
-}
-
-ul li {
-  color: red;
-}
+// ==============================================
