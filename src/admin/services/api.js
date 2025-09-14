@@ -271,7 +271,7 @@ const ApiService = {
     if (!payload.start_date) {
       errors.push("開始時間不能為空");
     }
-    if (!payload.rental_site_id || Number.isNaN(Number(payload.rental_site_id))) { // 改這裡
+    if (!payload.rental_site_id || Number.isNaN(Number(payload.rental_site_id))) {
       errors.push("租借站點不能為空且必須為數字");
     }
     if (payload.order_status === undefined || payload.order_status === null || payload.order_status === '') {
@@ -285,22 +285,24 @@ const ApiService = {
       throw new Error(errors.join('; '));
     }
 
+    // 確保包含操作者ID
     const body = {
       uid: Number(payload.uid),
       start_date: this._normalizeDateTime(payload.start_date),
       end: payload.end ? this._normalizeDateTime(payload.end) : null,
-      rental_site_id: Number(payload.rental_site_id), // 改這裡
-      return_site_id: payload.return_site_id ? Number(payload.return_site_id) : null, // 新增這裡
+      rental_site_id: Number(payload.rental_site_id),
+      return_site_id: payload.return_site_id ? Number(payload.return_site_id) : null,
       order_status: String(payload.order_status),
       charger_id: Number(payload.charger_id),
       comment: payload.comment || null,
-      total_amount: payload.total_amount || 0 // 新增這裡
+      total_amount: payload.total_amount || 0,
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 確保操作者ID
     };
 
     console.log('Normalized order body:', body);
 
     try {
-      const result = await this.request(`/orders`, {  // ✅ 修正
+      const result = await this.request(`/orders`, {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -321,23 +323,28 @@ const ApiService = {
     return this.request(`/missions/${missionId}`);
   },
 
+  // 修正 createMission 方法 - 參考 createSite 的邏輯
   async createMission(payload) {
     console.log('Creating mission with payload:', payload);
 
     const body = {
-      mission_title: String(payload.mission_title || "").trim(),
-      mission_content: String(payload.mission_content || "").trim(),
-      site_id: payload.site_id || null,
-      mission_start_date: payload.mission_start_date,
-      mission_end_date: payload.mission_end_date
+      title: String(payload.title || "").trim(),
+      description: String(payload.description || "").trim(),
+      type: payload.type || 'accumulated_hours',
+      reward_points: parseInt(payload.reward_points) || 0,
+      target_value: parseInt(payload.target_value) || 0,
+      target_unit: payload.target_unit || 'Hours',
+      mission_start_date: payload.mission_start_date || null,
+      mission_end_date: payload.mission_end_date || null,
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 確保操作者ID
     };
 
     // 驗證必填欄位
     const errors = [];
-    if (!body.mission_title) errors.push("任務標題不能為空");
-    if (!body.mission_content) errors.push("任務內容不能為空");
-    if (!body.mission_start_date) errors.push("開始時間不能為空");
-    if (!body.mission_end_date) errors.push("結束時間不能為空");
+    if (!body.title) errors.push("任務標題不能為空");
+    if (!body.description) errors.push("任務描述不能為空");
+    if (!body.reward_points || body.reward_points <= 0) errors.push("獎勵點數必須大於 0");
+    if (!body.target_value || body.target_value <= 0) errors.push("目標數值必須大於 0");
 
     if (errors.length > 0) {
       throw new Error(errors.join('; '));
@@ -346,7 +353,7 @@ const ApiService = {
     console.log('Normalized mission body:', body);
 
     try {
-      const result = await this.request(`/missions`, {  // ✅ 修正
+      const result = await this.request(`/missions`, {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -407,7 +414,7 @@ const ApiService = {
     }
   },
 
-  // 新增 createSite 方法
+  // 修改 createSite 方法
   async createSite(payload) {
     console.log('Creating site with payload:', payload);
     
@@ -416,7 +423,8 @@ const ApiService = {
       address: String(payload.address || "").trim(),
       longitude: payload.longitude,
       latitude: payload.latitude,
-      country: payload.country || ""
+      country: payload.country || "",
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
     };
     
     // 驗證必填欄位
@@ -445,6 +453,7 @@ const ApiService = {
     }
   },
 
+  // 修改 updateSite 方法
   async updateSite(siteId, payload) {
     console.log('Updating site with payload:', payload);
     
@@ -454,7 +463,8 @@ const ApiService = {
       longitude: payload.longitude,
       latitude: payload.latitude,
       country: payload.country || "",
-      site_id: siteId  // 後端 PATCH 需要 site_id
+      site_id: siteId,  // 後端 PATCH 需要 site_id
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
     };
     
     // 驗證必填欄位
@@ -487,6 +497,39 @@ const ApiService = {
   _normalizeDateTime(dateValue) {
     return this._formatDateTimeForMySQL(dateValue);
   },
+
+  // 新增登出方法
+  async logout() {
+    const employeeId = localStorage.getItem('employeeId');
+    const employeeName = localStorage.getItem('employeeName');
+    
+    if (employeeId) {
+      try {
+        // 記錄登出操作
+        await this.request('/employee_log', {
+          method: 'POST',
+          body: JSON.stringify({
+            employee_id: employeeId,
+            log: `LOGOUT-${JSON.stringify({
+              id: employeeId,
+              name: employeeName,
+              timestamp: new Date().toISOString(),
+              status: 'success'
+            })}`
+          })
+        });
+      } catch (error) {
+        console.error('記錄登出操作失敗:', error);
+      }
+    }
+
+    // 清除本地儲存的登入資訊
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('employeeName');
+    localStorage.removeItem('employeeId');
+    localStorage.removeItem('loginTime');
+  },
+
 };
 
 // 訂單相關 API 函數
