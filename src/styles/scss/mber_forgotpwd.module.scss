@@ -1,0 +1,174 @@
+@use "./tokens.module.scss" as f;
+
+.mber_ForgotPwd {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.header {
+  text-align: center;
+  font-family: "Mantou sans", serif;
+  font-size: 36px;
+  color: f.$brown;
+  font-weight: 100;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+}
+
+.back-icon {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 2rem;
+  color: #fff;
+  background: #66ff50;
+  border-radius: 50%;
+  padding: 8px 16px;
+  cursor: pointer;
+  z-index: 20;
+  transition: 0.2s;
+  display: none;
+}
+
+.form {
+  background: rgba(255, 255, 255, 0);
+  padding: 0;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.label {
+  display: block;
+  font-size: 16px;
+  color: f.$brown;
+  margin-bottom: 8px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.input {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.captcha-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.captcha-input {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #fff;
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 50%;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.captcha-button {
+  display: inline-block;
+  background: #ffd600;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 1.1rem;
+  color: f.$brown;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 16px;
+  height: 44px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.button {
+  width: 300px; // 與 input 欄位寬度一致
+  padding: 12px 0;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.3rem;
+  letter-spacing: 20px;
+  font-weight: bold;
+  margin-bottom: 32px;
+  cursor: pointer;
+  background: #ffd600;
+  color: f.$brown;
+  transition: 0.2s;
+}
+.button:hover {
+  background: #ffc107;
+  transform: scale(1.2);
+}
+
+@media screen and (max-width: 600px) {
+  .mber_ForgotPwd {
+    padding: 16px;
+  }
+  .header {
+    font-size: 28px;
+  }
+  .form {
+    max-width: 100%;
+  }
+  .button {
+    width: 100%;
+  }
+  .back-icon {
+    display: block;
+  }
+}

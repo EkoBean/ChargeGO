@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import NavBarAPP from "../../components/NavBarAPP";
+import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mber_addCreditcard.module.scss"; // 改用 module
+import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
 
 const mber_AddCreditcard = () => {
   const [user, setUser] = useState(null);
@@ -12,12 +14,13 @@ const mber_AddCreditcard = () => {
   const [expMonth, setExpMonth] = useState("");
   const [expYear, setExpYear] = useState("");
   const [cardHolder, setCardHolder] = useState("");
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = import.meta.env.VITE_API_URL;
+  const memberBasePath = apiRoutes.member;
   const navigate = useNavigate();
   const formRef = useRef(null);
   // 取得 user 資料（登入狀態由 session 驗證）
   useEffect(() => {
-    fetch(`${API_BASE}/check-auth`, {
+    fetch(`${API_BASE}${memberBasePath}/check-auth`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -48,7 +51,7 @@ const mber_AddCreditcard = () => {
         (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`
       );
       const res = await axios.post(
-        `${API_BASE}/user/add-creditcard`,
+        `${API_BASE}${memberBasePath}/user/add-creditcard`,
         {
           userId: user.uid,
           user_name: cardHolder,
@@ -82,24 +85,18 @@ const mber_AddCreditcard = () => {
 
   return (
     <div className={styles.mber_addCreditcard}>
-      <NavBarAPP />
+      <NavBarApp />
+      <BackIcon className={'d-sm-none'} />
 
       <div className={styles.creditcardContainer}>
-        {/* 返回鍵 */}
-        <span
-          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-          onClick={() => window.history.back()}
-          title="回到上頁"
-        >
-          ◀︎
-        </span>
+
         {/* 標題區域 */}
         <div className={styles.titleSection}>
-          <div className={styles.paymentText}>付款方式</div>
+          <div className={`mber_title`}>付款方式</div>
           <div className={styles.cardIcon}>
             <img src="../../../public/creditcard.svg" alt="" />
           </div>
-          <div className={styles.cardIconText}>信用卡</div>
+          <div className={`mber_title`}>信用卡</div>
         </div>
         {/* 表單區域 */}
         <form
@@ -122,7 +119,7 @@ const mber_AddCreditcard = () => {
           {/* 信用卡號 */}
           <div className={styles.formRow}>
             <label className={styles.formLabel}>信用卡號</label>
-            
+
             <input
               className={styles.formInput}
               type="text"

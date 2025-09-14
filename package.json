@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "前端班大專題",
   "type": "module",
+  "main": "src/pages/membersystem/memberbackend/memberapp.js",
   "scripts": {
     "_note": "這裡是自訂的 npm 指令，使用 npm run <scripts name> 就可以在 cmd 裡面跑 scripts",
     "dev": "vite",
@@ -10,7 +11,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "sass:watch": "sass --watch ./src/styles/scss:./src/styles/css",
-    "sass:build": "sass ./src/styles/scss:./src/styles/css"
+    "sass:build": "sass ./src/styles/scss:./src/styles/css",
+    "start": "node src/pages/membersystem/memberbackend/memberapp.js"
   },
   "dependencies": {
     "@vis.gl/react-google-maps": "^1.5.5",
@@ -28,13 +30,13 @@
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "mysql": "^2.18.1",
-    "mysql2": "^3.14.3",
+    "nodemailer": "^7.0.6",
     "nodemon": "^3.1.10",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.8.0"
+    "react-router-dom": "^7.8.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

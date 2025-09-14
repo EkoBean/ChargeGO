@@ -3,6 +3,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
+import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
+
+const API_BASE = import.meta.env.VITE_API_URL;
+
+const memberBasePath = apiRoutes.member;
 
 const mber_Login = () => {
   const [form, setForm] = useState({
@@ -60,16 +66,18 @@ const mber_Login = () => {
 
     // 密碼雜湊（10碼）
     try {
+      const trimmedLoginId = form.login_id.trim();
+      const trimmedPassword = form.password.trim();
       const hashedPwd = crypto
-        .SHA256(form.password)
+        .SHA256(trimmedPassword)
         .toString(crypto.enc.Hex)
         .slice(0, 10);
 
       // 登入 API 呼叫
       const res = await axios.post(
-        "http://localhost:3000/mber_login",
+        `${API_BASE}${memberBasePath}/mber_login`,
         {
-          login_id: form.login_id, // login_id
+          login_id: trimmedLoginId, // login_id
           password: hashedPwd, // hashed_password
         },
         { withCredentials: true }
@@ -102,13 +110,8 @@ const mber_Login = () => {
       <div className={styles["login-container"]}>
         <div className={styles["login-form-section"]}>
           {/* 返回按鈕移到最上方 */}
-          <span
-            className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-            onClick={() => window.history.back()}
-            title="回到上頁"
-          >
-            ◀︎
-          </span>
+        <BackIcon className={'d-sm-none'} />
+
           {/* header區塊：arc+logo+標題 */}
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
@@ -145,7 +148,7 @@ const mber_Login = () => {
             <button
               type="button"
               className={styles["forgot-link"]}
-              onClick={() => alert("請聯繫客服重設密碼")}
+              onClick={() => navigate("/mber_forgotpwd")}
             >
               忘記密碼
             </button>
