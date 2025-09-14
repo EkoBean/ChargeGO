@@ -82,7 +82,7 @@ CREATE TABLE `coupons` (
   `coupon_id` int(11) NOT NULL COMMENT '優惠券ID',
   `template_id` int(11) NOT NULL COMMENT '範本ID',
   `user_id` int(11) NOT NULL COMMENT '使用者ID',
-  `ready_to_use` enum('1') DEFAULT NULL,
+  `ready_to_use` enum('1') DEFAULT NULL COMMENT '使用者設定是否啟用這張優惠券',
   `code` varchar(100) DEFAULT NULL COMMENT '優惠券代碼或QR碼',
   `source_type` enum('shop_purchase','store_issued','system_promo') NOT NULL COMMENT '來源類型',
   `source_id` int(11) DEFAULT NULL COMMENT '來源ID(訂單或規則)',
