@@ -121,31 +121,34 @@ const ApiService = {
     return this.request(`/events/${eventId}`);  // ✅ 修正
   },
 
+  // 修改 createEvent 方法
   async createEvent(payload) {
     console.log('Creating event with payload:', payload);
 
-    // 確保 operator_id 存在
-    if (!payload.operator_id) {
-      console.warn('Missing operator_id, using from localStorage');
-      payload.operator_id = parseInt(localStorage.getItem('employeeId'), 10);
-    }
+    // 確保日期格式正確
+    const formatDate = (date) => {
+      if (!date) return null;
+      if (date instanceof Date) {
+        return date.toISOString().split('T')[0];
+      }
+      return date;
+    };
 
     const body = {
       event_title: String(payload.event_title || "").trim(),
       event_content: String(payload.event_content || "").trim(),
       site_id: payload.site_id || null,
-      event_start_date: payload.event_start_date,
-      event_end_date: payload.event_end_date,
-      operator_id: payload.operator_id  // 確保傳遞
+      event_start_date: formatDate(payload.event_start_date),
+      event_end_date: formatDate(payload.event_end_date),
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)
     };
-    
+
     // 驗證必填欄位
     const errors = [];
     if (!body.event_title) errors.push("活動標題不能為空");
     if (!body.event_content) errors.push("活動內容不能為空");
     if (!body.event_start_date) errors.push("開始時間不能為空");
     if (!body.event_end_date) errors.push("結束時間不能為空");
-    if (!body.operator_id) errors.push("操作者ID不能為空");
 
     if (errors.length > 0) {
       throw new Error(errors.join('; '));
@@ -154,15 +157,16 @@ const ApiService = {
     console.log('Normalized event body:', body);
 
     try {
-      const result = await this.request('/events', {  // ✅ 修正
+      const result = await this.request('/events', {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       });
+      
       console.log('Event created successfully:', result);
       return result;
     } catch (error) {
       console.error('Failed to create event:', error);
-      throw error;
+      throw new Error(`建立活動失敗: ${error.message}`);
     }
   },
 
@@ -401,6 +405,87 @@ const ApiService = {
       console.error('日期格式化錯誤:', error);
       return null;
     }
+  },
+
+  // 新增 createSite 方法
+  async createSite(payload) {
+    console.log('Creating site with payload:', payload);
+    
+    const body = {
+      site_name: String(payload.site_name || "").trim(),
+      address: String(payload.address || "").trim(),
+      longitude: payload.longitude,
+      latitude: payload.latitude,
+      country: payload.country || ""
+    };
+    
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.site_name) errors.push("站點名稱不能為空");
+    if (!body.address) errors.push("地址不能為空");
+    if (!body.longitude) errors.push("經度不能為空");
+    if (!body.latitude) errors.push("緯度不能為空");
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+    
+    console.log('Normalized site body:', body);
+    
+    try {
+      const result = await this.request('/sites', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      console.log('Site created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create site:', error);
+      throw error;
+    }
+  },
+
+  async updateSite(siteId, payload) {
+    console.log('Updating site with payload:', payload);
+    
+    const body = {
+      site_name: String(payload.site_name || "").trim(),
+      address: String(payload.address || "").trim(),
+      longitude: payload.longitude,
+      latitude: payload.latitude,
+      country: payload.country || "",
+      site_id: siteId  // 後端 PATCH 需要 site_id
+    };
+    
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.site_name) errors.push("站點名稱不能為空");
+    if (!body.address) errors.push("地址不能為空");
+    if (!body.longitude) errors.push("經度不能為空");
+    if (!body.latitude) errors.push("緯度不能為空");
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+    
+    console.log('Normalized site body:', body);
+    
+    try {
+      const result = await this.request('/sites', {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      });
+      console.log('Site updated successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to update site:', error);
+      throw error;
+    }
+  },
+
+  // 讓日期格式化方法可重用
+  _normalizeDateTime(dateValue) {
+    return this._formatDateTimeForMySQL(dateValue);
   },
 };
 
