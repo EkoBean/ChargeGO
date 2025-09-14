@@ -56,9 +56,9 @@ const mber_Info = () => {
       <NavBarApp />
       <div className={styles.mber_info_container}>
         <BackIcon className={'d-sm-none'} />
+        <Notify />
 
         <div className={styles.mber_info_header}>
-          <Notify />
         </div>
         <div className={styles.mber_info_title}>
           <img src="../../../public/user.svg" />

@@ -108,9 +108,9 @@ const mber_edit = () => {
   return (
     <div className={styles.mber_edit}>
       <NavBarApp />
+      <BackIcon className={'d-sm-none'} />
       <div className={styles.edit_container}>
         <div className={styles.mobile_arc_bg}>
-        <BackIcon className={'d-sm-none'} />
           <div className={styles.mobile_arc_content}>
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
