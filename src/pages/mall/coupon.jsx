@@ -99,16 +99,6 @@ const Coupon = () => {
     setSelectedCoupon(null);
   };
 
-  // optional: 當在 modal 中模擬掃描完成並希望標示為已使用時，你可以呼叫一個 API 再 refreshUserPoint()
-  // 例如：
-  // const markUsedAndRefresh = async (couponId) => {
-  //   await fetch(`http://localhost:4002/usecoupon/${couponId}`, { method: "POST", body: JSON.stringify({ userId }) });
-  //   await refreshUserPoint();
-  //   // 重新抓優惠券列表
-  //   const res = await fetch(`http://localhost:4002/mycouponsparam/${userId}`);
-  //   setCoupons(await res.json());
-  // };
-
   const storeCoupons = coupons.filter(
     (c) => c.type === "store_gift" || c.type === "store_discount"
   );
