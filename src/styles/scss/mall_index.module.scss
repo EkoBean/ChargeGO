@@ -30,6 +30,7 @@ $color-shop-circle: #69f05b;
   align-items: center;
   justify-content: center;
   margin-top: 4px;
+
   @media (min-width: 576px) {
     position: absolute; // 改為絕對定位
     top: 15%;
@@ -39,6 +40,7 @@ $color-shop-circle: #69f05b;
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
   }
+
   @media (max-width: 992px) and (min-width: 576px) {
     top: 20%;
   }
@@ -47,19 +49,20 @@ $color-shop-circle: #69f05b;
 .mallBody {
   height: 100vh; // 或 height: 100vh;
   overflow: hidden; // 防止滾動撐高
-  background: linear-gradient(
-    180deg,
-    bs.$primary 0.02%,
-    #fee471 11.35%,
-    #fff 75.99%
-  );
+  background: linear-gradient(180deg,
+      bs.$primary 0.02%,
+      #fee471 11.35%,
+      #fff 75.99%);
+
   @media (min-width: 576px) {
     height: 140vh; // 或 height: 100vh;
   }
 }
+
 .mallMain {
   z-index: 3;
-  top: 23vh; /* 距離視窗頂端 10% 高度 */
+  top: 23vh;
+  /* 距離視窗頂端 10% 高度 */
   padding-top: 20px;
   scrollbar-width: none;
 
@@ -68,8 +71,10 @@ $color-shop-circle: #69f05b;
   overflow: auto;
   position: relative;
   background-color: white;
-  position: fixed; /* 固定在視窗底部 */
+  position: fixed;
+  /* 固定在視窗底部 */
   border-radius: 50px 50px 0 0; // 左上 右上 左下 右下
+
   // 桌面版樣式
   @media (min-width: 576px) {
     height: 120vh; // 或 height: 100vh;
@@ -82,6 +87,7 @@ $color-shop-circle: #69f05b;
     position: relative; // 讓 mallMain 變成可滾動的區塊，而非固定在底部
     margin-top: 115px; // 將內容往下推，為上方圓圈保留空間
   }
+
   @media (max-width: 768px) and (min-width: 576px) {
     padding-top: 80px;
   }
@@ -91,6 +97,7 @@ $color-shop-circle: #69f05b;
 // coupon禮物箱navbar跟main
 // ==========================
 .couponBody {
+<<<<<<< HEAD
   min-height: 100vh; // 或 height: 100vh;
   background: linear-gradient(
     180deg,
@@ -98,62 +105,209 @@ $color-shop-circle: #69f05b;
     #fee471 11.35%,
     #fff 75.99%
   );
+=======
+  overflow: hidden; // 防止滾動撐高
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  // width: 100vw;
+  background: linear-gradient(180deg,
+      bs.$primary 0.02%,
+      #fee471 11.35%,
+      #fff 75.99%);
+
+>>>>>>> cbe27814f1a4eb1d18c2db083bf13b73dab578f7
 }
+
 .couponNavbar {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 4px;
-  padding: 20px 0; // 上下各 10px，高度會比原來多 20px
-
+  padding: 33px 0; // 上下各 10px，高度會比原來多 20px
+  margin-bottom: 2rem;
   background-color: #ffce00;
   /* 只把底部設圓角 */
-  border-bottom-left-radius: 50% 40px; /* 水平半徑 / 垂直半徑 */
-  border-bottom-right-radius: 50% 40px;
+  border-bottom-left-radius: 50%;
+  /* 水平半徑 / 垂直半徑 */
+  border-bottom-right-radius: 50%;
   flex-shrink: 0;
+
   // margin-bottom: 2rem;
   // 桌面版樣式
   @media (min-width: 576px) {
     background-color: transparent;
 
-    position: absolute; // 改為絕對定位
-    top: 20%;
-    left: 45%;
+    position: static; // 改為絕對定位
     margin: 0;
+<<<<<<< HEAD
     z-index: 3; // 確保它浮動在 mallMain 上方
+=======
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    padding: 0;
+    z-index: 10; // 確保它浮動在 mallMain 上方
+>>>>>>> cbe27814f1a4eb1d18c2db083bf13b73dab578f7
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+
   @media (max-width: 992px) {
     top: 23%;
   }
-  @media (max-width: 768px) and (min-width: 576px) {
+
+  @media (max-width: 768px) {
     top: 18%;
-    left: 40%;
+    // left: 40%;
   }
 }
+
 .couponMain {
   z-index: 3;
-  top: 23vh; /* 距離視窗頂端 10% 高度 */
+  /* 距離視窗頂端 10% 高度 */
+  // width: 100vw;
+  // height: 100%;
+  overflow: hidden;
+  background-color: transparent;
+  flex: 1;
 
-  width: 100vw;
-  height: 80vh;
-  overflow: auto;
-  position: relative;
-  background-color: transparent; /* alpha 值 0~1 */
-
-  position: fixed; /* 固定在視窗底部 */
-  // 桌面版樣式
+  /* alpha 值 0~1 */
   @media (min-width: 576px) {
-    left: 10%;
-    right: 10%;
-    width: 80vw;
-    top: auto; // 取消 top 的固定值
-    position: relative; // 讓 mallMain 變成可滾動的區塊，而非固定在底部
-    margin-top: 115px; // 將內容往下推，為上方圓圈保留空間
+    height: 70vh;
+  }
+
+
+  // coupon禮物箱客製化tab
+  .customTabs {
+    margin: 0 28px 0 28px;
+    padding: 0;
+    display: flex;
+    list-style: none;
+    gap: 12px;
+
+    li {
+      display: block;
+    }
+
+    button {
+      background: bs.$primary;
+      color: bs.$brown;
+      border-radius: 999px;
+      padding: 0.8rem 1.6rem;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      white-space: nowrap;
+
+      &:focus {
+        outline: none;
+        border: none;
+      }
+
+      &:hover {
+        filter: brightness(0.8);
+      }
+
+      &.active {
+        background: #fff;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    // 平板以上
+    @media (min-width: 576px) {
+      margin: 0 24px 0 24px;
+      align-items: center; // 卡片置中
+      justify-content: center;
+
+
+    }
+
+    // 桌機以上
+    @media (min-width: 1200px) {
+      margin: 0 48px 0 48px;
+      // flex-direction: column; // 保持每張卡片換行
+    }
+
+
+    :global(.nav-link) {
+      color: var(--brown, #6c4023);
+      font-family: Inter;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: 3.2px;
+      white-space: nowrap;
+      width: 100%;
+
+      // max-width: calc(100% - 24px * 2);
+      &:hover {
+        color: #666;
+      }
+
+      &.active {
+        background-color: white;
+        outline: none;
+        border: none;
+        color: #000;
+        font-weight: bold;
+      }
+    }
+  }
+
+
+  // ==========================
+  // coupon禮物箱列表
+  // ==========================
+  .couponBoxList {
+
+    height: 100%;
+
+    overflow-y: auto;
+    padding-right: 20px;
+    padding-left: 20px;
+
+    margin: 0 8px;
+    padding-top: 2rem;
+    padding-bottom: 10rem;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    // 平板以上
+    @media (min-width: 576px) {
+      // margin: 0 24px;
+    }
+
+    // 桌機以上
+    @media (min-width: 1200px) {
+      margin: 0 48px;
+      flex-direction: column; // 保持每張卡片換行
+      align-items: center; // 卡片置中
+    }
+
+    .couponBoxListInner {
+      display: flex;
+      flex-direction: column; // 手機預設為單列
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
   }
 }
+
 //navbar
 .navbarLeftSection {
   position: absolute;
@@ -162,10 +316,12 @@ $color-shop-circle: #69f05b;
   transform: translateY(-50%);
   border: none;
   background-color: transparent;
+
   @media (min-width: 576px) {
     display: none;
   }
 }
+
 .navbarCenterSection {
   position: relative;
   display: flex;
@@ -178,6 +334,7 @@ $color-shop-circle: #69f05b;
     align-items: flex-start;
   }
 }
+
 .navbarCenterSectionForCouponBox {
   position: relative;
   display: flex;
@@ -190,6 +347,7 @@ $color-shop-circle: #69f05b;
     align-items: flex-start;
   }
 }
+
 .navbarRightSection {
   position: absolute;
   right: 0rem;
@@ -198,10 +356,12 @@ $color-shop-circle: #69f05b;
   border: none;
   background-color: transparent;
   cursor: pointer;
+
   @media (min-width: 576px) {
     display: none;
   }
 }
+
 //navbarCenterSection內的設定
 .pointCircle {
   width: 127px;
@@ -220,11 +380,16 @@ $color-shop-circle: #69f05b;
   /* 往左移多一點，就會只蓋住一部分 */
   /* 新增 flex 設定 */
   display: flex;
-  flex-direction: column; /* 垂直排列 */
-  align-items: center; /* 水平置中 */
-  justify-content: center; /* 垂直置中，或者你想靠上/靠下可調整 */
-  gap: 4px; /* 每個元素之間間距，可自行調整 */
+  flex-direction: column;
+  /* 垂直排列 */
+  align-items: center;
+  /* 水平置中 */
+  justify-content: center;
+  /* 垂直置中，或者你想靠上/靠下可調整 */
+  gap: 4px;
+  /* 每個元素之間間距，可自行調整 */
 }
+
 .missionCircle {
   width: 171px;
   height: 171px;
@@ -245,17 +410,26 @@ $color-shop-circle: #69f05b;
   /* 往左移多一點，就會只蓋住一部分 */
   /* 新增 flex 設定 */
   display: flex;
-  flex-direction: column; /* 垂直排列 */
-  align-items: center; /* 水平置中 */
-  justify-content: center; /* 垂直置中，或者你想靠上/靠下可調整 */
-  gap: 4px; /* 每個元素之間間距，可自行調整 */
+  flex-direction: column;
+  /* 垂直排列 */
+  align-items: center;
+  /* 水平置中 */
+  justify-content: center;
+  /* 垂直置中，或者你想靠上/靠下可調整 */
+  gap: 4px;
+
+  /* 每個元素之間間距，可自行調整 */
   img {
-    margin-left: 70px; /* 往右移 8px，可調整 */
+    margin-left: 70px;
+    /* 往右移 8px，可調整 */
   }
+
   div {
-    margin-right: 40px; /* 往右移 8px，可調整 */
+    margin-right: 40px;
+    /* 往右移 8px，可調整 */
   }
 }
+
 .circleText {
   color: var(--brown, #6c4023);
   font-family: Inter;
@@ -266,6 +440,7 @@ $color-shop-circle: #69f05b;
   letter-spacing: 3.2px;
   white-space: nowrap; // 文字不換行
 }
+
 .circleNumber {
   color: var(--brown, #6c4023);
   font-family: "Mantou Sans";
@@ -274,6 +449,7 @@ $color-shop-circle: #69f05b;
   font-weight: 400;
   line-height: normal;
 }
+
 // coupon.jsx中navbar的設定，couponPoint=.navbarCenterSection
 .couponPoint {
   // border-radius: 50%;
@@ -281,26 +457,42 @@ $color-shop-circle: #69f05b;
 
   // position: absolute;
   z-index: 2;
-
+  color: bs.$brown;
   /* 控制重疊的偏移程度 */
 
   /* 往左移多一點，就會只蓋住一部分 */
   /* 新增 flex 設定 */
   display: flex;
-  flex-direction: column; /* 垂直排列 */
-  align-items: center; /* 水平置中 */
-  justify-content: center; /* 垂直置中，或者你想靠上/靠下可調整 */
+  flex-direction: column;
+  /* 垂直排列 */
+  align-items: center;
+  /* 水平置中 */
+  justify-content: center;
+  /* 垂直置中，或者你想靠上/靠下可調整 */
 }
+
 .couponText {
-  color: var(--brown, #6c4023);
-  font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
   letter-spacing: 3.2px;
   white-space: nowrap; // 文字不換行
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url("/Iconimg/greenpoint.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 6px;
+    vertical-align: middle;
+    transform: translateY(-0.1rem);
+  }
 }
+
 .couponNumber {
   color: var(--brown, #6c4023);
   font-family: "Mantou Sans";
@@ -343,6 +535,7 @@ $color-shop-circle: #69f05b;
   &::-webkit-scrollbar {
     width: 6px;
   }
+
   &::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 4px;
@@ -376,6 +569,7 @@ $color-shop-circle: #69f05b;
   padding: 16px;
   position: relative;
   box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24), 6px 6px 6px 0 #ffa832;
+
   .taskLeft {
     display: flex;
     flex-direction: column;
@@ -426,11 +620,13 @@ $color-shop-circle: #69f05b;
       color: #999;
       font-weight: 500;
     }
+
     .point {
       font-size: 16px;
       font-weight: 600;
       color: black;
-      background-color: white; /* ✅ 文字顏色改成白色 */
+      background-color: white;
+      /* ✅ 文字顏色改成白色 */
 
       display: flex;
       align-items: center;
@@ -438,6 +634,7 @@ $color-shop-circle: #69f05b;
     }
   }
 }
+
 .missiontitle {
   color: var(--brown, #6c4023);
   font-family: Inter;
@@ -451,10 +648,12 @@ $color-shop-circle: #69f05b;
   max-width: calc(100% - 24px * 2); // 手機 margin 12px -> 24px
   margin: 0 auto; // 置中對齊
   padding: 12px 0;
+
   @media (min-width: 576px) {
     margin: 0 48px; // 置中對齊
   }
 }
+
 .missiondatefilter {
   color: var(--brown, #6c4023);
   font-family: Inter;
@@ -468,10 +667,12 @@ $color-shop-circle: #69f05b;
   max-width: calc(100% - 24px * 2); // 手機 margin 12px -> 24px
   margin: 0 auto; // 置中對齊
   padding: 12px 0;
+
   @media (min-width: 576px) {
     margin: 0 48px; // 置中對齊
   }
 }
+
 @media (min-width: 768px) {
   .missiontitle .missiondatefilter {
     max-width: calc(100% - 24px * 2); // missionList 平板 margin 24px
@@ -483,11 +684,15 @@ $color-shop-circle: #69f05b;
     max-width: calc(100% - 48px * 2); // missionList 桌機 margin 48px
   }
 }
+
 /* 隱藏 input 的預設箭頭和邊框 */
 .missiondatefilter input[type="date"] {
-  -webkit-appearance: none; /* 適用於 Chrome, Safari */
-  -moz-appearance: none; /* 適用於 Firefox */
-  appearance: none; /* 標準寫法 */
+  -webkit-appearance: none;
+  /* 適用於 Chrome, Safari */
+  -moz-appearance: none;
+  /* 適用於 Firefox */
+  appearance: none;
+  /* 標準寫法 */
 
   /* 基本樣式 */
   border: 1px solid #6c4023;
@@ -509,10 +714,10 @@ $color-shop-circle: #69f05b;
 
 /* 美化日期選擇框的下拉箭頭（僅 WebKit） */
 .missiondatefilter input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(40%) sepia(20%) saturate(1000%) hue-rotate(340deg)
-    brightness(80%) contrast(90%);
+  filter: invert(40%) sepia(20%) saturate(1000%) hue-rotate(340deg) brightness(80%) contrast(90%);
   cursor: pointer;
 }
+
 .missiondatefilter button {
   /* 基礎樣式 */
   background-color: bs.$primary;
@@ -525,7 +730,8 @@ $color-shop-circle: #69f05b;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.1s ease;
-  white-space: nowrap; /* 防止按鈕文字換行 */
+  white-space: nowrap;
+  /* 防止按鈕文字換行 */
   margin: 0 5px;
 }
 
@@ -538,6 +744,7 @@ $color-shop-circle: #69f05b;
 .missiondatefilter button:active {
   transform: scale(0.98);
 }
+
 // ==========================
 // 商店兌換券購買列表
 // ==========================
@@ -548,13 +755,16 @@ $color-shop-circle: #69f05b;
   align-items: center;
   width: 100%;
 }
+
 /* 原本的 list：保留你原先的屬性，並補上 smooth scroll 與左右內距 */
 .storeCouponList {
   display: flex;
   overflow-x: auto;
   gap: 12px;
-  padding: 8px 24px; /* 上下內距 + 留按鈕空間 */
-  margin-left: 0; /* 你原先有 margin-left/right，視需要移或保留 */
+  padding: 8px 24px;
+  /* 上下內距 + 留按鈕空間 */
+  margin-left: 0;
+  /* 你原先有 margin-left/right，視需要移或保留 */
   margin-right: 0;
   scroll-behavior: smooth;
 
@@ -592,9 +802,9 @@ $color-shop-circle: #69f05b;
       text-overflow: ellipsis;
     }
 
-    .couponPoints {
+    .couponPoint {
       font-size: 13px;
-      color: #333;
+      color: bs.$brown;
       margin: 0;
       white-space: nowrap;
       overflow: hidden;
@@ -641,7 +851,9 @@ $color-shop-circle: #69f05b;
     }
   }
 }
+
 @media (min-width: 768px) {
+
   // 小於 576px
   .storeCouponCard {
     min-width: 250px;
@@ -650,9 +862,11 @@ $color-shop-circle: #69f05b;
     max-height: 350px;
   }
 }
+
 /* 按鈕（預設隱藏） */
 .scrollBtn {
-  display: none; /* 預設手機不顯示 */
+  display: none;
+  /* 預設手機不顯示 */
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -671,57 +885,65 @@ $color-shop-circle: #69f05b;
 .leftBtn {
   left: 8px;
 }
+
 .rightBtn {
   right: 8px;
 }
+
 /* 在平板/桌機以上顯示按鈕（你要的是大於 768px） */
 @media (min-width: 768px) {
   .scrollBtn {
     display: flex;
   }
+
   /* 可選：在大螢幕時讓 list 兩邊多出空間，按鈕不會擠到內容 */
   .storeCouponList {
-    padding: 8px 56px; /* 左右各留 56px 給按鈕 (視需要調整) */
+    padding: 8px 56px;
+    /* 左右各留 56px 給按鈕 (視需要調整) */
   }
 }
+
 // ==========================
 // 租借兌換券購買列表
 // ==========================
-.rentalCouponList {
-  display: flex;
-  flex-direction: column; // 手機預設為單列
-  gap: 24px;
-  height: 300px;
-  overflow-y: auto;
-  padding-right: 6px;
-  margin: 0 12px;
-  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
+// .rentalCouponList {
+//   display: flex;
+//   flex-direction: column; // 手機預設為單列
+//   gap: 24px;
+//   height: 300px;
+//   overflow-y: auto;
+//   padding-right: 6px;
+//   margin: 0 12px;
+//   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
+//   &::-webkit-scrollbar {
+//     width: 6px;
+//   }
 
-  // 平板以上
-  @media (min-width: 768px) {
-    margin: 0 24px;
-  }
+//   &::-webkit-scrollbar-thumb {
+//     background: #ccc;
+//     border-radius: 4px;
+//   }
 
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px;
-    flex-direction: column; // 保持每張卡片換行
-    align-items: center; // 卡片置中
-  }
-}
+//   // 平板以上
+//   @media (min-width: 768px) {
+//     margin: 0 24px;
+//   }
+
+//   // 桌機以上
+//   @media (min-width: 1200px) {
+//     margin: 0 48px;
+//     flex-direction: column; // 保持每張卡片換行
+//     align-items: center; // 卡片置中
+//   }
+// }
 
 .rentalCouponCard {
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
   flex-shrink: 0; // 避免因為 list 捲動壓縮
+  max-width: 500px;
+
   @media (min-width: 1200px) {
     width: calc(70% - 12px); // 桌機兩欄，保留gap
   }
@@ -736,14 +958,52 @@ $color-shop-circle: #69f05b;
   padding: 16px;
   position: relative;
 
+// 這個才是新的!!!!顏色!!!
+  $gradient-light : #5cf070;
+
+  // 點狀漸層呼吸燈效果
   &::before {
+
     content: "";
     width: 20px;
-    background: bs.$success;
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
+    background: radial-gradient(circle at 80% 50%,
+        bs.$success 0%,
+        $gradient-light 100%);
+    animation: breathing-dot-gradient 3s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes breathing-dot-gradient {
+    0% {
+      filter: brightness(1);
+      opacity: 1;
+      scale: 1 1;
+    }
+
+    50% {
+      filter: brightness(1.5);
+      opacity: 0.8;
+
+      scale: 1 random(2);
+
+    }
+
+    100% {
+      filter: brightness(1);
+      opacity: 1;
+      background-position: 0% 50%;
+    }
+  }
+
+  &.used::before {
+    background: radial-gradient(circle at 80% 50%,
+        #ccc 0%,
+        #999 100%);
+    animation: none;
   }
 
   .couponInfo {
@@ -775,6 +1035,7 @@ $color-shop-circle: #69f05b;
     gap: 6px;
     // justify-content: center;
     align-items: center;
+
     .btn-redeem {
       padding: 4px 8px;
       border-radius: 8px;
@@ -784,9 +1045,11 @@ $color-shop-circle: #69f05b;
       cursor: pointer;
       background: #00d84a;
       color: #fff;
+
       &:hover {
         background: #00b63f;
       }
+
       &.disabled {
         background: #ccc;
         cursor: not-allowed;
@@ -806,6 +1069,7 @@ $color-shop-circle: #69f05b;
     z-index: 5; // 遮在上面
   }
 }
+
 .rentalWrapper {
   position: relative;
   display: flex;
@@ -845,6 +1109,7 @@ $color-shop-circle: #69f05b;
   .leftBtn {
     left: 0;
   }
+
   .rightBtn {
     right: 0;
   }
@@ -858,64 +1123,33 @@ $color-shop-circle: #69f05b;
   }
 }
 
-// ==========================
-// coupon禮物箱列表
-// ==========================
-.couponBoxList {
-  display: flex;
-  flex-direction: column; // 手機預設為單列
-  gap: 12px;
-  height: 75%;
-  overflow-y: auto;
-  padding-right: 10px;
-  padding-left: 10px;
 
-  margin: 0 12px;
-  padding-top: 30px;
-  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
-
-  // 平板以上
-  @media (min-width: 576px) {
-    margin: 0 24px;
-    height: 90%;
-  }
-
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px;
-    flex-direction: column; // 保持每張卡片換行
-    align-items: center; // 卡片置中
-  }
-}
 .storeCouponCardInBox {
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
   flex-shrink: 0; // 避免因為 list 捲動壓縮
+
   @media (min-width: 1200px) {
     width: calc(70% - 12px); // 桌機兩欄，保留gap
   }
-  // margin-left: 30px;
+
   display: flex;
   justify-content: space-between;
-  align-items: center; // ✅ 文字靠上，不會被擠到中間
+  align-items: center;
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  padding: 16px;
+  padding: 1.5rem;
   position: relative;
-  box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24), 6px 6px 6px 0 #ffa832;
+  box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24),
+  6px 6px 6px 0 #ffa832;
+
   .cardLeft {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    color: rgb(63, 63, 63);
 
     .cardName {
       font-size: 16px;
@@ -941,15 +1175,17 @@ $color-shop-circle: #69f05b;
       color: #999;
     }
 
+    button {
+      padding: 0.6rem 1.5rem;
+      color: rgb(100, 45, 20);
+      font-size: 1.1rem;
+    }
+
     .claimBtn {
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
+      border-radius: 999px;
       border: none;
       cursor: pointer;
       background: bs.$success;
-      color: black;
 
       &.disabled {
         background: #ccc !important;
@@ -962,17 +1198,20 @@ $color-shop-circle: #69f05b;
       color: #999;
       font-weight: 500;
     }
+
     .point {
       font-size: 16px;
       font-weight: 600;
       color: black;
-      background-color: white; /* ✅ 文字顏色改成白色 */
+      background-color: white;
+      /* ✅ 文字顏色改成白色 */
 
       display: flex;
       align-items: center;
       gap: 4px;
     }
   }
+<<<<<<< HEAD
 }
 // coupon禮物箱客製化tab
 .customTabs {
@@ -1004,3 +1243,6 @@ $color-shop-circle: #69f05b;
   top: 100%;
   transform: translateY(-50%);
 }
+=======
+}
+>>>>>>> cbe27814f1a4eb1d18c2db083bf13b73dab578f7

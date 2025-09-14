@@ -3,6 +3,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss"; 
 import crypto from "crypto-js";
+import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
+
+const memberBasePath = apiRoutes.member;
 
 const mber_Register = () => {
   // 註冊表單狀態
@@ -121,7 +125,7 @@ const mber_Register = () => {
         status: "0",
       };
       const res = await axios.post(
-        "http://localhost:3000/mber_register",
+        "${API_BASE}${memberBasePath}/mber_register",
         payload,
         { withCredentials: true }
       );
@@ -196,13 +200,7 @@ const mber_Register = () => {
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
           {/* 返回上頁按鈕 */}
-          <span
-            className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-            onClick={() => window.history.back()}
-            title="回到上頁"
-          >
-            ◀︎
-          </span>
+          <BackIcon className={'d-sm-none'} />
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
               <h2 className={styles["register-title"]}>會員註冊</h2>

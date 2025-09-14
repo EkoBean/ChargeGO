@@ -1,7 +1,15 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss";
-import NavBarPhone from "../../components/NavBarApp";
+import NavBarApp from "../../components/NavBarApp";
+import { apiRoutes } from "../../components/apiRoutes";
+import Notify from "../../components/notify";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const pointBasePath = apiRoutes.point;
+const shopBasePath = apiRoutes.shop;
+
 class Shop extends Component {
   // 在 class Shop 的最上方（state 下面或 constructor 裡）
   storeListRef = React.createRef();
@@ -35,7 +43,7 @@ class Shop extends Component {
   getUserPoint = async (userId) => {
     try {
       const res = await axios.get(
-        `http://localhost:4005/checkpoints/${userId}`
+        `${API_URL}${pointBasePath}/checkpoints/${userId}`
       );
       return res.data.point;
     } catch (err) {
@@ -69,7 +77,7 @@ class Shop extends Component {
 
     // 抓商品
     axios
-      .get("http://localhost:4001/products")
+      .get(`${API_URL}${shopBasePath}/products`)
       .then((res) => {
         const formattedData = res.data.map((item) => ({
           id: item.template_id,
@@ -119,7 +127,7 @@ class Shop extends Component {
     }
 
     try {
-      const balanceRes = await axios.get("http://localhost:4001/checkpoints", {
+      const balanceRes = await axios.get(`${API_URL}${pointBasePath}/checkpoints`, {
         params: {
           user_id: userId,
           template_id: product.id,
@@ -135,7 +143,7 @@ class Shop extends Component {
         return;
       }
 
-      const redeemRes = await axios.post("http://localhost:4001/buycoupons", {
+      const redeemRes = await axios.post(`${API_URL}${shopBasePath}/buycoupons`, {
         template_id: product.id,
         user_id: userId,
       });
@@ -188,7 +196,9 @@ class Shop extends Component {
     return (
       // <div className={styles.container + " py-4"}>
       <div className={styles.mallBody}>
-        <NavBarPhone />
+        <Notify />
+
+        <NavBarApp />
 
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
@@ -218,11 +228,7 @@ class Shop extends Component {
             </div>
           </div>
 
-          {/* 右上角通知鈴鐺*/}
-          <button className={styles.navbarRightSection}>
-            {/* 右上角通知鈴鐺 */}
-            <img src="/Iconimg/notify.svg" alt="notify" />
-          </button>
+
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>

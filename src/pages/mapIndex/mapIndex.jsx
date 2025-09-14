@@ -3,6 +3,8 @@
 import styles from "../../styles/scss/map_index.module.scss";
 //React
 import React, { cloneElement, use, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 
 // Google Maps
@@ -16,15 +18,18 @@ import {
   InfoWindow,
 } from "@vis.gl/react-google-maps";
 
-// Bootstrap Icons
-import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 // environment variables
-const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
+const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+import { apiRoutes } from "../../components/apiRoutes";
+const basePath = apiRoutes.map;
+const memberBasePath = apiRoutes.member;
+import Notify from "../../components/notify";
 
 
 // ================= Constants ============================
-const APIkey = "AIzaSyB6R2pe5qFv0A4P2MchR6R9UJ8HpoTVzLg";
 
 const mapId = "7ade7c4e6e2cc1087f2619a5";
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
@@ -62,13 +67,48 @@ const listBus = new Bus();
 function MapIndex() {
   const [stations, setStations] = React.useState([]);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = React.useState(false);
+  const [notices, setNotices] = React.useState([]); // 新增通知 state
+  const [user, setUser] = React.useState(null);
+
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+
+
+    // 取得 user 資料
+    fetch(`${API_URL}${memberBasePath}/check-auth`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+          // 取得通知資料
+          fetch(`${API_URL}${memberBasePath}/user/${data.user.uid}/notices`, {
+            credentials: "include",
+          })
+            .then((res) => res.json())
+            .then((data) => setNotices(data))
+            .catch(() => setNotices([]));
+        } else {
+          alert("請先登入");
+          navigate("/mber_login");
+        }
+      })
+      .catch(() => {
+        alert("請先登入");
+        navigate("/mber_login");
+      });
+  }, [navigate]);
 
   // ================= Axios fetch =================
   // all stations
   useEffect(() => {
     const getStations = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/stations`);
+        const res = await axios.get(`${API_URL}${basePath}/stations`);
         setStations(res.data);
       } catch (error) {
         console.error(error);
@@ -269,7 +309,9 @@ function MapIndex() {
           return () => document.removeEventListener("keydown", handleEscape);
         }, [map]);
         return (
+
           <div className={`${styles.searchBarContainer}`}>
+            <Notify style={{ right: "-90%" }} />
             <div className={`${styles.searchBar}`}>
               <input
                 type="text"
@@ -354,19 +396,19 @@ function MapIndex() {
         const buttonlinks = [
           {
             icon: "bi bi-gift-fill",
-            color: "white",
+            // color: "white",
             url: "./coupon",
             action: handleLink,
           },
           {
             icon: "bi bi-person-fill",
-            color: "black",
+            // color: "black",
             url: "./mber_profile",
             action: handleLink,
           },
           {
             icon: "bi bi-pin-map",
-            color: "black",
+            // color: "black",
             url: "",
             action: handleLocate,
           },
@@ -401,7 +443,7 @@ function MapIndex() {
         useEffect(() => {
           let mounted = true;
           axios
-            .get(`${API_URL}/api/checkRental/${uid}`)
+            .get(`${API_URL}${basePath}/checkRental/${uid}`)
             .then((res) => {
               if (!mounted) return;
               if (res.data.renting) {
@@ -433,7 +475,7 @@ function MapIndex() {
 
           // ====== axios patch ======
           axios
-            .patch(`${API_URL}/api/rent`, { deviceId, uid })
+            .patch(`${API_URL}${basePath}/rent`, { deviceId, uid })
             .then((res) => {
               if (res.data.success) {
                 if (startTime) {
@@ -443,7 +485,7 @@ function MapIndex() {
                   setRentMessage("Unknown issue, please contact support.");
                   setRentalStatus(false);
                   console.warn(
-                    'Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
+                    'Get to check "api/map/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/map/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
                   );
                 } else {
                   setRentMessage("租借成功");
@@ -491,7 +533,7 @@ function MapIndex() {
         // =============== return button =================
         function handleReturn(overtimeComfirm) {
           axios
-            .patch(`${API_URL}/api/return`, {
+            .patch(`${API_URL}${basePath}/return`, {
               returnSite,
               batteryAmount,
               deviceId,
@@ -523,7 +565,7 @@ function MapIndex() {
                   setRentMessage("Unknown issue, please contact support.");
                   setRentalStatus(false);
                   console.warn(
-                    'Get to check "api/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
+                    'Get to check "api/map/rent" backend call-back. If there any of status(2xx) but with {success: false}, please check the backend logic.去確認一下後端api/map/rent是不是有送出status(2xx)但回傳了{success: false}，請檢查後端邏輯'
                   );
                 }
               }
@@ -652,7 +694,7 @@ function MapIndex() {
             </div>
             {returnWarning ? (
               <div
-                className={`${styles.alert} ${styles.alertDanger} ${styles.returnWarning}`}
+                className={`alert alert-danger ${styles.returnWarning}`}
                 style={{ opacity: rentOpen ? 0 : 0.7 }}
               >
                 <i className="bi bi-exclamation-triangle-fill"></i>
@@ -749,7 +791,7 @@ function MapIndex() {
           const getInfo = async () => {
             try {
               const res = await axios.get(
-                `http://localhost:3000/api/infoWindow/${siteId}`
+                `${API_URL}${basePath}/infoWindow/${siteId}`
               );
               setInfo(res.data);
             } catch (error) {
@@ -864,9 +906,11 @@ function MapIndex() {
   // ============= Render zone ================
   return (
     <>
-      <APIProvider apiKey={APIkey}
-        region='TW'
-        libraries={['places']}
+      {/* <NavBarAPP /> */}
+      <APIProvider
+        apiKey={APIkey}
+        region="TW"
+        libraries={["places"]}
         onLoad={() => setIsGoogleMapsLoaded(true)}
       >
         {isGoogleMapsLoaded && (

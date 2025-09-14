@@ -1,6 +1,6 @@
 import '../../styles/scss/Task.module.scss';
 // import NavbarWebsite from '../../components/NavbarWebsite';
-
+const API_BASE = "http://localhost:3000";
 
 export default function Task() {
   // 範例靜態資料
