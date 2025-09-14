@@ -60,7 +60,7 @@ const mber_Info = () => {
 
         <div className={styles.mber_info_header}>
         </div>
-        <div className={styles.mber_info_title}>
+        <div className={`mber_title`}>
           <img src="../../../public/user.svg" />
           <h1>{user?.user_name || "會員名稱"}</h1>
           <h2>帳號通知 </h2>

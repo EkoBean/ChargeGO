@@ -36,6 +36,17 @@ a {
   text-decoration: none;
 }
 
+.mber_title {
+  font-family: "Mantou sans", serif;
+  font-style: bold;
+  font-size: 2rem;
+  color: $brown;
+  letter-spacing: 8px;
+  margin-top: 0;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
 //====== all zone scrollbar style ======
 * {
   scrollbar-width: thin;

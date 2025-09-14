@@ -112,7 +112,7 @@ const mber_edit = () => {
       <div className={styles.edit_container}>
         <div className={styles.mobile_arc_bg}>
           <div className={styles.mobile_arc_content}>
-            <h2 className={styles.mber_info_title}>會員資料</h2>
+            <h2 className={`mber_title`}>會員資料</h2>
           </div>
         </div>
 
