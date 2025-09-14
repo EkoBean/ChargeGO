@@ -201,7 +201,8 @@ const Coupon = () => {
               </button>
             </li>
           </ul>
-          <div className={styles.couponBoxList + " mt-3"}>
+          <div className={styles.couponBoxList }>
+          <div className={styles.couponBoxListInner}>
             {activeTab === "store" && (
               <>
                 {storeCoupons.length === 0 ? (
@@ -255,6 +256,7 @@ const Coupon = () => {
                 )}
               </>
             )}
+          </div>
           </div>
 
           {showModal && selectedCoupon && (
