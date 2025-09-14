@@ -57,6 +57,9 @@ const mber_contact = () => {
       <BackIcon className={'d-sm-none'} />
       <Notify />
       <div className={styles.mber_info_container}>
+      <div>
+        <h2 className={`mber_title`}>聯絡我們</h2>
+      </div>
         <div className={styles.mber_info_header}>
         </div>
         <div className={styles.mber_info_section}>
@@ -64,7 +67,6 @@ const mber_contact = () => {
             <h4>h4</h4>
             <p>p</p>
             <span>date</span>
-            <hr />
           </div>
         </div>
       </div>

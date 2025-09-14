@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { apiRoutes } from "./apiRoutes";
 const API_URL = import.meta.env.VITE_API_URL ;
 
-export default function Notify({style}) {
+export default function Notify({style, className}) {
   const [count, setCount] = useState(0);
   const navigate = useNavigate();
 
@@ -31,7 +31,7 @@ export default function Notify({style}) {
     navigate("/mber_info");
   };
   return (
-    <figure style={style ?? null} className={'notify'} onClick={notifyBtnClick}>
+    <figure style={style ?? null} className={`notify ${style || null} ${className || null}`} onClick={notifyBtnClick}>
       <img src="../../public/notibell.svg" className={'bell'} />
       <div className={'counter'}>
         <span>{count}</span>

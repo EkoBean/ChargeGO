@@ -11,7 +11,7 @@ const mber_Profile = () => {
   const [user, setUser] = useState(null);
   const [country, setCountry] = useState("");
   const navigate = useNavigate();
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = import.meta.env.VITE_API_URL;
 
   const memberBasePath = apiRoutes.member;
 
@@ -97,7 +97,7 @@ const mber_Profile = () => {
       <div className={styles.info_container}>
         <BackIcon className={'d-sm-none'} />
         <div className={styles.mobile_arc_bg}>
-          <div className={styles.mobile_arc_content}>
+          <div className={`${styles.mobile_arc_content}`}>
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
         </div>

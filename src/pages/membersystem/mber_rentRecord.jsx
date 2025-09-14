@@ -9,7 +9,7 @@ const mber_RentRecord = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_BASE = import.meta.env.VITE_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_URL;
 
   const memberBasePath = apiRoutes.member;
 
@@ -51,7 +51,7 @@ const mber_RentRecord = () => {
     <div className={styles.mber_rentRecord}>
         <NavBarApp />
         <BackIcon className={'d-sm-none'} />
-      <div className={styles.record_header}>
+      <div className={`${styles.record_header} mber_title`}>
         <h2>租借紀錄 </h2>
       </div>
       <div className={styles.record_body}>

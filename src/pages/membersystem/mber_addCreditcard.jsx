@@ -92,11 +92,11 @@ const mber_AddCreditcard = () => {
 
         {/* 標題區域 */}
         <div className={styles.titleSection}>
-          <div className={styles.paymentText}>付款方式</div>
+          <div className={`mber_title`}>付款方式</div>
           <div className={styles.cardIcon}>
             <img src="../../../public/creditcard.svg" alt="" />
           </div>
-          <div className={styles.cardIconText}>信用卡</div>
+          <div className={`mber_title`}>信用卡</div>
         </div>
         {/* 表單區域 */}
         <form
