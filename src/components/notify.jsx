@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/scss/notify.module.scss";
+import { apiRoutes } from "./apiRoutes";
+const API_URL = import.meta.env.VITE_API_URL ;
 
-export default function Notify() {
+export default function Notify({style}) {
   const [count, setCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     // 先取得 session 使用者 uid
-    fetch("http://localhost:3000/check-auth", {
+    fetch(`${API_URL}${apiRoutes.member}/check-auth`, {
       method: "POST",
       credentials: "include",
     })
@@ -16,7 +18,7 @@ export default function Notify() {
       .then((data) => {
         if (data.success && data.user && data.user.uid) {
           // 再取得通知數量
-          fetch(`http://localhost:3000/user/${data.user.uid}/notices`)
+          fetch(`${API_URL}${apiRoutes.member}/user/${data.user.uid}/notices`)
             .then((res) => res.json())
             .then((notices) => {
               setCount(Array.isArray(notices) ? notices.length : 0);
@@ -30,7 +32,7 @@ export default function Notify() {
     navigate("/mber_info");
   };
   return (
-    <figure className={styles.notify} onClick={notifyBtnClick}>
+    <figure style={style ?? null} className={styles.notify} onClick={notifyBtnClick}>
       <img src="../../public/notibell.svg" className={styles.bell} />
       <div className={styles.counter}>
         <span>{count}</span>

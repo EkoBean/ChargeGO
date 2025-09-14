@@ -1,7 +1,9 @@
 @use "./tokens.module.scss" as g;
 
 $search-bar-radius: 1.4rem;
-
+.search-bar-container{
+  padding-top: 1.5rem;
+}
 #search-bar {
   position: fixed;
   top: 10px;
@@ -153,8 +155,17 @@ $search-bar-radius: 1.4rem;
       i {
         color: g.$brown;
         font-size: 5rem;
-        align-items: center;
-        text-align: center;
+        vertical-align: middle;
+        line-height: 1;
+        display: inline-block;
+      }
+
+      &:hover {
+        background-color: g.$primary-hover;
+      }
+
+      &:active {
+        box-shadow: gray 0px 0px 2px 0px;
       }
     }
   }
@@ -185,6 +196,7 @@ $search-bar-radius: 1.4rem;
     bottom: 2rem;
     right: 2rem;
 
+
     button {
       width: 2.5rem;
       height: 2.5rem;
@@ -199,9 +211,20 @@ $search-bar-radius: 1.4rem;
 
       box-shadow: gray 0px 0px 5px 0px;
 
+      &:hover {
+        background-color: g.$primary-hover;
+      }
+
+      &:active {
+        box-shadow: gray 0px 0px 2px 0px;
+      }
+
       i {
         color: g.$brown;
         font-size: 1.5rem;
+        vertical-align: middle;
+        line-height: 1;
+        display: inline-block;
       }
     }
   }

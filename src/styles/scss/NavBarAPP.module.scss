@@ -32,7 +32,10 @@ $icon-sizes: (
   align-items: center;
   justify-content: space-around;
   z-index: 9999;
-
+  a{
+    color: g.$brown;
+    text-decoration: none;
+  }
   .icon {
     transition: 1 ease;
   }
