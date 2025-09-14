@@ -54,14 +54,7 @@ const mber_contact = () => {
     <div className={styles.mberInfoPage}>
       <NavBarApp />
       <div className={styles.mber_info_container}>
-        <span
-          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-          onClick={() => window.history.back()}
-          title="回到上頁"
-        >
-          ◀︎
-        </span>
-
+        <BackIcon className={'d-sm-none'} />
         <div className={styles.mber_info_header}>
           <Notify />
         </div>

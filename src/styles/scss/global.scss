@@ -5,12 +5,10 @@
 
 
 // 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
-@use "../../../node_modules/bootstrap/scss/bootstrap" as bs with (
-  $primary: $primary,
+@use "../../../node_modules/bootstrap/scss/bootstrap" as bs with ($primary: $primary,
   $secondary: $secondary,
   $success: $success,
-  $danger: $danger
-);
+  $danger: $danger);
 
 // ==============================================
 // 自訂樣式
@@ -32,9 +30,54 @@ body,
   margin: 0;
   padding: 0;
 }
+
 a {
   color: $brown;
   text-decoration: none;
+}
+
+//====== all zone scrollbar style ======
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 139, 139, 0.534) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+//====== end of scrollbar style =====
+
+// the back icon placed in all member related pages
+.back-icon {
+  position: fixed;
+  top: 2%;
+  left: 5%;
+  font-size: 2rem;
+  color: #fff;
+  background: $success;
+  border-radius: 50%;
+  padding: 8px 16px;
+  cursor: pointer;
+  z-index: 20;
+  transition: 0.2s;
+}
+
+.back-icon:hover {
+  color: #ffd600;
+  transform: scaleX(1.2);
 }
 
 // ==============================================

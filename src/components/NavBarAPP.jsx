@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "../styles/scss/NavBarAPP.module.scss";
+import { Nav } from "react-bootstrap";
 
 export default function NavBarApp() {
   const icons = [
@@ -22,7 +23,7 @@ export default function NavBarApp() {
     { id: styles.points, src: "/points.png", alt: "parking", text: "點數商城", url: "/Shop" },
   ];
   return (
-    <div className={`${styles.navbarPhoneContainer}`}>
+    <Nav className={`${styles.navbarPhoneContainer}`}>
       {icons.map((icon) => (
         <div key={icon.id} id={icon.id} className={`${styles.icon}`}>
           <a href={icon.url || "#"}>
@@ -31,6 +32,6 @@ export default function NavBarApp() {
           </a>
         </div>
       ))}
-    </div>
+    </Nav>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_rentRecord.module.scss";
 import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
 
 const mber_RentRecord = () => {
   const navigate = useNavigate();
@@ -48,7 +49,8 @@ const mber_RentRecord = () => {
 
   return (
     <div className={styles.mber_rentRecord}>
-        <NavBarAPP />
+        <NavBarApp />
+        <BackIcon className={'d-sm-none'} />
       <div className={styles.record_header}>
         <h2>租借紀錄 </h2>
       </div>
