@@ -49,10 +49,12 @@ $color-shop-circle: #69f05b;
 .mallBody {
   height: 100vh; // 或 height: 100vh;
   overflow: hidden; // 防止滾動撐高
-  background: linear-gradient(180deg,
-      bs.$primary 0.02%,
-      #fee471 11.35%,
-      #fff 75.99%);
+  background: linear-gradient(
+    180deg,
+    bs.$primary 0.02%,
+    #fee471 11.35%,
+    #fff 75.99%
+  );
 
   @media (min-width: 576px) {
     height: 140vh; // 或 height: 100vh;
@@ -97,26 +99,17 @@ $color-shop-circle: #69f05b;
 // coupon禮物箱navbar跟main
 // ==========================
 .couponBody {
-<<<<<<< HEAD
-  min-height: 100vh; // 或 height: 100vh;
+  overflow: hidden; // 防止滾動撐高
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  // width: 100vw;
   background: linear-gradient(
     180deg,
     bs.$primary 0.02%,
     #fee471 11.35%,
     #fff 75.99%
   );
-=======
-  overflow: hidden; // 防止滾動撐高
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  // width: 100vw;
-  background: linear-gradient(180deg,
-      bs.$primary 0.02%,
-      #fee471 11.35%,
-      #fff 75.99%);
-
->>>>>>> cbe27814f1a4eb1d18c2db083bf13b73dab578f7
 }
 
 .couponNavbar {
@@ -139,14 +132,10 @@ $color-shop-circle: #69f05b;
 
     position: static; // 改為絕對定位
     margin: 0;
-<<<<<<< HEAD
-    z-index: 3; // 確保它浮動在 mallMain 上方
-=======
     margin-top: 2rem;
     margin-bottom: 2rem;
     padding: 0;
     z-index: 10; // 確保它浮動在 mallMain 上方
->>>>>>> cbe27814f1a4eb1d18c2db083bf13b73dab578f7
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
     width: 100%;
@@ -179,7 +168,6 @@ $color-shop-circle: #69f05b;
   @media (min-width: 576px) {
     height: 70vh;
   }
-
 
   // coupon禮物箱客製化tab
   .customTabs {
@@ -224,8 +212,6 @@ $color-shop-circle: #69f05b;
       margin: 0 24px 0 24px;
       align-items: center; // 卡片置中
       justify-content: center;
-
-
     }
 
     // 桌機以上
@@ -233,7 +219,6 @@ $color-shop-circle: #69f05b;
       margin: 0 48px 0 48px;
       // flex-direction: column; // 保持每張卡片換行
     }
-
 
     :global(.nav-link) {
       color: var(--brown, #6c4023);
@@ -261,12 +246,10 @@ $color-shop-circle: #69f05b;
     }
   }
 
-
   // ==========================
   // coupon禮物箱列表
   // ==========================
   .couponBoxList {
-
     height: 100%;
 
     overflow-y: auto;
@@ -714,7 +697,8 @@ $color-shop-circle: #69f05b;
 
 /* 美化日期選擇框的下拉箭頭（僅 WebKit） */
 .missiondatefilter input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(40%) sepia(20%) saturate(1000%) hue-rotate(340deg) brightness(80%) contrast(90%);
+  filter: invert(40%) sepia(20%) saturate(1000%) hue-rotate(340deg)
+    brightness(80%) contrast(90%);
   cursor: pointer;
 }
 
@@ -853,7 +837,6 @@ $color-shop-circle: #69f05b;
 }
 
 @media (min-width: 768px) {
-
   // 小於 576px
   .storeCouponCard {
     min-width: 250px;
@@ -958,21 +941,22 @@ $color-shop-circle: #69f05b;
   padding: 16px;
   position: relative;
 
-// 這個才是新的!!!!顏色!!!
-  $gradient-light : #5cf070;
+  // 這個才是新的!!!!顏色!!!
+  $gradient-light: #5cf070;
 
   // 點狀漸層呼吸燈效果
   &::before {
-
     content: "";
     width: 20px;
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-    background: radial-gradient(circle at 80% 50%,
-        bs.$success 0%,
-        $gradient-light 100%);
+    background: radial-gradient(
+      circle at 80% 50%,
+      bs.$success 0%,
+      $gradient-light 100%
+    );
     animation: breathing-dot-gradient 3s ease-in-out infinite;
     z-index: 1;
   }
@@ -989,7 +973,6 @@ $color-shop-circle: #69f05b;
       opacity: 0.8;
 
       scale: 1 random(2);
-
     }
 
     100% {
@@ -1000,9 +983,7 @@ $color-shop-circle: #69f05b;
   }
 
   &.used::before {
-    background: radial-gradient(circle at 80% 50%,
-        #ccc 0%,
-        #999 100%);
+    background: radial-gradient(circle at 80% 50%, #ccc 0%, #999 100%);
     animation: none;
   }
 
@@ -1123,8 +1104,6 @@ $color-shop-circle: #69f05b;
   }
 }
 
-
-
 .storeCouponCardInBox {
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
@@ -1142,8 +1121,7 @@ $color-shop-circle: #69f05b;
   overflow: hidden;
   padding: 1.5rem;
   position: relative;
-  box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24),
-  6px 6px 6px 0 #ffa832;
+  box-shadow: -2px -2px 4px 0 var(--orange, #ff9d24), 6px 6px 6px 0 #ffa832;
 
   .cardLeft {
     display: flex;
@@ -1211,38 +1189,4 @@ $color-shop-circle: #69f05b;
       gap: 4px;
     }
   }
-<<<<<<< HEAD
 }
-// coupon禮物箱客製化tab
-.customTabs {
-  :global(.nav-link) {
-    color: var(--brown, #6c4023);
-    font-family: Inter;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 3.2px;
-    white-space: nowrap;
-    width: 100%;
-    // max-width: calc(100% - 24px * 2);
-    &:hover {
-      color: #666;
-    }
-
-    &.active {
-      color: #000;
-      font-weight: bold;
-    }
-  }
-}
-/* 將 z-index 增加到 1060 */
-.modal-content {
-  /* 讓模態框向下偏移 50%，然後再向上偏移自身高度的 50%，達成置中 */
-  z-index: 1056;
-  top: 100%;
-  transform: translateY(-50%);
-}
-=======
-}
->>>>>>> cbe27814f1a4eb1d18c2db083bf13b73dab578f7

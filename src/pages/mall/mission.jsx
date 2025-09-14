@@ -8,7 +8,7 @@ import Notify from "../../components/notify";
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
 const missionBasePath = apiRoutes.mission;
-
+const memberBasePath = apiRoutes.member; // ← 加這行
 
 class Mission extends Component {
   state = {
@@ -20,8 +20,30 @@ class Mission extends Component {
     userPoint: null,
     claimingMissionId: null,
   };
+  async checkAuth() {
+    try {
+      const res = await fetch(`${API_URL}${memberBasePath}/check-auth`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        // 有登入，把 userId 存起來
+        sessionStorage.setItem("uid", data.user.uid);
+        this.setState({ userId: data.user.uid });
+      } else {
+        alert("請先登入");
+        window.location.href = "/mber_login"; // 用原生跳頁
+      }
+    } catch (err) {
+      alert("請先登入");
+      window.location.href = "/mber_login";
+    }
+  }
+  async componentDidMount() {
+    await this.checkAuth(); // 先檢查登入
 
-  componentDidMount() {
     console.log("Component mounted.");
     console.log("Initial userId from state:", this.state.userId);
     console.log("filterDate", this.state.filterDate);
@@ -85,7 +107,9 @@ class Mission extends Component {
   };
 
   async fetchMissions() {
-    const userId = this.state.userId || sessionStorage.getItem("uid") || "";
+    const userId = this.state.userId;
+    if (!userId) return;
+
     const { filterDate } = this.state;
     this.setState({ loading: true, error: null, mission: [] });
 
@@ -234,8 +258,6 @@ class Mission extends Component {
               <img src="/Iconimg/Shopping Cart.svg" alt="去逛逛" />
             </div>
           </div>
-
-
         </div>
         {/* mission的main */}
         <div className={styles.mallMain}>
@@ -274,8 +296,8 @@ class Mission extends Component {
                       <div className={styles.endDate}>
                         {item.mission_end_date
                           ? `至${new Date(
-                            item.mission_end_date
-                          ).toLocaleDateString("zh-TW")}`
+                              item.mission_end_date
+                            ).toLocaleDateString("zh-TW")}`
                           : "無期限"}
                       </div>
 
