@@ -4,7 +4,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import ErrorScreen from "../components/ErrorScreen";
 import UserDetailModal from "../components/modals/UserDetailModal";
 import ApiService from "../services/api";
-import OperationLogger from '../../../backend/operationLogger';
+
 
 /**
  * 用戶管理頁 (Admin)
@@ -112,14 +112,7 @@ const UserManagement = () => {
 
       const updated = await ApiService.updateUser(editUser.uid, payload);
 
-      // 記錄操作成功日誌
-      await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_USER, {
-        user_id: editUser.uid,
-        user_name: payload.user_name,
-        changed_fields: changedFields,
-        updated_time: new Date().toISOString(),
-        status: 'success'
-      });
+
 
       // 更新全域使用者清單中對應項目（保持引用不被直接操作）
       setUsers((prev) =>
@@ -137,14 +130,7 @@ const UserManagement = () => {
     } catch (err) {
       console.error("Failed to update user:", err);
       
-      // 記錄操作失敗日誌
-      await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_USER, {
-        user_id: editUser.uid,
-        user_name: editUser.user_name,
-        error: err.message || '更新失敗',
-        updated_time: new Date().toISOString(),
-        status: 'failed'
-      });
+
       
       alert("更新失敗，請稍後再試");
     } finally {

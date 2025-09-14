@@ -7,8 +7,7 @@ import OrderDetailModal from "../components/modals/OrderDetailModal";
 import CreateOrderModal from "../components/modals/CreateOrderModal";
 import ApiService from "../services/api";
 
-// 引入操作日誌記錄器
-import OperationLogger from '../../../backend/operationLogger';
+
 
 // 訂單管理頁面
 const OrderManagement = () => {
@@ -217,16 +216,7 @@ const OrderManagement = () => {
       const updatedOrder = await ApiService.updateOrder(selectedOrder.order_ID, updateData);
       console.log('訂單更新成功:', updatedOrder);
       
-      // 使用 OperationLogger 記錄操作（這裡會自動處理員工ID）
-      try {
-        await OperationLogger.log(OperationLogger.ACTIONS.UPDATE_ORDER, {
-          id: updatedOrder.order_ID || selectedOrder.order_ID,
-          user_name: updatedOrder.user_name || editOrder.user_name,
-          status: 'success'
-        });
-      } catch (logError) {
-        console.warn('記錄操作日誌失敗:', logError);
-      }
+
       
       // 更新訂單列表
       setOrders(prev => prev.map(order => 
