@@ -102,8 +102,8 @@ function App() {
     <AdminDataProvider>
       <AdminLayout onLogout={handleLogout}>
         <Routes>
-          {/*/dashboard 管理員儀表板 */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* 修正：登入後導向正確的 /admin/dashboard */}
+          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/dashboard" element={<AdminDashboard />} /> 
           <Route path="/users" element={<UserManagement />} />
           <Route path="/sites" element={<SiteManagement />} />
@@ -112,7 +112,7 @@ function App() {
           <Route path="/events" element={<ActivityBroadcast />} />
           <Route path="/employee-log" element={<StaffLogs />} />
           <Route path="/tasks" element={<TaskManagement />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Routes>
       </AdminLayout>
     </AdminDataProvider>

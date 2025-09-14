@@ -83,23 +83,33 @@ const CreateTaskModal = ({ onClose, onSuccess }) => {
       setLoading(true);
       setError('');
       
-      // 直接使用 ApiService.request，並使用後端期望的欄位名稱
-      const response = await ApiService.request('/missions', {
-        method: 'POST',
-        body: JSON.stringify({
-          title: formData.title,                    // 後端使用 title
-          description: formData.description,        // 後端使用 description  
-          type: formData.type,                      // 後端使用 type
-          reward_points: parseInt(formData.reward_points),
-          target_value: parseInt(formData.target_value),
-          target_unit: formData.target_unit,
-          mission_start_date: formData.mission_start_date || null,
-          mission_end_date: formData.mission_end_date || null
-        })
-      });
+      // 獲取操作者ID
+      const employeeId = parseInt(localStorage.getItem('employeeId'), 10);
+      console.log('當前操作員工ID:', employeeId);
+      
+      // 準備任務資料，確保包含 operator_id
+      const taskData = {
+        title: formData.title,
+        description: formData.description,
+        type: formData.type,
+        reward_points: parseInt(formData.reward_points),
+        target_value: parseInt(formData.target_value),
+        target_unit: formData.target_unit,
+        mission_start_date: formData.mission_start_date || null,
+        mission_end_date: formData.mission_end_date || null,
+        operator_id: employeeId  // 確保操作者ID被傳送
+      };
 
+      console.log('準備提交任務資料:', taskData);
+      
+      const response = await ApiService.createMission(taskData);
       console.log('任務建立成功:', response);
-      onSuccess('任務建立成功！');
+      
+      if (response.mission_id || response.message === '任務建立成功') {
+        onSuccess('任務建立成功！');
+      } else {
+        throw new Error(response.message || '建立任務失敗');
+      }
     } catch (err) {
       console.error('建立任務失敗:', err);
       setError(`建立任務失敗: ${err.message || '未知錯誤'}`);

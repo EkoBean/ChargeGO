@@ -13,8 +13,8 @@ const StaffLogs = () => {
     LOGIN: '登入系統',
     LOGOUT: '登出系統',
     LOGIN_FAILED: '登入失敗',
-    CREATE_SITE: '新增站點',
-    UPDATE_SITE: '更新站點',
+    CREATE_SITE: '新增站點', 
+    UPDATE_SITE: '更新站點',  
     DELETE_SITE: '刪除站點',
     VIEW_SITE: '查看站點',
     CREATE_CHARGER: '新增充電器',
@@ -36,6 +36,11 @@ const StaffLogs = () => {
     DELETE_EVENT: '刪除活動',
     SEND_EVENT: '發送活動通知',
     VIEW_EVENT: '查看活動',
+    // 新增任務相關操作
+    CREATE_MISSION: '新增任務',      
+    UPDATE_MISSION: '修改任務',      
+    DELETE_MISSION: '刪除任務',      
+    VIEW_MISSION: '查看任務',        
     'log in': '登入系統',
     'log out': '登出系統',
     'changed userinfo': '修改用戶資訊'
@@ -62,8 +67,7 @@ const StaffLogs = () => {
     if (!logContent) return { action: '未知操作' };
     
     try {
-      // 嘗試分析日誌內容格式
-      // 找到第一個 '-' 作為 action 與 JSON 的分隔（避免 JSON 裡的 - 破壞解析）
+      // 找到第一個 '-' 作為 action 與 JSON 的分隔
       const dashIndex = logContent.indexOf('-');
       if (dashIndex > 0) {
         const action = logContent.substring(0, dashIndex);
@@ -76,23 +80,30 @@ const StaffLogs = () => {
           details = { raw: jsonStr };
         }
         
+        // 新增：任務類型中文對照
+        const taskTypeLabels = {
+          'accumulated_hours': '累積時間',
+          'monthly_rentals': '月租借次數',
+          'daily_task': '每日任務',
+          'weekly_task': '每週任務',
+          'special_event': '特殊活動'
+        };
+        
         // 根據不同操作類型，格式化描述
         let description = '';
         switch (action) {
-          case 'UPDATE_ORDER':
-            // 簡化顯示，只顯示訂單ID
-            const orderId = details.id || '未知';
-            description = `訂單 #${orderId}`;
-            // 移除用戶名稱、時間等額外資訊的顯示
-            break;
           case 'CREATE_ORDER':
-            description = `訂單 #${details.id || '未知'}`;
+            // 優先顯示用戶名稱和訂單ID
+            const orderInfo = details.user_name ? `用戶: ${details.user_name}` : `用戶ID: ${details.uid || '未知'}`;
+            description = `訂單 #${details.order_id || '未知'} (${orderInfo})`;
+            break;
+          case 'UPDATE_ORDER':
+            // 修正：確保使用 details.order_id
+            const updateOrderId = details.order_id || details.id || '未知';
+            description = `訂單 #${updateOrderId}`;
             break;
           case 'DELETE_ORDER':
-            description = `訂單 #${details.id || '未知'}`;
-            break;
-          case 'VIEW_ORDER':
-            description = `訂單 #${details.id || '未知'}`;
+            description = `訂單 #${details.order_id || '未知'}`;
             break;
           case 'UPDATE_USER':
             description = `用戶 #${details.uid || details.id || '未知'}`;
@@ -106,7 +117,8 @@ const StaffLogs = () => {
           case 'CREATE_SITE':
           case 'UPDATE_SITE':
           case 'DELETE_SITE':
-            description = `站點 #${details.id || '未知'}`;
+            // 使用 details.site_id
+            description = `站點 #${details.site_id || '未知'}`;
             break;
           case 'CREATE_CHARGER':
           case 'UPDATE_CHARGER':
@@ -122,10 +134,26 @@ const StaffLogs = () => {
             const evTitle = details.title || details.event_title;
             description = evTitle ? `活動：${evTitle}` : `活動 #${details.id || '未知'}`;
             break;
+          // 修改任務相關操作的解析 - 加入中文任務類型
+          case 'CREATE_MISSION':
+          case 'UPDATE_MISSION':
+          case 'DELETE_MISSION':
+          case 'VIEW_MISSION':
+            // 優先顯示任務標題，若沒有則顯示任務ID
+            const missionTitle = details.title;
+            // 將英文任務類型轉換為中文
+            const missionTypeZh = details.type ? taskTypeLabels[details.type] || details.type : '';
+            const missionType = missionTypeZh ? ` (${missionTypeZh})` : '';
+            description = missionTitle ? `任務：${missionTitle}${missionType}` : `任務 #${details.mission_id || details.id || '未知'}`;
+            break;
           default:
             // 對於其他操作，只顯示基本ID資訊
             if (details.id) {
               description = `#${details.id}`;
+            } else if (details.order_id) {
+              description = `#${details.order_id}`;
+            } else if (details.mission_id) {
+              description = `#${details.mission_id}`;
             } else {
               description = '';
             }

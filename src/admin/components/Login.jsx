@@ -14,7 +14,6 @@ const Login = ({ onLogin }) => {
 
     try {
       const BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:3000';
-      // 優先使用 apiRoutes.employee，但若它不是 admin 路徑則改為 /api/admin/employee
       let employeeRoute = apiRoutes?.employee || '/api/employee';
       if (!employeeRoute.startsWith('/api/admin')) {
         employeeRoute = '/api/admin/employee';
@@ -48,9 +47,51 @@ const Login = ({ onLogin }) => {
         localStorage.setItem('employeeName', data.employee.name);
         localStorage.setItem('employeeId', data.employee.id);
         localStorage.setItem('loginTime', new Date().toISOString());
+
+        // 新增：記錄登入操作
+        try {
+          const logPayload = {
+            employee_id: data.employee.id,
+            log: `LOGIN-${JSON.stringify({
+              email: formData.email,
+              timestamp: new Date().toISOString(),
+              status: 'success'
+            })}`
+          };
+
+          await fetch(`${BASE}/api/admin/employee_log`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(logPayload)
+          });
+        } catch (logError) {
+          console.error('記錄登入操作失敗:', logError);
+        }
+
         onLogin(true);
       } else {
         console.warn('LOGIN failed', { email: formData.email, message: data.message, status: res.status });
+        
+        // 新增：記錄登入失敗
+        try {
+          const logPayload = {
+            employee_id: formData.email, // 登入失敗時可能沒有 id，暫用 email
+            log: `LOGIN_FAILED-${JSON.stringify({
+              email: formData.email,
+              timestamp: new Date().toISOString(),
+              reason: data.message || '未知原因'
+            })}`
+          };
+
+          await fetch(`${BASE}/api/admin/employee_log`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(logPayload)
+          });
+        } catch (logError) {
+          console.error('記錄登入失敗操作失敗:', logError);
+        }
+
         setError(data.message || '登入失敗');
       }
     } catch (err) {

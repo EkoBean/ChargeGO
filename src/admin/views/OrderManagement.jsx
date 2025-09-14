@@ -195,7 +195,8 @@ const OrderManagement = () => {
 
     setSaving(true);
     try {
-      // 準備更新資料，移除 operator_id
+      // 準備更新資料，添加 operator_id
+      const employeeId = parseInt(localStorage.getItem('employeeId'), 10);
       const updateData = {
         uid: Number(editOrder.uid),
         start_date: editOrder.start_date,
@@ -205,8 +206,8 @@ const OrderManagement = () => {
         order_status: status,
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
-        total_amount: editOrder.total_amount || 0
-        // 移除 operator_id: 1
+        total_amount: editOrder.total_amount || 0,
+        operator_id: employeeId  // 添加操作者ID
       };
       
       console.log('準備傳送的更新資料:', updateData);
@@ -214,9 +215,6 @@ const OrderManagement = () => {
       // 呼叫更新 API
       const updatedOrder = await ApiService.updateOrder(selectedOrder.order_ID, updateData);
       console.log('訂單更新成功:', updatedOrder);
-      
-      // 已移除 OperationLogger：以 console 替代
-      console.log('UPDATE_ORDER success', updatedOrder.order_ID);
       
       // 更新訂單列表
       setOrders(prev => prev.map(order => 
@@ -236,10 +234,6 @@ const OrderManagement = () => {
       
     } catch (error) {
       console.error('更新訂單失敗:', error);
-      
-      // 已移除 OperationLogger：簡單記錄錯誤
-      console.warn('UPDATE_ORDER failed', { order_ID: editOrder?.order_ID || selectedOrder?.order_ID, error: error.message });
-      
       alert(`更新訂單失敗: ${error.message}`);
     } finally {
       setSaving(false);
@@ -403,26 +397,25 @@ const OrderManagement = () => {
 
     setSaving(true);
     try {
-      // 準備資料
+      // 準備資料，確保包含 operator_id
+      const employeeId = parseInt(localStorage.getItem('employeeId'), 10);
       const orderData = {
         uid: Number(editOrder.uid),
         start_date: editOrder.start_date,
-        end: (status === "1" || status === "-1") ? editOrder.end : null, // 只有完成/取消時才傳送結束時間
+        end: (status === "1" || status === "-1") ? editOrder.end : null,
         rental_site_id: Number(editOrder.rental_site_id),
-        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? Number(editOrder.return_site_id) : null, // 只有完成/取消時才傳送歸還站點
+        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? Number(editOrder.return_site_id) : null,
         order_status: status,
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
-        total_amount: editOrder.total_amount || 0
+        total_amount: editOrder.total_amount || 0,
+        operator_id: employeeId  // 確保操作者ID被傳送
       };
       
       console.log('準備傳送的訂單資料:', orderData);
       
       const savedOrder = await ApiService.createOrder(orderData);
       console.log('訂單建立成功:', savedOrder);
-      
-      // 已移除 OperationLogger：以 console 替代
-      console.log('CREATE_ORDER', savedOrder.order_ID || savedOrder.id);
       
       // 將新訂單添加到列表最前面
       setOrders(prev => {

@@ -355,14 +355,13 @@ const SiteManagement = () => {
         longitude,
         latitude,
         country,
+        operator_id: parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
       };
 
       if (creatingSite || !editSite.site_id) {
         const created = await ApiService.createSite(payload);
         
-        // 已移除 OperationLogger（create）
         console.log('CREATE_SITE', created?.site_id || created?.site_name);
-
         setSites((prev) => [...prev, created]);
         setSelectedSite(created.site);
         setEditSite(created.site);
@@ -370,9 +369,7 @@ const SiteManagement = () => {
       } else {
         const updated = await ApiService.updateSite(editSite.site_id, payload);
         
-        // 已移除 OperationLogger（update）
         console.log('UPDATE_SITE', editSite.site_id, payload);
-
         setSites((prev) => prev.map((s) => (s.site_id === updated.site_id ? { ...s, ...updated } : s)));
         setShowSiteModal(true);
         setIsEditingSite(false);
