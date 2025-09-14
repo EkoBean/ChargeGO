@@ -5,10 +5,10 @@
 
 
 // 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
-@use "../../../node_modules/bootstrap/scss/bootstrap" as bs with ($primary: $primary,
-  $secondary: $secondary,
-  $success: $success,
-  $danger: $danger);
+// @use "../../../node_modules/bootstrap/scss/bootstrap" as bs with ($primary: $primary,
+//   $secondary: $secondary,
+//   $success: $success,
+//   $danger: $danger);
 
 // ==============================================
 // 自訂樣式
@@ -34,6 +34,24 @@ body,
 a {
   color: $brown;
   text-decoration: none;
+}
+
+.btn-primary {
+  background-color: $primary !important;
+  border-color: $primary !important;
+  color: $brown !important;
+
+  &:hover {
+    background-color: $primary-hover !important;
+    border-color: $primary-hover !important;
+    color: $brown !important;
+  }
+
+  &:active {
+    background-color: $primary-active !important;
+    border-color: $primary-active !important;
+    color: $brown !important;
+  }
 }
 
 .mber_title {
