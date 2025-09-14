@@ -160,8 +160,8 @@ const Coupon = () => {
   return (
     <>
       <BackIcon />
+      <Notify />
       <div className={styles.couponBody}>
-        <Notify style={{ position: 'fixed', right: '3%', top: '2.5%', zIndex: '999' }} />
         <NavBarApp />
 
         <div className={styles.couponNavbar}>
@@ -201,62 +201,62 @@ const Coupon = () => {
               </button>
             </li>
           </ul>
-          <div className={styles.couponBoxList }>
-          <div className={styles.couponBoxListInner}>
-            {activeTab === "store" && (
-              <>
-                {storeCoupons.length === 0 ? (
-                  <p className="text-muted">目前沒有商家優惠券</p>
-                ) : (
-                  storeCoupons.map((coupon) => (
-                    <div key={coupon.id} className={styles.storeCouponCardInBox}>
-                      <div className={styles.cardLeft}>
-                        <h5 className="fw-bold mb-0">{coupon.title}</h5>
-                        <small className="text-muted">
-                          有效期至：
-                          {new Date(coupon.expiresAt).toLocaleDateString()}
-                        </small>
+          <div className={styles.couponBoxList}>
+            <div className={styles.couponBoxListInner}>
+              {activeTab === "store" && (
+                <>
+                  {storeCoupons.length === 0 ? (
+                    <p className="text-muted">目前沒有商家優惠券</p>
+                  ) : (
+                    storeCoupons.map((coupon) => (
+                      <div key={coupon.id} className={styles.storeCouponCardInBox}>
+                        <div className={styles.cardLeft}>
+                          <h5 className="fw-bold mb-0">{coupon.title}</h5>
+                          <small className="text-muted">
+                            有效期至：
+                            {new Date(coupon.expiresAt).toLocaleDateString()}
+                          </small>
+                        </div>
+                        <div className={styles.cardRight}>
+                          <button
+                            className={`btn  ${coupon.isUsed ? "disabled" : styles.claimBtn
+                              } rounded-pill fw-bold`}
+                            disabled={coupon.isUsed}
+                            onClick={() => handleCouponClick(coupon)}
+                          >
+                            {coupon.isUsed ? "已使用" : "使用"}
+                          </button>
+                        </div>
                       </div>
-                      <div className={styles.cardRight}>
-                        <button
-                          className={`btn  ${coupon.isUsed ? "disabled" : styles.claimBtn
-                            } rounded-pill fw-bold`}
-                          disabled={coupon.isUsed}
-                          onClick={() => handleCouponClick(coupon)}
-                        >
-                          {coupon.isUsed ? "已使用" : "使用"}
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </>
-            )}
+                    ))
+                  )}
+                </>
+              )}
 
-            {activeTab === "rental" && (
-              <>
-                {rentalCoupons.length === 0 ? (
-                  <p className="text-muted">目前沒有租借優惠券</p>
-                ) : (
-                  rentalCoupons.map((coupon) => (
-                    <div
-                      key={coupon.id}
-                      className={`${styles.rentalCouponCard} ${coupon.isUsed ? styles.used : ""
-                        }`}
-                    >
-                      <div className={styles.couponInfo}>
-                        <h5 className={styles.couponName}>{coupon.title}</h5>
-                        <small className={styles.couponDetails}>
-                          有效期至：
-                          {new Date(coupon.expiresAt).toLocaleDateString()}
-                        </small>
+              {activeTab === "rental" && (
+                <>
+                  {rentalCoupons.length === 0 ? (
+                    <p className="text-muted">目前沒有租借優惠券</p>
+                  ) : (
+                    rentalCoupons.map((coupon) => (
+                      <div
+                        key={coupon.id}
+                        className={`${styles.rentalCouponCard} ${coupon.isUsed ? styles.used : ""
+                          }`}
+                      >
+                        <div className={styles.couponInfo}>
+                          <h5 className={styles.couponName}>{coupon.title}</h5>
+                          <small className={styles.couponDetails}>
+                            有效期至：
+                            {new Date(coupon.expiresAt).toLocaleDateString()}
+                          </small>
+                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </>
-            )}
-          </div>
+                    ))
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           {showModal && selectedCoupon && (

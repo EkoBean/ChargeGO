@@ -209,7 +209,7 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
-        <Notify style={{ position: 'fixed', right: '3%', top: '2.5%', zIndex: '999' }} />
+        <Notify />
 
         <NavBarApp />
         {/* mission的navbar */}
