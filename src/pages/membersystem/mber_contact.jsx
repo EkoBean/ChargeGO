@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBarApp from "../../components/NavBarApp";
 import Notify from "../../components/notify";
 import styles from "../../styles/scss/mber_info.module.scss";
 import { apiRoutes } from "../../components/apiRoutes";
+import NavBarApp from "../../components/NavBarApp";
+import BackIcon from "../../components/backIcon";
 
 const mber_contact = () => {
   const [user, setUser] = useState(null);

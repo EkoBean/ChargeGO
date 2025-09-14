@@ -97,21 +97,24 @@ $color-shop-circle: #69f05b;
 // coupon禮物箱navbar跟main
 // ==========================
 .couponBody {
-  min-height: 100vh; // 或 height: 100vh;
+  overflow: hidden; // 防止滾動撐高
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   // width: 100vw;
   background: linear-gradient(180deg,
       bs.$primary 0.02%,
       #fee471 11.35%,
       #fff 75.99%);
+
 }
 
 .couponNavbar {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 33px 0; // 上下各 10px，高度會比原來多 20px
-
+  margin-bottom: 2rem;
   background-color: #ffce00;
   /* 只把底部設圓角 */
   border-bottom-left-radius: 50%;
@@ -124,48 +127,170 @@ $color-shop-circle: #69f05b;
   @media (min-width: 576px) {
     background-color: transparent;
 
-    position: absolute; // 改為絕對定位
-    // top: 20%;
-    // left: 50%;
+    position: static; // 改為絕對定位
     margin: 0;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    padding: 0;
     z-index: 10; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   @media (max-width: 992px) {
     top: 23%;
   }
 
-  @media (max-width: 768px) and (min-width: 576px) {
+  @media (max-width: 768px) {
     top: 18%;
-    left: 40%;
+    // left: 40%;
   }
 }
 
 .couponMain {
   z-index: 3;
-  top: 23vh;
   /* 距離視窗頂端 10% 高度 */
-
-  width: 100vw;
-  height: 80vh;
+  // width: 100vw;
+  // height: 100%;
   overflow: hidden;
-  position: relative;
   background-color: transparent;
+  flex: 1;
+
   /* alpha 值 0~1 */
-
-  position: fixed;
-
-  /* 固定在視窗底部 */
-  // 桌面版樣式
   @media (min-width: 576px) {
-    left: 10%;
-    right: 10%;
-    width: 80vw;
-    top: auto; // 取消 top 的固定值
-    position: relative; // 讓 mallMain 變成可滾動的區塊，而非固定在底部
-    margin-top: 115px; // 將內容往下推，為上方圓圈保留空間
+    height: 70vh;
+  }
+
+
+  // coupon禮物箱客製化tab
+  .customTabs {
+    margin: 0 28px 0 28px;
+    padding: 0;
+    display: flex;
+    list-style: none;
+    gap: 12px;
+
+    li {
+      display: block;
+    }
+
+    button {
+      background: bs.$primary;
+      color: bs.$brown;
+      border-radius: 999px;
+      padding: 0.8rem 1.6rem;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      white-space: nowrap;
+
+      &:focus {
+        outline: none;
+        border: none;
+      }
+
+      &:hover {
+        filter: brightness(0.8);
+      }
+
+      &.active {
+        background: #fff;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    // 平板以上
+    @media (min-width: 576px) {
+      margin: 0 24px 0 24px;
+      align-items: center; // 卡片置中
+      justify-content: center;
+
+
+    }
+
+    // 桌機以上
+    @media (min-width: 1200px) {
+      margin: 0 48px 0 48px;
+      // flex-direction: column; // 保持每張卡片換行
+    }
+
+
+    :global(.nav-link) {
+      color: var(--brown, #6c4023);
+      font-family: Inter;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: 3.2px;
+      white-space: nowrap;
+      width: 100%;
+
+      // max-width: calc(100% - 24px * 2);
+      &:hover {
+        color: #666;
+      }
+
+      &.active {
+        background-color: white;
+        outline: none;
+        border: none;
+        color: #000;
+        font-weight: bold;
+      }
+    }
+  }
+
+
+  // ==========================
+  // coupon禮物箱列表
+  // ==========================
+  .couponBoxList {
+
+    height: 100%;
+
+    overflow-y: auto;
+    padding-right: 20px;
+    padding-left: 20px;
+
+    margin: 0 8px;
+    padding-top: 2rem;
+    padding-bottom: 10rem;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    // 平板以上
+    @media (min-width: 576px) {
+      // margin: 0 24px;
+    }
+
+    // 桌機以上
+    @media (min-width: 1200px) {
+      margin: 0 48px;
+      flex-direction: column; // 保持每張卡片換行
+      align-items: center; // 卡片置中
+    }
+
+    .couponBoxListInner {
+      display: flex;
+      flex-direction: column; // 手機預設為單列
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
   }
 }
 
@@ -767,42 +892,43 @@ $color-shop-circle: #69f05b;
 // ==========================
 // 租借兌換券購買列表
 // ==========================
-.rentalCouponList {
-  display: flex;
-  flex-direction: column; // 手機預設為單列
-  gap: 24px;
-  height: 300px;
-  overflow-y: auto;
-  padding-right: 6px;
-  margin: 0 12px;
-  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
+// .rentalCouponList {
+//   display: flex;
+//   flex-direction: column; // 手機預設為單列
+//   gap: 24px;
+//   height: 300px;
+//   overflow-y: auto;
+//   padding-right: 6px;
+//   margin: 0 12px;
+//   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+//   &::-webkit-scrollbar {
+//     width: 6px;
+//   }
 
-  &::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
+//   &::-webkit-scrollbar-thumb {
+//     background: #ccc;
+//     border-radius: 4px;
+//   }
 
-  // 平板以上
-  @media (min-width: 768px) {
-    margin: 0 24px;
-  }
+//   // 平板以上
+//   @media (min-width: 768px) {
+//     margin: 0 24px;
+//   }
 
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px;
-    flex-direction: column; // 保持每張卡片換行
-    align-items: center; // 卡片置中
-  }
-}
+//   // 桌機以上
+//   @media (min-width: 1200px) {
+//     margin: 0 48px;
+//     flex-direction: column; // 保持每張卡片換行
+//     align-items: center; // 卡片置中
+//   }
+// }
 
 .rentalCouponCard {
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
   flex-shrink: 0; // 避免因為 list 捲動壓縮
+  max-width: 500px;
 
   @media (min-width: 1200px) {
     width: calc(70% - 12px); // 桌機兩欄，保留gap
@@ -858,12 +984,14 @@ $color-shop-circle: #69f05b;
       background-position: 0% 50%;
     }
   }
+
   &.used::before {
     background: radial-gradient(circle at 80% 50%,
         #ccc 0%,
         #999 100%);
     animation: none;
   }
+
   .couponInfo {
     display: flex;
     flex-direction: column;
@@ -981,44 +1109,7 @@ $color-shop-circle: #69f05b;
   }
 }
 
-// ==========================
-// coupon禮物箱列表
-// ==========================
-.couponBoxList {
-  display: flex;
-  flex-direction: column; // 手機預設為單列
-  gap: 1rem;
-  height: 100%;
-  overflow-y: auto;
-  padding-right: 20px;
-  padding-left: 20px;
 
-  margin: 0 8px;
-  padding-top: 20px;
-  padding-bottom: 30px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
-
-  // 平板以上
-  @media (min-width: 576px) {
-    margin: 0 24px;
-    height: 90%;
-  }
-
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px;
-    flex-direction: column; // 保持每張卡片換行
-    align-items: center; // 卡片置中
-  }
-}
 
 .storeCouponCardInBox {
   width: 100%; // 手機全寬
@@ -1104,83 +1195,6 @@ $color-shop-circle: #69f05b;
       display: flex;
       align-items: center;
       gap: 4px;
-    }
-  }
-}
-
-// coupon禮物箱客製化tab
-.customTabs {
-  margin: 0 28px 0 28px;
-  padding: 0;
-  display: flex;
-  list-style: none;
-  gap: 12px;
-
-  li {
-    display: block;
-  }
-
-  button {
-    background: bs.$primary;
-    color: bs.$brown;
-    border-radius: 999px;
-    padding: 0.8rem 1.6rem;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    white-space: nowrap;
-
-    &:focus {
-      outline: none;
-      border: none;
-    }
-
-    &:hover {
-      filter: brightness(0.8);
-    }
-
-    &.active {
-      background: #fff;
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  // 平板以上
-  @media (min-width: 576px) {
-    margin: 0 24px 0 24px;
-  }
-
-  // 桌機以上
-  @media (min-width: 1200px) {
-    margin: 0 48px 0 48px;
-    // flex-direction: column; // 保持每張卡片換行
-    // align-items: center; // 卡片置中
-  }
-
-
-  :global(.nav-link) {
-    color: var(--brown, #6c4023);
-    font-family: Inter;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 3.2px;
-    white-space: nowrap;
-    width: 100%;
-
-    // max-width: calc(100% - 24px * 2);
-    &:hover {
-      color: #666;
-    }
-
-    &.active {
-      background-color: white;
-      outline: none;
-      border: none;
-      color: #000;
-      font-weight: bold;
     }
   }
 }
