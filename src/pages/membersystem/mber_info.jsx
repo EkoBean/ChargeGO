@@ -45,7 +45,8 @@ const mber_Info = () => {
           navigate("/mber_login");
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Error fetching auth status:", err);
         alert("請先登入");
         navigate("/mber_login");
       });

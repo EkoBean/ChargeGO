@@ -3,25 +3,33 @@ import styles from "../styles/scss/ChargegoLogo.module.scss";
 import 'animate.css';
 
 function ChargegoLogo({ className = "" }) {
-    const [logoHover, setLogoHover] = useState(false);
-    const [animKey, setAnimKey] = useState(0);
-
+    const [hover, setHover] = useState(false);
+    // 讓每次 hover 都能觸發動畫
     const handleMouseEnter = () => {
-        setLogoHover(true);
-        setAnimKey(prev => prev + 1); // 每次 hover 都改變 key
+        setHover(false); // 先重置
+        setTimeout(() => setHover(true), 10); // 再啟動動畫
     };
-
     return (
-        <div className={`${styles.logo} ${className}`}>
-            <img
-                key={animKey}
-                src={logoHover ? "/home-button-hover.png" : "/home-button.png"}
-                alt="Chargego Logo"
-                className={logoHover ? `${styles.animateAnimated} ${styles.animateRubberBand}` : ""}
+        <div className={`${styles['chargego-logo']} ${className}`}>
+            <h1
+                className={
+                  `${styles.logoText} ${hover ? 'animate__animated animate__rubberBand' : ''}`
+                }
                 onMouseEnter={handleMouseEnter}
-                onAnimationEnd={() => setLogoHover(false)}
-                onMouseLeave={() => setLogoHover(false)}
-            />
+                onAnimationEnd={() => setHover(false)}
+            >
+                ChargeG
+                <span className={styles.oWrap}>
+                  O
+                  {hover && (
+                    <span className={styles.bolt}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 2L3 14H12L11 22L21 10H13L13 2Z" fill="#00ff3c" stroke="#00ff3c" strokeWidth="1.5" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                  )}
+                </span>
+            </h1>
         </div>
     );
 }
