@@ -6,7 +6,7 @@ import styles from "../styles/scss/NavBarWebsite.module.scss";
 import React from 'react';
 import ChargegoLogo from "./ChargegoLogo";
 
-function NavbarWebsite() {
+function NavbarWebsite(props) {
   const [mainBallPos, setMainBallPos] = useState({ x: 0, y: 0, show: false });
   const [followerBallPos, setFollowerBallPos] = useState({
     x: 0,
@@ -136,7 +136,7 @@ function NavbarWebsite() {
       </svg>
 
       {/* navbar */}
-      <header className={styles["my-navbar"]}>
+      <header className={`${styles["my-navbar"]} ${props.className || ""}`}>
         <div className={styles["left-placeholder"]}>
           <div className={styles.home}>
             <ChargegoLogo className={styles["chargego-logo"]} />
@@ -202,6 +202,16 @@ function NavbarWebsite() {
                   } else if (item.title === "關於我們") {
                     e.preventDefault();
                     const el = document.getElementById('about-us');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    closeMobileMenu();
+                  } else if (item.title === "成為站點") {
+                    e.preventDefault();
+                    const el = document.getElementById('become-station');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    closeMobileMenu();
+                  } else if (item.title === "如何租借？") {
+                    e.preventDefault();
+                    const el = document.getElementById('how-to-rent');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                     closeMobileMenu();
                   } else if (window.innerWidth <= 768) {
