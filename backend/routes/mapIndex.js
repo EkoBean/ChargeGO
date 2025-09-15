@@ -150,7 +150,7 @@ app.patch('/rent', async (req, res) => {
     }
     catch (err) {
         console.error('err :>> ', err);
-        return res.status(500).json({ success: false, message: '租借錯誤' });
+        return res.status(500).json({success: false, message: '租借錯誤' });
     }
 
 
@@ -197,7 +197,9 @@ app.patch('/return', async (req, res) => {
                     if (rentalFee < 0) rentalFee = 0;
                     break;
                 }
-                case 'rental_discount': rentalFee = rentalFee - couponValue; break;
+                case 'rental_discount': rentalFee = rentalFee - couponValue; 
+                if(rentalFee < 0) rentalFee = 0;
+                break;
                 case 'free_minutes': {
                     const freeTimeSessions = Math.floor(couponValue / 30);
                     rentalFee = rentalFee - (freeTimeSessions * 5);
