@@ -93,6 +93,7 @@ const mber_AddCreditcard = () => {
         {/* 標題區域 */}
         <div className={styles.titleSection}>
           <div className={`mber_title`}>付款方式</div>
+          <img src="../../../public/creditcard.svg"  />
           <div className={`mber_title`}>信用卡</div>
         </div>
         {/* 表單區域 */}
