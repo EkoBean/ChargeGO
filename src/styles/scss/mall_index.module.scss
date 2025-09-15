@@ -36,7 +36,7 @@ $color-shop-circle: #69f05b;
     top: 15%;
     left: 10%;
     margin: 0;
-    z-index: 8; // 確保它浮動在 mallMain 上方
+    z-index: 4; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
     align-items: flex-start;
   }
@@ -795,44 +795,72 @@ $color-shop-circle: #69f05b;
       text-overflow: ellipsis;
     }
   }
+}
+.couponActions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btndetail,
+.btnredeem {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease; // 平滑放大
+
+  // btndetail 特殊樣式
+  &.btndetail {
+    border: 1px solid #ccc;
+    background: #fff;
+
+    &:hover {
+      background: #f1f1f1;
+    }
+  }
+
+  // btnredeem 特殊樣式
+  &.btnredeem {
+    font-weight: 500;
+    border: none;
+    background: #00d84a;
+    color: #fff;
+
+    &:hover {
+      background: #00b63f;
+    }
+
+    &.disabled {
+      background: #ccc !important;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* 小於 576px，按鈕維持原本尺寸 */
+@media (min-width: 576px) {
+  .btndetail,
+  .btnredeem {
+    font-size: 15px;
+    padding: 6px 12px;
+    border-radius: 10px;
+  }
 
   .couponActions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+  }
+}
 
-    .btn-detail {
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 13px;
-      border: 1px solid #ccc;
-      background: #fff;
-      cursor: pointer;
+@media (min-width: 768px) {
+  .btndetail,
+  .btnredeem {
+    font-size: 16px;
+    padding: 8px 14px;
+    border-radius: 12px;
+  }
 
-      &:hover {
-        background: #f1f1f1;
-      }
-    }
-
-    .btn-redeem {
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      background: #00d84a;
-      color: #fff;
-
-      &:hover {
-        background: #00b63f;
-      }
-
-      &.disabled {
-        background: #ccc !important;
-        cursor: not-allowed;
-      }
-    }
+  .couponActions {
+    gap: 10px;
   }
 }
 
@@ -889,46 +917,47 @@ $color-shop-circle: #69f05b;
 // ==========================
 // 租借兌換券購買列表
 // ==========================
-// .rentalCouponList {
-//   display: flex;
-//   flex-direction: column; // 手機預設為單列
-//   gap: 24px;
-//   height: 300px;
-//   overflow-y: auto;
-//   padding-right: 6px;
-//   margin: 0 12px;
-//   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
+.rentalCouponList {
+  display: flex;
+  flex-direction: column; // 手機預設為單列
+  gap: 24px;
+  height: 300px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin: 0 12px;
+  padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
-//   &::-webkit-scrollbar {
-//     width: 6px;
-//   }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
 
-//   &::-webkit-scrollbar-thumb {
-//     background: #ccc;
-//     border-radius: 4px;
-//   }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
 
-//   // 平板以上
-//   @media (min-width: 768px) {
-//     margin: 0 24px;
-//   }
+  // 平板以上
+  @media (min-width: 768px) {
+    margin: 0 24px;
+    align-items: center; // 卡片置中
+  }
 
-//   // 桌機以上
-//   @media (min-width: 1200px) {
-//     margin: 0 48px;
-//     flex-direction: column; // 保持每張卡片換行
-//     align-items: center; // 卡片置中
-//   }
-// }
+  // 桌機以上
+  @media (min-width: 1200px) {
+    margin: 0 48px;
+    flex-direction: column; // 保持每張卡片換行
+    align-items: center; // 卡片置中
+  }
+}
 
 .rentalCouponCard {
   width: 100%; // 手機全寬
   height: 120px; // 或你希望的固定高度
   flex-shrink: 0; // 避免因為 list 捲動壓縮
-  max-width: 500px;
+  // max-width: 500px;
 
-  @media (min-width: 1200px) {
-    width: calc(70% - 12px); // 桌機兩欄，保留gap
+  @media (min-width: 576px) {
+    width: calc(80% - 12px); // 桌機兩欄，保留gap
   }
 
   display: flex;

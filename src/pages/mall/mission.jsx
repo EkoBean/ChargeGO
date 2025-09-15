@@ -236,13 +236,14 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
-        <BackIcon />
-
-        <Notify />
-
         <NavBarApp />
         {/* mission的navbar */}
         <div className={styles.mallNavbar}>
+          <BackIcon
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
           <div className={styles.navbarCenterSection}>
             <div className={styles.pointCircle}>
               <div className={styles.circleText}>
@@ -263,6 +264,11 @@ class Mission extends Component {
               />
             </div>
           </div>
+          <Notify
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
         </div>
         {/* mission的main */}
         <div className={styles.mallMain}>
