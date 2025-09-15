@@ -9,8 +9,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // =========== elements ==================
 
 import MapIndex from "./mapIndex/mapIndex";
-import Mission from "./mall/mission";
-import Shop from "./mall/shop";
+import MissionWrapper from "./mall/mission";
+import ShopWrapper from "./mall/shop";
 import Mbre_login from "./membersystem/mber_login";
 import Mber_ForgotPwd from "./membersystem/mber_forgotpwd";
 import Mber_register from "./membersystem/mber_register";
@@ -25,7 +25,7 @@ import CheckoutCoupons from "./mall/checkout_coupon";
 import Task from "./membersystem/Task";
 
 // index
-import WebSite from './ImageWebsite/WebSite'
+import WebSite from "./ImageWebsite/WebSite";
 
 function App() {
   return (
@@ -38,8 +38,8 @@ function App() {
         <Route path="/MapIndex" element={<MapIndex />} />
 
         {/* store system */}
-        <Route path="/Mission" element={<Mission />} />
-        <Route path="/Shop" element={<Shop />}></Route>
+        <Route path="/Mission" element={<MissionWrapper />} />
+        <Route path="/Shop" element={<ShopWrapper />}></Route>
         <Route path="/Coupon" element={<Coupon />}></Route>
         <Route path="/CheckoutCoupons" element={<CheckoutCoupons />}></Route>
         <Route path="/Task" element={<Task />} />

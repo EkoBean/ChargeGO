@@ -57,7 +57,7 @@ app.get("/:user_id/:date", async function (req, res) {
   // 執行 SQL 查詢
   try {
     // 使用 await 等待查詢結果，這裡使用 pool.query
-    const results = await pool.queryAsyncAsync(query, [user_id, date, date, date]);
+    const results = await pool.queryAsync(query, [user_id, date, date, date]);
     res.json(results);
   } catch (err) {
     console.error("執行查詢時發生錯誤:", err);
@@ -76,7 +76,7 @@ app.post("/usermission/claim", async (req, res) => {
 
   try {
     // Step 1: 查詢任務狀態與獎勵點數
-    const rows = await pool.queryAsyncAsync(
+    const rows = await pool.queryAsync(
       `SELECT
         um.is_completed,
         um.is_claimed,
@@ -106,10 +106,10 @@ app.post("/usermission/claim", async (req, res) => {
     }
 
     // Step 3: 使用交易處理 領取 + 加點數
-    await pool.queryAsyncAsync("START TRANSACTION");
+    await pool.queryAsync("START TRANSACTION");
 
     // 標記為已領取
-    const updateMissionRes = await pool.queryAsyncAsync(
+    const updateMissionRes = await pool.queryAsync(
       `UPDATE user_missions 
        SET is_claimed = 1 
        WHERE user_mission_id = ?`,
@@ -121,7 +121,7 @@ app.post("/usermission/claim", async (req, res) => {
     const rewardPoints = Number(mission.reward_points) || 0;
 
     // 增加點數
-    const updateUserRes = await pool.queryAsyncAsync(
+    const updateUserRes = await pool.queryAsync(
       `UPDATE user 
        SET point = point + ? 
        WHERE uid = ?`,
@@ -130,10 +130,10 @@ app.post("/usermission/claim", async (req, res) => {
     console.log("updateUserRes:", updateUserRes);
 
     // commit
-    await pool.queryAsyncAsync("COMMIT");
+    await pool.queryAsync("COMMIT");
 
     // 讀出更新後的 point
-    const userRows = await pool.queryAsyncAsync(
+    const userRows = await pool.queryAsync(
       "SELECT point FROM `user` WHERE uid = ?",
       [user_id]
     );
@@ -146,7 +146,7 @@ app.post("/usermission/claim", async (req, res) => {
     });
   } catch (err) {
     try {
-      await pool.queryAsyncAsync("ROLLBACK");
+      await pool.queryAsync("ROLLBACK");
     } catch (rbErr) {
       console.error("ROLLBACK 失敗:", rbErr);
     }
@@ -410,6 +410,5 @@ app.post("/update/monthHours", async (req, res) => {
 //   console.log(`API server running on port ${PORT}`);
 //   console.log("資料庫連線池已建立。");
 // });
-
 
 export default app;

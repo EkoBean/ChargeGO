@@ -248,7 +248,7 @@ class Shop extends Component {
               <img
                 src="/Iconimg/quest.svg"
                 alt="任務"
-                onClick={() => navigate("/mission")}
+                onClick={() => this.props.navigate("/mission")}
               />
             </div>
           </div>
