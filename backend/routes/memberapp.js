@@ -5,8 +5,11 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import db from '../db.js'; // 引入 db.js
 import nodemailer from 'nodemailer';
+// 新增 dotenv 以讀取環境變數
+import dotenv from 'dotenv';
+import e from 'cors';
+dotenv.config();
 const app = express.Router();
-
 
 // !!moved to server.js!!
 // app.use(express.json());
@@ -24,6 +27,7 @@ const app = express.Router();
 //         maxAge: 24 * 60 * 60 * 1000 // 1天
 //     }
 // }));
+
 
 // 密碼雜湊函式（SHA256取前10碼）
 function hashPassword(password) {
@@ -347,10 +351,10 @@ app.post('/user/add-creditcard', (req, res) => {
 });
 
 // 發送信箱驗證碼 API
-app.post('/api/send-captcha', async (req, res) => {
-    const { email, code } = req.body;
-    if (!email || !code) return res.status(400).json({ message: '缺少 email 或 code' });
 
+app.post('/api/send-captcha', async (req, res) => {
+    const { captchaCode,email, MAILER_CODE, MAILER_EMAIL } = req.body;
+    if (!MAILER_EMAIL || !MAILER_CODE) return res.status(400).json({ message: '缺少 email 或 code' });
     db.query('SELECT uid FROM user WHERE email = ?', [email], async (err, results) => {
         if (err) return res.status(500).json({ message: '資料庫錯誤', error: err.message });
         if (results.length === 0) return res.status(404).json({ message: '查無此Email' });
@@ -358,24 +362,23 @@ app.post('/api/send-captcha', async (req, res) => {
         const expireTime = new Date(Date.now() + 5 * 60 * 1000); // 5分鐘後
         db.query(
             'UPDATE user SET code = ?, code_expire = ? WHERE email = ?',
-            [code, expireTime, email],
+            [captchaCode, expireTime, email],
             async (err2) => {
                 if (err2) return res.status(500).json({ message: '更新驗證碼失敗', error: err2.message });
                 // 使用 nodemailer 寄送驗證碼
-                // gmail 需要開啟「低安全性應用程式存取權」
                 try {
                     const transporter = nodemailer.createTransport({
                         service: 'gmail',
                         auth: {
-                            user: 'rcsatie112@gmail.com',
-                            pass: 'sdkm ehxg fsds phkv'
+                            user: MAILER_EMAIL,
+                            pass: MAILER_CODE
                         }
                     });
                     await transporter.sendMail({
-                        from: 'rcsatie112@gmail.com',
+                        from: MAILER_EMAIL,
                         to: email,
                         subject: '您的驗證碼',
-                        text: `您的驗證碼是：${code}，5分鐘內有效。`
+                        text: `您的驗證碼是：${captchaCode}，5分鐘內有效。`
                     });
                     res.json({ message: '驗證碼已寄出' });
                 } catch (e) {
