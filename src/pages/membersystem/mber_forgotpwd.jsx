@@ -17,23 +17,61 @@ const mber_ForgotPwd = () => {
     captcha: "",
   });
   const [msg, setMsg] = useState("");
+  const [timer, setTimer] = useState(0);
+  const [isSending, setIsSending] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  // 計時器
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+  // 產生驗證碼
+  const generateCaptcha = () => {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
 
   // 請求驗證碼
   const handleSendCaptcha = async () => {
+    if (isSending || timer > 0) {
+      alert("驗證碼已送出，請稍候");
+      return;
+    }
+    if (!form.email) {
+      setMsg("請先輸入Email");
+      return;
+    }
+    const captchaCode = generateCaptcha();
+    setIsSending(true);
+    setTimer(300); // 5分鐘
     try {
       await axios.post(`${API_BASE}${memberBasePath}/send-captcha`, {
         email: form.email,
+        code: captchaCode,
       });
       setMsg("驗證碼已寄出，請檢查您的信箱");
     } catch (err) {
       setMsg("寄送失敗：" + (err.response?.data?.message || "請稍後再試"));
+      setIsSending(false);
+      setTimer(0);
     }
   };
+
+  useEffect(() => {
+    if (timer === 0) setIsSending(false);
+  }, [timer]);
 
   // 送出重設密碼
   const handleSubmit = async (e) => {
@@ -43,14 +81,18 @@ const mber_ForgotPwd = () => {
       return;
     }
     try {
+      const trimmedPwd = form.pwd.trim();
       await axios.post("${API_BASE}${memberBasePath}/reset-password", {
         email: form.email,
-        pwd: crypto.SHA256(form.pwd).toString(crypto.enc.Hex).slice(0, 10),
+        newPassword: crypto
+          .SHA256(trimmedPwd)
+          .toString(crypto.enc.Hex)
+          .slice(0, 10),
         captcha: form.captcha,
       });
       setMsg("密碼重設成功，請重新登入");
       setTimeout(() => {
-        navigate("/login");
+        navigate("/mber_login");
       }, 2000);
     } catch (err) {
       setMsg("重設失敗：" + (err.response?.data?.message || "請稍後再試"));
@@ -59,6 +101,13 @@ const mber_ForgotPwd = () => {
 
   return (
     <div className={styles.mber_ForgotPwd}>
+      <span
+        className={styles["back-icon"] + " " + styles["mobile-only-back"]}
+        onClick={() => window.history.back()}
+        title="回到上頁"
+      >
+        ◀︎
+      </span>
       <div className={styles.container}>
         <div className={styles.header}>
           <h2>忘記密碼</h2>
@@ -107,16 +156,15 @@ const mber_ForgotPwd = () => {
                 onChange={handleChange}
               />
             </div>
-
-            <div>
-              <label htmlFor="captcha" className={styles.label}>
-                請輸入驗證碼：
-              </label>
+            <label htmlFor="captcha" className={styles.label}>
+              請輸入驗證碼：
+            </label>
+            <div className={styles.captchaContainer}>
               <input
                 type="text"
                 id="captcha"
                 name="captcha"
-                className={styles.input}
+                className={styles.captchaInput}
                 required
                 value={form.captcha}
                 onChange={handleChange}
@@ -125,8 +173,13 @@ const mber_ForgotPwd = () => {
                 type="button"
                 onClick={handleSendCaptcha}
                 className={styles.captchaButton}
+                disabled={isSending || timer > 0}
               >
-                再次請求驗證碼
+                {timer > 0
+                  ? `重新獲取(${Math.floor(timer / 60)}:${String(
+                      timer % 60
+                    ).padStart(2, "0")})`
+                  : "獲取驗證碼"}
               </button>
             </div>
 

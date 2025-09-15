@@ -1,7 +1,7 @@
 import express, { json, urlencoded } from 'express';
 const app = express.Router();
 import cors from 'cors';
-import db from '../db.js'; 
+import db from '../db.js';
 const connection = db;
 
 
@@ -162,7 +162,7 @@ app.patch('/rent', async (req, res) => {
 // return a charger
 app.patch('/return', async (req, res) => {
 
-    const { batteryAmount, returnSite, deviceId, uid, overtimeConfirm } = req.body;
+    const { batteryAmount, returnSite, deviceId, uid, overtimeConfirm, readyToUseCoupon } = req.body;
     const now = new Date();
     const batteryStatus =
         batteryAmount < 30 ? '4' : //低電量(不給借)
@@ -178,13 +178,34 @@ app.patch('/return', async (req, res) => {
         if (!rentalTimeCheck[0].start_date) return res.status(400).json({ success: false, message: '查無租借時間，無法歸還' });
 
         //========== calculate rental time&money ==========
+        let rentalFee = 0;
+
         const startDate = new Date(rentalTimeCheck[0].start_date);
         // console.log('start_date :>> ', startDate);
         const period = Math.ceil((now - startDate) / (1000 * 60)); // minutes
         const periodSession = Math.ceil(period / 30); // 30 minutes session
-        const rentalFee = periodSession * 5; // 每30分鐘5元
+        rentalFee = periodSession * 5; // 每30分鐘5元
         // console.log(`租借時間: ${period} 分鐘, 共 ${periodSession} 個半小時時段, 費用: ${rentalFee} 元`);
 
+        // ============= calculate discount ==============
+        if (readyToUseCoupon) {
+            const rentalDiscountList = ['percent_off', 'rental_discount', 'free_minutes'];
+            const couponValue = readyToUseCoupon.value;
+            switch (readyToUseCoupon.type) {
+                case 'percent_off': {
+                    rentalFee = Math.round(rentalFee * couponValue);
+                    if (rentalFee < 0) rentalFee = 0;
+                    break;
+                }
+                case 'rental_discount': rentalFee = rentalFee - couponValue; break;
+                case 'free_minutes': {
+                    const freeTimeSessions = Math.floor(couponValue / 30);
+                    rentalFee = rentalFee - (freeTimeSessions * 5);
+                    if (rentalFee < 0) rentalFee = 0;
+                    break;
+                }
+            }
+        }
         // ============== prevent minus fee ==============
         if (rentalFee < 0) return res.status(400).json({ success: false, minusFee: true, message: '歸還金額異常，請聯絡客服 02-48273335' });
 
@@ -193,15 +214,24 @@ app.patch('/return', async (req, res) => {
 
         // ============== update device status & insert return log ==============
         await connection.beginTransactionAsync();
-
+        // change device status
         const deviceBack = await connection.queryAsync(mapQuery.returnCharger, [batteryStatus, returnSite, deviceId]);
         if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Returning query error.' });
+        // change coupon status
+        if(readyToUseCoupon){
+            const couponDeactive = await connection.queryAsync(mapQuery.deactivateCoupon, [readyToUseCoupon.id]);
+            if(couponDeactive.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Coupon deactivate query error.' });
+        }
 
-
+        // insert return log
         const logBack = await connection.queryAsync(mapQuery.returnLog, [returnSite,
             now,
             rentalFee,
-            period > WARNING_MINUTES ? `Overtime return.逾期未歸還。${Math.floor(period/60)}小時 ${period%60}分鐘` : '',
+            // ======= comment  ========
+            //  overtime commet
+            period > WARNING_MINUTES ? `Overtime return.逾期未歸還。${Math.floor(period / 60)}小時 ${period % 60}分鐘` : 
+            // coupon comment
+            (readyToUseCoupon ? `折抵優惠券: ${readyToUseCoupon.name} 優惠券代碼 ${readyToUseCoupon.id} ` : ''),
             deviceId]);
         if (!logBack || logBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Log update query error.' });
 

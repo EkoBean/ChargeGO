@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import axios from "axios";
 import styles from "../../styles/scss/mall_index.module.scss";
-import NavBarPhone from "../../components/NavBarApp";
+import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
+import Notify from "../../components/notify";
 
-const API_URL = import.meta.env.VITE_API_URL ;
+const API_URL = import.meta.env.VITE_API_URL;
 
-const pointBasePath = apiRoutes.point
-const shopBasePath = apiRoutes.shop
+const pointBasePath = apiRoutes.point;
+const shopBasePath = apiRoutes.shop;
 
 class Shop extends Component {
   // 在 class Shop 的最上方（state 下面或 constructor 裡）
@@ -195,7 +196,9 @@ class Shop extends Component {
     return (
       // <div className={styles.container + " py-4"}>
       <div className={styles.mallBody}>
-        <NavBarPhone />
+        <Notify />
+
+        <NavBarApp />
 
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
@@ -225,11 +228,7 @@ class Shop extends Component {
             </div>
           </div>
 
-          {/* 右上角通知鈴鐺*/}
-          <button className={styles.navbarRightSection}>
-            {/* 右上角通知鈴鐺 */}
-            <img src="/Iconimg/notify.svg" alt="notify" />
-          </button>
+
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>

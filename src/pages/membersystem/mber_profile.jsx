@@ -2,15 +2,16 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_profile.module.scss";
-import NavBarAPP from "../../components/NavBarAPP";
+import NavBarApp from "../../components/NavBarApp";
 import Notify from "../../components/notify";
 import { apiRoutes } from "../../components/apiRoutes";
+import BackIcon from "../../components/backIcon";
 
 const mber_Profile = () => {
   const [user, setUser] = useState(null);
   const [country, setCountry] = useState("");
   const navigate = useNavigate();
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = import.meta.env.VITE_API_URL;
 
   const memberBasePath = apiRoutes.member;
 
@@ -91,18 +92,12 @@ const mber_Profile = () => {
 
   return (
     <div className={styles.mber_info}>
-      <NavBarAPP className={styles.mobile_only_nav} />
+      <NavBarApp className={styles.mobile_only_nav} />
       {/* Header */}
       <div className={styles.info_container}>
-        <span
-          className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-          onClick={() => window.history.back()}
-          title="回到上頁"
-        >
-          ◀︎
-        </span>
+        <BackIcon className={'d-sm-none'} />
         <div className={styles.mobile_arc_bg}>
-          <div className={styles.mobile_arc_content}>
+          <div className={`${styles.mobile_arc_content}`}>
             <h2 className={styles.mber_info_title}>會員資料</h2>
           </div>
         </div>

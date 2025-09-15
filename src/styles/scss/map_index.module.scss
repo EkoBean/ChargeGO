@@ -2,6 +2,10 @@
 
 $search-bar-radius: 1.4rem;
 
+.search-bar-container {
+  padding-top: 1.5rem;
+}
+
 #search-bar {
   position: fixed;
   top: 10px;
@@ -153,8 +157,17 @@ $search-bar-radius: 1.4rem;
       i {
         color: g.$brown;
         font-size: 5rem;
-        align-items: center;
-        text-align: center;
+        vertical-align: middle;
+        line-height: 1;
+        display: inline-block;
+      }
+
+      &:hover {
+        background-color: g.$primary-hover;
+      }
+
+      &:active {
+        box-shadow: gray 0px 0px 2px 0px;
       }
     }
   }
@@ -178,12 +191,69 @@ $search-bar-radius: 1.4rem;
     padding: 2rem 1.5rem 1rem 1.5rem;
     z-index: 1100;
     transition: transform 0.3s ease-in-out;
+
+    .charging-status {
+      width: 100%;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: g.$primary;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      div.status-circle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+
+        svg {
+          height: 150px;
+          transition: transform 0.3s ease; // 添加旋轉動畫
+
+          circle {
+            transition: stroke 0.5s ease; // 電量環顏色變化動畫
+
+            &.background {
+              stroke: #e0e0e0; // 背景環樣式
+            }
+
+            &.progress {
+              stroke: #ffce00; // 預設電量環顏色
+
+              &.charging {
+                stroke: #00ff3c; // 充電中顏色
+              }
+            }
+          }
+
+          text {
+            fill: g.$brown; // 文字顏色
+            font-size: 0.8rem;
+
+            &.percentage {
+              font-weight: bold;
+            }
+
+            &.status {
+              fill: #666;
+            }
+          }
+        }
+      }
+      div.status-text{
+        text-align: center;
+      }
+    }
   }
 
   .buttons {
     position: inherit;
     bottom: 2rem;
     right: 2rem;
+
 
     button {
       width: 2.5rem;
@@ -199,9 +269,20 @@ $search-bar-radius: 1.4rem;
 
       box-shadow: gray 0px 0px 5px 0px;
 
+      &:hover {
+        background-color: g.$primary-hover;
+      }
+
+      &:active {
+        box-shadow: gray 0px 0px 2px 0px;
+      }
+
       i {
         color: g.$brown;
         font-size: 1.5rem;
+        vertical-align: middle;
+        line-height: 1;
+        display: inline-block;
       }
     }
   }

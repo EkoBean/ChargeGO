@@ -5,12 +5,10 @@
 
 
 // 僅在 global.scss 第一次載入並以 with(...) 覆寫 bootstrap 的變數
-@use "../../../node_modules/bootstrap/scss/bootstrap" as bs with (
-  $primary: $primary,
-  $secondary: $secondary,
-  $success: $success,
-  $danger: $danger
-);
+// @use "../../../node_modules/bootstrap/scss/bootstrap" as bs with ($primary: $primary,
+//   $secondary: $secondary,
+//   $success: $success,
+//   $danger: $danger);
 
 // ==============================================
 // 自訂樣式
@@ -32,9 +30,156 @@ body,
   margin: 0;
   padding: 0;
 }
+
 a {
   color: $brown;
   text-decoration: none;
 }
 
+.btn-primary {
+  background-color: $primary !important;
+  border-color: $primary !important;
+  color: $brown !important;
+
+  &:hover {
+    background-color: $primary-hover !important;
+    border-color: $primary-hover !important;
+    color: $brown !important;
+  }
+
+  &:active {
+    background-color: $primary-active !important;
+    border-color: $primary-active !important;
+    color: $brown !important;
+  }
+}
+
+.mber_title {
+  font-family: "Mantou sans", serif;
+  font-style: bold;
+  font-size: 2rem;
+  color: $brown;
+  letter-spacing: 8px;
+  margin-top: 0;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+//====== all zone scrollbar style ======
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 139, 139, 0.534) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+//====== end of scrollbar style =====
+
+// the back icon placed in all member related pages
+.back-icon {
+  position: fixed;
+  top: 2%;
+  left: 5%;
+  font-size: 2rem;
+  color: #fff;
+  background: $success;
+  border-radius: 50%;
+  padding: 8px 16px;
+  cursor: pointer;
+  z-index: 20;
+  transition: 0.2s;
+}
+
+.back-icon:hover {
+  color: #ffd600;
+  transform: scaleX(1.2);
+}
+
 // ==============================================
+
+// =========== notification bell ===========
+figure.notify {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+
+  top: 3%;
+  right: 5%;
+
+
+  .bell {
+    transition: transform 0.3s;
+    &:hover{
+      animation: shake 0.5s;
+    }
+  }
+
+  @keyframes shake {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    20% {
+      transform: rotate(-15deg);
+    }
+
+    40% {
+      transform: rotate(15deg);
+    }
+
+    60% {
+      transform: rotate(-10deg);
+    }
+
+    80% {
+      transform: rotate(10deg);
+    }
+
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+
+  .counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  .counter span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    color: $danger;
+    font-weight: bold;
+  }
+
+  .counter img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+  }
+}

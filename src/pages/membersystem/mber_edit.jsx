@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mber_edit.module.scss";
+import BackIcon from "../../components/backIcon";
 import { apiRoutes } from "../../components/apiRoutes";
 
 const mber_edit = () => {
@@ -107,17 +108,11 @@ const mber_edit = () => {
   return (
     <div className={styles.mber_edit}>
       <NavBarApp />
+      <BackIcon className={'d-sm-none'} />
       <div className={styles.edit_container}>
         <div className={styles.mobile_arc_bg}>
-          <span
-            className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-            onClick={() => window.history.back()}
-            title="回到上頁"
-          >
-            ◀︎
-          </span>
           <div className={styles.mobile_arc_content}>
-            <h2 className={styles.mber_info_title}>會員資料</h2>
+            <h2 className={`mber_title`}>會員資料</h2>
           </div>
         </div>
 
