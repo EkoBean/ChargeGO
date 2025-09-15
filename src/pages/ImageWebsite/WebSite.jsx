@@ -242,7 +242,7 @@ const WebSite = () => {
         <>
 
           <div>
-            <img src="public/banner.png" alt="" className={styles.banner} />
+            <img src="/banner.png" alt="" className={styles.banner} />
           </div>
 
           {/* about-us 區塊，閃電在左，內容在右 */}
