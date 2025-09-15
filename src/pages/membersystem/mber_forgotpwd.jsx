@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_forgotpwd.module.scss";
+import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -108,6 +109,7 @@ const mber_ForgotPwd = () => {
       >
         ◀︎
       </span>
+      <NavBarApp />
       <div className={styles.container}>
         <div className={styles.header}>
           <h2>忘記密碼</h2>

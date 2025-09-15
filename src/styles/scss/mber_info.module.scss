@@ -1,8 +1,12 @@
 @use "./tokens.module.scss" as mb;
 
 .mber-info-page {
+  width: 100vw;
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  background: url("../../../public/lightning.png") left top no-repeat,
+    linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%) no-repeat;
+  background-size: auto 100vh, cover;
+
   position: relative;
   display: flex;
   flex-direction: column;
@@ -46,7 +50,6 @@
     border: none;
   }
 }
-
 
 .mber_info_section {
   max-width: 400px;
