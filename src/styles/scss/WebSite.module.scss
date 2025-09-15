@@ -19,7 +19,7 @@ $primary: #ffce00;
     position: relative;
     z-index: 2;
     min-height: auto;
-    padding-top: 0;
+    // padding-top: 100px;
 }
 
 .logo-section {
@@ -257,6 +257,10 @@ $primary: #ffce00;
     }
 }
 
+.section-content {
+  scroll-margin-top: 200px;
+}
+
 /* section 區塊共用樣式 */
 .section-wrapper {
     display: flex;
@@ -278,6 +282,7 @@ $primary: #ffce00;
 }
 .section-wrapper.reverse {
   flex-direction: row-reverse;
+  margin-bottom: 20px;
 }
 .section-wrapper.reverse .section-lightning {
   right: 0;
@@ -285,28 +290,42 @@ $primary: #ffce00;
 }
 .section-lightning {
     position: absolute;
-    top: 55%;
+    top: 70%;
     transform: translateY(-50%);
     z-index: 2;
     pointer-events: none;
-    opacity: 0.3;
     display: flex;
     align-items: center;
     justify-content: center;
     background: none;
     left: 0;
     img {
-        width: 750px;
+        width: 350px;
         height: auto;
         display: block;
+        opacity: 0; // lightning 透明度設為 0
+    }
+    .taiwanMap {
+        width: 280px; // 台灣地圖寬度調整
+        height: auto;
+        opacity: 1;
+        position: absolute;
+        right: 40px;
+        bottom: 50px;
+        pointer-events: none;
+        z-index: 1;
+        @media (max-width: 1200px) {
+            width: 180px;
+            right: 20px;
+            bottom: 20px;
+        }
+        @media (max-width: 900px) {
+            display: none;
+        }
     }
     @media (max-width: 900px) {
         display: none;
     }
-}
-.section-wrapper.reverse .section-lightning {
-    right: 0;
-    left: auto;
 }
 .section-content {
     flex: 1 1 0%;
@@ -456,9 +475,9 @@ $primary: #ffce00;
     left: 0;
     right: 0;
     width: 100%;
-    height: 64px;
-    z-index: 100;
-    background: #fff;
+    height: 100px;
+    z-index: 999;
+    background-color:#FFCC00;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     display: flex;
     align-items: center;
@@ -516,27 +535,38 @@ $primary: #ffce00;
     transform: translateY(-50%);
     z-index: 2;
     pointer-events: none;
-    opacity: 0.3;
     display: flex;
     align-items: center;
     justify-content: center;
     background: none;
+    left: 0;
     img {
-        width: 250px;
+        width: 350px;
         height: auto;
         display: block;
+        opacity: 1; // lightning 透明度設為 1
+    }
+    .taiwanMap {
+        width: 280px; // 台灣地圖寬度調整
+        height: auto;
+        opacity: 1;
+        position: absolute;
+        right: 40px;
+        bottom: -200px;
+        pointer-events: none;
+        z-index: 1;
+        @media (max-width: 1200px) {
+            width: 180px;
+            right: 20px;
+        }
+        @media (max-width: 900px) {
+            display: none;
+        }
     }
     @media (max-width: 900px) {
         display: none;
     }
 }
-
-.section-lightning img {
-    width: 450px;
-    height: auto;
-    display: block;
-}
-
 .section-wrapper {
     display: flex;
     align-items: stretch;
@@ -557,6 +587,7 @@ $primary: #ffce00;
 }
 .section-wrapper.reverse {
   flex-direction: row-reverse;
+  margin-bottom: 220px;
 }
 .section-wrapper.reverse .section-lightning {
   right: 0;
@@ -633,7 +664,7 @@ $primary: #ffce00;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     padding: 32px 36px;
     width: 200px;
-    height: 160px;
+    height: 200px;
     text-align: center;
     font-size: 1.5rem;
     font-weight: bold;
@@ -881,4 +912,57 @@ $primary: #ffce00;
     margin: 0 auto !important;
     display: block !important;
   }
+}
+
+.banner {
+  width: 100vw;
+  height: auto;
+  max-width: 1440px;
+  display: block;
+  margin: 100px auto 100px auto;
+  @media (max-width: 900px) {
+    max-width: 98vw;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) {
+    max-width: 100vw;
+    margin-bottom: 8px;
+  }
+}
+
+/* 明確覆蓋手機版 .section-wrapper.reverse .section-content，讓內容置中且不被桌機版 margin-left 蓋掉 */
+@media (max-width: 900px) {
+  .section-wrapper.reverse .section-content {
+    margin-left: 0;
+    margin-right: 0;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.taiwanMap {
+  position: absolute;
+  right: 70%;
+  bottom: 0;
+  width: 80vw; // 這裡可依需求調整大小
+  height: auto;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+  @media (max-width: 1200px) {
+    width: 70vw;
+  }
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.form-iframe {
+  display: block;
+  margin: 0 auto 120px auto;
+  max-width: 100%;
+    @media (max-width: 900px) {
+        margin-bottom: 20px;
+    }
 }
