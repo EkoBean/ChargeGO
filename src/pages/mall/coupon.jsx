@@ -5,47 +5,18 @@ import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 import Notify from "../../components/notify";
 import BackIcon from "../../components/backIcon";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
-const couponBasePath = apiRoutes.coupon;
 const memberBasePath = apiRoutes.member;
+const couponBasePath = apiRoutes.coupon;
 
+// ================= main component ====================
 const Coupon = () => {
-  // 先從 sessionStorage 拿 uid，沒有就 fallback 為 "2"
-  const navigate = useNavigate(); // 加這行
-  // Session不是這樣拿的，你要去呼叫API跟後端拿，前端沒辦法直接用一個function就拿到session
-  // 下面這個你參考一下
-  //  這是從价堂那邊的code抓過來改的，還有一些宣告跟函數引入你自己去他那邊找，也可以到我的mapindex裡面找
-  // const [user, setUser] = React.useState(null);
-  // // 取得 user 資料
-  // fetch(`${API_URL}${memberBasePath}/check-auth`, {
-  //   method: "POST",
-  //   credentials: "include",
-  //   headers: { "Content-Type": "application/json" },
-  // })
-  //   .then((res) => res.json())
-  //   .then((data) => {
-  //     if (data.authenticated && data.user) {
-  //       setUser(data.user);
-  //       // 取得通知資料
-  //       fetch(`${API_URL}${memberBasePath}/user/${data.user.uid}/notices`, {
-  //         credentials: "include",
-  //       })
-  //         .then((res) => res.json())
-  //         .then((data) => setNotices(data))
-  //         .catch(() => setNotices([]));
-  //     } else {
-  //       alert("請先登入");
-  //       navigate("/mber_login");
-  //     }
-  //   })
-  //   .catch(() => {
-  //     alert("請先登入");
-  //     navigate("/mber_login");
-  //   });
-  // }, [navigate]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = React.useState(null);
   const [userId, setUserId] = useState(null);
   const [userPoint, setUserPoint] = useState(null);
 
@@ -53,7 +24,6 @@ const Coupon = () => {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("store");
-  //檢查登入狀態
   useEffect(() => {
     // 取得 user 資料
     fetch(`${API_URL}${memberBasePath}/check-auth`, {
@@ -65,8 +35,7 @@ const Coupon = () => {
       .then((data) => {
         if (data.authenticated && data.user) {
           setUser(data.user);
-          setUserId(data.user.uid); // 加這行
-
+          setUserId(data.user.uid);
           // 取得通知資料
           fetch(`${API_URL}${memberBasePath}/user/${data.user.uid}/notices`, {
             credentials: "include",
@@ -105,6 +74,14 @@ const Coupon = () => {
     }
   }, []);
 
+  // ========== enter this site from navate() ==============
+  useEffect(() => {
+    if (location.state?.activeTab === "rental") {
+      setActiveTab("rental");
+    }
+  }, [location.state]);
+  // =======================================================
+
   // refresh 封裝（給外部呼叫）
   const refreshUserPoint = useCallback(() => {
     return getUserPoint(userId);
@@ -129,6 +106,7 @@ const Coupon = () => {
           type: c.type,
           isUsed: c.status !== "active",
           expiresAt: c.expires_at,
+          readyToUse: c.ready_to_use,
         }));
 
         if (mounted) setCoupons(formatted);
@@ -153,6 +131,35 @@ const Coupon = () => {
       setShowModal(true);
     }
   };
+  const handleRenTalCouponClick = (coupon) => {
+    const reset = coupon.readyToUse;
+    fetch(`${API_URL}${couponBasePath}/readyToUse/`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: userId, coupon_id: coupon.id, reset }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json(); // 解析 JSON，返回 Promise
+        } else {
+          throw new Error("Request failed");
+        }
+      })
+      .then((data) => {
+        const formatted = data.map((c) => ({
+          id: c.coupon_id,
+          title: c.name,
+          type: c.type,
+          isUsed: c.status !== "active",
+          expiresAt: c.expires_at,
+          readyToUse: c.ready_to_use,
+        }));
+        setCoupons(formatted);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   const closeModal = () => {
     setShowModal(false);
@@ -162,12 +169,16 @@ const Coupon = () => {
   const storeCoupons = coupons.filter(
     (c) => c.type === "store_gift" || c.type === "store_discount"
   );
-  const rentalCoupons = coupons.filter(
-    (c) =>
-      c.type === "rental_discount" ||
-      c.type === "free_minutes" ||
-      c.type === "percent_off"
-  );
+  // 排序優惠券順序
+  const rentalCoupons = coupons
+    .filter(
+      (c) =>
+        c.type === "rental_discount" ||
+        c.type === "free_minutes" ||
+        c.type === "percent_off"
+    )
+    .sort((a, b) => a.isUsed - b.isUsed)
+    .sort((a, b) => b.readyToUse - a.readyToUse);
 
   return (
     <>
@@ -260,7 +271,11 @@ const Coupon = () => {
                       <div
                         key={coupon.id}
                         className={`${styles.rentalCouponCard} ${
-                          coupon.isUsed ? styles.used : ""
+                          coupon.isUsed
+                            ? styles.used
+                            : coupon.readyToUse
+                            ? styles.readyToUse
+                            : ""
                         }`}
                       >
                         <div className={styles.couponInfo}>
@@ -269,6 +284,36 @@ const Coupon = () => {
                             有效期至：
                             {new Date(coupon.expiresAt).toLocaleDateString()}
                           </small>
+                        </div>
+                        <div className={styles.couponActions}>
+                          <button
+                            onClick={
+                              !coupon.isUsed
+                                ? () => handleRenTalCouponClick(coupon)
+                                : null
+                            }
+                          >
+                            {coupon.isUsed
+                              ? "逾期"
+                              : coupon.readyToUse
+                              ? "已套用此優惠"
+                              : "啟用"}
+                          </button>
+                        </div>
+                        <div className={styles.couponActions}>
+                          <button
+                            onClick={
+                              !coupon.isUsed
+                                ? () => handleRenTalCouponClick(coupon)
+                                : null
+                            }
+                          >
+                            {coupon.isUsed
+                              ? "逾期"
+                              : coupon.readyToUse
+                              ? "已套用此優惠"
+                              : "啟用"}
+                          </button>
                         </div>
                       </div>
                     ))

@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import util from "util";
 
-import db from "../db.js"; 
-const pool = db; 
+import db from "../db.js";
+const pool = db;
 
 const app = express.Router();
 
@@ -39,7 +39,7 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
 
     // 2. 查詢尚未過期或狀態非 expired 的優惠券
     const coupons = await pool.queryAsync(
-      `SELECT c.coupon_id, c.template_id, c.status, c.expires_at, c.code, t.type, t.name
+      `SELECT c.coupon_id,c.ready_to_use, c.template_id, c.status, c.expires_at, c.code, t.type, t.name, t.value
        FROM coupons c
        LEFT JOIN coupon_templates t ON c.template_id = t.template_id
        WHERE c.user_id = ? AND c.status != 'expired'`,
@@ -52,6 +52,8 @@ app.get("/mycouponsparam/:user_id", async (req, res) => {
     res.status(500).json({ error: "資料庫錯誤" });
   }
 });
+
+
 //商品折扣優惠券(禮物箱)
 //功能為跳出QRcode
 app.post("/redeem/:couponCode", async (req, res) => {
@@ -115,6 +117,44 @@ app.get("/mycoupons/:user_id", async (req, res) => {
     res.status(500).json({ error: "資料庫錯誤" });
   }
 });
+
+// 設定租借折扣優惠券ready_to_use
+app.patch('/readyToUse', async (req, res) => {
+  const { uid, coupon_id, reset } = req.body;
+  try {
+
+    await pool.beginTransactionAsync();
+    // 將該使用者的所有優惠券 ready_to_use 欄位設為 NULL
+    const resetStatus = await pool.queryAsync(
+      `UPDATE coupons SET ready_to_use = NULL WHERE user_id = ?`, [uid]
+    );
+    if (resetStatus.affectedRows === 0) { return res.status(500).json({ error: 'reset ready_to_use fail' }) }
+    // 當前端傳來reset的時候，不進行啟動ready to use的設定，只是單純把所有的ready to use設為null
+    if (!reset) {
+      // 將指定的 coupon_id 的 ready_to_use 欄位設為 '1'
+      const activeStatus = await pool.queryAsync(
+        `UPDATE coupons SET ready_to_use = '1' WHERE user_id = ? and coupon_id = ?;`,
+        [uid, coupon_id]
+      )
+      if (activeStatus.affectedRows === 0) { return res.status(500).json({ error: 'set ready_to_use fail' }) }
+    }
+    const queryResult = await pool.queryAsync(`
+      SELECT c.coupon_id,c.ready_to_use, c.template_id, c.status, c.expires_at, c.code, t.type, t.name
+      FROM coupons c
+      LEFT JOIN coupon_templates t ON c.template_id = t.template_id
+      WHERE c.user_id = ? AND c.status != 'expired'
+       `, [uid]);
+    if (queryResult.length === 0) { return res.status(404).json({ error: 'no coupons found' }) }
+    await pool.commitAsync();
+    return res.json(queryResult);
+
+
+  }
+  catch (err) {
+    return res.status(500).json({ error: "資料庫錯誤" });
+  }
+}
+)
 
 // 取得單一優惠券折扣資訊 API(結帳用)
 app.get("/coupon-info/:user_id/:coupon_id", async (req, res) => {
