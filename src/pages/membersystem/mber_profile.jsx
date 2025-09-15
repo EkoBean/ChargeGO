@@ -33,11 +33,13 @@ const mber_Profile = () => {
           setUser(data.user);
           if (data.user.country) setCountry(data.user.country);
         } else {
+          console.log('data :>> ', data);
           alert("請先登入");
           navigate("/mber_login");
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         alert("請先登入");
         navigate("/mber_login");
       });

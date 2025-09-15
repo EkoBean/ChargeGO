@@ -72,110 +72,6 @@ function MapIndex() {
 
   const navigate = useNavigate();
 
-
-  // ========== get hosting device battery =================
-  function ChargingStatus() {
-    const [battery, setBattery] = React.useState(null);
-    const [batteryLevel, setBatteryLevel] = React.useState(null);
-    const [isCharging, setIsCharging] = React.useState(false);
-    const [chargingTimeText, setChargingTimeText] = React.useState('');
-    const [dischargingTimeText, setDischargingTimeText] = React.useState('');
-
-
-
-    // ===== bat parameters style =====
-    const radius = '50';
-    const strokeWidth = 13;
-    const circumference = 2 * Math.PI * radius;
-    const strokeDasharray = circumference;
-    const strokeDashoffset = circumference - (batteryLevel / 100) * circumference;
-    useEffect(() => {
-      if ('getBattery' in navigator) {
-        navigator.getBattery().then((battery) => {
-          // debug =====================
-          // console.log('battery :>> ', battery);
-          // debug =====================
-
-          setBattery(battery);
-          setBatteryLevel(Math.floor(battery.level * 100));
-          setIsCharging(battery.charging);
-
-          // ===== charging time =========
-          const chargingTime = battery.chargingTime;
-          const chargingMin = Math.floor(chargingTime / 60);
-          const chargingHour = Math.floor(chargingMin / 60);
-          const chargingTimeText = `${chargingHour}小時${chargingMin}分鐘`;
-          setChargingTimeText(chargingTimeText);
-
-          // ===== discharging time =========
-          const dischargingTime = (battery.dischargingTime === Infinity) ? '' : battery.dischargingTime;
-          const dischargingMin = Math.floor(dischargingTime / 60);
-          const dischargingHour = Math.floor(dischargingMin / 60);
-          const dischargingTimeText = `${dischargingHour}小時${dischargingMin}分鐘`;
-          setDischargingTimeText(dischargingTimeText);
-
-          // ===== listen for battery level changes =====
-          const levelChangeHandler = () => {
-            setBatteryLevel(Math.floor(battery.level * 100));
-          };
-          const chargingChangeHandler = () => {
-            setIsCharging(battery.charging);
-          };
-          battery.addEventListener('levelchange', levelChangeHandler);
-          battery.addEventListener('chargingchange', chargingChangeHandler);
-          return () => {
-            battery.removeEventListener('levelchange', levelChangeHandler);
-            battery.removeEventListener('chargingchange', chargingChangeHandler);
-          };
-          // ============ end of listen =================
-        })
-      }
-    }, [])
-    return (
-      <div className={`${styles.chargingStatus}`}>
-        <div className={styles.statusCircle}>
-          <svg
-            viewBox="0 0 120 120"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <circle
-              cx="50%"
-              cy="50%"
-              r={radius}
-              stroke="#e0e0e0"
-              strokeWidth={strokeWidth}
-              fill="none"
-              className="background"  // 添加類別
-            />
-            <circle
-              cx="50%"
-              cy="50%"
-              r={radius}
-              stroke={isCharging ? '#00ff3c' : '#ffce00'}
-              strokeWidth={strokeWidth}
-              fill="none"
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              transform="rotate(-90deg)"
-              className={`progress ${isCharging ? 'charging' : ''}`}  // 添加類別
-            />
-            <text x="50%" y="45%" textAnchor="middle" dy="0.3em" className="percentage">
-              {Math.round(batteryLevel)}%
-            </text>
-            <text x="50%" y="60%" textAnchor="middle" className="status">
-              {batteryLevel == 100 ? ('滿電量') : (isCharging ? '充電中' : ' ')}
-            </text>
-          </svg>
-        </div>
-
-        <div className={styles.statusText}>
-          {batteryLevel == 100 ? ('') : (isCharging ? (`充電完成尚餘${chargingTimeText}`) : (`目前電量尚餘${dischargingTimeText}`))}
-        </div>
-      </div>
-    )
-  }
-
   useEffect(() => {
 
 
@@ -415,24 +311,24 @@ function MapIndex() {
         return (
 
           <div className={`${styles.searchBarContainer}`}>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-between align-items-center gap-4">
+              <div className={`${styles.searchBar} flex-grow-1`}>
+                <input
+                  type="text"
+                  placeholder="搜尋地點"
+                  onChange={(e) => (
+                    setInputValue(e.target.value), setListOpen(true)
+                  )}
+                  onKeyDown={handleKeyDown}
+                  onClick={() => (
+                    markerBus.clear(),
+                    setListOpen(true),
+                    rentWindowRef.current(false)
+                  )}
+                  value={inputValue}
+                />
+              </div>
               <Notify style={{ position: 'relative', right: '0px' }} />
-            </div>
-            <div className={`${styles.searchBar}`}>
-              <input
-                type="text"
-                placeholder="搜尋地點"
-                onChange={(e) => (
-                  setInputValue(e.target.value), setListOpen(true)
-                )}
-                onKeyDown={handleKeyDown}
-                onClick={() => (
-                  markerBus.clear(),
-                  setListOpen(true),
-                  rentWindowRef.current(false)
-                )}
-                value={inputValue}
-              />
             </div>
             {suggestions.length > 0 && listOpen && (
               <div className={`${styles.suggestionsList}`}>
@@ -485,8 +381,111 @@ function MapIndex() {
         const [overtimeFee, setOvertimeFee] = React.useState(null); //overtime fee state
 
         // coupon usage
-        const [isHaveCouopn, setIsHaveCoupon] = React.useState(false);
+        const [isHavingCouopn, setIsHavingCoupon] = React.useState(false);
+        const [availableCoupons, setAvailableCoupons] = React.useState(null);
         const [readyToUseCoupon, setReadyToUseCoupon] = React.useState(null);
+
+        // host device battery
+        const [battery, setBattery] = React.useState(null);
+        const [batteryLevel, setBatteryLevel] = React.useState(null);
+        const [isCharging, setIsCharging] = React.useState(false);
+        const [chargingTimeText, setChargingTimeText] = React.useState('');
+        const [dischargingTimeText, setDischargingTimeText] = React.useState('');
+        // ========== get hosting device battery =================
+        function ChargingStatus() {
+          // ===== bat parameters style =====
+          const radius = '50';
+          const strokeWidth = 13;
+          const circumference = 2 * Math.PI * radius;
+          const strokeDasharray = circumference;
+          const strokeDashoffset = circumference - (batteryLevel / 100) * circumference;
+          useEffect(() => {
+            if ('getBattery' in navigator) {
+              navigator.getBattery().then((battery) => {
+                // debug =====================
+                // console.log('battery :>> ', battery);
+                // debug =====================
+
+                setBattery(battery);
+                setBatteryLevel(Math.floor(battery.level * 100));
+                setIsCharging(battery.charging);
+
+                // ===== charging time =========
+                const chargingTime = battery.chargingTime;
+                const chargingMin = Math.floor(chargingTime / 60);
+                const chargingHour = Math.floor(chargingMin / 60);
+                const chargingTimeText = `${chargingHour}小時${chargingMin}分鐘`;
+                setChargingTimeText(chargingTimeText);
+
+                // ===== discharging time =========
+                const dischargingTime = (battery.dischargingTime === Infinity) ? '' : battery.dischargingTime;
+                const dischargingMin = Math.floor(dischargingTime / 60);
+                const dischargingHour = Math.floor(dischargingMin / 60);
+                const dischargingTimeText = `${dischargingHour}小時${dischargingMin}分鐘`;
+                setDischargingTimeText(dischargingTimeText);
+
+                // ===== listen for battery level changes =====
+                const levelChangeHandler = () => {
+                  setBatteryLevel(Math.floor(battery.level * 100));
+                };
+                const chargingChangeHandler = () => {
+                  setIsCharging(battery.charging);
+                };
+                battery.addEventListener('levelchange', levelChangeHandler);
+                battery.addEventListener('chargingchange', chargingChangeHandler);
+                return () => {
+                  battery.removeEventListener('levelchange', levelChangeHandler);
+                  battery.removeEventListener('chargingchange', chargingChangeHandler);
+                };
+                // ============ end of listen =================
+              })
+            }
+          }, [battery])
+          return (
+            <div className={`${styles.chargingStatus}`}>
+              <div className={styles.statusCircle}>
+                <svg
+                  viewBox="0 0 120 120"
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  <circle
+                    cx="50%"
+                    cy="50%"
+                    r={radius}
+                    stroke="#e0e0e0"
+                    strokeWidth={strokeWidth}
+                    fill="none"
+                    className="background"  // 添加類別
+                  />
+                  <circle
+                    cx="50%"
+                    cy="50%"
+                    r={radius}
+                    stroke={isCharging ? '#00ff3c' : '#ffce00'}
+                    strokeWidth={strokeWidth}
+                    fill="none"
+                    strokeDasharray={strokeDasharray}
+                    strokeDashoffset={-strokeDashoffset}
+                    strokeLinecap="round"
+                    transform="rotate(-90 60 60)"
+                    className={`progress ${isCharging ? 'charging' : ''}`}  // 添加類別
+                  />
+                  <text x="50%" y="45%" textAnchor="middle" dy="0.3em" className="percentage">
+                    {Math.round(batteryLevel)}%
+                  </text>
+                  <text x="50%" y="60%" textAnchor="middle" className="status">
+                    {batteryLevel == 100 ? ('滿電量') : (isCharging ? '充電中' : ' ')}
+                  </text>
+                </svg>
+              </div>
+
+              <div className={styles.statusText}>
+                {batteryLevel == 100 ? ('') : (isCharging ? (`充電完成尚餘${chargingTimeText}`) : (`目前電量尚餘${dischargingTimeText}`))}
+              </div>
+            </div>
+          )
+        }
+
 
         // ================ init rent window ref ================
         useEffect(() => {
@@ -578,20 +577,42 @@ function MapIndex() {
             mounted = false;
           };
         }, [user]);
-
+        // debug =====================
+        useEffect(() => {
+          console.log('availableCoupons :>> ', availableCoupons);
+        }, [availableCoupons])
+        // ===========================
         // =============== coupon usage check =================
         useEffect(() => {
           if (!user) return;
-          console.log('ReadyToUseCoupon:585 :>> ', readyToUseCoupon);
           axios.get(`${API_URL}${couponBasePath}/mycouponsparam/${user.uid}`).then((res) => {
             // 可用折價卷的種類有這三種
             const rentalDiscountList = ['percent_off', 'rental_discount', 'free_minutes'];
-            if (res.data && res.data.length > 0) {
-              const availableCoupons = res.data.filter(coupon => (rentalDiscountList.includes(coupon.type)) && (coupon.ready_to_use));
-              if (!availableCoupons.length) {
-                setIsHaveCoupon(true);
-              } else if (availableCoupons.length) {
-                setReadyToUseCoupon(availableCoupons[0]);
+            // debug =====================
+            // console.log('coupon get from api :590:>> ', res);
+            // ============================
+            if (res.data && res.data.length === 0) {
+              setIsHavingCoupon(false);
+            }
+            else if (res.data && res.data.length > 0) {
+              setIsHavingCoupon(true);
+              const coupons = res.data;
+              // check if there is any available coupon for rental
+              const availableCoupons = coupons.filter(coupon => (rentalDiscountList.includes(coupon.type)) && (coupon.status === 'active'));
+              // debug =====================
+              // console.log('availableCoupons:599 :>> ', availableCoupons);
+              // ===========================
+              // if it is rental coupon
+              if (availableCoupons.length) {
+                setAvailableCoupons(true);
+                const readyToUse = coupons.filter(coupon => (coupon.ready_to_use == true))
+                if (readyToUse) {
+                  setReadyToUseCoupon(readyToUse[0] || null);
+                } else {
+                  setReadyToUseCoupon(null);
+                }
+              } else {
+                setAvailableCoupons(false);
               }
             }
           }).catch((err) => {
@@ -599,15 +620,51 @@ function MapIndex() {
           });
         }, [user, rentalStatus]);
 
+        // ============== coupon img item =================
+        const couponIcon = [
+          {
+            type: 'percent_off',
+            value: 85,
+            url: "coupon/perct 85.png",
+            title: "折扣券"
+          },
+          {
+            type: 'rental_discount',
+            value: 10,
+            url: "coupon/cut 10.png",
+            title: "租金折抵券"
+          },
+          {
+            type: 'rental_discount',
+            value: 30,
+            url: "coupon/cut 30.png",
+            title: "租金折抵券"
+          },
+          {
+            type: 'free_minutes',
+            value: 20,
+            url: "coupon/min 20.png",
+            title: "免費分鐘券"
+          }
+        ]
+
         // ================ rent button =================
         function handleRent() {
           if (!user) return alert("請先登入");
           rentWindowRef.current(true);
           const uid = user.uid;
+          navigator.getBattery().then((battery) => {
+            setBattery(battery);
+          }
+          )
 
+          // debug =====================
+          // console.log('isHaveCoupon :>> ', isHavingCouopn);
+          // console.log('availableCoupon :>> ', availableCoupons);
+          // console.log('readyToUseCoupon :>> ', readyToUseCoupon);
+          // ============================
 
-
-          // ====== axios patch ======
+          // ====== axios patch for renting ======
           axios
             .patch(`${API_URL}${basePath}/rent`, { deviceId, uid })
             .then((res) => {
@@ -678,8 +735,8 @@ function MapIndex() {
                 id: readyToUseCoupon.coupon_id,
                 type: readyToUseCoupon.type,
                 value: readyToUseCoupon.value,
-                name : readyToUseCoupon.name,
-              } ,
+                name: readyToUseCoupon.name,
+              },
             })
             .then((res) => {
               if (res.data.success) {
@@ -697,6 +754,7 @@ function MapIndex() {
                 setRentalTime(hhmm);
                 // rest states
                 setRentMessage("歸還成功，感謝使用");
+                setReadyToUseCoupon(null); 
               } else if (res.data.success === false) {
                 // ======== Overtime return handling =========
                 if (res.data.overtime || returnWarning) {
@@ -792,6 +850,16 @@ function MapIndex() {
                   : "translate(-50%, 100%)",
               }}
             >
+              <div className={`${styles.couponIcon}`}>
+                {readyToUseCoupon && (() => {
+                  // 尋找匹配的 couponIcon，如果沒有則使用第一個
+                  const matchedIcon = couponIcon.find(icon =>
+                    icon.type === readyToUseCoupon.type && icon.value === readyToUseCoupon.value
+                  ) || couponIcon[0];
+                  return <img src={matchedIcon.url} title={matchedIcon.title} alt={matchedIcon.title}
+                   />;
+                })()}
+              </div>
               {rentMessage && <p>{rentMessage}</p>}
               {rentalStatus ? (
                 returnWarning ? (
@@ -816,11 +884,18 @@ function MapIndex() {
                     >
                       歸還裝置
                     </button>
-                    {isHaveCouopn ? <button
-                      onClick={() => navigate('/coupon', { state: { activeTab: 'rental' } })}
-                      className='btn btn-primary mt-2'>
-                      您有尚未使用的優惠券，立即啟用！
-                    </button> : <p className="mt-3">當前套用 {<strong> \ {readyToUseCoupon.name} /</strong>}  優惠</p>}
+                    {isHavingCouopn ?
+                      (availableCoupons ? (
+                        !readyToUseCoupon ?
+                          <button
+                            onClick={() => navigate('/coupon', { state: { activeTab: 'rental' } })}
+                            className='btn btn-primary mt-2'>
+                            您有尚未使用的優惠券，立即啟用！
+                          </button> :
+                          <p className="mt-3">當前套用 {<strong> \ {readyToUseCoupon?.name || null} /</strong>}  優惠</p>
+
+                      ) : ''
+                      ) : ''}
                   </>
                 )
               ) : (

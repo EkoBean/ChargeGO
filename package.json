@@ -6,13 +6,14 @@
   "main": "src/pages/membersystem/memberbackend/memberapp.js",
   "scripts": {
     "_note": "這裡是自訂的 npm 指令，使用 npm run <scripts name> 就可以在 cmd 裡面跑 scripts",
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "sass:watch": "sass --watch ./src/styles/scss:./src/styles/css",
     "sass:build": "sass ./src/styles/scss:./src/styles/css",
     "start": "node src/pages/membersystem/memberbackend/memberapp.js"
+    
   },
   "dependencies": {
     "@vis.gl/react-google-maps": "^1.5.5",

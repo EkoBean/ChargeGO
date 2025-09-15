@@ -23,7 +23,7 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: 'http://localhost:5173', // 前端網址
+    origin: true, // 前端網址
     credentials: true // 允許跨域帶 cookie
 }));
 app.use(session({
@@ -32,7 +32,9 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 1天
+        maxAge: 24 * 60 * 60 * 1000, // 1天
+        secure: false,  // 開發環境設為 false
+        sameSite: 'lax'  // 或 'none' 如果需要 strict 跨域
     }
 }));
 
