@@ -149,11 +149,11 @@ class Shop extends Component {
     }
 
     try {
+      // 點數
       const balanceRes = await axios.get(
         `${API_URL}${pointBasePath}/checkpoints/${userId}`
       );
-
-      if (!balanceRes.data.sufficient) {
+      if (!balanceRes.data.point <= 0) {
         this.setState({
           selectedProduct: product,
           showModal: true,
