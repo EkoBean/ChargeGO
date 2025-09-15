@@ -182,12 +182,15 @@ const Coupon = () => {
 
   return (
     <>
-      <BackIcon />
-      <Notify />
       <div className={styles.couponBody}>
         <NavBarApp />
 
         <div className={styles.couponNavbar}>
+          <BackIcon
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
           <div className={styles.navbarCenterSectionForCouponBox}>
             <div className={styles.couponPoint}>
               <div className={styles.couponText}>
@@ -205,6 +208,11 @@ const Coupon = () => {
               </div>
             </div>
           </div>
+          <Notify
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
         </div>
 
         <div className={styles.couponMain}>

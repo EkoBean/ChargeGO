@@ -153,7 +153,10 @@ class Shop extends Component {
       const balanceRes = await axios.get(
         `${API_URL}${pointBasePath}/checkpoints/${userId}`
       );
-      if (!balanceRes.data.point <= 0) {
+      if (
+        balanceRes.data.point <= 0 ||
+        balanceRes.data.point < product.points
+      ) {
         this.setState({
           selectedProduct: product,
           showModal: true,
@@ -220,13 +223,15 @@ class Shop extends Component {
       // <div className={styles.container + " py-4"}>
 
       <div className={styles.mallBody}>
-        <BackIcon />
-        <Notify />
-
         <NavBarApp />
 
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
+          <BackIcon
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
 
           {/* 裝點數與任務連結的容器 */}
           <div className={styles.navbarCenterSection}>
@@ -252,6 +257,11 @@ class Shop extends Component {
               />
             </div>
           </div>
+          <Notify
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>
@@ -314,13 +324,13 @@ class Shop extends Component {
                       </div>
                       <div className={styles.couponActions}>
                         <button
-                          className={styles["btn-detail"]}
+                          className={styles.btndetail}
                           onClick={() => this.handleShowDetail(p)}
                         >
                           詳細
                         </button>
                         <button
-                          className={styles["btn-redeem"]}
+                          className={styles.btnredeem}
                           onClick={() => this.handleRedeem(p)}
                         >
                           兌換
@@ -381,7 +391,10 @@ class Shop extends Component {
             <div
               className="modal show d-block"
               tabIndex="-1"
-              style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                zIndex: 2000, // 拉高 z-index
+              }}
             >
               <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div className="modal-content">
