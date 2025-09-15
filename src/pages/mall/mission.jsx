@@ -273,24 +273,23 @@ class Mission extends Component {
         {/* mission的main */}
         <div className={styles.mallMain}>
           <div className={styles.missiontitle}>任務</div>
-          <div className={styles.missiondatefilter}>
-            <label htmlFor="filterDate">日期</label>
-            <input
-              type="date"
-              id="filterDate"
-              value={filterDate}
-              onChange={this.handleInputChange}
-            />
-            <button onClick={() => this.fetchMissions()}>確認</button>
-          </div>
+
           {loading ? (
-            <div className={styles["loading-text"]}>任務資料載入中...</div>
+            <div className={styles.missioncontext}>任務資料載入中...</div>
           ) : error ? (
-            <div className={styles["error-text"]}>錯誤: {error}</div>
+            <div className={styles.missioncontext}>錯誤: {error}</div>
           ) : mission.length > 0 ? (
             <div className={styles.missionList}>
-              {mission.map((item) => {
-                return (
+              {(() => {
+                // console.log("排序前 mission:", mission);
+
+                const sortedMissions = mission
+                  .slice()
+                  .sort((a, b) => Number(a.mission_id) - Number(b.mission_id));
+
+                // console.log("排序後 mission:", sortedMissions);
+
+                return sortedMissions.map((item) => (
                   <div
                     className={styles.missionCard}
                     key={item.user_mission_id}
@@ -341,11 +340,11 @@ class Mission extends Component {
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ));
+              })()}
             </div>
           ) : (
-            <p className={styles.missiontitle}>沒有找到任何任務</p>
+            <p className={styles.missioncontext}>沒有找到任何任務</p>
           )}
         </div>
       </div>

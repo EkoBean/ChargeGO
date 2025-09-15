@@ -34,7 +34,7 @@ $color-shop-circle: #69f05b;
   @media (min-width: 576px) {
     position: absolute; // 改為絕對定位
     top: 15%;
-    left: 10%;
+    left: 13%;
     margin: 0;
     z-index: 3; // 確保它浮動在 mallMain 上方
     flex-direction: column; // 讓子元素垂直排列
@@ -379,37 +379,33 @@ $color-shop-circle: #69f05b;
   border-radius: 50%;
   background-color: bs.$success;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   font-size: 1.5rem;
   color: white;
   font-weight: bold;
   position: relative;
   z-index: 1;
-  /* 控制重疊的偏移程度 */
   top: 50%;
   left: 50%;
   transform: translate(-20%, 10%);
-  /* 往左移多一點，就會只蓋住一部分 */
-  /* 新增 flex 設定 */
-  display: flex;
-  flex-direction: column;
-  /* 垂直排列 */
-  align-items: center;
-  /* 水平置中 */
-  justify-content: center;
-  /* 垂直置中，或者你想靠上/靠下可調整 */
-  gap: 4px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 
-  /* 每個元素之間間距，可自行調整 */
   img {
     margin-left: 70px;
-    /* 往右移 8px，可調整 */
   }
 
   div {
     margin-right: 40px;
-    /* 往右移 8px，可調整 */
+  }
+
+  // hover 效果
+  &:hover {
+    transform: translate(-20%, 10%) scale(1.02);
+    background-color: bs.$success-hover;
+    cursor: pointer; // ✅ 滑鼠變小手
   }
 }
 
@@ -427,7 +423,7 @@ $color-shop-circle: #69f05b;
 .circleNumber {
   color: var(--brown, #6c4023);
   font-family: "Mantou Sans";
-  font-size: 48px;
+  font-size: 36px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
@@ -496,7 +492,7 @@ $color-shop-circle: #69f05b;
   font-weight: 600;
   line-height: normal;
   letter-spacing: 4.8px;
-  margin-left: 24px;
+  margin: 12px 36px;
 }
 
 // ==========================
@@ -511,7 +507,7 @@ $color-shop-circle: #69f05b;
   padding-right: 10px;
   padding-left: 10px;
   align-items: center;
-  margin: 0 12px;
+  margin: 0 36px;
   padding-top: 30px;
   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
@@ -526,12 +522,12 @@ $color-shop-circle: #69f05b;
 
   // 平板以上
   @media (min-width: 768px) {
-    margin: 0 24px;
+    margin: 0 48px;
   }
 
   // 桌機以上
   @media (min-width: 1200px) {
-    margin: 0 48px;
+    margin: 0 72px;
     flex-direction: column; // 保持每張卡片換行
     align-items: center; // 卡片置中
   }
@@ -627,16 +623,33 @@ $color-shop-circle: #69f05b;
   line-height: normal;
   letter-spacing: 4.8px;
   padding: 12px;
-  width: 100%;
+  width: auto;
   max-width: calc(100% - 24px * 2); // 手機 margin 12px -> 24px
-  margin: 0 auto; // 置中對齊
+  margin: 0 36px; // 置中對齊
   padding: 12px 0;
 
   @media (min-width: 576px) {
-    margin: 0 48px; // 置中對齊
+    margin: 0 72px; // 置中對齊
   }
 }
+.missioncontext {
+  color: var(--brown, #6c4023);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 4.8px;
+  padding: 12px;
+  width: auto;
+  max-width: calc(100% - 24px * 2); // 手機 margin 12px -> 24px
+  margin: 0 36px; // 置中對齊
+  padding: 12px 0;
 
+  @media (min-width: 576px) {
+    margin: 0 84px; // 置中對齊
+  }
+}
 .missiondatefilter {
   color: var(--brown, #6c4023);
   font-family: Inter;
@@ -646,13 +659,13 @@ $color-shop-circle: #69f05b;
   line-height: normal;
   letter-spacing: 4.8px;
   padding: 12px;
-  width: 100%;
+  width: auto;
   max-width: calc(100% - 24px * 2); // 手機 margin 12px -> 24px
-  margin: 0 auto; // 置中對齊
+  margin: 0 36px; // 置中對齊
   padding: 12px 0;
 
   @media (min-width: 576px) {
-    margin: 0 48px; // 置中對齊
+    margin: 0 84px; // 置中對齊
   }
 }
 
@@ -925,7 +938,7 @@ $color-shop-circle: #69f05b;
   height: 300px;
   overflow-y: auto;
   padding-right: 6px;
-  margin: 0 12px;
+  margin: 0 30px;
   padding-bottom: 30px; // 🔥 保護最下面一張卡片不會被吃掉
 
   &::-webkit-scrollbar {
