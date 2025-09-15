@@ -160,13 +160,11 @@ function NavbarWebsite() {
               key={idx}
               className={styles["menu-item-wrapper"]}
               onMouseEnter={() => {
-                // 桌面版進入選單項目或子選單區域時保持開啟
                 if (window.innerWidth > 768 && item.submenu) {
                   setActiveSubmenu(idx);
                 }
               }}
               onMouseLeave={() => {
-                // 桌面版離開整個選單區域時才關閉
                 if (window.innerWidth > 768) {
                   setActiveSubmenu(null);
                 }
@@ -175,38 +173,42 @@ function NavbarWebsite() {
               <div
                 className={styles["menu-item"]}
                 onMouseEnter={(e) => {
-                  // 球球動畫在所有裝置都觸發（包括手機版）
                   handleHover(e);
-                  // 子選單只在桌面版自動打開
                   if (window.innerWidth > 768 && item.submenu) {
                     setActiveSubmenu(idx);
                   }
                 }}
                 onMouseLeave={(e) => {
-                  // 球球動畫在所有裝置都觸發（包括手機版）
                   handleLeave(e);
-                  // 桌面版不在這裡關閉子選單，改由menu-item-wrapper處理
                 }}
                 onTouchStart={(e) => {
-                  // 手機版觸控時也觸發球球動畫（作為備用）
                   if (window.innerWidth <= 768) {
                     handleHover(e);
                   }
                 }}
                 onTouchEnd={(e) => {
-                  // 觸控結束時隱藏球球
                   if (window.innerWidth <= 768) {
                     setTimeout(() => {
                       handleLeave(e);
                     }, 300);
                   }
                 }}
-                onClick={() => {
-                  // 手機版點擊處理子選單開關
-                  if (window.innerWidth <= 768) {
+                onClick={(e) => {
+                  if (item.title === "服務據點") {
+                    e.preventDefault();
+                    const el = document.getElementById('service-intro');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    closeMobileMenu();
+                  } else if (item.title === "關於我們") {
+                    e.preventDefault();
+                    const el = document.getElementById('about-us');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    closeMobileMenu();
+                  } else if (window.innerWidth <= 768) {
                     handleSubmenuToggle(idx);
                   }
                 }}
+                style={{ cursor: ["服務據點", "關於我們"].includes(item.title) ? 'pointer' : undefined }}
               >
                 {item.title}
                 {item.submenu && (
