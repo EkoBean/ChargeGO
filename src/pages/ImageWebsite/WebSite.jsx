@@ -240,14 +240,19 @@ const WebSite = () => {
       </div>
       {showServiceIntro && (
         <>
+
+          <div>
+            <img src="public/banner.png" alt="" />
+          </div>
+
           {/* about-us 區塊，閃電在左，內容在右 */}
-          <div className={styles['about-us-wrapper']}>
-            <div className={styles['bg-lightning']}>
+          <div className={styles['section-wrapper']}>
+            <div className={styles['section-lightning']}>
               <img src="/lightning.png" alt="lightning-bg" />
             </div>
-            <div className={`${styles['about-us']}`}>
-              <div className={`${styles['about-us-right']}`}>
-                <h2 className={`${styles.title}`}>關於我們</h2>
+            <div className={styles['section-content']} id="about-us">
+              <div className={styles['section-right']}>
+                <h2 className={styles.title}>關於我們</h2>
                 <div style={{ width: '100%', height: '4px', background: '#51ff3e', borderRadius: '2px', margin: '20px auto', marginBottom: '6%' }}></div>
                 <p>
                   在這個隨時隨地都需要保持聯繫的時代，電量就是行動力。ChargeGO 誕生的初衷，就是希望讓每一位使用者在任何場景中，
@@ -261,14 +266,11 @@ const WebSite = () => {
             </div>
           </div>
 
-          {/* service-intro 區塊，內容在左，閃電在右 */}
-          <div className={styles['service-intro-wrapper']}>
-            <div className={`${styles['service-intro']}`}>
-              <div className={styles['bg-lightning-right']}>
-                <img src="/lightning.png" alt="lightning-bg" />
-              </div>
-              <div className={`${styles['service-intro-left']}`}>
-                <h2 className={`${styles.title}`}>服務據點</h2>
+          {/* service-intro 區塊，閃電在右，內容在左，與 about-us 共用樣式 */}
+          <div className={`${styles['section-wrapper']} ${styles['reverse']}`}>
+            <div className={styles['section-content']} id="service-intro">
+              <div className={styles['section-right']}>
+                <h2 className={styles.title}>服務據點</h2>
                 <div style={{ width: '100%', height: '4px', background: '#51ff3e', borderRadius: '2px', margin: '20px auto', marginBottom: '6%' }}></div>
                 <p>
                   ChargeGO 的服務目前專注於台灣各大城市，無論是台北的商圈、台中的百貨，還是高雄的熱門景點，我們都在持續拓展據點。
@@ -277,14 +279,17 @@ const WebSite = () => {
                 </p>
               </div>
             </div>
+            <div className={styles['section-lightning']}>
+              <img src="/lightning.png" alt="lightning-bg" />
+            </div>
           </div>
 
           {/* how-to-rent 區塊，閃電在左，內容在右 */}
           <div className={styles['how-to-rent-wrapper']}>
-            <div className={styles['how-lightning']}>
+            <div className={styles['section-lightning']}>
               <img src="/lightning.png" alt="lightning-bg" />
             </div>
-            <div className={styles['how-to-rent']}>
+            <div className={styles['how-to-rent']} id="how-to-rent">
               <h2 className={styles['how-title']}>HOW？<br />如何租借？</h2>
               <div style={{ width: '100%', height: '4px', background: '#51ff3e', borderRadius: '2px', margin: '20px auto', marginBottom: '6%' }}></div>
               <div className={styles['how-divider']} />
@@ -327,12 +332,33 @@ const WebSite = () => {
             </div>
           </div>
 
+          {/* become-station 區塊，閃電在右，內容在左 */}
+          <div className={`${styles['section-wrapper']} ${styles['reverse']}`}>
+            <div className={styles['section-content']} id="become-station">
+              <div className={styles['section-right']}>
+                <h2 className={styles.title}>成為站點</h2>
+                <div style={{ width: '100%', height: '4px', background: '#51ff3e', borderRadius: '2px', margin: '20px auto', marginBottom: '6%' }}></div>
+                <p>
+                  歡迎各類商家、場館、公共空間加入 ChargeGO 站點行列！
+                  成為合作站點，不僅能提升顧客便利性，增加來客流量，
+                  還能共同打造智慧充電新生活。ChargeGO 提供彈性合作方案，
+                  讓您的空間成為用戶的電力補給站，創造雙贏價值。
+                  <br /><br />
+                  立即聯絡我們，了解更多合作細節，攜手推動行動充電網絡的成長！
+                </p>
+              </div>
+            </div>
+            <div className={styles['section-lightning']}>
+              <img src="/lightning.png" alt="lightning-bg" />
+            </div>
+          </div>
+
           <div className={styles.footer}>
             <div className={styles['footer-gradient-text']}>
               搶先體驗！首次租借享10點折扣碼！
             </div>
             <div className={styles['footer-download-btn-border']}>
-              <button className={styles['footer-download-btn']}>下載</button>
+              <button className={styles['footer-download-btn']}>開始使用</button>
             </div>
           </div>
         </>

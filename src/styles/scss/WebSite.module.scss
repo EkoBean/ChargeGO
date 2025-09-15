@@ -257,11 +257,100 @@ $primary: #ffce00;
     }
 }
 
-.content-section {
-    margin-top: 100vh;
-    padding: 4rem 2rem;
-    text-align: center;
-    color: #fff;
+/* section 區塊共用樣式 */
+.section-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 100px auto;
+    min-height: 400px;
+    position: relative;
+    box-sizing: border-box;
+    margin-bottom: 100px;
+    @media (max-width: 900px) {
+        flex-direction: column;
+        min-height: unset;
+        margin-bottom: 60px;
+        max-width: 98vw;
+    }
+}
+.section-wrapper.reverse {
+  flex-direction: row-reverse;
+}
+.section-wrapper.reverse .section-lightning {
+  right: 0;
+  left: auto;
+}
+.section-lightning {
+    position: absolute;
+    top: 55%;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    left: 0;
+    img {
+        width: 750px;
+        height: auto;
+        display: block;
+    }
+    @media (max-width: 900px) {
+        display: none;
+    }
+}
+.section-wrapper.reverse .section-lightning {
+    right: 0;
+    left: auto;
+}
+.section-content {
+    flex: 1 1 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 24px;
+    z-index: 10;
+    position: relative;
+    left: 0;
+    transform: none;
+    @media (max-width: 900px) {
+        width: 100%;
+        max-width: 98vw;
+        margin: 0 auto;
+        padding: 0 8px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+}
+.section-wrapper.reverse .section-content {
+  margin-left: -100px;
+  margin-right: auto;
+}
+.section-right {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+    @media (max-width: 900px) {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0 auto;
+    }
 }
 
 /* 自定義 rubberBand 動畫變體 */
@@ -378,7 +467,7 @@ $primary: #ffce00;
 
 
 /* 關於我們介紹區域靠右且在導覽列下方 */
-.about-us {
+.section-content {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -395,7 +484,7 @@ $primary: #ffce00;
     transform: translateX(-50%);
 }
 
-.about-us-right {
+.section-right {
     flex: 1 1 0;
     min-width: 0;
     max-width: 800px;
@@ -406,7 +495,7 @@ $primary: #ffce00;
     text-align: left;
 }
 
-.about-us-right h2 {
+.section-right h2 {
     font-size: 4rem;
     font-family: 'Mantou Sans', sans-serif;
     font-weight: 100;
@@ -414,133 +503,66 @@ $primary: #ffce00;
     color: #7F5A3C;
 }
 
-.about-us-right p {
+.section-right p {
     // font-family: 'Mantou Sans', sans-serif;
     font-size: 1.1rem;
     line-height: 1.8;
     color: #7F5A3C;
 }
 
-.bg-lightning {
+.section-lightning {
     position: absolute;
-    left: 0;
-    top: 55%;
+    top: 70%;
     transform: translateY(-50%);
     z-index: 2;
     pointer-events: none;
+    opacity: 0.3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    img {
+        width: 250px;
+        height: auto;
+        display: block;
+    }
+    @media (max-width: 900px) {
+        display: none;
+    }
 }
 
-.bg-lightning img {
-    width: 530px;
+.section-lightning img {
+    width: 450px;
     height: auto;
     display: block;
 }
 
-.about-us-wrapper {
-    margin-bottom: 50%; // 你想要的間距
-}
-
-// 服務據點介紹
-.service-intro {
+.section-wrapper {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
-    gap: 5%;
     width: 100%;
-    max-width: 700px;
-    margin: 180px auto 0 auto;
-    box-sizing: border-box;
-    border-radius: 24px;
-    z-index: 10;
+    max-width: 1440px;
+    margin: 0 auto 500px auto;
+    min-height: 400px;
     position: relative;
-    // bottom: 60%; 
-    left: 5%;
-    transform: translateX(-50%);
+    box-sizing: border-box;
+    // margin-bottom: 300px;
+    @media (max-width: 900px) {
+        flex-direction: column;
+        min-height: unset;
+        margin-bottom: 100px;
+        max-width: 98vw;
+    }
 }
-
-.service-intro-left {
-    flex: 0 1 1;
-    min-width: 0;
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: right;
+.section-wrapper.reverse {
+  flex-direction: row-reverse;
 }
-
-.service-intro h2 {
-    font-size: 4rem;
-    font-family: 'Mantou Sans', sans-serif;
-    font-weight: 100;
-    margin-bottom: 10%;
-    color: #7F5A3C;
+.section-wrapper.reverse .section-lightning {
+  right: 0;
+  left: auto;
 }
-
-.service-intro p {
-    // font-family: 'Mantou Sans', sans-serif;
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #7F5A3C;
-}
-
-// @media (max-width: 900px) {
-//     .about-us {
-//         flex-direction: column;
-//         gap: 24px;
-//         padding: 24px 0;
-//         max-width: 98vw;
-//         margin: 80px auto 0 auto;
-//         min-height: 0;
-//     }
-
-//     .about-us-left,
-//     .about-us-right {
-//         padding: 0 8vw;
-//         max-width: 100%;
-//         align-items: center;
-//         text-align: center;
-//     }
-
-//     .about-us-right {
-//         align-items: center;
-//     }
-
-//     .about-us-left img {
-//         width: 80px;
-//         height: 80px;
-//     }
-
-//     .about-us-right h2 {
-//         font-size: 1.5rem;
-//     }
-
-//     .about-us-right p {
-//         font-size: 1rem;
-//     }
-// }
-
-.bg-lightning-right {
-    position: absolute;
-    left: 120%;
-    right: auto;
-    top: 55%;
-    transform: translateY(-50%);
-    z-index: 2;
-    pointer-events: none;
-}
-
-.bg-lightning-right img {
-    width: 530px;
-    height: auto;
-    display: block;
-}
-
-.service-intro-wrapper {
-    margin-bottom: 50%; // 你想要的間距
-}
-
-// 如何租借？
+如何租借？
 .how-to-rent-right {
     display: flex;
     align-items: center;
@@ -559,8 +581,18 @@ $primary: #ffce00;
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
     min-height: 400px;
-    margin-bottom: 50%;
+    max-width: 1200px;
+    margin: 0 auto 100px auto;
+    box-sizing: border-box;
+    margin-bottom: 200px;
+    @media (max-width: 900px) {
+        flex-direction: column;
+        min-height: 200px;
+        margin-bottom: 100px;
+        max-width: 98vw;
+    }
 }
 
 .how-to-rent {
@@ -573,10 +605,17 @@ $primary: #ffce00;
     z-index: 3;
     position: relative;
     background: transparent;
+    @media (max-width: 900px) {
+        width: 100%;
+        padding: 0 8vw;
+        align-items: center;
+        text-align: center;
+        margin: 0 auto;
+    }
 }
 
 .how-title {
-    font-size: 3rem;
+    font-size: 4rem;
     font-family: 'Mantou Sans', sans-serif;
     color: #7F5A3C;
     margin-bottom: 32px;
@@ -628,7 +667,7 @@ $primary: #ffce00;
 }
 
 .how-step-content {
-    font-size: 1.6rem;
+    font-size: 2rem;
     margin-left: 0;
     text-align: center;
     flex: none;
@@ -644,7 +683,12 @@ $primary: #ffce00;
   align-items: center;
   justify-content: center;
   margin-top: 0;
-  padding-bottom: 20%;
+  margin-bottom: 200px;
+  padding-bottom: 200px;
+  @media (max-width: 900px) {
+    padding-bottom: 100px;
+    margin-bottom: 100px;
+  }
 }
 
 .footer-gradient-text {
@@ -735,10 +779,17 @@ $primary: #ffce00;
     flex-direction: column;
     min-height: 200px;
     margin-bottom: 20%;
+    margin-bottom: 84px;
+    @media (max-width: 900px) {
+        margin-bottom: 52px;
+    }
   }
   .how-to-rent {
     width: 100%;
     padding: 0 8vw;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
   }
   .how-title {
     font-size: 1.5rem;
@@ -782,7 +833,7 @@ $primary: #ffce00;
     flex: 1;
     font-family: 'Mantou Sans';
     color: #7F5A3C;
-    font-size: 100;
+    font-weight: 100;
   }
   .how-arrow {
     font-size: 2rem;
@@ -796,5 +847,38 @@ $primary: #ffce00;
   .footer-download-btn {
     font-size: 1.2rem;
     padding: 10px 24px;
+  }
+  .section-content {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+    left: 0;
+    transform: none;
+  }
+  .section-right {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .how-to-rent {
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .footer {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .yellowLine {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    margin: 0 auto !important;
+    display: block !important;
   }
 }
