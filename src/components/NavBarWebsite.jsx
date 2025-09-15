@@ -20,25 +20,30 @@ function NavbarWebsite(props) {
   // 修改選單結構，加入子選單
   const menuItems = [
     {
+      title: "關於我們",
+    },
+    {
       title: "服務據點",
+    },
+    {
+      title: "如何租借",
     },
     {
       title: "成為站點",
     },
     {
       title: "會員專區",
-      submenu: ["會員登入", "會員註冊", "會員資料"],
+      submenu: [
+        { name: "會員登入", url: 'mber_login' },
+        { name: "會員註冊", url: 'mber_register' },
+        { name: "會員資料", url: 'mber_info' },],
     },
     {
       title: "租借系統",
-      submenu: ["地點租借地圖"],
+      submenu: [{ name: "地點租借地圖", url: 'mapindex' }],
     },
-    {
-      title: "聯絡我們",
-    },
-    {
-      title: "關於我們",
-    },
+
+
   ];
 
   const handleHover = (e) => {
@@ -116,6 +121,7 @@ function NavbarWebsite(props) {
 
   return (
     <>
+
       {/* Gooey Filter 定義 */}
       <svg style={{ display: "none" }}>
         <defs>
@@ -209,7 +215,7 @@ function NavbarWebsite(props) {
                     const el = document.getElementById('become-station');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                     closeMobileMenu();
-                  } else if (item.title === "如何租借？") {
+                  } else if (item.title === "如何租借") {
                     e.preventDefault();
                     const el = document.getElementById('how-to-rent');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -260,11 +266,12 @@ function NavbarWebsite(props) {
                         }
                       }}
                       onClick={() => {
-                        console.log(`點擊了: ${item.title} - ${subitem}`);
+                        // console.log(`點擊了: ${subitem.name} - ${subitem}`);
+                        window.location.href = `/${subitem.url}`;
                         closeMobileMenu();
                       }}
                     >
-                      {subitem}
+                      {subitem.name}
                     </div>
                   ))}
                 </div>

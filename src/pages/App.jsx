@@ -36,7 +36,7 @@ function App() {
       {/* <NavBarWebsite /> */}
       <Routes>
         {/* index */}
-        <Route path="/Website" element={<WebSite />} />
+        <Route path="/" element={<WebSite />} />
 
         {/* map index */}
         <Route path="/MapIndex" element={<MapIndex />} />
@@ -49,7 +49,6 @@ function App() {
         <Route path="/Task" element={<Task />} />
 
         {/* membersystem */}
-        <Route path="/" element={<Mbre_login />} />
         <Route path="/mber_login" element={<Mbre_login />} />
         <Route path="/mber_forgotpwd" element={<Mber_ForgotPwd />} />
         <Route path="/mber_register" element={<Mber_register />} />
