@@ -345,7 +345,7 @@ class Mission extends Component {
               })}
             </div>
           ) : (
-            <p className={styles["no-mission-text"]}>沒有找到任何任務。</p>
+            <p className={styles.missiontitle}>沒有找到任何任務</p>
           )}
         </div>
       </div>
