@@ -4,6 +4,8 @@ import styles from "../../styles/scss/mall_index.module.scss";
 import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 import Notify from "../../components/notify";
+import BackIcon from "../../components/backIcon";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -37,14 +39,18 @@ class Shop extends Component {
       if (data.authenticated && data.user) {
         sessionStorage.setItem("uid", data.user.uid);
         this.setState({ userId: data.user.uid });
+        this.setState({ userId: data.user.uid }, () => {
+          this.refreshUserPoint(); // 登入成功後立刻刷新點數
+        });
       } else {
-        Notify.error("請先登入");
+        alert("請先登入");
         window.location.href = "/mber_login";
       }
     } catch (err) {
-      Notify.error("請先登入");
+      alert("請先登入");
       window.location.href = "/mber_login";
     }
+    // this.getUserPoint;
   }
   // 向左或向右滾動 list，direction = -1 (左) 或 1 (右)
   scrollStoreList = (direction) => {
@@ -87,6 +93,7 @@ class Shop extends Component {
 
   async componentDidMount() {
     await this.checkAuth(); // 先檢查登入
+    this.refreshUserPoint();
 
     // 監聽 storage 事件，當其他地方更新 sessionStorage.uid 時觸發
     window.addEventListener("storage", this.handleStorageChange);
@@ -113,7 +120,6 @@ class Shop extends Component {
       .catch((err) => console.error("抓取後端資料失敗:", err));
 
     // 抓使用者點數
-    this.refreshUserPoint();
   }
 
   componentWillUnmount() {
@@ -144,13 +150,7 @@ class Shop extends Component {
 
     try {
       const balanceRes = await axios.get(
-        `${API_URL}${pointBasePath}/checkpoints`,
-        {
-          params: {
-            user_id: userId,
-            template_id: product.id,
-          },
-        }
+        `${API_URL}${pointBasePath}/checkpoints/${userId}`
       );
 
       if (!balanceRes.data.sufficient) {
@@ -207,6 +207,7 @@ class Shop extends Component {
       showModal,
       modalType,
     } = this.state;
+    const { navigate } = this.props;
 
     const storeCoupons = products.filter(
       (p) => p.type === "store_gift" || p.type === "store_discount"
@@ -217,17 +218,15 @@ class Shop extends Component {
 
     return (
       // <div className={styles.container + " py-4"}>
+
       <div className={styles.mallBody}>
+        <BackIcon />
         <Notify />
 
         <NavBarApp />
 
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
-
-          <button className={styles.navbarLeftSection}>
-            <img src="/Iconimg/backBtn.svg" alt="backBtn" />
-          </button>
 
           {/* 裝點數與任務連結的容器 */}
           <div className={styles.navbarCenterSection}>
@@ -246,7 +245,11 @@ class Shop extends Component {
             {/* 導向任務連結 */}
             <div className={styles.missionCircle}>
               <div className={styles.circleText}>任務</div>
-              <img src="/Iconimg/quest.svg" alt="任務" />
+              <img
+                src="/Iconimg/quest.svg"
+                alt="任務"
+                onClick={() => navigate("/mission")}
+              />
             </div>
           </div>
         </div>
@@ -489,4 +492,8 @@ class Shop extends Component {
   }
 }
 
-export default Shop;
+// 外層 function
+export default function ShopWrapper(props) {
+  const navigate = useNavigate();
+  return <Shop {...props} navigate={navigate} />;
+}

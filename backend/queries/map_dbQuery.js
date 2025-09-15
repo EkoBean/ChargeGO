@@ -30,6 +30,10 @@ const returnLog = `UPDATE order_record SET order_status = '1', return_site_id = 
 const overTImeReturn = `UPDATE user SET blacklist = blacklist +1
 WHERE uid = ?; `
 
+// deactivate used coupon
+const deactivateCoupon = `
+UPDATE coupons SET ready_to_use = NULL, status = 'used' WHERE coupon_id = ?;
+`
 const dbQueries = {
     selectAllStations,
     selectInfoWindow,
@@ -41,6 +45,7 @@ const dbQueries = {
     returnCharger,
     returnLog,
     getRentalTime,
-    overTImeReturn
+    overTImeReturn,
+    deactivateCoupon
 };
-export {dbQueries};
+export { dbQueries };
