@@ -308,21 +308,6 @@ const Coupon = () => {
                               : "啟用"}
                           </button>
                         </div>
-                        <div className={styles.couponActions}>
-                          <button
-                            onClick={
-                              !coupon.isUsed
-                                ? () => handleRenTalCouponClick(coupon)
-                                : null
-                            }
-                          >
-                            {coupon.isUsed
-                              ? "逾期"
-                              : coupon.readyToUse
-                              ? "已套用此優惠"
-                              : "啟用"}
-                          </button>
-                        </div>
                       </div>
                     ))
                   )}
