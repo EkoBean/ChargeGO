@@ -1,21 +1,25 @@
+// 全站共用 Akagi Pro Fat 樣式
+h1.akagi {
+    font-family: 'Akagi Pro Fat', 'akagi-pro', sans-serif;
+    font-weight: 900;
+}
+
+@font-face {
+    font-family: 'Mantou Sans';
+    src: url('/fonts/MantouSans-Regular.ttf') format('truetype');
+    font-weight: lighter;
+    font-style: normal;
+}
+
+// @use "../../../node_modules/bootstrap/scss/bootstrap";
 $primary: #ffce00;
-
-@use "../../../node_modules/bootstrap/scss/bootstrap";
-@import url("https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css");
-
-// body {
-//   font-family: "Arial", sans-serif;
-//   background-color: $primary;
-//   // min-height: 200vh;
-//   // padding-top: 80px;
-//   /* color: $primary; // 需要時可加這行 */
-//   /* 為固定導航欄預留空間 */
-// }
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
 .content {
-  position: relative;
-  z-index: 2;
-  min-height: 100vh;
+    position: relative;
+    z-index: 2;
+    min-height: auto;
+    // padding-top: 100px;
 }
 
 .logo-section {
@@ -32,17 +36,17 @@ $primary: #ffce00;
 
 /* 添加箭頭圖片樣式 */
 .arrow {
-  position: relative;
-  width: 100vw;
-  max-width: 1000px;
-  min-width: 250px;
-  margin-bottom: 1rem;
-  left: -23vw;
-  top: 15vw;
-  opacity: 1;
-  transform: scale(1);
-  display: block;
-  transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+    position: relative;
+    width: 100vw;
+    max-width: 1000px;
+    min-width: 250px;
+    margin-bottom: 1rem;
+    left: -5vw;
+    top: 30vw;
+    opacity: 1;
+    transform: scale(1);
+    display: block;
+    transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
 }
 
 @keyframes arrowAppear {
@@ -76,30 +80,21 @@ $primary: #ffce00;
 }
 
 .gradient-logo {
-  position: absolute;
-  top: -500px;
-  left: 50%;
-  transform: translate(-50%, 200%);
-  font-size: 100px;
-  font-weight: 900;
-  font-family: "akagi-pro", sans-serif;
-  background: linear-gradient(
-    270deg,
-    #ffcc00,
-    #ffffff,
-    #ffcc00,
-    #ffffff,
-    #ffcc00
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradientMove 3s ease infinite;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-  z-index: 10;
-  white-space: nowrap;
+    position: absolute;
+    top: -500px;
+    left: 50%;
+    transform: translate(-50%, 200%);
+    font-size: 100px;
+    background: linear-gradient(270deg, #FFCC00, #FFFFFF, #FFCC00, #FFFFFF, #FFCC00);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 3s ease infinite;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    z-index: 10;
+    white-space: nowrap;
 }
 
 .gradient-logo.show {
@@ -108,12 +103,11 @@ $primary: #ffce00;
 }
 
 .logo-Charge {
-  display: inline-block;
-  opacity: 0;
-  transform: translateX(50px);
-  vertical-align: baseline;
-  font-family: "Akagi Pro Fat" sans-serif;
-  /* 移除自動動畫 */
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(50px);
+    vertical-align: baseline;
+    /* 移除自動動畫 */
 }
 
 @keyframes gradientMove {
@@ -146,42 +140,111 @@ $primary: #ffce00;
   /* 移除自動動畫 */
 }
 
-.tagline {
-  position: absolute;
-  left: 0;
-  top: 80%;
-  transform: translateY(-50%);
-  width: 100vw;
-  height: auto;
-  margin-top: 2rem;
-  opacity: 0;
-  visibility: hidden;
-  transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
-  display: block;
-  object-fit: contain;
-  z-index: 30;
+// tagline、taglineCover、yellowLine 統一包裝用於動畫控制
+
+.taglineGroup {
+    position: relative;
+    width: 100vw;
+    height: 40vw;
+    /* 響應式高度，視覺可調整 */
+    min-height: 220px;
+    max-height: 420px;
+    z-index: 35;
+}
+
+.tagline, .taglineCover {
+    position: absolute;
+    left: 0;
+    top: 10%;
+    // transform: translateX(-50%);
+    width: 100vw;
+    height: auto;
+    margin-top: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
+    display: block;
+    object-fit: contain;
+    z-index: 30;
+    pointer-events: none;
 }
 
 .taglineCover {
-  position: absolute;
-  left: -0.5%;
-  top: 91%;
-  transform: translateY(-50%);
-  width: 100vw;
-  height: auto;
-  margin-top: 2rem;
-  opacity: 0;
-  visibility: hidden;
-  transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s;
-  display: block;
-  object-fit: contain;
-  z-index: 50;
+    z-index: 50;
+}
+
+.taglineGroup svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: absolute;
+    // left: 50%;
+    top: 10%;
+    // transform: translate(-50%, -50%);
+    pointer-events: none;
+    /* 不要有邊線，黃色邊線只給 .yellowLine 用 */
 }
 
 .show-tagline {
   opacity: 1 !important;
   visibility: visible !important;
   animation: taglineMoveIn 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+/* 黃線 SVG 路徑樣式 */
+.yellowLine {
+    position: fixed;
+    left: 50%;
+    /* 水平置中 */
+    bottom: 10%;
+    transform: translateX(-50%);
+    width: 100vw;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+    z-index: 40;
+    /* 讓路徑初始不可見 */
+    
+    /* 針對內部 path 動畫 */
+    & path {
+        stroke-dasharray: 3000; /* 根據實際路徑長度調整 */
+        stroke-dashoffset: 3000;
+        transition: stroke-dashoffset 1.5s;
+    }
+}
+
+@keyframes yellowLineAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes yellowLineDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.yellowLine.show {
+    opacity: 1;
+    visibility: visible;
+    animation: yellowLineAppear 0.8s cubic-bezier(0.77,0,0.175,1) forwards;
+    
+    /* 讓 path 動畫從左到右 */
+    & path {
+        animation: yellowLineDraw 1.2s linear forwards;
+    }
+}
+
+.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 @keyframes taglineMoveIn {
@@ -194,11 +257,119 @@ $primary: #ffce00;
   }
 }
 
-.content-section {
-  margin-top: 100vh;
-  padding: 4rem 2rem;
-  text-align: center;
-  color: #fff;
+.section-content {
+  scroll-margin-top: 200px;
+}
+
+/* section 區塊共用樣式 */
+.section-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 100px auto;
+    min-height: 400px;
+    position: relative;
+    box-sizing: border-box;
+    margin-bottom: 100px;
+    @media (max-width: 900px) {
+        flex-direction: column;
+        min-height: unset;
+        margin-bottom: 60px;
+        max-width: 98vw;
+    }
+}
+.section-wrapper.reverse {
+  flex-direction: row-reverse;
+  margin-bottom: 20px;
+}
+.section-wrapper.reverse .section-lightning {
+  right: 0;
+  left: auto;
+}
+.section-lightning {
+    position: absolute;
+    top: 70%;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    left: 0;
+    img {
+        width: 350px;
+        height: auto;
+        display: block;
+        opacity: 0; // lightning 透明度設為 0
+    }
+    .taiwanMap {
+        width: 280px; // 台灣地圖寬度調整
+        height: auto;
+        opacity: 1;
+        position: absolute;
+        right: 40px;
+        bottom: 50px;
+        pointer-events: none;
+        z-index: 1;
+        @media (max-width: 1200px) {
+            width: 180px;
+            right: 20px;
+            bottom: 20px;
+        }
+        @media (max-width: 900px) {
+            display: none;
+        }
+    }
+    @media (max-width: 900px) {
+        display: none;
+    }
+}
+.section-content {
+    flex: 1 1 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 24px;
+    z-index: 10;
+    position: relative;
+    left: 0;
+    transform: none;
+    @media (max-width: 900px) {
+        width: 100%;
+        max-width: 98vw;
+        margin: 0 auto;
+        padding: 0 8px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+}
+.section-wrapper.reverse .section-content {
+  margin-left: -100px;
+  margin-right: auto;
+}
+.section-right {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+    @media (max-width: 900px) {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0 auto;
+    }
 }
 
 /* 自定義 rubberBand 動畫變體 */
@@ -296,68 +467,500 @@ $primary: #ffce00;
   animation-fill-mode: both;
 }
 
-/* 黃線 SVG 路徑樣式 */
-#yellowLine {
-  position: fixed;
-  left: 50%;
-  /* 水平置中 */
-  bottom: -2%;
-  transform: translateX(-50%);
-  width: 100vw;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
-  z-index: 40;
-}
-
-#yellowLine.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* .navbar-fixed {
+.navbar-fixed {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 100;
-} */
+    height: 100px;
+    z-index: 999;
+    background-color:#FFCC00;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+}
 
-/* 服務據點介紹區域靠右且在導覽列下方 */
-.service-intro {
+
+
+/* 關於我們介紹區域靠右且在導覽列下方 */
+.section-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5%;
+    width: 100%;
+    max-width: 700px;
+    margin: 180px auto 0 auto;
+    box-sizing: border-box;
+    border-radius: 24px;
+    z-index: 10;
+    position: relative;
+    // bottom: 60%; 
+    left: 40%;
+    transform: translateX(-50%);
+}
+
+.section-right {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+}
+
+.section-right h2 {
+    font-size: 4rem;
+    font-family: 'Mantou Sans', sans-serif;
+    font-weight: 100;
+    margin-bottom: 10%;
+    color: #7F5A3C;
+}
+
+.section-right p {
+    // font-family: 'Mantou Sans', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #7F5A3C;
+}
+
+.section-lightning {
+    position: absolute;
+    top: 70%;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    left: 0;
+    img {
+        width: 350px;
+        height: auto;
+        display: block;
+        opacity: 1; // lightning 透明度設為 1
+    }
+    .taiwanMap {
+        width: 280px; // 台灣地圖寬度調整
+        height: auto;
+        opacity: 1;
+        position: absolute;
+        right: 40px;
+        bottom: -200px;
+        pointer-events: none;
+        z-index: 1;
+        @media (max-width: 1200px) {
+            width: 180px;
+            right: 20px;
+        }
+        @media (max-width: 900px) {
+            display: none;
+        }
+    }
+    @media (max-width: 900px) {
+        display: none;
+    }
+}
+.section-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto 500px auto;
+    min-height: 400px;
+    position: relative;
+    box-sizing: border-box;
+    // margin-bottom: 300px;
+    @media (max-width: 900px) {
+        flex-direction: column;
+        min-height: unset;
+        margin-bottom: 100px;
+        max-width: 98vw;
+    }
+}
+.section-wrapper.reverse {
+  flex-direction: row-reverse;
+  margin-bottom: 220px;
+}
+.section-wrapper.reverse .section-lightning {
+  right: 0;
+  left: auto;
+}
+如何租借？
+.how-to-rent-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+    box-sizing: border-box;
+    z-index: 10;
+    position: relative;
+    // bottom: 60%; 
+    left: 30%;
+    transform: translateX(-50%);
+}
+
+.how-to-rent-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    max-width: 1200px;
+    margin: 0 auto 100px auto;
+    box-sizing: border-box;
+    margin-bottom: 200px;
+    @media (max-width: 900px) {
+        flex-direction: column;
+        min-height: 200px;
+        margin-bottom: 100px;
+        max-width: 98vw;
+    }
+}
+
+.how-to-rent {
+    margin-left: auto;
+    margin-right: 0;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 3;
+    position: relative;
+    background: transparent;
+    @media (max-width: 900px) {
+        width: 100%;
+        padding: 0 8vw;
+        align-items: center;
+        text-align: center;
+        margin: 0 auto;
+    }
+}
+
+.how-title {
+    font-size: 4rem;
+    font-family: 'Mantou Sans', sans-serif;
+    color: #7F5A3C;
+    margin-bottom: 32px;
+}
+
+.how-steps {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.how-step {
+    background: #fff;
+    border-radius: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 32px 36px;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #7F5A3C;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.how-step-num {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #51ff3e;
+    color: #7F5A3C;
+    font-size: 2.2rem;
+    font-weight: 900;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    margin-top: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 2;
+}
+
+.how-step-content {
+    font-size: 2rem;
+    margin-left: 0;
+    text-align: center;
+    flex: none;
+}
+
+// footer 區域
+.footer {
+  
+  width: 100vw;
+//   min-height: 50%;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 2rem;
-  margin: 4rem auto;
+  margin-top: 0;
+  margin-bottom: 200px;
+  padding-bottom: 200px;
+  @media (max-width: 900px) {
+    padding-bottom: 100px;
+    margin-bottom: 100px;
+  }
+}
+
+.footer-gradient-text {
+  font-size: 5.2rem;
+  font-weight: 100;
+  font-family: 'Mantou Sans', 'akagi-pro', sans-serif;
+  background: linear-gradient(270deg, #51ff3e, #fff, #51ff3e, #fff, #FFCC00);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: footerGradientMove 3s linear infinite;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+@keyframes footerGradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.footer-download-btn {
+  background: #FFFFFF(0, 0%, 100%);
+  color: #7F5A3C;
+  font-size: 2.3rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 48px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+  margin-top: 8px;
+}
+.footer-download-btn:hover {
+  background: #51ff3e;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .about-us, .service-intro {
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 0;
+    max-width: 98vw;
+    margin: 80px auto 0 auto;
+    min-height: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .about-us-right, .service-intro-left {
+    padding: 0 8vw;
+    max-width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  .about-us-right h2, .service-intro h2 {
+    font-size: 2rem;
+    margin-bottom: 5%;
+  }
+  .about-us-right p, .service-intro p {
+    font-size: 1rem;
+  }
+  .bg-lightning,
+  .bg-lightning-right,
+  .how-lightning {
+    top: 40%;
+  }
+  .bg-lightning img, .bg-lightning-right img, .how-lightning img {
+    width: 230px;
+  }
+  .taglineGroup {
+    height: 120px;
+    min-height: 100px;
+    max-height: 180px;
+  }
+  .gradient-logo, .header-logo {
+    font-size: 2.5rem;
+  }
+  .how-to-rent-wrapper {
+    flex-direction: column;
+    min-height: 200px;
+    margin-bottom: 20%;
+    margin-bottom: 84px;
+    @media (max-width: 900px) {
+        margin-bottom: 52px;
+    }
+  }
+  .how-to-rent {
+    width: 100%;
+    padding: 0 8vw;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .how-title {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+  .how-steps {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .how-step {
+    width: 90vw;
+    height: auto;
+    padding: 20px 0 20px 16px;
+    font-size: 1.1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+  }
+
+  .how-lightning img {
+    display: none;
+  }
+
+  .how-step-num {
+    font-size: 1.3rem;
+    width: 50px;
+    height: 50px;
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+  }
+  .how-step-content {
+    font-size: 1.5rem;
+    margin-left: -15%;
+    text-align: center;
+    flex: 1;
+    font-family: 'Mantou Sans';
+    color: #7F5A3C;
+    font-weight: 100;
+  }
+  .how-arrow {
+    font-size: 2rem;
+    margin: 0 0 0 0;
+    transform: rotate(90deg);
+  }
+  .footer-gradient-text {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+  .footer-download-btn {
+    font-size: 1.2rem;
+    padding: 10px 24px;
+  }
+  .section-content {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+    left: 0;
+    transform: none;
+  }
+  .section-right {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .how-to-rent {
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .footer {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .yellowLine {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+}
+
+.banner {
+  width: 100vw;
+  height: auto;
   max-width: 1440px;
-  width: 100%;
+  display: block;
+  margin: 100px auto 100px auto;
+  @media (max-width: 900px) {
+    max-width: 98vw;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) {
+    max-width: 100vw;
+    margin-bottom: 8px;
+  }
 }
 
-.service-intro-right {
-  flex: 1;
-  font-family: "Mantou Sans", sans-serif;
-  color: #333;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
-  z-index: 70;
-  /* 移除 top: 50vw; 和 right: 50px; */
+/* 明確覆蓋手機版 .section-wrapper.reverse .section-content，讓內容置中且不被桌機版 margin-left 蓋掉 */
+@media (max-width: 900px) {
+  .section-wrapper.reverse .section-content {
+    margin-left: 0;
+    margin-right: 0;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
 }
 
-.service-intro-left {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.taiwanMap {
+  position: absolute;
+  right: 70%;
+  bottom: 0;
+  width: 80vw; // 這裡可依需求調整大小
+  height: auto;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+  @media (max-width: 1200px) {
+    width: 70vw;
+  }
+  @media (max-width: 900px) {
+    display: none;
+  }
 }
 
-.title {
-  align-items: center;
-}
-
-p {
-  font-family: "Arial", "Microsoft JhengHei", sans-serif;
+.form-iframe {
+  display: block;
+  margin: 0 auto 120px auto;
+  max-width: 100%;
+    @media (max-width: 900px) {
+        margin-bottom: 20px;
+    }
 }

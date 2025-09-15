@@ -164,6 +164,8 @@ app.post('/mber_login', (req, res) => {
 // 檢查是否登入 API (前端可用來驗證登入狀態，並取得 user 資料)
 app.post('/check-auth', (req, res) => {
     // 直接從 session 取得 user
+    console.log('req :>> ', req);
+    console.log('req.session :>> ', req.session);
     if (req.session.user) {
         return res.json({
             success: true,

@@ -1,27 +1,60 @@
-.logo {
-  width: 220px;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  left: 50%;
-  top: 50px;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-
-.logo img {
-  width: 220px;
-  height: auto;
-  transition: opacity 0.3s ease;
-  cursor: pointer;
-}
-
 .mobile-only-logo {
   display: none;
 }
 
 .mobile-only-back {
   display: none;
+}
+
+.logoText {
+  font-size: 2rem;
+  font-family: "akagi-pro", sans-serif;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1;
+}
+
+.chargego-logo {
+  width: 180px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.oWrap {
+  position: relative;
+  display: inline-block;
+}
+
+.bolt {
+  position: absolute;
+  left: 50%;
+  top: -1.6em;
+  transform: translate(-50%, -50%); /* 完全置中於O */
+  color: #00ff3c;
+  font-size: 1.2em;
+  font-weight: bold;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px #00ff3c);
+  animation: bolt-fade 0.5s;
+}
+
+@keyframes bolt-fade {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 @media (max-width: 768px) {
