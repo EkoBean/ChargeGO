@@ -4,12 +4,14 @@ import styles from "../../styles/scss/mall_index.module.scss";
 import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 import Notify from "../../components/notify";
+import BackIcon from "../../components/backIcon";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const pointBasePath = apiRoutes.point;
 const shopBasePath = apiRoutes.shop;
-
+const memberBasePath = apiRoutes.member; // ← 加這行
 class Shop extends Component {
   // 在 class Shop 的最上方（state 下面或 constructor 裡）
   storeListRef = React.createRef();
@@ -20,9 +22,36 @@ class Shop extends Component {
     showDetailModal: false,
     showModal: false,
     modalType: "",
-    userId: sessionStorage.getItem("uid") || "", // 直接從 session 讀 uid
+    userId: "", // 直接從 session 讀 uid
     userPoint: null, // 新增
   };
+  // 檢查登入狀態
+  async checkAuth() {
+    try {
+      const res = await axios.post(
+        `${API_URL}${memberBasePath}/check-auth`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      const data = res.data;
+      if (data.authenticated && data.user) {
+        sessionStorage.setItem("uid", data.user.uid);
+        this.setState({ userId: data.user.uid });
+        this.setState({ userId: data.user.uid }, () => {
+          this.refreshUserPoint(); // 登入成功後立刻刷新點數
+        });
+      } else {
+        alert("請先登入");
+        window.location.href = "/mber_login";
+      }
+    } catch (err) {
+      alert("請先登入");
+      window.location.href = "/mber_login";
+    }
+    // this.getUserPoint;
+  }
   // 向左或向右滾動 list，direction = -1 (左) 或 1 (右)
   scrollStoreList = (direction) => {
     const el = this.storeListRef.current;
@@ -62,16 +91,10 @@ class Shop extends Component {
     }
   };
 
-  // 每秒檢查 session uid 是否更新
-  // 每秒檢查 session uid 是否更新
-  checkSessionUid = () => {
-    const uid = sessionStorage.getItem("uid") || "";
-    if (uid !== this.state.userId) {
-      this.setState({ userId: uid });
-    }
-  };
+  async componentDidMount() {
+    await this.checkAuth(); // 先檢查登入
+    this.refreshUserPoint();
 
-  componentDidMount() {
     // 監聽 storage 事件，當其他地方更新 sessionStorage.uid 時觸發
     window.addEventListener("storage", this.handleStorageChange);
 
@@ -97,7 +120,6 @@ class Shop extends Component {
       .catch((err) => console.error("抓取後端資料失敗:", err));
 
     // 抓使用者點數
-    this.refreshUserPoint();
   }
 
   componentWillUnmount() {
@@ -127,14 +149,14 @@ class Shop extends Component {
     }
 
     try {
-      const balanceRes = await axios.get(`${API_URL}${pointBasePath}/checkpoints`, {
-        params: {
-          user_id: userId,
-          template_id: product.id,
-        },
-      });
-
-      if (!balanceRes.data.sufficient) {
+      // 點數
+      const balanceRes = await axios.get(
+        `${API_URL}${pointBasePath}/checkpoints/${userId}`
+      );
+      if (
+        balanceRes.data.point <= 0 ||
+        balanceRes.data.point < product.points
+      ) {
         this.setState({
           selectedProduct: product,
           showModal: true,
@@ -143,10 +165,13 @@ class Shop extends Component {
         return;
       }
 
-      const redeemRes = await axios.post(`${API_URL}${shopBasePath}/buycoupons`, {
-        template_id: product.id,
-        user_id: userId,
-      });
+      const redeemRes = await axios.post(
+        `${API_URL}${shopBasePath}/buycoupons`,
+        {
+          template_id: product.id,
+          user_id: userId,
+        }
+      );
 
       if (redeemRes.data.success) {
         this.setState(
@@ -185,6 +210,7 @@ class Shop extends Component {
       showModal,
       modalType,
     } = this.state;
+    const { navigate } = this.props;
 
     const storeCoupons = products.filter(
       (p) => p.type === "store_gift" || p.type === "store_discount"
@@ -195,17 +221,17 @@ class Shop extends Component {
 
     return (
       // <div className={styles.container + " py-4"}>
-      <div className={styles.mallBody}>
-        <Notify />
 
+      <div className={styles.mallBody}>
         <NavBarApp />
 
         <div className={styles.mallNavbar}>
           {/* 返回首頁 */}
-
-          <button className={styles.navbarLeftSection}>
-            <img src="/Iconimg/backBtn.svg" alt="backBtn" />
-          </button>
+          <BackIcon
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
 
           {/* 裝點數與任務連結的容器 */}
           <div className={styles.navbarCenterSection}>
@@ -224,11 +250,18 @@ class Shop extends Component {
             {/* 導向任務連結 */}
             <div className={styles.missionCircle}>
               <div className={styles.circleText}>任務</div>
-              <img src="/Iconimg/quest.svg" alt="任務" />
+              <img
+                src="/Iconimg/quest.svg"
+                alt="任務"
+                onClick={() => this.props.navigate("/mission")}
+              />
             </div>
           </div>
-
-
+          <Notify
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
         </div>
         {/* 白色區塊 */}
         <div className={styles.mallMain}>
@@ -291,13 +324,13 @@ class Shop extends Component {
                       </div>
                       <div className={styles.couponActions}>
                         <button
-                          className={styles["btn-detail"]}
+                          className={styles.btndetail}
                           onClick={() => this.handleShowDetail(p)}
                         >
                           詳細
                         </button>
                         <button
-                          className={styles["btn-redeem"]}
+                          className={styles.btnredeem}
                           onClick={() => this.handleRedeem(p)}
                         >
                           兌換
@@ -352,121 +385,127 @@ class Shop extends Component {
               </div>
             </>
           )}
-
-          {/* 詳細 modal */}
-          {showDetailModal && selectedProduct && (
-            <div
-              className="modal show d-block"
-              tabIndex="-1"
-              style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-            >
-              <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">{selectedProduct.name}</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={this.handleCloseDetail}
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    <p>
-                      <strong>兌換辦法：</strong>
-                      {selectedProduct.redemptionMethod}
-                    </p>
-                    <p>
-                      <strong>使用期限：</strong>
-                      {selectedProduct.expirationDate}
-                    </p>
-                    <p>
-                      <strong>合作商家契約內容：</strong>
-                      {selectedProduct.contractDetails}
-                    </p>
-                    {selectedProduct.isCoupon && (
-                      <div className="alert alert-info">
-                        此兌換券的金額將直接匯入您的租借儲值額度中。
-                      </div>
-                    )}
-                  </div>
-                  <div className="modal-footer">
-                    <button
-                      className="btn btn-secondary"
-                      onClick={this.handleCloseDetail}
-                    >
-                      關閉
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 統一兌換結果 modal */}
-          {showModal && selectedProduct && (
-            <div
-              className="modal show d-block"
-              tabIndex="-1"
-              style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-            >
-              <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">
-                      {modalType === "success" && "兌換成功"}
-                      {modalType === "insufficient" && "餘額不足"}
-                      {modalType === "error" && "兌換失敗"}
-                    </h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={this.handleCloseModal}
-                    ></button>
-                  </div>
-                  <div className="modal-body text-center">
-                    {modalType === "success" && (
-                      <>
-                        <i className="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
-                        <p className="mb-0 fs-5">
-                          您已成功兌換 <strong>{selectedProduct.name}</strong>！
-                        </p>
-                      </>
-                    )}
-                    {modalType === "insufficient" && (
-                      <>
-                        <i className="bi bi-exclamation-circle-fill text-warning fs-1 mb-3"></i>
-                        <p className="mb-0 fs-5">
-                          您的點數不足，無法兌換{" "}
-                          <strong>{selectedProduct.name}</strong>！
-                        </p>
-                      </>
-                    )}
-                    {modalType === "error" && (
-                      <>
-                        <i className="bi bi-x-circle-fill text-danger fs-1 mb-3"></i>
-                        <p className="mb-0 fs-5">
-                          兌換 <strong>{selectedProduct.name}</strong>{" "}
-                          失敗，請稍後再試！
-                        </p>
-                      </>
-                    )}
-                  </div>
-                  <div className="modal-footer">
-                    <button
-                      className="btn btn-secondary w-100"
-                      onClick={this.handleCloseModal}
-                    >
-                      關閉
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
+        {/* 詳細 modal */}
+        {showDetailModal && selectedProduct && (
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 2000, // 拉高 z-index
+            }}
+          >
+            <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">{selectedProduct.name}</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={this.handleCloseDetail}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <p>
+                    <strong>兌換辦法：</strong>
+                    {selectedProduct.redemptionMethod}
+                  </p>
+                  <p>
+                    <strong>使用期限：</strong>
+                    {selectedProduct.expirationDate}
+                  </p>
+                  <p>
+                    <strong>合作商家契約內容：</strong>
+                    {selectedProduct.contractDetails}
+                  </p>
+                  {selectedProduct.isCoupon && (
+                    <div className="alert alert-info">
+                      此兌換券的金額將直接匯入您的租借儲值額度中。
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={this.handleCloseDetail}
+                  >
+                    關閉
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 統一兌換結果 modal */}
+        {showModal && selectedProduct && (
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    {modalType === "success" && "兌換成功"}
+                    {modalType === "insufficient" && "餘額不足"}
+                    {modalType === "error" && "兌換失敗"}
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={this.handleCloseModal}
+                  ></button>
+                </div>
+                <div className="modal-body text-center">
+                  {modalType === "success" && (
+                    <>
+                      <i className="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
+                      <p className="mb-0 fs-5">
+                        您已成功兌換 <strong>{selectedProduct.name}</strong>！
+                      </p>
+                    </>
+                  )}
+                  {modalType === "insufficient" && (
+                    <>
+                      <i className="bi bi-exclamation-circle-fill text-warning fs-1 mb-3"></i>
+                      <p className="mb-0 fs-5">
+                        您的點數不足，無法兌換{" "}
+                        <strong>{selectedProduct.name}</strong>！
+                      </p>
+                    </>
+                  )}
+                  {modalType === "error" && (
+                    <>
+                      <i className="bi bi-x-circle-fill text-danger fs-1 mb-3"></i>
+                      <p className="mb-0 fs-5">
+                        兌換 <strong>{selectedProduct.name}</strong>{" "}
+                        失敗，請稍後再試！
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary w-100"
+                    onClick={this.handleCloseModal}
+                  >
+                    關閉
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 }
 
-export default Shop;
+// 外層 function
+export default function ShopWrapper(props) {
+  const navigate = useNavigate();
+  return <Shop {...props} navigate={navigate} />;
+}

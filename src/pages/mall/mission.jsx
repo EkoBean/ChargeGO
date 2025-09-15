@@ -5,10 +5,13 @@ import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
 import { apiRoutes } from "../../components/apiRoutes";
 import Notify from "../../components/notify";
+import BackIcon from "../../components/backIcon";
+import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
 const missionBasePath = apiRoutes.mission;
-
+const memberBasePath = apiRoutes.member; // ← 加這行
 
 class Mission extends Component {
   state = {
@@ -20,8 +23,30 @@ class Mission extends Component {
     userPoint: null,
     claimingMissionId: null,
   };
+  async checkAuth() {
+    try {
+      const res = await fetch(`${API_URL}${memberBasePath}/check-auth`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        // 有登入，把 userId 存起來
+        sessionStorage.setItem("uid", data.user.uid);
+        this.setState({ userId: data.user.uid });
+      } else {
+        alert("請先登入");
+        window.location.href = "/mber_login"; // 用原生跳頁
+      }
+    } catch (err) {
+      alert("請先登入");
+      window.location.href = "/mber_login";
+    }
+  }
+  async componentDidMount() {
+    await this.checkAuth(); // 先檢查登入
 
-  componentDidMount() {
     console.log("Component mounted.");
     console.log("Initial userId from state:", this.state.userId);
     console.log("filterDate", this.state.filterDate);
@@ -85,7 +110,9 @@ class Mission extends Component {
   };
 
   async fetchMissions() {
-    const userId = this.state.userId || sessionStorage.getItem("uid") || "";
+    const userId = this.state.userId;
+    if (!userId) return;
+
     const { filterDate } = this.state;
     this.setState({ loading: true, error: null, mission: [] });
 
@@ -209,15 +236,14 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
-        <Notify />
-
         <NavBarApp />
         {/* mission的navbar */}
         <div className={styles.mallNavbar}>
-          <button className={styles.navbarLeftSection}>
-            <img src="/Iconimg/backBtn.svg" alt="backBtn" />
-          </button>
-
+          <BackIcon
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
           <div className={styles.navbarCenterSection}>
             <div className={styles.pointCircle}>
               <div className={styles.circleText}>
@@ -231,33 +257,39 @@ class Mission extends Component {
 
             <div className={styles.missionCircle}>
               <div className={styles.circleText}>去逛逛</div>
-              <img src="/Iconimg/Shopping Cart.svg" alt="去逛逛" />
+              <img
+                src="/Iconimg/Shopping Cart.svg"
+                alt="去逛逛"
+                onClick={() => this.props.navigate("/shop")}
+              />
             </div>
           </div>
-
-
+          <Notify
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
         </div>
         {/* mission的main */}
         <div className={styles.mallMain}>
           <div className={styles.missiontitle}>任務</div>
-          <div className={styles.missiondatefilter}>
-            <label htmlFor="filterDate">日期</label>
-            <input
-              type="date"
-              id="filterDate"
-              value={filterDate}
-              onChange={this.handleInputChange}
-            />
-            <button onClick={() => this.fetchMissions()}>確認</button>
-          </div>
+
           {loading ? (
-            <div className={styles["loading-text"]}>任務資料載入中...</div>
+            <div className={styles.missioncontext}>任務資料載入中...</div>
           ) : error ? (
-            <div className={styles["error-text"]}>錯誤: {error}</div>
+            <div className={styles.missioncontext}>錯誤: {error}</div>
           ) : mission.length > 0 ? (
             <div className={styles.missionList}>
-              {mission.map((item) => {
-                return (
+              {(() => {
+                // console.log("排序前 mission:", mission);
+
+                const sortedMissions = mission
+                  .slice()
+                  .sort((a, b) => Number(a.mission_id) - Number(b.mission_id));
+
+                // console.log("排序後 mission:", sortedMissions);
+
+                return sortedMissions.map((item) => (
                   <div
                     className={styles.missionCard}
                     key={item.user_mission_id}
@@ -274,8 +306,8 @@ class Mission extends Component {
                       <div className={styles.endDate}>
                         {item.mission_end_date
                           ? `至${new Date(
-                            item.mission_end_date
-                          ).toLocaleDateString("zh-TW")}`
+                              item.mission_end_date
+                            ).toLocaleDateString("zh-TW")}`
                           : "無期限"}
                       </div>
 
@@ -308,11 +340,11 @@ class Mission extends Component {
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ));
+              })()}
             </div>
           ) : (
-            <p className={styles["no-mission-text"]}>沒有找到任何任務。</p>
+            <p className={styles.missioncontext}>沒有找到任何任務</p>
           )}
         </div>
       </div>
@@ -320,4 +352,7 @@ class Mission extends Component {
   }
 }
 
-export default Mission;
+export default function MissionWrapper(props) {
+  const navigate = useNavigate();
+  return <Mission {...props} navigate={navigate} />;
+}

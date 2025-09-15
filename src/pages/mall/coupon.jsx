@@ -7,7 +7,6 @@ import Notify from "../../components/notify";
 import BackIcon from "../../components/backIcon";
 import { useNavigate, useLocation } from "react-router-dom";
 
-
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
 const memberBasePath = apiRoutes.member;
@@ -55,8 +54,6 @@ const Coupon = () => {
       });
   }, [navigate]);
 
-
-
   // 取得使用者點數
   const getUserPoint = useCallback(async (uid) => {
     if (!uid) {
@@ -79,12 +76,11 @@ const Coupon = () => {
 
   // ========== enter this site from navate() ==============
   useEffect(() => {
-    if (location.state?.activeTab === 'rental') {
-      setActiveTab('rental');
+    if (location.state?.activeTab === "rental") {
+      setActiveTab("rental");
     }
   }, [location.state]);
   // =======================================================
-
 
   // refresh 封裝（給外部呼叫）
   const refreshUserPoint = useCallback(() => {
@@ -93,6 +89,8 @@ const Coupon = () => {
 
   // 抓優惠券（會在 userId 變動時重新抓）
   useEffect(() => {
+    if (!userId) return; // 沒有 userId 不執行
+
     let mounted = true;
     const fetchCoupons = async () => {
       try {
@@ -127,20 +125,6 @@ const Coupon = () => {
     };
   }, [userId, getUserPoint]);
 
-  // 監聽其他分頁對 sessionStorage uid 的變動
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === "uid") {
-        const newUid = e.newValue || "2";
-        setUserId(newUid);
-        // 把 UI 的 userId 與 session sync（雖然 session 已變）
-        getUserPoint(newUid);
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, [getUserPoint]);
-
   const handleCouponClick = (coupon) => {
     if (!coupon.isUsed) {
       setSelectedCoupon(coupon);
@@ -148,19 +132,19 @@ const Coupon = () => {
     }
   };
   const handleRenTalCouponClick = (coupon) => {
-    const reset = coupon.readyToUse
+    const reset = coupon.readyToUse;
     fetch(`${API_URL}${couponBasePath}/readyToUse/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uid: userId, coupon_id: coupon.id, reset }),
     })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();  // 解析 JSON，返回 Promise
-      } else {
-        throw new Error('Request failed');
-      }
-    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json(); // 解析 JSON，返回 Promise
+        } else {
+          throw new Error("Request failed");
+        }
+      })
       .then((data) => {
         const formatted = data.map((c) => ({
           id: c.coupon_id,
@@ -174,60 +158,61 @@ const Coupon = () => {
       })
       .catch((err) => {
         console.error(err);
-      })
-
-  }
+      });
+  };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedCoupon(null);
   };
 
-  // optional: 當在 modal 中模擬掃描完成並希望標示為已使用時，你可以呼叫一個 API 再 refreshUserPoint()
-  // 例如：
-  // const markUsedAndRefresh = async (couponId) => {
-  //   await fetch(`http://localhost:4002/usecoupon/${couponId}`, { method: "POST", body: JSON.stringify({ userId }) });
-  //   await refreshUserPoint();
-  //   // 重新抓優惠券列表
-  //   const res = await fetch(`http://localhost:4002/mycouponsparam/${userId}`);
-  //   setCoupons(await res.json());
-  // };
-
   const storeCoupons = coupons.filter(
     (c) => c.type === "store_gift" || c.type === "store_discount"
   );
   // 排序優惠券順序
-  const rentalCoupons = coupons.filter(
-    (c) =>
-      c.type === "rental_discount" ||
-      c.type === "free_minutes" ||
-      c.type === "percent_off"
-  ).sort((a, b)=> a.isUsed - b.isUsed
-  ).sort((a, b)=> b.readyToUse - a.readyToUse );
+  const rentalCoupons = coupons
+    .filter(
+      (c) =>
+        c.type === "rental_discount" ||
+        c.type === "free_minutes" ||
+        c.type === "percent_off"
+    )
+    .sort((a, b) => a.isUsed - b.isUsed)
+    .sort((a, b) => b.readyToUse - a.readyToUse);
 
   return (
     <>
-      <BackIcon />
-      <Notify />
       <div className={styles.couponBody}>
         <NavBarApp />
 
         <div className={styles.couponNavbar}>
-
-
+          <BackIcon
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
           <div className={styles.navbarCenterSectionForCouponBox}>
             <div className={styles.couponPoint}>
               <div className={styles.couponText}>
                 {/* <img src="/Iconimg/greenpoint.svg" alt="point" /> */}
                 目前持有點數
               </div>
-              <div style={{ transform: 'translateY(-0.5rem)' }} className={styles.couponNumber}>
+              <div
+                style={{ transform: "translateY(-0.5rem)" }}
+                className={styles.couponNumber}
+              >
                 {userPoint !== null ? userPoint : "載入中"}
               </div>
-              <div style={{ fontSize: '1.3rem', marginTop: '0.5rem' }}>目前持有的優惠券</div>
+              <div style={{ fontSize: "1.3rem", marginTop: "0.5rem" }}>
+                目前持有的優惠券
+              </div>
             </div>
           </div>
-
+          <Notify
+            style={{
+              display: window.innerWidth >= 576 ? "none" : "block",
+            }}
+          />
         </div>
 
         <div className={styles.couponMain}>
@@ -257,7 +242,10 @@ const Coupon = () => {
                     <p className="text-muted">目前沒有商家優惠券</p>
                   ) : (
                     storeCoupons.map((coupon) => (
-                      <div key={coupon.id} className={styles.storeCouponCardInBox}>
+                      <div
+                        key={coupon.id}
+                        className={styles.storeCouponCardInBox}
+                      >
                         <div className={styles.cardLeft}>
                           <h5 className="fw-bold mb-0">{coupon.title}</h5>
                           <small className="text-muted">
@@ -267,8 +255,9 @@ const Coupon = () => {
                         </div>
                         <div className={styles.cardRight}>
                           <button
-                            className={`btn  ${coupon.isUsed ? "disabled" : styles.claimBtn
-                              } rounded-pill fw-bold`}
+                            className={`btn  ${
+                              coupon.isUsed ? "disabled" : styles.claimBtn
+                            } rounded-pill fw-bold`}
                             disabled={coupon.isUsed}
                             onClick={() => handleCouponClick(coupon)}
                           >
@@ -289,8 +278,13 @@ const Coupon = () => {
                     rentalCoupons.map((coupon) => (
                       <div
                         key={coupon.id}
-                        className={`${styles.rentalCouponCard} ${coupon.isUsed ? styles.used : (coupon.readyToUse ? styles.readyToUse : '')
-                          }`}
+                        className={`${styles.rentalCouponCard} ${
+                          coupon.isUsed
+                            ? styles.used
+                            : coupon.readyToUse
+                            ? styles.readyToUse
+                            : ""
+                        }`}
                       >
                         <div className={styles.couponInfo}>
                           <h5 className={styles.couponName}>{coupon.title}</h5>
@@ -301,12 +295,33 @@ const Coupon = () => {
                         </div>
                         <div className={styles.couponActions}>
                           <button
-                            onClick={!coupon.isUsed ? () => handleRenTalCouponClick(coupon) : null}>
-                            {coupon.isUsed ? "逾期" : (
-                              coupon.readyToUse ? '已套用此優惠' : '啟用'
-                            )}
+                            onClick={
+                              !coupon.isUsed
+                                ? () => handleRenTalCouponClick(coupon)
+                                : null
+                            }
+                          >
+                            {coupon.isUsed
+                              ? "逾期"
+                              : coupon.readyToUse
+                              ? "已套用此優惠"
+                              : "啟用"}
                           </button>
-
+                        </div>
+                        <div className={styles.couponActions}>
+                          <button
+                            onClick={
+                              !coupon.isUsed
+                                ? () => handleRenTalCouponClick(coupon)
+                                : null
+                            }
+                          >
+                            {coupon.isUsed
+                              ? "逾期"
+                              : coupon.readyToUse
+                              ? "已套用此優惠"
+                              : "啟用"}
+                          </button>
                         </div>
                       </div>
                     ))
