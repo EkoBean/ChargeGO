@@ -10,7 +10,7 @@
   justify-content: space-between;
 }
 
-.logo {
+/* .logo {
   width: 120px;
   display: flex;
   align-items: center;
@@ -20,19 +20,49 @@
   left: -50px;
   top: 0;
   transform: none;
+} */
+
+.chargego-logo {
+  /* 你可以根據 ChargegoLogo 實際內容調整寬高 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.my-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 32px;
+  box-sizing: border-box;
+  position: relative;
+  //background: #fff;
+  min-height: 64px;
+}
+
+.left-placeholder {
+  display: flex;
+  align-items: center;
+  /* 不設 min-width，讓 logo 尺寸由 ChargegoLogo.module.scss 控制 */
+  flex: 0 0 auto;
+}
+
+.right-placeholder {
+  min-width: 120px; /* 可依需求調整右側預留空間 */
+  flex: 0 0 auto;
 }
 
 .menu {
+  flex: 1 1 auto;
   display: flex;
-  flex-direction: row;
-  gap: 15px; /* 這裡調整數值即可，越大間距越寬 */
+  align-items: center;
+  justify-content: center; // 修正：由 flex-end 改為 center
   position: relative;
   top: 0;
   left: 0;
   background: transparent;
   backdrop-filter: blur(10px);
-  justify-content: flex-end;
-  align-items: center;
   transition: right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 999;
   filter: url(#goo);
@@ -105,7 +135,7 @@
 }
 
 .menu-item-wrapper {
-  width: 100%;
+  width: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,7 +144,7 @@
 
 .menu-item-wrapper .menu-item {
   justify-content: center;
-  width: 100%;
+  width: auto;
   gap: 10px;
 }
 
@@ -131,7 +161,8 @@
   top: 100%; /* 位於父元素正下方 */
   left: 50%;
   transform: translateX(-50%);
-  width: 120%; /* 稍微縮小寬度讓視覺更好 */
+  width: max-content;
+  min-width: unset;
   margin-top: 5px;
   max-height: 0;
   overflow: hidden;
@@ -144,13 +175,14 @@
   opacity: 0;
   visibility: hidden;
   z-index: 9999; /* 設為最高層級確保在所有元素之上 */
+  text-align: center;
 }
 
 .submenu.show {
   max-height: 300px;
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-38%) translateY(0);
 }
 
 .submenu-item {
@@ -204,17 +236,6 @@
     height: 56px;
     justify-content: center;
     position: relative;
-  }
-
-  .logo {
-    left: 0;
-    margin: 0 auto;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    justify-content: center;
   }
 
   .menu {
