@@ -5,6 +5,9 @@ import NavBarApp from "../../components/NavBarApp";
 import styles from "../../styles/scss/mall_index.module.scss";
 import { apiRoutes } from "../../components/apiRoutes";
 import Notify from "../../components/notify";
+import BackIcon from "../../components/backIcon";
+import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_API_URL;
 const pointBasePath = apiRoutes.point;
 const missionBasePath = apiRoutes.mission;
@@ -233,15 +236,13 @@ class Mission extends Component {
 
     return (
       <div className={styles.mallBody}>
+        <BackIcon />
+
         <Notify />
 
         <NavBarApp />
         {/* mission的navbar */}
         <div className={styles.mallNavbar}>
-          <button className={styles.navbarLeftSection}>
-            <img src="/Iconimg/backBtn.svg" alt="backBtn" />
-          </button>
-
           <div className={styles.navbarCenterSection}>
             <div className={styles.pointCircle}>
               <div className={styles.circleText}>
@@ -255,7 +256,11 @@ class Mission extends Component {
 
             <div className={styles.missionCircle}>
               <div className={styles.circleText}>去逛逛</div>
-              <img src="/Iconimg/Shopping Cart.svg" alt="去逛逛" />
+              <img
+                src="/Iconimg/Shopping Cart.svg"
+                alt="去逛逛"
+                onClick={() => this.props.navigate("/shop")}
+              />
             </div>
           </div>
         </div>
@@ -342,4 +347,7 @@ class Mission extends Component {
   }
 }
 
-export default Mission;
+export default function MissionWrapper(props) {
+  const navigate = useNavigate();
+  return <Mission {...props} navigate={navigate} />;
+}
