@@ -161,6 +161,17 @@ app.post('/mber_login', (req, res) => {
     );
 });
 
+// 登出 API
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: '登出失敗' });
+        }
+        res.clearCookie('connect.sid'); // 清除 session cookie（名稱依 session 設定）
+        return res.json({ success: true, message: '已登出' });
+    });
+});
+
 // 檢查是否登入 API (前端可用來驗證登入狀態，並取得 user 資料)
 app.post('/check-auth', (req, res) => {
     // 直接從 session 取得 user

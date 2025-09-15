@@ -5,6 +5,7 @@ import styles from "../../styles/scss/mber_register.module.scss";
 import crypto from "crypto-js";
 import { apiRoutes } from "../../components/apiRoutes";
 import BackIcon from "../../components/backIcon";
+import NavBarApp from "../../components/NavBarApp";
 
 const memberBasePath = apiRoutes.member;
 
@@ -196,7 +197,7 @@ const mber_Register = () => {
   return (
     <div className={styles["register-bg"]}>
       {/* 手機版專用區塊 */}
-   
+      <><NavBarApp /></>
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
           {/* 返回上頁按鈕 */}
