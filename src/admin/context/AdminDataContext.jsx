@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import ApiService from '../services/api';
+import { apiRoutes } from '../../components/apiRoutes';
+
 
 // 建立 Context 實例
 const AdminDataContext = createContext();
@@ -41,28 +43,35 @@ export const AdminDataProvider = ({ children }) => {
       // 並行取得所有資料
       const [statsData, usersData, sitesData, chargersData, ordersData] = await Promise.all([
         ApiService.getDashboardStats(),
-        // statsData = [users = [uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint], sites, chargers, orders]
         ApiService.getUsers(),
-        // usersData = [uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint]
         ApiService.getSites(),
-        // sitesData = [site_id, site_name, address, longitude, latitude]
         ApiService.getChargers(),
-
         ApiService.getOrders(),
       ]);
 
+      // 計算統計資料（從載入的資料）
+      const today = new Date().toDateString();
+      const activeChargers = chargersData.filter(c => ['1', '2', '3'].includes(c.status)).length;  // 假設這些是活躍狀態
+      const todayOrders = ordersData.filter(o => new Date(o.start_date).toDateString() === today).length;
+      const totalRevenue = ordersData.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+
       // 更新狀態
       setDashboardStats({
-        ...statsData,
-        totalOrders: ordersData.length  // 使用訂單數組的長度來設置總訂單數
+        totalUsers: usersData.length,
+        totalSites: sitesData.length,
+        totalChargers: chargersData.length,
+        activeChargers,
+        todayOrders,
+        totalOrders: ordersData.length,
+        revenue: totalRevenue,
       });
       setUsers(usersData);
       setSites(sitesData);
       setChargers(chargersData);
       setOrders(ordersData);
     } catch (err) {
-      setError("載入資料失敗，請稍後再試");
       console.error("Failed to load data:", err);
+      setError("載入資料失敗，請稍後再試");
     } finally {
       setLoading(false);
     }

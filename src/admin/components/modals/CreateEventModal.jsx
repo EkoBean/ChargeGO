@@ -29,6 +29,14 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
       const employeeId = localStorage.getItem('employeeId');
       console.log('當前操作員工ID:', employeeId);
 
+      // 驗證日期
+      const startDate = new Date(newEvent.event_start_date);
+      const endDate = new Date(newEvent.event_end_date);
+      
+      if (endDate < startDate) {
+        throw new Error('結束時間不能早於開始時間');
+      }
+
       // 整合活動資料和操作者ID
       const eventData = {
         ...newEvent,
@@ -40,8 +48,12 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
       const result = await ApiService.createEvent(eventData);
       console.log('活動建立結果:', result);
       
-      onSuccess?.(`活動 "${newEvent.event_title}" 已成功建立！`);
-      onClose();
+      if (result.success) {
+        onSuccess?.(`活動 "${newEvent.event_title}" 已成功建立！`);
+        onClose();
+      } else {
+        throw new Error(result.message || '建立活動失敗');
+      }
     } catch (err) {
       console.error('建立活動失敗:', err);
       setError(err.message || '建立活動失敗');
