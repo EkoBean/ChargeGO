@@ -642,8 +642,8 @@ function MapIndex() {
           },
           {
             type: 'free_minutes',
-            value: 20,
-            url: "coupon/min 20.png",
+            value: 30,
+            url: "coupon/min 30.png",
             title: "免費分鐘券"
           }
         ]
@@ -732,10 +732,10 @@ function MapIndex() {
               uid: user.uid,
               overtimeConfirm: overtimeConfirm || false,
               readyToUseCoupon: {
-                id: readyToUseCoupon.coupon_id,
-                type: readyToUseCoupon.type,
-                value: readyToUseCoupon.value,
-                name: readyToUseCoupon.name,
+                id: readyToUseCoupon?.coupon_id || null,
+                type: readyToUseCoupon?.type || null,
+                value: readyToUseCoupon?.value || null,
+                name: readyToUseCoupon?.name || null,
               },
             })
             .then((res) => {
