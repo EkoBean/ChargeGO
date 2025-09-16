@@ -4,8 +4,6 @@ import LoadingScreen from "../components/LoadingScreen";
 import ErrorScreen from "../components/ErrorScreen";
 import UserDetailModal from "../components/modals/UserDetailModal";
 import ApiService from "../services/api";
-// import OperationLogger from '../../../backend/operationLogger';
-
 /**
  * 用戶管理頁 (Admin)
  *
@@ -112,7 +110,8 @@ const UserManagement = () => {
 
       const updated = await ApiService.updateUser(editUser.uid, payload);
 
-
+      // 記錄操作成功日誌
+      console.log('UPDATE_USER success', { user_id: editUser.uid, changed_fields: changedFields, time: new Date().toISOString() });
 
       // 更新全域使用者清單中對應項目（保持引用不被直接操作）
       setUsers((prev) =>
@@ -125,12 +124,13 @@ const UserManagement = () => {
       setEditUser(merged);
       setIsEditingUser(false);
       
-      console.log('用戶更新成功，已記錄操作日誌');
+      console.log('用戶更新成功');
       
     } catch (err) {
       console.error("Failed to update user:", err);
       
-
+      // 已移除 OperationLogger：以 console 替代錯誤紀錄
+      console.warn('UPDATE_USER failed', { user_id: editUser?.uid, error: err.message || err });
       
       alert("更新失敗，請稍後再試");
     } finally {

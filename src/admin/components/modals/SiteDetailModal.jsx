@@ -83,7 +83,7 @@ const SiteDetailModal = ({
       "新北市": { lat: 25.0160, lng: 121.4628 },
       "桃園市": { lat: 24.9936, lng: 121.3010 },
       "新竹市": { lat: 24.8138, lng: 120.9675 },
-      "新竹縣": { lat: 24.7033, lng: 121.0794 },
+      "新竹縣": { lat: 24.8310, lng: 121.0110 },
       "苗栗縣": { lat: 24.5602, lng: 120.8214 },
       "台中市": { lat: 24.1477, lng: 120.6736 },
       "彰化縣": { lat: 24.0518, lng: 120.5161 },
@@ -94,7 +94,7 @@ const SiteDetailModal = ({
       "台南市": { lat: 22.9999, lng: 120.2269 },
       "高雄市": { lat: 22.6273, lng: 120.3014 },
       "屏東縣": { lat: 22.5510, lng: 120.5488 },
-      "宜蘭縣": { lat: 24.7298, lng: 121.7463 },
+      "宜蘭縣": { lat: 24.7548, lng: 121.7601 },
       "花蓮縣": { lat: 23.9911, lng: 121.6111 },
       "台東縣": { lat: 22.7932, lng: 121.0714 },
       "澎湖縣": { lat: 23.5655, lng: 119.5662 },
@@ -102,14 +102,28 @@ const SiteDetailModal = ({
       "連江縣": { lat: 26.1603, lng: 119.9499 },
     }
 
+    // 創建站點：
+    //          editeSite有經緯度就用editSite的
+    //          沒有就用縣市中心
+    //          縣市沒有就用台北市中心
+    // 編輯站點：
+    //          用editSite的經緯度
+    // 預覽站點：
+    //          用site的經緯度
     const mapCenter = creating
-      ? (editSite && editSite.country
+      ? (editSite?.latitude && editSite?.longitude
+        ? {
+          lat: Number(editSite.latitude),
+          lng: Number(editSite.longitude)
+        }
+        :
+        (editSite && editSite.country
           ? cityCenters[editSite.country]
-          : { lat: 25.033964, lng: 121.564468 })
+          : { lat: 25.033964, lng: 121.564468 }))
       : ({
-          lat: Number(editSite?.latitude || site?.latitude || 25.033964),
-          lng: Number(editSite?.longitude || site?.longitude || 121.564468),
-        });
+        lat: Number(editSite?.latitude || site?.latitude || 25.033964),
+        lng: Number(editSite?.longitude || site?.longitude || 121.564468),
+      });
 
 
 
@@ -126,7 +140,7 @@ const SiteDetailModal = ({
         // use without map Id, keep it default style in admin system
         mapId={"DEMO_MAP_ID"}
       >
-        {editSite.latitude && editSite.longitude && 
+        {editSite.latitude && editSite.longitude &&
           <AdvancedMarker position={mapCenter} />
         }
       </Map>
@@ -221,7 +235,7 @@ const SiteDetailModal = ({
 
                       </label>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <select name="country" id="country" value={editSite?.country || null} required
+                        <select name="country" id="country" value={editSite?.country || ""} required
                           onChange={onChange}>
                           <option value="">請選擇縣市</option>
                           <option value="基隆市">基隆市</option>
