@@ -11,6 +11,7 @@ import { apiRoutes } from "../../components/apiRoutes";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 // 寄送驗證碼
+// 環境變數為前端打包時注入，需重新打包才能更新
 const MAILER_EMAIL = import.meta.env.VITE_MAILER_EMAIL;
 const MAILER_CODE = import.meta.env.VITE_MAILER_PASSWORD;
 
