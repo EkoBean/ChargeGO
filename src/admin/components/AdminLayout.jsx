@@ -1,14 +1,41 @@
 //後台管理系統的整體頁面結構
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import ApiService from '../services/api';
 import '../../styles/scss/adminstyle/AdminDashboard.scss';
 
 const AdminLayout = ({ children, onLogout }) => {
   const employeeName = localStorage.getItem('employeeName') || '系統管理員';
 
-  const handleLogout = () => {
-    localStorage.removeItem('employeeName');
-    onLogout();
+  // 修改 handleLogout 函數
+  const handleLogout = async () => {
+    try {
+      // 先記錄登出操作
+      await ApiService.logout();
+      
+      // 清除本地儲存的資訊
+      localStorage.removeItem('employeeName');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('employeeId');
+      localStorage.removeItem('loginTime');
+      
+      // 通知父組件
+      onLogout();
+      
+      // 修正：導向到正確的登入頁面
+      window.location.href = '/admin/login';
+    } catch (error) {
+      console.error('登出失敗:', error);
+      
+      // 即使記錄失敗，也要清除本地儲存並登出
+      localStorage.removeItem('employeeName');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('employeeId');
+      localStorage.removeItem('loginTime');
+      
+      onLogout();
+      window.location.href = '/admin/login';
+    }
   };
 
   return (

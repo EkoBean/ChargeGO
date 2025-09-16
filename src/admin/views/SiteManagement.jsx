@@ -5,6 +5,7 @@ import ErrorScreen from '../components/ErrorScreen';
 import SiteDetailModal from '../components/modals/SiteDetailModal';
 import ApiService from '../services/api';
 
+
 // Google Maps
 import {
   APIProvider,
@@ -13,7 +14,6 @@ import {
 const APIkey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 
-// import OperationLogger from '../../../backend/operationLogger';
 
 //站點管理主畫面
 const SiteManagement = () => {
@@ -193,7 +193,9 @@ const SiteManagement = () => {
 
   // handleViewSite 定義
   const handleViewSite = async (site) => {
-
+    // 記錄查看站點操作
+    // 已移除 OperationLogger：以 console 替代
+    console.log('VIEW_SITE', { site_id: site.site_id, site_name: site.site_name });
 
     // 先把 site 設到 state，確保 modal 可拿到站點基本資料
     setSelectedSite(site);
@@ -236,7 +238,11 @@ const SiteManagement = () => {
 
   // handleAddSite 定義
   const handleAddSite = () => {
-    const blank = { site_name: "", address: "" };
+    const blank = { 
+      site_name: "", 
+      address: "", 
+      country: ""  // 添加預設值，避免 select value 為 null
+    };
     setSelectedSite(blank);
     setEditSite(blank);
     setIsEditingSite(true);
@@ -349,12 +355,13 @@ const SiteManagement = () => {
         longitude,
         latitude,
         country,
+        operator_id: parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
       };
 
       if (creatingSite || !editSite.site_id) {
         const created = await ApiService.createSite(payload);
-
-
+        
+        console.log('CREATE_SITE', created?.site_id || created?.site_name);
         setSites((prev) => [...prev, created]);
         setSelectedSite(created.site);
         setEditSite(created.site);
@@ -362,7 +369,7 @@ const SiteManagement = () => {
       } else {
         const updated = await ApiService.updateSite(editSite.site_id, payload);
         
-
+        console.log('UPDATE_SITE', editSite.site_id, payload);
         setSites((prev) => prev.map((s) => (s.site_id === updated.site_id ? { ...s, ...updated } : s)));
         setShowSiteModal(true);
         setIsEditingSite(false);

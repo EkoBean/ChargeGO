@@ -298,7 +298,7 @@ const WebSite = () => {
                 <div className={styles['how-steps']}>
                   <div className={styles['how-step']}>
                     <div className={styles['how-step-num']}>1</div>
-                    <div className={styles['how-step-content']}>下載<br />ChargeGo</div>
+                    <div className={styles['how-step-content']}>點擊<br />開始使用</div>
                   </div>
                   <div className={styles['how-arrow']}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106.45 69.72" width="60" height="40">
