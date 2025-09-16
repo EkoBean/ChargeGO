@@ -149,7 +149,7 @@ const mber_Profile = () => {
               <span>租借紀錄</span>
             </div>
             <div className={styles.card}>
-              <img src="/Iconimg/help.svg" alt="幫助中心" />
+              <img src="/Iconimg/help.svg" alt="幫助中心" onClick={() => navigate("/mber_contact")} />
               <span>幫助中心</span>
             </div>
           </div>
