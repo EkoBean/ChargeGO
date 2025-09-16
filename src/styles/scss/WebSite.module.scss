@@ -630,6 +630,7 @@ $primary: #ffce00;
 }
 
 如何租借？ .how-to-rent-right {
+  width: vw%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -647,7 +648,7 @@ $primary: #ffce00;
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: end;
   min-height: 400px;
   max-width: 1200px;
   margin: 0 auto 100px auto;
@@ -663,9 +664,6 @@ $primary: #ffce00;
 }
 
 .how-to-rent {
-  margin-left: auto;
-  margin-right: 0;
-  width: 70%;
   display: flex;
   flex-direction: column;
   align-items: center;

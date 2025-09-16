@@ -148,7 +148,8 @@ function NavbarWebsite(props) {
             <ChargegoLogo className={styles["chargego-logo"]} />
           </div>
         </div>
-        <div className={styles["right-placeholder"]}></div>
+        <div className={`${styles["right-placeholder"]}`}>
+
         {/* 漢堡選單（手機/平板顯示） */}
         <div
           className={styles.hamburger}
@@ -299,6 +300,7 @@ function NavbarWebsite(props) {
             }}
           ></div>
         </nav>
+        </div>
       </header>
     </>
   );
