@@ -14,7 +14,9 @@
   overflow: hidden;
 }
 
-
+.edit_container {
+  padding-top: 48px;
+}
 
 .mber_info_title {
   font-family: "Mantou sans", serif;
@@ -191,7 +193,7 @@
     margin: 0 auto;
     position: relative;
     z-index: 11;
-    padding-bottom: 0;
+    padding-top: 48px;
     display: flex;
     flex-direction: column;
     align-items: center;
