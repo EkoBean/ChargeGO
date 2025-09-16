@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { Card, Table, Badge, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import ApiService from '../services/api';
 
+
 class Charging extends Component {
     // state 儲存充電站、充電器資料及 UI 狀態
     state = {

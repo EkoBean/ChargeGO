@@ -1,5 +1,6 @@
-//node charger_site.cjs
-const API_BASE_URL = import.meta.env.VITE_API_BASE;
+// 前端呼叫後端 API
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:3000';
 
 const defaultOptions = {
   headers: {
@@ -8,70 +9,68 @@ const defaultOptions = {
 };
 
 const ApiService = {
-  basePath: 'api/admin',
+  basePath: '/api/admin',
 
-  // general request method
+  // 添加 request 方法
   async request(endpoint, options = {}) {
+    const url = `${API_BASE_URL}${this.basePath}${endpoint}`;
+    const config = { ...defaultOptions, ...options };
+    
     try {
-      const fullEndpoint = `${this.basePath}${endpoint}`;
-      console.log('發送 API 請求:', `${API_BASE_URL}${fullEndpoint}`); // 加入 debug
-
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...defaultOptions,
-        ...options,
-        headers: {
-          ...defaultOptions.headers,
-          ...options.headers
-        }
-      });
-
-      const responseText = await response.text();
-      // console.log('API 回應狀態:', response.status); // 加入 debug
-      // console.log('API 回應內容:', responseText); // 加入 debug
-
-      let data;
-      try {
-        data = responseText ? JSON.parse(responseText) : null;
-      } catch (e) {
-        console.error('JSON 解析失敗:', e);
-        data = responseText;
-      }
-
+      console.log('Requesting URL:', url);  // 添加日誌以便調試
+      const response = await fetch(url, config);
+      console.log('Response status:', response.status);  // 添加日誌
       if (!response.ok) {
-        const message = (data && data.message) ? data.message : `API Error: ${response.status}`;
-        const err = new Error(message);
-        err.status = response.status;
-        err.response = response;
-        err.data = data;
-        throw err;
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      return data;
+      return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error(`API request failed for ${endpoint}:`, error);
       throw error;
     }
   },
 
+  // 添加 getDashboardStats 方法（前端計算統計）
+  async getDashboardStats() {
+    // 由於後端沒有專用統計 API，這裡返回預設值
+    // 前端會在 AdminDataContext 中從載入的資料計算實際統計
+    return {
+      totalUsers: 0,
+      totalSites: 0,
+      totalChargers: 0,
+      activeChargers: 0,
+      todayOrders: 0,
+      totalOrders: 0,
+      revenue: 0,
+    };
+  },
+
+  // 添加 updateUser 方法
+  async updateUser(uid, payload) {
+    return this.request(`/user/${uid}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
   // 用戶相關 API
   async getUsers() {
-    return this.request('/user/list');
+    return this.request('/user/list');  // ✅ 正確：對應 /api/admin/user/list
   },
 
   async getUserOrders(uid) {
-    const orders = await this.request('/api/orders');
+    const orders = await this.request('/orders');  // ✅ 修正：移除多餘的 /api
     return orders.filter(order => order.uid === uid);
   },
 
   // 站點相關 API
   async getSites() {
-    return this.request('/api/sites');
+    return this.request('/sites');  // ✅ 修正：對應 /api/admin/sites
   },
-  // 在 ApiService 對象中修改現有的 getSiteChargers 方法
 
   async getSiteChargers(siteId) {
     try {
-      const data = await this.request(`/api/sites/${siteId}/chargers`);
+      const data = await this.request(`/sites/${siteId}/chargers`);  // ✅ 修正
 
       // 確保每個充電器對象都有租借信息字段，即使後端沒有返回
       return data.map(charger => ({
@@ -91,105 +90,93 @@ const ApiService = {
 
   // 充電器相關 API
   async getChargers() {
-    return this.request('/api/chargers');
+    return this.request('/chargers');  // ✅ 修正：對應 /api/admin/chargers
   },
 
   // 訂單相關 API
   async getOrders() {
-    return this.request('/api/orders');
+    return this.request('/orders');  // ✅ 修正：對應 /api/admin/orders
   },
 
-  // === 新增：職員紀錄 API ===
+  // 職員紀錄 API
   async getEmployeeLogs() {
-    return this.request('/api/employee_log');
+    return this.request('/employee_log');  // ✅ 修正：對應 /api/admin/employee_log
   },
 
   async getEmployees() {
-    return this.request('/api/employees');
+    return this.request('/employees');  // ✅ 修正：對應 /api/admin/employees
   },
 
-  // // 銀行卡片相關 API
-  // 停用銀行卡片相關 API
-  // async getBankCards() {
-  //   return this.request('/bank/cards');
-  // },
-
-  // async getUserCardMatch(uid) {
-  //   return this.request(`/user/${uid}/card/match`);
-  // },
-
-  // 統計資料 API
-  async getDashboardStats() {
-    try {
-      const [users, sites, chargers, orders] = await Promise.all([
-        this.getUsers(),
-        this.getSites(),
-        this.getChargers(),
-        this.getOrders()
-      ]);
-
-      const today = new Date().toISOString().split('T')[0];
-      const todayOrders = orders.filter(order =>
-        order.start_date && order.start_date.startsWith(today)
-      ).length;
-      //判斷 active 狀態 2:使用中 3:預約中 會顯示在總覽
-      const activeChargers = chargers.filter(c => c.status === '2' || c.status === '3').length;
-
-      return {
-        totalUsers: users.length,
-        totalSites: sites.length,
-        totalChargers: chargers.length,
-        activeChargers,
-        todayOrders,
-        revenue: orders.length * 50 // 假設平均收入
-      };
-    } catch (error) {
-      console.error('Failed to get dashboard stats:', error);
-      throw error;
-    }
+  // 系統狀態
+  async getSystemStatus() {
+    return this.request('/system-status');  // ✅ 修正
   },
 
-  async updateUser(uid, payload) {
-    // 與 getUsers('/user/list') 同風格，假設後端為 PUT /user/:uid
-    return this.request(`/user/${uid}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    });
+  // 活動相關 API
+  async getEvents() {
+    return this.request('/events');  // ✅ 修正：對應 /api/admin/events
   },
 
-  // 通用工具方法
-  _parseCoordinate(value) {
-    if (value === null || value === undefined || value === '') {
-      return undefined;
-    }
-
-    // 若已是數字則直接回傳
-    if (typeof value === 'number') {
-      return value;
-    }
-
-    // 嘗試轉換成數字
-    const num = parseFloat(String(value).trim());
-    return Number.isNaN(num) ? undefined : num;
+  async getEventById(eventId) {
+    return this.request(`/events/${eventId}`);  // ✅ 修正
   },
 
-  _normalizeDateTime(value) {
-    if (!value) return null;
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return null;
-    const pad = (n) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  },
+  // 修改 createEvent 方法
+  async createEvent(payload) {
+    console.log('Creating event with payload:', payload);
 
-  // ========== update sites ======================
-  async updateSite(site_id, payload) {
+    // 確保日期格式正確
+    const formatDate = (date) => {
+      if (!date) return null;
+      if (date instanceof Date) {
+        return date.toISOString().split('T')[0];
+      }
+      return date;
+    };
+
     const body = {
-      site_id: site_id,
-      country: payload.country,
-      site_name: payload.site_name ?? payload.siteName,
-      address: payload.address,
-      longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
-      latitude: this._parseCoordinate(payload.latitude ?? payload.lat),
+      event_title: String(payload.event_title || "").trim(),
+      event_content: String(payload.event_content || "").trim(),
+      site_id: payload.site_id || null,
+      event_start_date: formatDate(payload.event_start_date),
+      event_end_date: formatDate(payload.event_end_date),
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)
+    };
+
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.event_title) errors.push("活動標題不能為空");
+    if (!body.event_content) errors.push("活動內容不能為空");
+    if (!body.event_start_date) errors.push("開始時間不能為空");
+    if (!body.event_end_date) errors.push("結束時間不能為空");
+
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+
+    console.log('Normalized event body:', body);
+
+    try {
+      const result = await this.request('/events', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      
+      console.log('Event created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create event:', error);
+      throw new Error(`建立活動失敗: ${error.message}`);
+    }
+  },
+
+  async updateEvent(eventId, payload) {
+    const body = {
+      event_title: payload.event_title,
+      event_content: payload.event_content,
+      site_id: payload.site_id || null,
+      event_start_date: payload.event_start_date,
+      event_end_date: payload.event_end_date
     };
 
     // 移除 undefined 欄位
@@ -197,35 +184,16 @@ const ApiService = {
       body[key] === undefined && delete body[key]
     );
 
-    return this.request(`/api/sites`, {
-      method: 'PATCH',
+    return this.request(`/events/${eventId}`, {  // ✅ 修正
+      method: 'PUT',
       body: JSON.stringify(body),
     });
   },
-  // ===========  create site  ======================
-  async createSite(payload) {
-    console.log('Creating site with payload:', payload);
 
-    const body = {
-      country: payload.country,
-      site_name: payload.site_name ?? payload.siteName,
-      address: payload.address,
-      longitude: this._parseCoordinate(payload.longitude ?? payload.lng),
-      latitude: this._parseCoordinate(payload.latitude ?? payload.lat),
-    };
-
-
-    try {
-      const result = await this.request(`/api/sites`, {
-        method: 'POST',
-        body: JSON.stringify(body),
-      });
-      console.log('Site created successfully:', result);
-      return result;
-    } catch (error) {
-      console.error('Failed to create site:', error);
-      throw error;
-    }
+  async deleteEvent(eventId) {
+    return this.request(`/events/${eventId}`, {  // ✅ 修正
+      method: 'DELETE',
+    });
   },
 
   // 訂單 CRUD start_date取今天
@@ -252,7 +220,7 @@ const ApiService = {
     console.log('格式化後的資料:', normalizedPayload);
     
     try {
-      const data = await this.request(`/api/orders/${order_ID}`, {
+      const data = await this.request(`/orders/${order_ID}`, {  // ✅ 修正
         method: 'PUT',
         body: JSON.stringify(normalizedPayload)
       });
@@ -274,7 +242,7 @@ const ApiService = {
     }
 
     try {
-      const result = await this.request(`/api/users/${uid}`);
+      const result = await this.request(`/users/${uid}`);  // ✅ 修正
       console.log('API: 查詢用戶成功:', result); // 加入 debug 日誌
       return result;
     } catch (error) {
@@ -303,7 +271,7 @@ const ApiService = {
     if (!payload.start_date) {
       errors.push("開始時間不能為空");
     }
-    if (!payload.rental_site_id || Number.isNaN(Number(payload.rental_site_id))) { // 改這裡
+    if (!payload.rental_site_id || Number.isNaN(Number(payload.rental_site_id))) {
       errors.push("租借站點不能為空且必須為數字");
     }
     if (payload.order_status === undefined || payload.order_status === null || payload.order_status === '') {
@@ -317,22 +285,24 @@ const ApiService = {
       throw new Error(errors.join('; '));
     }
 
+    // 確保包含操作者ID
     const body = {
       uid: Number(payload.uid),
       start_date: this._normalizeDateTime(payload.start_date),
       end: payload.end ? this._normalizeDateTime(payload.end) : null,
-      rental_site_id: Number(payload.rental_site_id), // 改這裡
-      return_site_id: payload.return_site_id ? Number(payload.return_site_id) : null, // 新增這裡
+      rental_site_id: Number(payload.rental_site_id),
+      return_site_id: payload.return_site_id ? Number(payload.return_site_id) : null,
       order_status: String(payload.order_status),
       charger_id: Number(payload.charger_id),
       comment: payload.comment || null,
-      total_amount: payload.total_amount || 0 // 新增這裡
+      total_amount: payload.total_amount || 0,
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 確保操作者ID
     };
 
     console.log('Normalized order body:', body);
 
     try {
-      const result = await this.request(`/api/orders`, {
+      const result = await this.request(`/orders`, {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -344,173 +314,37 @@ const ApiService = {
     }
   },
 
-  async getSystemStatus() {
-    return this.request('/api/system-status');
-  },
-
-  // 假設這是您的 API 呼叫函數
-  async saveOrderData(orderData) {
-    // 複製一份數據進行處理
-    const data = { ...orderData };
-
-    // 確保關鍵字段存在
-    if (!data.start_date) {
-      throw new Error("開始時間不能為空");
-    }
-
-    if (!data.uid) {
-      throw new Error("用戶ID不能為空");
-    }
-
-    if (!data.rental_site_id) { // 改這裡
-      throw new Error("租借站點不能為空");
-    }
-
-    if (!data.charger_id) {
-      throw new Error("充電器不能為空");
-    }
-
-    // 發送請求 - 修正 URL
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/orders`, { // 加入完整 URL
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '儲存訂單失敗');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('API 錯誤:', error);
-      throw error;
-    }
-  },
-
-  // 活動相關 API - 新增這些方法
-  async getEvents() {
-    return this.request('/api/events');
-  },
-
-  async getEventById(eventId) {
-    return this.request(`/api/events/${eventId}`);
-  },
-
-  async createEvent(payload) {
-    console.log('Creating event with payload:', payload);
-
-    // 確保 operator_id 存在
-    if (!payload.operator_id) {
-      console.warn('Missing operator_id, using from localStorage');
-      payload.operator_id = parseInt(localStorage.getItem('employeeId'), 10);
-    }
-
-    const body = {
-      event_title: String(payload.event_title || "").trim(),
-      event_content: String(payload.event_content || "").trim(),
-      site_id: payload.site_id || null,
-      event_start_date: payload.event_start_date,
-      event_end_date: payload.event_end_date,
-      operator_id: payload.operator_id // 確保傳遞 operator_id
-    };
-
-    // 驗證必填欄位
-    const errors = [];
-    if (!body.event_title) errors.push("活動標題不能為空");
-    if (!body.event_content) errors.push("活動內容不能為空");
-    if (!body.event_start_date) errors.push("開始時間不能為空");
-    if (!body.event_end_date) errors.push("結束時間不能為空");
-    if (!body.operator_id) errors.push("操作者ID不能為空");
-
-    if (errors.length > 0) {
-      throw new Error(errors.join('; '));
-    }
-
-    console.log('Normalized event body:', body);
-
-    try {
-      const result = await this.request('/api/events', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      });
-      console.log('Event created successfully:', result);
-      return result;
-    } catch (error) {
-      console.error('Failed to create event:', error);
-      throw error;
-    }
-  },
-
-  async updateEvent(eventId, payload) {
-    const body = {
-      event_title: payload.event_title,
-      event_content: payload.event_content,
-      site_id: payload.site_id || null,
-      event_start_date: payload.event_start_date,
-      event_end_date: payload.event_end_date
-    };
-
-    // 移除 undefined 欄位
-    Object.keys(body).forEach(key =>
-      body[key] === undefined && delete body[key]
-    );
-
-    return this.request(`/api/events/${eventId}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-  },
-
-  async deleteEvent(eventId) {
-    return this.request(`/api/events/${eventId}`, {
-      method: 'DELETE',
-    });
-  },
-
-  // 發送活動給用戶
-  async sendEventToUsers(eventId, targetUsers) {
-    return this.request(`/api/events/${eventId}/send`, {
-      method: 'POST',
-      body: JSON.stringify({ targetUsers }),
-    });
-  },
-
-  // 獲取活躍用戶列表
-  async getActiveUsers() {
-    return this.request('/api/users/active');
-  },
-
-  // 任務 / missions
+  // 任務相關 API
   async getMissions() {
-    return this.request('/api/missions');
+    return this.request('/missions');  // ✅ 修正
   },
 
   async getMissionById(missionId) {
-    return this.request(`/api/missions/${missionId}`);
+    return this.request(`/missions/${missionId}`);
   },
 
+  // 修正 createMission 方法 - 參考 createSite 的邏輯
   async createMission(payload) {
     console.log('Creating mission with payload:', payload);
 
     const body = {
-      mission_title: String(payload.mission_title || "").trim(),
-      mission_content: String(payload.mission_content || "").trim(),
-      site_id: payload.site_id || null,
-      mission_start_date: payload.mission_start_date,
-      mission_end_date: payload.mission_end_date
+      title: String(payload.title || "").trim(),
+      description: String(payload.description || "").trim(),
+      type: payload.type || 'accumulated_hours',
+      reward_points: parseInt(payload.reward_points) || 0,
+      target_value: parseInt(payload.target_value) || 0,
+      target_unit: payload.target_unit || 'Hours',
+      mission_start_date: payload.mission_start_date || null,
+      mission_end_date: payload.mission_end_date || null,
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 確保操作者ID
     };
 
     // 驗證必填欄位
     const errors = [];
-    if (!body.mission_title) errors.push("任務標題不能為空");
-    if (!body.mission_content) errors.push("任務內容不能為空");
-    if (!body.mission_start_date) errors.push("開始時間不能為空");
-    if (!body.mission_end_date) errors.push("結束時間不能為空");
+    if (!body.title) errors.push("任務標題不能為空");
+    if (!body.description) errors.push("任務描述不能為空");
+    if (!body.reward_points || body.reward_points <= 0) errors.push("獎勵點數必須大於 0");
+    if (!body.target_value || body.target_value <= 0) errors.push("目標數值必須大於 0");
 
     if (errors.length > 0) {
       throw new Error(errors.join('; '));
@@ -519,7 +353,7 @@ const ApiService = {
     console.log('Normalized mission body:', body);
 
     try {
-      const result = await this.request(`/api/missions`, {
+      const result = await this.request(`/missions`, {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -545,14 +379,14 @@ const ApiService = {
       body[key] === undefined && delete body[key]
     );
 
-    return this.request(`/api/missions/${missionId}`, {
+    return this.request(`/missions/${missionId}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
   },
 
   async deleteMission(missionId) {
-    return this.request(`/api/missions/${missionId}`, {
+    return this.request(`/missions/${missionId}`, {
       method: 'DELETE',
     });
   },
@@ -579,6 +413,123 @@ const ApiService = {
       return null;
     }
   },
+
+  // 修改 createSite 方法
+  async createSite(payload) {
+    console.log('Creating site with payload:', payload);
+    
+    const body = {
+      site_name: String(payload.site_name || "").trim(),
+      address: String(payload.address || "").trim(),
+      longitude: payload.longitude,
+      latitude: payload.latitude,
+      country: payload.country || "",
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
+    };
+    
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.site_name) errors.push("站點名稱不能為空");
+    if (!body.address) errors.push("地址不能為空");
+    if (!body.longitude) errors.push("經度不能為空");
+    if (!body.latitude) errors.push("緯度不能為空");
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+    
+    console.log('Normalized site body:', body);
+    
+    try {
+      const result = await this.request('/sites', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      console.log('Site created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to create site:', error);
+      throw error;
+    }
+  },
+
+  // 修改 updateSite 方法
+  async updateSite(siteId, payload) {
+    console.log('Updating site with payload:', payload);
+    
+    const body = {
+      site_name: String(payload.site_name || "").trim(),
+      address: String(payload.address || "").trim(),
+      longitude: payload.longitude,
+      latitude: payload.latitude,
+      country: payload.country || "",
+      site_id: siteId,  // 後端 PATCH 需要 site_id
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
+    };
+    
+    // 驗證必填欄位
+    const errors = [];
+    if (!body.site_name) errors.push("站點名稱不能為空");
+    if (!body.address) errors.push("地址不能為空");
+    if (!body.longitude) errors.push("經度不能為空");
+    if (!body.latitude) errors.push("緯度不能為空");
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
+    
+    console.log('Normalized site body:', body);
+    
+    try {
+      const result = await this.request('/sites', {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      });
+      console.log('Site updated successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to update site:', error);
+      throw error;
+    }
+  },
+
+  // 讓日期格式化方法可重用
+  _normalizeDateTime(dateValue) {
+    return this._formatDateTimeForMySQL(dateValue);
+  },
+
+  // 新增登出方法
+  async logout() {
+    const employeeId = localStorage.getItem('employeeId');
+    const employeeName = localStorage.getItem('employeeName');
+    
+    if (employeeId) {
+      try {
+        // 記錄登出操作
+        await this.request('/employee_log', {
+          method: 'POST',
+          body: JSON.stringify({
+            employee_id: employeeId,
+            log: `LOGOUT-${JSON.stringify({
+              id: employeeId,
+              name: employeeName,
+              timestamp: new Date().toISOString(),
+              status: 'success'
+            })}`
+          })
+        });
+      } catch (error) {
+        console.error('記錄登出操作失敗:', error);
+      }
+    }
+
+    // 清除本地儲存的登入資訊
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('employeeName');
+    localStorage.removeItem('employeeId');
+    localStorage.removeItem('loginTime');
+  },
+
 };
 
 // 訂單相關 API 函數
@@ -600,7 +551,7 @@ export const saveOrderData = async (orderData) => {
   console.log('發送訂單資料到後端:', orderData);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/orders`, {
+    const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {  // ✅ 修正：使用完整路徑
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

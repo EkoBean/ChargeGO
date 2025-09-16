@@ -221,7 +221,7 @@ const SiteDetailModal = ({
 
                       </label>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <select name="country" id="country" value={editSite?.country || null} required
+                        <select name="country" id="country" value={editSite?.country || ""} required
                           onChange={onChange}>
                           <option value="">請選擇縣市</option>
                           <option value="基隆市">基隆市</option>

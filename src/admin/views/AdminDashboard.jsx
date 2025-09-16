@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminData } from '../context/AdminDataContext';
 import LoadingScreen from '../components/LoadingScreen';
 import ErrorScreen from '../components/ErrorScreen';
+
 //後台「總覽」頁面的 React 元件，負責顯示儀表板統計、系統狀態與快速操作按鈕
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
       <h2>系統總覽</h2>
 
       <div className="admin-stats-grid">
-        <div className="admin-stat-card admin-primary" onClick={() => navigate('/users')} style={{ cursor: 'pointer' }}>
+        <div className="admin-stat-card admin-primary" onClick={() => navigate('/admin/users')} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-icon">👥</div>
           <div className="admin-stat-info">
             <h3>{dashboardStats.totalUsers}</h3>
@@ -43,7 +44,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="admin-stat-card admin-success" onClick={() => navigate('/sites')} style={{ cursor: 'pointer' }}>
+        <div className="admin-stat-card admin-success" onClick={() => navigate('/admin/sites')} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-icon">📍</div>
           <div className="admin-stat-info">
             <h3>{dashboardStats.totalSites}</h3>
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="admin-stat-card admin-warning" onClick={() => navigate('/sites')} style={{ cursor: 'pointer' }}>
+        <div className="admin-stat-card admin-warning" onClick={() => navigate('/admin/sites')} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-icon">🔋</div>
           <div className="admin-stat-info">
             <h3>{dashboardStats.activeChargers}</h3>
@@ -59,7 +60,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="admin-stat-card admin-info" onClick={() => navigate('/orders')} style={{ cursor: 'pointer' }}>
+        <div className="admin-stat-card admin-info" onClick={() => navigate('/admin/orders')} style={{ cursor: 'pointer' }}>
           <div className="admin-stat-icon">🛒</div>
           <div className="admin-stat-info">
             <h3>{dashboardStats.totalOrders}</h3>
@@ -108,22 +109,22 @@ const AdminDashboard = () => {
         <div className="admin-dashboard-card">
           <h3>快速操作</h3>
           <div className="admin-quick-actions">
-            <button className="admin-action-btn admin-btn-blue" onClick={() => navigate('/users')}>
+            <button className="admin-action-btn admin-btn-blue" onClick={() => navigate('/admin/users')}>
               👥 用戶管理
             </button>
-            <button className="admin-action-btn admin-btn-green" onClick={() => navigate('/sites')}>
+            <button className="admin-action-btn admin-btn-green" onClick={() => navigate('/admin/sites')}>
               📍 站點管理
             </button>
-            <button className="admin-action-btn admin-btn-orange" onClick={() => navigate('/orders')}>
+            <button className="admin-action-btn admin-btn-orange" onClick={() => navigate('/admin/orders')}>
               🛒 租借紀錄
             </button>
-            <button className="admin-action-btn admin-btn-purple" onClick={() => navigate('/events')}>
+            <button className="admin-action-btn admin-btn-purple" onClick={() => navigate('/admin/events')}>
               🎉 活動發送
             </button>
-            <button className="admin-action-btn admin-btn-teal" onClick={() => navigate('/employee-log')}>
+            <button className="admin-action-btn admin-btn-teal" onClick={() => navigate('/admin/employee-log')}>
               📝 職員操作紀錄
             </button>
-            <button className="admin-action-btn admin-btn-pink" onClick={() => navigate('/tasks')}>
+            <button className="admin-action-btn admin-btn-pink" onClick={() => navigate('/admin/tasks')}>
               📋 任務管理
             </button>
             <button

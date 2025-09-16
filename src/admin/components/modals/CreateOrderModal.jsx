@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Alert } from 'react-bootstrap';
 import ApiService from '../../services/api';
+
 // 建立訂單表單
 const CreateOrderModal = ({
   editOrder,
@@ -149,6 +150,25 @@ const CreateOrderModal = ({
       }
     } else {
       if (onChange) onChange(e);
+    }
+  };
+
+  // 儲存後：呼叫 onSave 並記錄操作日誌（CREATE_ORDER）
+  const handleSave = async () => {
+    try {
+      // 期待 onSave 回傳新訂單或 server 回應 (含 id 或 order_id)
+      const result = await onSave?.();
+
+      // 取得訂單 ID（優先使用 onSave 回傳，否則使用 editOrder）
+      const orderId = result?.order_id || result?.id || editOrder?.order_id || editOrder?.id;
+
+      if (orderId) {
+        // 已移除 OperationLogger：以 console 替代或改為呼叫後端日誌 API
+        console.log('CREATE_ORDER', orderId);
+      }
+    } catch (err) {
+      // onSave 本身失敗，讓呼叫端處理錯誤
+      console.error('儲存訂單或建立日誌時發生錯誤:', err);
     }
   };
   
@@ -413,7 +433,7 @@ const CreateOrderModal = ({
         </Button>
         <Button 
           variant="primary" 
-          onClick={onSave} 
+          onClick={handleSave} 
           disabled={saving || !validateForm()}
         >
           {saving ? '儲存中...' : '儲存'}
