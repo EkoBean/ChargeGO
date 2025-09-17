@@ -3,9 +3,18 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_forgotpwd.module.scss";
+import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 
+
+
 const API_BASE = import.meta.env.VITE_API_URL;
+
+// 寄送驗證碼
+// 環境變數為前端打包時注入，需重新打包才能更新
+const MAILER_EMAIL = import.meta.env.VITE_MAILER_EMAIL;
+const MAILER_CODE = import.meta.env.VITE_MAILER_PASSWORD;
+
 
 const memberBasePath = apiRoutes.member;
 
@@ -57,9 +66,11 @@ const mber_ForgotPwd = () => {
     setIsSending(true);
     setTimer(300); // 5分鐘
     try {
-      await axios.post(`${API_BASE}${memberBasePath}/send-captcha`, {
+      await axios.post(`${API_BASE}${memberBasePath}/api/send-captcha`, {
         email: form.email,
-        code: captchaCode,
+        captchaCode,
+        MAILER_CODE,
+        MAILER_EMAIL
       });
       setMsg("驗證碼已寄出，請檢查您的信箱");
     } catch (err) {
@@ -82,7 +93,7 @@ const mber_ForgotPwd = () => {
     }
     try {
       const trimmedPwd = form.pwd.trim();
-      await axios.post("${API_BASE}${memberBasePath}/reset-password", {
+      await axios.post(`${API_BASE}${memberBasePath}/api/reset-password`, {
         email: form.email,
         newPassword: crypto
           .SHA256(trimmedPwd)
@@ -108,6 +119,7 @@ const mber_ForgotPwd = () => {
       >
         ◀︎
       </span>
+      <NavBarApp />
       <div className={styles.container}>
         <div className={styles.header}>
           <h2>忘記密碼</h2>

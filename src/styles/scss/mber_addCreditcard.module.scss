@@ -2,7 +2,9 @@
 
 .mber_addCreditcard {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  background: url("../../../public/lightning.png") left top no-repeat,
+    linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%) no-repeat;
+  background-size: auto 100vh, 100vw 100vh;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -177,9 +179,18 @@
 }
 
 @media screen and (max-width: 600px) {
-  .creditcard-container {
-    padding: 20px;
+  .mber_addCreditcard {
+    background: url("../../../public/lightning.png") left top no-repeat,
+      linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%) no-repeat;
+    background-size: auto 100vh, 100vw 100vh;
+    padding-top: 100px;
   }
+
+  .creditcard-container {
+    padding: 0px;
+  }
+
+  .m
 
   .form-row {
     flex-direction: column;

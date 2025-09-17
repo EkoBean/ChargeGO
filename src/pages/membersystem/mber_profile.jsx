@@ -56,18 +56,40 @@ const mber_Profile = () => {
     // 這裡可以實現資料修改的功能
   };
 
+  // 處理登出
+  const handleClickLogout = async () => {
+    try {
+      const response = await fetch(`${API_BASE}${memberBasePath}/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        alert("登出成功");
+        navigate("/mber_login");
+      } else {
+        alert("登出失敗，請稍後再試");
+      }
+    } catch (error) {
+      alert("登出失敗，請稍後再試");
+    }
+  };
+
   // 處理會員停權
   const handleDeactivateAccount = async () => {
     if (window.confirm("確定要申請停權帳號嗎？")) {
       try {
-        const response = await fetch(`${API_BASE}${memberBasePath}/user/deactivate`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ user_id: Number(user?.uid), status: "1" }),
-        });
+        const response = await fetch(
+          `${API_BASE}${memberBasePath}/user/deactivate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ user_id: Number(user?.uid), status: "1" }),
+          }
+        );
         if (response.ok) {
           // 再次取得最新 user 狀態
           fetch(`${API_BASE}${memberBasePath}/check-auth`, {
@@ -97,11 +119,9 @@ const mber_Profile = () => {
       <NavBarApp className={styles.mobile_only_nav} />
       {/* Header */}
       <div className={styles.info_container}>
-        <BackIcon className={'d-sm-none'} />
+        <BackIcon className={"d-sm-none"} />
         <div className={styles.mobile_arc_bg}>
-          <div className={`${styles.mobile_arc_content}`}>
             <h2 className={styles.mber_info_title}>會員資料</h2>
-          </div>
         </div>
         <div className={styles.mber_info_header}>
           <Notify />
@@ -131,7 +151,7 @@ const mber_Profile = () => {
               <span>租借紀錄</span>
             </div>
             <div className={styles.card}>
-              <img src="/Iconimg/help.svg" alt="幫助中心" />
+              <img src="/Iconimg/help.svg" alt="幫助中心" onClick={() => navigate("/mber_contact")} />
               <span>幫助中心</span>
             </div>
           </div>
@@ -194,7 +214,15 @@ const mber_Profile = () => {
         {/* 按鈕區塊 */}
         <div className={styles.mber_info_btns}>
           <button onClick={handleEditProfile}>修改會員資料</button>
-          <button onClick={handleDeactivateAccount}>會員停權</button>
+          <button onClick={handleClickLogout} className={styles.logout}>
+            登出
+          </button>
+          <button
+            onClick={handleDeactivateAccount}
+            className={styles.deactivate}
+          >
+            會員停權
+          </button>
         </div>
       </div>
     </div>

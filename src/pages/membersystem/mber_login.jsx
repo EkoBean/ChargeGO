@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
+import NavBarApp from "../../components/NavBarApp";
 import { apiRoutes } from "../../components/apiRoutes";
 import BackIcon from "../../components/backIcon";
 
@@ -105,18 +106,17 @@ const mber_Login = () => {
 
   return (
     <div className={styles["login-bg"]}>
+      <NavBarApp />
       {/* 閃電背景 */}
       <img className={styles.lightning} src="../../../public/lightning.png" />
       <div className={styles["login-container"]}>
         <div className={styles["login-form-section"]}>
           {/* 返回按鈕移到最上方 */}
-        <BackIcon className={'d-sm-none'} />
+          <BackIcon className={"d-sm-none"} />
 
           {/* header區塊：arc+logo+標題 */}
           <div className={styles["mobile-arc-bg"]}>
-            <div className={styles["mobile-arc-content"]}>
-              <h2 className={styles["login-title"]}>會員登入</h2>
-            </div>
+            <h2 className={styles.loginTitle}>會員登入</h2>
           </div>
           {/* 登入表單區塊 */}
           <form className={styles["login-form"]} onSubmit={handleSubmit}>
@@ -155,7 +155,9 @@ const mber_Login = () => {
             {/* 驗證碼顯示與刷新 */}
             <div className={styles["captcha-row"]}>
               <span className={styles["captcha-label"]}>驗證碼</span>
-              <span className={styles["captcha-value"]}>{generatedCaptcha}</span>
+              <span className={styles["captcha-value"]}>
+                {generatedCaptcha}
+              </span>
               <button
                 type="button"
                 className={styles["captcha-refresh"]}

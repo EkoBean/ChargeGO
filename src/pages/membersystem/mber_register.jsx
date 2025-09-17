@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import styles from "../../styles/scss/mber_register.module.scss"; 
+import styles from "../../styles/scss/mber_register.module.scss";
 import crypto from "crypto-js";
 import { apiRoutes } from "../../components/apiRoutes";
 import BackIcon from "../../components/backIcon";
+import NavBarApp from "../../components/NavBarApp";
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const memberBasePath = apiRoutes.member;
 
@@ -27,6 +30,75 @@ const mber_Register = () => {
     agreerule: false,
     event: true,
   });
+
+  // 使用者規範
+  const [showRule, setShowRule] = useState(false);
+  const [userRule, setUserRule] = useState("");
+
+  const toggleUserRule = () => {
+    setShowRule(!showRule);
+  };
+  // 載入使用者規範
+  useEffect(() => {
+    const fetchUserRule = async () => {
+      try {
+        const response = await fetch("../../../public/user_rule.txt");
+        const text = await response.text();
+        setUserRule(text);
+      } catch (error) {
+        console.error("Error fetching user rule:", error);
+      }
+    };
+
+    fetchUserRule();
+  }, []);
+
+  // 新增狀態：追蹤規範閱讀進度
+  const [hasReadRule, setHasReadRule] = useState(false);
+  const ruleContentRef = useRef(null); // 參考規範內容元素
+
+  function Agreement() {
+    useEffect(() => {
+      const handleScroll = () => {
+        if (ruleContentRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } =
+            ruleContentRef.current;
+          const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 允許小誤差
+
+          if (isAtBottom) {
+            setHasReadRule(true);
+          }
+        }
+      };
+
+      const contentElement = ruleContentRef.current;
+      if (contentElement) {
+        contentElement.addEventListener("scroll", handleScroll);
+        return () => contentElement.removeEventListener("scroll", handleScroll);
+      }
+    }, []);
+
+    return (
+      <>
+        <div className={styles["user-rule"]}>
+          <div className={styles["user-rule-text"]}>
+            <h2>使用者規範</h2>
+            <div
+              className={styles["user-rule-content"]}
+              ref={ruleContentRef}
+              style={{ maxHeight: "300px", overflowY: "auto" }} // 確保可滾動
+            >
+              <pre className={styles["user-rule-text"]}>{userRule}</pre>
+            </div>
+            <button onClick={toggleUserRule} className={styles["close-button"]}>
+              關閉
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // 驗證碼（6位英數字）
   const [captchaValue, setCaptchaValue] = useState("");
   // 註冊成功
@@ -51,6 +123,10 @@ const mber_Register = () => {
   // 表單變更處理
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === "agreerule" && !hasReadRule) {
+      alert("請先閱讀並完成使用者規範");
+      return;
+    }
     let v = type === "checkbox" ? checked : value;
     // 數字欄位簡單過濾
     if (name === "telephone") v = v.replace(/\D/g, "").slice(0, 15);
@@ -89,7 +165,11 @@ const mber_Register = () => {
     if (form.telephone && form.telephone.length < 8) return "電話格式不正確";
     if (form.credit_card_number && form.credit_card_number.length !== 19)
       return "信用卡號需 16 碼數字";
-    if (form.credit_card_month && (parseInt(form.credit_card_month) < 1 || parseInt(form.credit_card_month) > 12))
+    if (
+      form.credit_card_month &&
+      (parseInt(form.credit_card_month) < 1 ||
+        parseInt(form.credit_card_month) > 12)
+    )
       return "到期月需為 01~12";
     if (form.credit_card_year && !/^\d{2}$/.test(form.credit_card_year))
       return "到期年需為 2 碼數字";
@@ -107,9 +187,15 @@ const mber_Register = () => {
     }
     try {
       // 前端雜湊密碼（SHA256取前10碼）
-      const hashedPwd = crypto.SHA256(form.password).toString(crypto.enc.Hex).slice(0, 10);
+      const hashedPwd = crypto
+        .SHA256(form.password)
+        .toString(crypto.enc.Hex)
+        .slice(0, 10);
       // 將信用卡號中間8碼遮蔽
-      const maskedCardNumber = form.credit_card_number.replace(/(\d{4}) (\d{4}) (\d{4}) (\d{4})/, (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`);
+      const maskedCardNumber = form.credit_card_number.replace(
+        /(\d{4}) (\d{4}) (\d{4}) (\d{4})/,
+        (m, p1, p2, p3, p4) => `${p1} **** **** ${p4}`
+      );
       const payload = {
         login_id: form.login_id,
         user_name: form.user_name,
@@ -125,7 +211,7 @@ const mber_Register = () => {
         status: "0",
       };
       const res = await axios.post(
-        "${API_BASE}${memberBasePath}/mber_register",
+        `${API_BASE}${memberBasePath}/mber_register`,
         payload,
         { withCredentials: true }
       );
@@ -196,11 +282,13 @@ const mber_Register = () => {
   return (
     <div className={styles["register-bg"]}>
       {/* 手機版專用區塊 */}
-   
+      <>
+        <NavBarApp />
+      </>
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
           {/* 返回上頁按鈕 */}
-          <BackIcon className={'d-sm-none'} />
+          <BackIcon className={"d-sm-none"} />
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
               <h2 className={styles["register-title"]}>會員註冊</h2>
@@ -411,10 +499,7 @@ const mber_Register = () => {
               </div>
               {/* 安全碼(CVV) */}
               <div className={styles["register-input-group"]}>
-                <label
-                  htmlFor="cvv"
-                  className={styles["register-label"]}
-                >
+                <label htmlFor="cvv" className={styles["register-label"]}>
                   安全碼(CVV)：
                 </label>
                 <input
@@ -461,6 +546,8 @@ const mber_Register = () => {
                 />
               </div>
               {/* 條款 & 活動 */}
+              {/* 使用者規範 */}
+              {showRule && <Agreement />}
               <div className={styles["register-input-group"]}>
                 <div className={styles["register-checkbox-group"]}>
                   <input
@@ -472,8 +559,8 @@ const mber_Register = () => {
                     onChange={handleChange}
                   />
                   <label
-                    className={styles["form-check-label"]}
-                    htmlFor="agreerule"
+                    className={styles["form-check-label-link"]}
+                    onClick={toggleUserRule}
                   >
                     同意使用者規範
                   </label>
@@ -496,7 +583,7 @@ const mber_Register = () => {
               </div>
             </div>
             {/* 按鈕 */}
-            <div >
+            <div>
               <button
                 className={styles["correct-btn"]}
                 id="mber_register"
@@ -528,5 +615,3 @@ const mber_Register = () => {
 };
 
 export default mber_Register;
-
-
