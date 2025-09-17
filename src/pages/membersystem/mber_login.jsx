@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
-import NavBarApp from "../../components/NavBarApp";
+import NavbarWebsite from "../../components/NavBarWebsite";
 import { apiRoutes } from "../../components/apiRoutes";
 import BackIcon from "../../components/backIcon";
 
@@ -106,7 +106,7 @@ const mber_Login = () => {
 
   return (
     <div className={styles["login-bg"]}>
-      <NavBarApp />
+      <NavbarWebsite />
       {/* 閃電背景 */}
       <img className={styles.lightning} src="../../../public/lightning.png" />
       <div className={styles["login-container"]}>
