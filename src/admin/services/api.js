@@ -263,7 +263,7 @@ const ApiService = {
   async createOrder(payload) {
     console.log('Creating order with payload:', payload);
 
-    // 驗證必填欄位 - 修正為 rental_site_id
+    // 驗證必填欄位 - 修正為支援字符串站點ID
     const errors = [];
     if (!payload.uid || Number.isNaN(Number(payload.uid))) {
       errors.push("用戶 ID 不能為空且必須為數字");
@@ -271,8 +271,8 @@ const ApiService = {
     if (!payload.start_date) {
       errors.push("開始時間不能為空");
     }
-    if (!payload.rental_site_id || Number.isNaN(Number(payload.rental_site_id))) {
-      errors.push("租借站點不能為空且必須為數字");
+    if (!payload.rental_site_id) {  // 移除數字檢查
+      errors.push("租借站點不能為空");
     }
     if (payload.order_status === undefined || payload.order_status === null || payload.order_status === '') {
       errors.push("訂單狀態不能為空");
@@ -285,18 +285,18 @@ const ApiService = {
       throw new Error(errors.join('; '));
     }
 
-    // 確保包含操作者ID
+    // 確保包含操作者ID - 保持站點ID為原始格式
     const body = {
       uid: Number(payload.uid),
       start_date: this._normalizeDateTime(payload.start_date),
       end: payload.end ? this._normalizeDateTime(payload.end) : null,
-      rental_site_id: Number(payload.rental_site_id),
-      return_site_id: payload.return_site_id ? Number(payload.return_site_id) : null,
+      rental_site_id: payload.rental_site_id, // 保持原始格式，不強制轉數字
+      return_site_id: payload.return_site_id || null, // 同樣保持原始格式
       order_status: String(payload.order_status),
       charger_id: Number(payload.charger_id),
       comment: payload.comment || null,
       total_amount: payload.total_amount || 0,
-      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)  // 確保操作者ID
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)
     };
 
     console.log('Normalized order body:', body);
