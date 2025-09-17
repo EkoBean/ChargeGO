@@ -23,11 +23,10 @@ const UserManagement = () => {
 
   // 新增：搜尋與狀態篩選
   const [searchQ, setSearchQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); // values: all | normal | blacklist
+  const [statusFilter, setStatusFilter] = useState("all"); // values: all | normal | suspended | self
 
   /**
-   * handleViewUser
-   * - 當使用者按下「查看詳情」時呼叫
+   * - 當使用者按下「查看詳情」時
    * - 取得該使用者的訂單 (ApiService.getUserOrders) 並合併到 selectedUser
    * - 將 editUser 初始化為 selectedUser 的複本，進入非編輯模式（modal 開啟）
    */
@@ -36,12 +35,12 @@ const UserManagement = () => {
       const userOrders = await ApiService.getUserOrders(user.uid);
       const merged = { ...user, orders: userOrders };
       setSelectedUser(merged);
-      // editUser 使用 merged 的複本，確保 input 為受控元件
+      // editUser 使用 merged 確保 input 為受控元件
       setEditUser(merged);
       setIsEditingUser(false);
       setShowUserModal(true);
     } catch (err) {
-      // 簡單錯誤處理：記錄錯誤（可改成 toaster 提示）
+      // 錯誤處理
       console.error("Failed to load user orders:", err);
     }
   };
@@ -75,6 +74,20 @@ const UserManagement = () => {
       const originalUser = selectedUser;
       const changedFields = [];
       
+      // 以 status 優先，若沒有再 fallback 到 blacklist（舊欄位）
+      const normalizeStatus = (u) => {
+        if (typeof u?.status !== "undefined" && u?.status !== null) return String(u.status);
+        return u?.blacklist ? "-1" : "0";
+      };
+      const statusLabel = (s) => {
+        const map = { "-1": "停權", "0": "正常", "1": "自行停權" };
+        return map[String(s)] || "未知";
+      };
+      
+      // 確保 operator_id 正確獲取
+      const operatorId = parseInt(localStorage.getItem('employeeId'), 10);
+      console.log('準備更新用戶，操作者ID:', operatorId);
+      
       const payload = {
         user_name: editUser.user_name,
         email: editUser.email,
@@ -82,10 +95,16 @@ const UserManagement = () => {
         address: editUser.address,
         wallet: Number(editUser.wallet ?? 0),
         point: Number(editUser.point ?? 0),
-        blacklist: Boolean(editUser.blacklist),
+        // 送出 status 以對應 DB 新欄位；同時維持 blacklist 相容性（若 status === '-1' 視為黑名單）
+        status: typeof editUser.status !== "undefined" ? String(editUser.status) : (editUser.blacklist ? "-1" : "0"),
+        blacklist: (typeof editUser.status !== "undefined" ? String(editUser.status) === "-1" : Boolean(editUser.blacklist)),
+        // 確保操作者 ID 正確傳遞
+        operator_id: operatorId
       };
 
-      // 比較變更的欄位
+      console.log('發送的 payload:', payload);
+
+      // 比較變更的欄位（前端日誌用，後端會重新計算）
       if (payload.user_name !== originalUser.user_name) {
         changedFields.push(`姓名: ${originalUser.user_name} → ${payload.user_name}`);
       }
@@ -99,19 +118,27 @@ const UserManagement = () => {
         changedFields.push(`地址: ${originalUser.address} → ${payload.address}`);
       }
       if (payload.wallet !== originalUser.wallet) {
-        changedFields.push(`錢包: ${originalUser.wallet} → ${payload.wallet}`);
+        changedFields.push(`代幣: ${originalUser.wallet} → ${payload.wallet}`);
       }
       if (payload.point !== originalUser.point) {
-        changedFields.push(`點數: ${originalUser.point} → ${payload.point}`);
+        changedFields.push(`積分: ${originalUser.point} → ${payload.point}`);
       }
-      if (payload.blacklist !== originalUser.blacklist) {
-        changedFields.push(`狀態: ${originalUser.blacklist ? '黑名單' : '正常'} → ${payload.blacklist ? '黑名單' : '正常'}`);
+      // 比對 status（優先使用 status 欄位，沒有時 fallback 到 blacklist）
+      const origStatus = normalizeStatus(originalUser);
+      const newStatus = String(payload.status);
+      if (newStatus !== origStatus) {
+        changedFields.push(`狀態: ${statusLabel(origStatus)} → ${statusLabel(newStatus)}`);
       }
-
+      
       const updated = await ApiService.updateUser(editUser.uid, payload);
 
-      // 記錄操作成功日誌
-      console.log('UPDATE_USER success', { user_id: editUser.uid, changed_fields: changedFields, time: new Date().toISOString() });
+      // 記錄操作成功日誌（前端）
+      console.log('UPDATE_USER success', { 
+        user_id: editUser.uid, 
+        changed_fields: changedFields, 
+        time: new Date().toISOString(),
+        operator_id: operatorId
+      });
 
       // 更新全域使用者清單中對應項目（保持引用不被直接操作）
       setUsers((prev) =>
@@ -129,7 +156,7 @@ const UserManagement = () => {
     } catch (err) {
       console.error("Failed to update user:", err);
       
-      // 已移除 OperationLogger：以 console 替代錯誤紀錄
+      // 記錄錯誤日誌
       console.warn('UPDATE_USER failed', { user_id: editUser?.uid, error: err.message || err });
       
       alert("更新失敗，請稍後再試");
@@ -142,9 +169,11 @@ const UserManagement = () => {
   const filteredUsers = useMemo(() => {
     const q = String(searchQ || "").trim().toLowerCase();
     return (users || []).filter((u) => {
-      // 狀態篩選
-      if (statusFilter === "normal" && u.blacklist) return false;
-      if (statusFilter === "blacklist" && !u.blacklist) return false;
+      // 狀態篩選：優先使用 status 欄位，沒的話 fallback 到 blacklist
+      const s = typeof u.status !== "undefined" && u.status !== null ? String(u.status) : (u.blacklist ? "-1" : "0");
+      if (statusFilter === "normal" && s !== "0") return false;
+      if (statusFilter === "suspended" && s !== "-1") return false;
+      if (statusFilter === "self" && s !== "1") return false;
 
       if (!q) return true;
 
@@ -195,7 +224,8 @@ const UserManagement = () => {
           >
             <option value="all">全部狀態</option>
             <option value="normal">正常</option>
-            <option value="blacklist">黑名單</option>
+            <option value="suspended">停權</option>
+            <option value="self">自行停權</option>
           </select>
 
           <button className="btn admin-btn admin-primary" onClick={loadAllData}>
@@ -212,7 +242,8 @@ const UserManagement = () => {
               <th>姓名</th>
               <th>Email</th>
               <th>電話</th>
-              <th>錢包餘額</th>
+              <th>代幣數量</th>
+              <th>積分</th>
               <th>狀態</th>
               <th>操作</th>
             </tr>
@@ -224,11 +255,15 @@ const UserManagement = () => {
                 <td>{user.user_name}</td>
                 <td>{user.email}</td>
                 <td>{user.telephone}</td>
-                <td>NT$ {user.wallet}</td>
+                <td>$ {user.wallet}</td>
+                <td>{user.point}</td>
                 <td>
-                  <span className={`admin-badge ${user.blacklist ? "admin-danger" : "admin-success"}`}>
-                    {user.blacklist ? "黑名單" : "正常"}
-                  </span>
+                  {(() => {
+                    const s = typeof user.status !== "undefined" && user.status !== null ? String(user.status) : (user.blacklist ? "-1" : "0");
+                    const labelMap = { "-1": "停權", "0": "正常", "1": "自行停權" };
+                    const cls = s === "0" ? "admin-success" : (s === "-1" ? "admin-danger" : "admin-warning");
+                    return <span className={`admin-badge ${cls}`}>{labelMap[s] || "未知"}</span>;
+                  })()}
                 </td>
                 <td>
                   <button className="btn admin-btn admin-small admin-primary" onClick={() => handleViewUser(user)}>
@@ -240,7 +275,8 @@ const UserManagement = () => {
 
             {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan="7" className="admin-empty-row">查無符合條件的用戶</td>
+                {/* 欄位 */}
+                <td colSpan="8" className="admin-empty-row">查無符合條件的用戶</td>
               </tr>
             )}
           </tbody>
@@ -265,14 +301,14 @@ const UserManagement = () => {
             setIsEditingUser(true);
           }}
           onCancel={() => {
-            // 取消編輯：還原 editUser 為 selectedUser 的最新資料，關閉編輯模式
+            // 取消編輯
             setEditUser(selectedUser);
             setIsEditingUser(false);
           }}
           onSave={handleSaveUser}
           onChange={handleUserFieldChange}
           onClose={() => !saving && setShowUserModal(false)}
-          sites={sites} // ← 傳入 sites
+          sites={sites} // 傳入 sites
         />
       )}
     </div>
