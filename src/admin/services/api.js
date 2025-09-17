@@ -532,32 +532,25 @@ const ApiService = {
 
   // 新增充電器相關 API
   async createCharger(payload) {
-    console.log('Creating charger with payload:', payload);
+    console.log('Creating charger with payload (raw):', payload);
 
-    // 確保狀態值為數字
-    const normalizedStatus = parseInt(payload.status, 10);
-    if (isNaN(normalizedStatus)) {
+    // 確保狀態值為字串
+    const status = String(payload.status);
+    
+    // 驗證狀態值
+    const validStatuses = ['-1', '0', '1', '2', '3', '4'];
+    if (!validStatuses.includes(status)) {
       throw new Error(`無效的狀態值: ${payload.status}`);
     }
 
     const body = {
       charger_id: parseInt(payload.charger_id, 10),
       site_id: payload.site_id,
-      status: normalizedStatus, // 確保為數字
+      status: status,  // 使用字串形式的狀態值
       operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)
     };
 
-    // 驗證必填欄位
-    const errors = [];
-    if (!body.charger_id || isNaN(body.charger_id)) errors.push("充電器 ID 不能為空且必須為數字");
-    if (!body.site_id) errors.push("站點 ID 不能為空");
-    if (isNaN(body.status)) errors.push("狀態不能為空且必須是數字");
-
-    if (errors.length > 0) {
-      throw new Error(errors.join('; '));
-    }
-
-    console.log('處理後的充電器資料:', body);
+    console.log('Creating charger - normalized body (to send):', body);
 
     try {
       const result = await this.request('/chargers', {
@@ -565,51 +558,12 @@ const ApiService = {
         body: JSON.stringify(body)
       });
       
-      console.log('Charger created successfully:', result);
-      
-      // 確保返回的充電器狀態為數字型態
-      if (result && result.charger && typeof result.charger.status === 'string') {
-        result.charger.status = parseInt(result.charger.status, 10);
-      }
-      
+      console.log('Charger created successfully (response):', result);
       return result;
+      
     } catch (error) {
       console.error('Failed to create charger:', error);
-      
-      // 嘗試解析錯誤回應以獲得更詳細的資訊
-      let errorMessage = '新增充電器失敗';
-      
-      if (error.message.includes('500')) {
-        errorMessage += ' - 伺服器內部錯誤';
-        
-        // 嘗試從回應中獲得更多資訊
-        try {
-          const response = await fetch(`${API_BASE_URL}${this.basePath}/chargers`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-          });
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error('詳細錯誤資訊:', errorData);
-            
-            if (errorData.error) {
-              errorMessage += `: ${errorData.error}`;
-            } else if (errorData.message) {
-              errorMessage += `: ${errorData.message}`;
-            }
-          }
-        } catch (fetchError) {
-          console.error('無法取得詳細錯誤資訊:', fetchError);
-        }
-      } else if (error.message) {
-        errorMessage += `: ${error.message}`;
-      }
-      
-      throw new Error(errorMessage);
+      throw new Error(`建立充電器失敗: ${error.message}`);
     }
   },
 

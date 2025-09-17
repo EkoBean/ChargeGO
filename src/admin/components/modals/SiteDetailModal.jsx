@@ -44,24 +44,23 @@ const SiteDetailModal = ({
   // 新增：charger 新增相關狀態
   const [newChargers, setNewChargers] = useState([]);
   const [chargerCount, setChargerCount] = useState(1);
-  const [chargerStatus, setChargerStatus] = useState(2);  // 預設為可用 (2)
+  const [chargerStatus, setChargerStatus] = useState('2');  // 預設值改為字串 '2'
 
   // 若 site 為 null（尚未選擇站點），不渲染任何內容
   if (!site) return null;
 
   // 修正狀態轉中文函數，確保正確處理不同型態的狀態值
   const statusText = (status) => {
-    // 確保狀態值為數字進行比較
-    const s = parseInt(status, 10);
-    console.log('狀態轉換:', status, '->', s); 
+    // 確保比較時都是字串
+    const s = String(status);
     
     switch (s) {
-      case -1: return "故障";
-      case 0: return "進廠維修";
-      case 1: return "出租中";
-      case 2: return "待租借(滿電)";
-      case 3: return "待租借(30%-99%)";
-      case 4: return "準備中(<30%)";
+      case '-1': return "故障";
+      case '0': return "進廠維修";
+      case '1': return "出租中";
+      case '2': return "待租借(滿電)";
+      case '3': return "待租借(30%-99%)";
+      case '4': return "準備中(<30%)";
       default: 
         console.warn(`未知狀態: ${status} (${typeof status})`);
         return `未知(${status})`;
@@ -208,8 +207,8 @@ const SiteDetailModal = ({
       return;
     }
 
-    // 確保狀態值為數字
-    const normalizedStatus = parseInt(chargerStatus, 10);
+    // 確保使用字串形式的狀態值
+    const normalizedStatus = String(chargerStatus);
     console.log('準備新增充電器，狀態:', chargerStatus, '->', normalizedStatus);
 
     try {
@@ -253,7 +252,7 @@ const SiteDetailModal = ({
         newChargersList.push({
           charger_id: newChargerId,
           site_id: site.site_id,
-          status: normalizedStatus,  // 確保使用數字型態
+          status: normalizedStatus,  // 使用字串形式
           operator_id: parseInt(localStorage.getItem('employeeId'), 10)
         });
         
@@ -296,9 +295,14 @@ const SiteDetailModal = ({
             const result = await ApiService.createCharger(chargerPayload);
             console.log('充電器新增成功:', result);
             
-            // 檢查返回狀態是否與請求狀態一致
-            if (result && result.charger && parseInt(result.charger.status, 10) !== parseInt(charger.status, 10)) {
-              console.warn(`警告: 狀態值不一致 - 請求:${charger.status}, 返回:${result.charger.status}`);
+            // 確認返回結果是否包含預期的資料結構
+            if (result && result.charger) {
+              // 檢查返回狀態是否與請求狀態一致
+              if (parseInt(result.charger.status, 10) !== parseInt(charger.status, 10)) {
+                console.warn(`警告: 狀態值不一致 - 請求:${charger.status}, 返回:${result.charger.status}`);
+              }
+            } else {
+              console.warn('新增充電器後未收到預期的返回資料:', result);
             }
             
             chargersAdded++;
@@ -611,7 +615,7 @@ const SiteDetailModal = ({
                     <label>狀態</label>
                     <select 
                       value={chargerStatus} 
-                      onChange={(e) => setChargerStatus(e.target.value)}
+                      onChange={(e) => setChargerStatus(e.target.value)}  // 直接使用字串值
                       style={{
                         padding: '10px 14px',
                         borderRadius: 8,
@@ -621,12 +625,12 @@ const SiteDetailModal = ({
                         width: '100%'
                       }}
                     >
-                      <option value={-1}>故障</option>
-                      <option value={0}>進廠維修</option>
-                      <option value={1}>出租中</option>
-                      <option value={2}>待租借(滿電)</option>
-                      <option value={3}>待租借(30%-99%)</option>
-                      <option value={4}>準備中(30%)</option> 
+                      <option value="-1">故障</option>
+                      <option value="0">進廠維修</option>
+                      <option value="1">出租中</option>
+                      <option value="2">待租借(滿電)</option>
+                      <option value="3">待租借(30%-99%)</option>
+                      <option value="4">準備中(30%)</option> 
                       
                     </select>
                   </div>
