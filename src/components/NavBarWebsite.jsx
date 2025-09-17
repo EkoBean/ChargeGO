@@ -67,18 +67,23 @@ function NavbarWebsite(props) {
         closeMobileMenu();
       }
       // 如果有子選單，點擊主選單只打開/關閉子選單
-      else if (item.submenu) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setMobileMenuOpen(false);
-        setActiveSubmenu(false);
-
-      }
     }
-
+    else if (item.submenu) {
+      if (activeSubmenu === index) {
+        setActiveSubmenu(null);
+        return;
+      }
+      setActiveSubmenu(index);
+    }
   }
   const handleSubmunu = (subitem, subIdx) => {
-    navigate(`/mber_login`, { state: { url: subitem.url } });
-    closeMobileMenu();
+    console.log('subitem :>> ', subitem);
+    if (subitem.url === 'mber_register') {
+      navigate(`/mber_register`);
+    } else {
+      navigate(`/mber_login`, { state: { url: subitem.url } });
+      closeMobileMenu();
+    }
   }
 
   const handleHover = (e) => {

@@ -389,10 +389,10 @@
   .mobile-arc-bg {
     width: 100vw;
     height: 180px;
-    background: #ffc800;
+    background: mb.$primary;
     top: -25px;
-    border-bottom-left-radius: 200px;
-    border-bottom-right-radius: 200px;
+    border-bottom-left-radius: 100%;
+    border-bottom-right-radius: 100%;
     position: relative;
     display: flex;
     justify-content: center;
