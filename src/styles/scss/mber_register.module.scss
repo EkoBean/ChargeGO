@@ -28,6 +28,7 @@
   max-width: 500px;
   margin: 0 auto;
   padding-top: 40px;
+  padding-bottom: 200px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -49,13 +50,14 @@
 }
 
 .register-title {
-  text-align: center;
-  font-family: "Mantou sans", serif;
-  font-size: 36px;
+   font-family: "Mantou sans", serif;
+  font-style: bold;
+  font-size: 2rem;
   color: mb.$brown;
-  font-weight: 100;
-  margin-bottom: 24px;
-  letter-spacing: 2px;
+  letter-spacing: 8px;
+  margin-top: 0;
+  margin-bottom: 32px;
+  text-align: center;
 }
 
 .register-arrow {
@@ -239,12 +241,66 @@
   vertical-align: middle;
 }
 
+.form-check-label-link {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  vertical-align: middle;
+  color: mb.$brown;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.close-button {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: #ffd600;
+  color: mb.$brown;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.user-rule{
+  position: fixed; // 固定位置
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); // 垂直水平置中
+  width: 80%;
+  max-width: 600px;
+  max-height: 70%;
+  overflow-y: auto; // 超出高度時顯示滾動條
+  background: #fff;
+  border: 2px solid #ffd600;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  z-index: 3000; // 確保在最上層
+}
+
+.user-rule-content {
+  word-wrap: break-word;
+  line-height: 1.6;
+  color: #333;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+.user-rule-text {
+  white-space: pre-wrap; /* 保留換行和空格 */
+  font-family: Arial, sans-serif; /* 使用等寬字體 */
+}
+
+
 .register-footer {
   width: 100%;
   background: #d9d9d9;
   text-align: center;
   font-size: 2rem;
-  color: #222;
+  color: #000;
   padding: 32px 0 24px 0;
   position: relative;
   bottom: 0;
@@ -321,9 +377,14 @@
     letter-spacing: 8px;
   }
   .register-title {
-    font-size: 40px;
-    font-weight: 100;
-    margin-bottom: 18px;
+    font-family: "Mantou sans", serif;
+  font-style: bold;
+  font-size: 2rem;
+  color: mb.$brown;
+  letter-spacing: 8px;
+  margin-top: 0;
+  margin-bottom: 32px;
+  text-align: center;
   }
   .mobile-arc-bg {
     width: 100vw;

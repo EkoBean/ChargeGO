@@ -1,8 +1,12 @@
 @use "./tokens.module.scss" as mb;
 
 .mber_info {
+  width: 100vw;
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%);
+  background: url("../../../public/lightning.png") left top no-repeat,
+    linear-gradient(to bottom, #ffd600 0%, #fff9e3 100%) no-repeat;
+  background-size: auto 100vh, cover;
+
   position: relative;
   display: flex;
   flex-direction: column;
@@ -17,12 +21,12 @@
 
 .mber_info_title {
   font-family: "Mantou sans", serif;
+  font-style: bold;
   font-size: 2rem;
-  color: #fff;
-  font-weight: bold;
+  color: mb.$brown;
   letter-spacing: 8px;
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: 32px;
   text-align: center;
 }
 
@@ -188,12 +192,18 @@
   box-shadow: 0 2px 8px rgba(255, 214, 0, 0.12);
   transition: 0.2s;
 }
-.mber_info_btns button:last-child {
-  background: #ff9800;
-  color: #fff;
+.mber_info_btns button.deactivate {
+  background: mb.$deactivate;
+  color: mb.$brown;
 }
+
 .mber_info_btns button:hover {
   background: #ffc107;
+  transform: scale(1.08);
+}
+.mber_info_btns button.deactivate:hover {
+  background: mb.$deactivate-hover;
+  color: mb.$brown;
   transform: scale(1.08);
 }
 
@@ -243,7 +253,11 @@
     display: block;
   }
 
-   .mobile-only-logo {
+  .mber_info_btns{
+    padding-bottom: 180px;
+  }
+
+  .mobile-only-logo {
     display: block;
     z-index: 30;
   }
@@ -273,5 +287,3 @@
     align-items: center;
   }
 }
-
-
