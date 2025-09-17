@@ -201,8 +201,8 @@ const OrderManagement = () => {
         uid: Number(editOrder.uid),
         start_date: editOrder.start_date,
         end: (status === "1" || status === "-1") ? editOrder.end : null,
-        rental_site_id: Number(editOrder.rental_site_id),
-        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? Number(editOrder.return_site_id) : null,
+        rental_site_id: editOrder.rental_site_id, // 保持原始格式
+        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? editOrder.return_site_id : null, // 保持原始格式
         order_status: status,
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
@@ -401,8 +401,8 @@ const OrderManagement = () => {
         uid: Number(editOrder.uid),
         start_date: editOrder.start_date,
         end: (status === "1" || status === "-1") ? editOrder.end : null,
-        rental_site_id: Number(editOrder.rental_site_id),
-        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? Number(editOrder.return_site_id) : null,
+        rental_site_id: editOrder.rental_site_id, // 保持原始格式
+        return_site_id: (status === "1" || status === "-1") && editOrder.return_site_id ? editOrder.return_site_id : null, // 保持原始格式
         order_status: status,
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
