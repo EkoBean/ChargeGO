@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
 import NavbarWebsite from "../../components/NavBarWebsite";
@@ -20,6 +20,7 @@ const mber_Login = () => {
   const [generatedCaptcha, setGeneratedCaptcha] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 驗證碼初始化
   useEffect(() => {
@@ -92,7 +93,9 @@ const mber_Login = () => {
         }
         // 登入成功後直接跳頁，會員資料由 /check-auth 取得
         alert("登入成功！");
-        navigate("/mber_profile");
+        console.log('location.state.url :>> ', location.state.url);
+
+        navigate(`/${location.state.url}` || "/mber_profile");
       } else {
         setError(res.data?.message || "登入失敗，請檢查帳號密碼");
       }

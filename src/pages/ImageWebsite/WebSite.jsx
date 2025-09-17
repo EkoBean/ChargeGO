@@ -1,8 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import NavBarWebsite from '../../components/NavBarWebsite.jsx';
 import styles from '../../styles/scss/WebSite.module.scss';
 
 const WebSite = () => {
+  // hooks 
+  const location = useLocation();
+  const navigate = useNavigate();
   const logoSectionRef = useRef(null);
   const waveContainerRef = useRef(null);
   const yellowLineRef = useRef(null);
@@ -14,11 +18,13 @@ const WebSite = () => {
   const arrowRef = useRef(null);
   const taglineRef = useRef(null);
   const taglineCoverRef = useRef(null);
+
+  // animation state
   const [showGradientLogo, setShowGradientLogo] = useState(false);
-  const [showServiceIntro, setShowServiceIntro] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const [showYellowLine, setShowYellowLine] = useState(false);
-
+  // intro animation state
+  const [showServiceIntro, setShowServiceIntro] = useState(false);
   // 動畫與初始化
   useEffect(() => {
     // 建立波浪動畫
@@ -154,11 +160,27 @@ const WebSite = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const targetId = location.state?.scrollToId;
+    if (targetId && showServiceIntro) {
+      console.log('targetId :>> ', targetId);
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+
+  }, [location.state, showServiceIntro, navigate]);
+
   return (
     <>
       <div className={styles['page-container']}>
 
-        {showServiceIntro && <NavBarWebsite className={`${styles['navbar-fixed']}`} />}
+        {showServiceIntro && <NavBarWebsite
+          className={`${styles['navbar-fixed']}`}
+          showServiceIntro={showServiceIntro}
+        />}
         <div className={`${styles.content}`}>
           {/* 將 showServiceIntro && <NavBarWebsite ... /> 移除，避免重複 */}
           {!showServiceIntro ? (
@@ -243,9 +265,9 @@ const WebSite = () => {
         {showServiceIntro && (
           <div>
 
-          <div>
-            <img src="/banner.png" alt="" className={styles.banner} />
-          </div>
+            <div>
+              <img src="/banner.png" alt="" className={styles.banner} />
+            </div>
 
             {/* about-us 區塊，閃電在左，內容在右 */}
             <div className={styles['section-wrapper']}>
@@ -360,10 +382,10 @@ const WebSite = () => {
                 搶先體驗！首次租借享10點折扣碼！
               </div>
               <div className={styles['footer-download-btn-border']}>
-                
-                <button 
-                onClick = {() => window.location.href = '/mapindex'}
-                className={styles['footer-download-btn']}>開始使用</button>
+
+                <button
+                  onClick={() => window.location.href = '/mapindex'}
+                  className={styles['footer-download-btn']}>開始使用</button>
               </div>
             </div>
 
