@@ -354,6 +354,205 @@ app.get("/chargers", (req, res) => {
   });
 });
 
+
+
+
+// 修正新增充電器 API
+app.post("/chargers", async (req, res) => {
+  const { charger_id, site_id, status, operator_id } = req.body;
+
+  console.log('接收到新增充電器請求:', req.body);
+  console.log('狀態值型別:', typeof status, '值:', status);
+
+  // 驗證必要欄位
+  if (!charger_id || !site_id || status === undefined || status === null || status === '') {
+    return res.status(400).json({ 
+      message: "缺少必要欄位 (charger_id, site_id, status)",
+      received: { charger_id, site_id, status, status_type: typeof status }
+    });
+  }
+
+  // 確保狀態值是數字且在允許的範圍內
+  const validStatuses = [-1, 0, 1, 2, 3, 4];
+  let normalizedStatus;
+  
+  // 處理各種可能的輸入格式
+  if (typeof status === 'string') {
+    normalizedStatus = parseInt(status, 10);
+  } else if (typeof status === 'number') {
+    normalizedStatus = status;
+  } else {
+    return res.status(400).json({ 
+      message: "無效的狀態值格式",
+      received_status: status,
+      received_type: typeof status
+    });
+  }
+  
+  console.log('處理後的狀態值:', normalizedStatus, '型別:', typeof normalizedStatus);
+  
+  if (isNaN(normalizedStatus) || !validStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ 
+      message: "無效的狀態值",
+      received: normalizedStatus,
+      validStatuses: "允許的狀態值: -1(故障), 0(進廠維修), 1(出租中), 2(待租借-滿電), 3(待租借-30%-99%), 4(準備中-<30%)"
+    });
+  }
+
+  try {
+    // 檢查充電器 ID 是否已存在
+    const existingChargers = await connect.queryAsync(
+      'SELECT charger_id FROM charger WHERE charger_id = ?',
+      [charger_id]
+    );
+    
+    console.log('現有充電器查詢結果:', existingChargers);
+
+    if (existingChargers.length > 0) {
+      return res.status(400).json({ message: `充電器 ID ${charger_id} 已存在` });
+    }
+
+    // 檢查站點是否存在
+    const existingSites = await connect.queryAsync(
+      'SELECT site_id FROM charger_site WHERE site_id = ?',
+      [site_id]
+    );
+    
+    console.log('站點查詢結果:', existingSites);
+
+    if (existingSites.length === 0) {
+      return res.status(400).json({ message: `站點 ${site_id} 不存在` });
+    }
+
+    console.log('準備插入充電器:', { charger_id, site_id, status: normalizedStatus });
+
+    // 插入新充電器，確保使用數字型態的狀態值
+    const insertResult = await connect.queryAsync(
+      'INSERT INTO charger (charger_id, site_id, status) VALUES (?, ?, ?)',
+      [charger_id, site_id, normalizedStatus]
+    );
+
+    console.log('充電器插入結果:', insertResult);
+
+    // 記錄操作日誌（如果提供 operator_id）
+    if (operator_id) {
+      try {
+        const logContent = `CREATE_CHARGER-${JSON.stringify({
+          charger_id: charger_id,
+          site_id: site_id,
+          status: normalizedStatus,
+          status_desc: getStatusDescription(normalizedStatus),
+          result: 'success'
+        })}`;
+
+        await connect.queryAsync(
+          'INSERT INTO employee_log (employee_id, log, employee_log_date) VALUES (?, ?, NOW())',
+          [operator_id, logContent]
+        );
+        
+        console.log('操作日誌記錄成功');
+      } catch (logErr) {
+        console.warn('記錄操作日誌失敗 (非致命錯誤):', logErr);
+      }
+    }
+
+    // 查詢並返回新建立的充電器
+    const newChargers = await connect.queryAsync(
+      'SELECT charger_id, site_id, status FROM charger WHERE charger_id = ?',
+      [charger_id]
+    );
+
+    if (newChargers.length === 0) {
+      throw new Error('充電器建立後查詢失敗');
+    }
+
+    const newCharger = newChargers[0];
+    
+    // 確保返回的狀態值為數字型態
+    if (typeof newCharger.status === 'string') {
+      newCharger.status = parseInt(newCharger.status, 10);
+    }
+    
+    console.log('充電器新增成功:', newCharger);
+    
+    res.status(201).json({
+      success: true,
+      message: '充電器新增成功',
+      charger: newCharger
+    });
+
+  } catch (err) {
+    console.error('新增充電器失敗:', err);
+    console.error('錯誤堆疊:', err.stack);
+    
+    res.status(500).json({ 
+      error: '新增充電器失敗', 
+      details: {
+        code: err.code || 'UNKNOWN_ERROR',
+        message: err.message,
+        sqlMessage: err.sqlMessage,
+        errno: err.errno
+      }
+    });
+  }
+});
+
+
+
+// 添加狀態描述函數
+function getStatusDescription(status) {
+  const statusMap = {
+    '-1': '故障',
+    '0': '進廠維修', 
+    '1': '出租中',
+    '2': '待租借(滿電)',
+    '3': '待租借(30%-99%)',
+    '4': '準備中(<30%)'
+  };
+  return statusMap[String(status)] || '未知狀態';
+}
+
+// 更新充電器 API
+app.put("/chargers/:id", (req, res) => {
+  const chargerId = req.params.id;
+  const { site_id, status } = req.body;
+
+  const updateFields = [];
+  const updateValues = [];
+
+  if (site_id !== undefined) {
+    updateFields.push('site_id = ?');
+    updateValues.push(site_id);
+  }
+  if (status !== undefined) {
+    updateFields.push('status = ?');
+    updateValues.push(status);
+  }
+
+  if (updateFields.length === 0) {
+    return res.status(400).json({ message: "沒有提供要更新的欄位" });
+  }
+
+  updateValues.push(chargerId);
+
+  const updateQuery = `UPDATE charger SET ${updateFields.join(', ')} WHERE charger_id = ?`;
+
+  connect.query(updateQuery, updateValues, (err, result) => {
+    if (err) {
+      console.error('更新充電器失敗:', err);
+      return res.status(500).json({ error: "更新充電器失敗", code: err.code });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "找不到指定的充電器" });
+    }
+
+    res.json({ message: '充電器更新成功' });
+  });
+});
+
+
+
 // 修正獲取所有訂單 - 按 order_ID 降序排列（最新的在上面）
 app.get("/orders", (req, res) => {
   console.log('獲取所有訂單請求');
@@ -821,108 +1020,7 @@ app.get("/employee_log", (req, res) => {
   });
 });
 
-// ...existing code...
 
-// 新增訂單 API - 添加操作記錄
-app.post("/orders", (req, res) => {
-  const { uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount, operator_id } = req.body;  // 添加 operator_id
-
-  console.log('接收到新增訂單請求:', req.body);
-
-  // 驗證必要欄位
-  if (!uid || !start_date || !rental_site_id || typeof order_status === "undefined" || !charger_id) {
-    return res.status(400).json({
-      message: "缺少必要欄位 (需要: uid, start_date, rental_site_id, order_status, charger_id)"
-    });
-  }
-
-  // 檢查用戶是否存在
-  connect.query('SELECT user_name FROM user WHERE uid = ?', [uid], (userErr, userRows) => {
-    if (userErr) {
-      console.error('查詢用戶失敗:', userErr);
-      return res.status(500).json({ error: "DB error", code: userErr.code, message: userErr.message });
-    }
-
-    if (userRows.length === 0) {
-      return res.status(400).json({ message: "用戶不存在" });
-    }
-
-    // 插入訂單資料
-    const insertQuery = `
-      INSERT INTO order_record (uid, start_date, end, rental_site_id, return_site_id, order_status, charger_id, comment, total_amount)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const values = [
-      uid,
-      start_date,
-      end || null,
-      rental_site_id,
-      return_site_id || null,
-      order_status,
-      charger_id,
-      comment || null,
-      total_amount || 0
-    ];
-
-    console.log('執行插入 SQL:', insertQuery);
-    console.log('參數:', values);
-
-    connect.query(insertQuery, values, (insertErr, result) => {
-      if (insertErr) {
-        console.error('插入訂單失敗:', insertErr);
-        return res.status(500).json({ error: "插入訂單失敗", code: insertErr.code, message: insertErr.message });
-      }
-
-      // 記錄操作日誌
-      if (operator_id) {
-        const logContent = `CREATE_ORDER-${JSON.stringify({
-          order_id: result.insertId,
-          uid: uid,
-          status: 'success'
-        })}`;
-        connect.query(
-          'INSERT INTO employee_log (employee_id, log, employee_log_date) VALUES (?, ?, NOW())',
-          [operator_id, logContent],
-          (logErr) => {
-            if (logErr) {
-              console.error('記錄操作日誌失敗:', logErr);
-            }
-          }
-        );
-      }
-
-      // 查詢並返回完整的訂單資料
-     const selectQuery = `
-  SELECT o.order_ID,
-   o.uid,
-   u.user_name, u.telephone, u.email,
-   o.start_date, o.end,
-   o.rental_site_id, rs.site_name as rental_site_name,
-   o.return_site_id, rts.site_name as return_site_name,
-   o.order_status, o.charger_id,
-   c.status AS charger_status,
-   o.comment, o.total_amount  -- 確認這裡有包含 total_amount
-FROM order_record o
-LEFT JOIN user u ON o.uid = u.uid
-LEFT JOIN charger_site rs ON o.rental_site_id = rs.site_id
-LEFT JOIN charger_site rts ON o.return_site_id = rts.site_id
-LEFT JOIN charger c ON o.charger_id = c.charger_id
-ORDER BY o.order_ID DESC
-`;
-      
-      connect.query(selectQuery, [result.insertId], (selectErr, orderRows) => {
-        if (selectErr) {
-          console.error('查詢新建訂單失敗:', selectErr);
-          return res.status(500).json({ error: "查詢新建訂單失敗", code: selectErr.code, message: selectErr.message });
-        }
-
-        console.log('訂單新增成功:', orderRows[0]);
-        res.status(201).json(orderRows[0]);
-      });
-    });
-  });
-});
 
 // 更新訂單 API - 添加操作記錄
 app.put("/orders/:order_ID", (req, res) => {
