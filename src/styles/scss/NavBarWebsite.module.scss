@@ -1,3 +1,4 @@
+@use './tokens.module.scss' as *;
 .navbar {
   display: flex;
   flex-direction: row;
@@ -37,7 +38,8 @@
   padding: 0 32px;
   box-sizing: border-box;
   position: relative;
-  //background: #fff;
+  background-color: $primary ;
+  z-index: 1000;
   min-height: 64px;
 }
 

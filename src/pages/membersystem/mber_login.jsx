@@ -5,7 +5,6 @@ import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
 import NavbarWebsite from "../../components/NavBarWebsite";
 import { apiRoutes } from "../../components/apiRoutes";
-import BackIcon from "../../components/backIcon";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -21,6 +20,12 @@ const mber_Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+
+  // debug ===============
+  useEffect(() => {
+    console.log('location.state :>> ', location.state);
+  }, [location])
+  // ====================
 
   // 驗證碼初始化
   useEffect(() => {
@@ -93,9 +98,8 @@ const mber_Login = () => {
         }
         // 登入成功後直接跳頁，會員資料由 /check-auth 取得
         alert("登入成功！");
-        console.log('location.state.url :>> ', location.state.url);
-
-        navigate(`/${location.state.url}` || "/mber_profile");
+        console.log('location.state :>> ', location.state);
+        navigate(location.state && location.state.url ? `/${location.state.url}` : "/mber_profile");
       } else {
         setError(res.data?.message || "登入失敗，請檢查帳號密碼");
       }
@@ -115,7 +119,6 @@ const mber_Login = () => {
       <div className={styles["login-container"]}>
         <div className={styles["login-form-section"]}>
           {/* 返回按鈕移到最上方 */}
-          <BackIcon className={"d-sm-none"} />
 
           {/* header區塊：arc+logo+標題 */}
           <div className={styles["mobile-arc-bg"]}>
