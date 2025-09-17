@@ -106,7 +106,18 @@ const StaffLogs = () => {
             description = `訂單 #${details.order_id || '未知'}`;
             break;
           case 'UPDATE_USER':
-            description = `用戶 #${details.uid || details.id || '未知'}`;
+            // 增強用戶更新操作的顯示 - 顯示用戶名稱和具體修改內容
+            const userName = details.user_name ? `${details.user_name}` : `用戶ID: ${details.user_id || details.uid || '未知'}`;
+            let changeInfo = '';
+            if (details.changed_fields && Array.isArray(details.changed_fields) && details.changed_fields.length > 0) {
+              // 取前3個變更欄位，避免顯示過長
+              const displayFields = details.changed_fields.slice(0, 3);
+              changeInfo = ` (修改: ${displayFields.join(', ')})`;
+              if (details.changed_fields.length > 3) {
+                changeInfo += ` 等${details.changed_fields.length}項`;
+              }
+            }
+            description = `${userName}${changeInfo}`;
             break;
           case 'CREATE_USER':
             description = `用戶 #${details.uid || details.id || '未知'}`;
