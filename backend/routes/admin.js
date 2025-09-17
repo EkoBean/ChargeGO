@@ -99,13 +99,14 @@ const handleDBError = (res, err) => {
 // 使用者清單
 app.get("/user/list", (req, res) => {
   connect.query(`
-    SELECT uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint
+    SELECT uid, user_name, telephone, email, address, status, blacklist, wallet, point, total_carbon_footprint
     FROM user ORDER BY uid ASC
   `, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "DB error", code: err.code });
     res.json(rows);
   });
 });
+
 
 // 更新使用者
 app.put("/user/:uid", (req, res) => {
@@ -118,50 +119,127 @@ app.put("/user/:uid", (req, res) => {
     wallet,
     point,
     blacklist,
+    status,
+    operator_id
   } = req.body;
 
-  const sets = [];
-  const params = [];
-  const add = (col, val) => {
-    if (typeof val !== "undefined") {
-      sets.push(`${col} = ?`);
-      params.push(val);
+  console.log('收到更新用戶請求:', { uid, operator_id, ...req.body });
+
+  // 先抓原始資料以比對變更
+  connect.query('SELECT * FROM user WHERE uid = ?', [uid], (selErr, origRows) => {
+    if (selErr) return handleDBError(res, selErr);
+    if (!origRows || origRows.length === 0) return res.status(404).json({ message: "user not found" });
+
+    const original = origRows[0];
+    const sets = [];
+    const params = [];
+    const changedFields = [];
+
+    const pushChange = (col, newVal, label, normalize = (v) => v) => {
+      const origVal = normalize(original[col]);
+      const nVal = normalize(newVal);
+      if (typeof newVal !== "undefined" && String(origVal) !== String(nVal)) {
+        sets.push(`${col} = ?`);
+        params.push(newVal);
+        changedFields.push(`${label}: ${origVal ?? ''} → ${nVal ?? ''}`);
+      }
+    };
+
+    pushChange('user_name', user_name, '姓名');
+    pushChange('email', email, '信箱');
+    pushChange('telephone', telephone, '電話');
+    pushChange('address', address, '地址');
+
+    if (typeof wallet !== "undefined" && Number(wallet) !== Number(original.wallet)) {
+      sets.push('wallet = ?');
+      params.push(Number(wallet) || 0);
+      changedFields.push(`代幣: ${original.wallet ?? 0} → ${Number(wallet) || 0}`);
     }
-  };
 
-  add("user_name", user_name);
-  add("email", email);
-  add("telephone", telephone);
-  add("address", address);
-  if (typeof wallet !== "undefined") add("wallet", Number(wallet) || 0);
-  if (typeof point !== "undefined") add("point", Number(point) || 0);
-  if (typeof blacklist !== "undefined") add("blacklist", blacklist ? 1 : 0);
-
-  if (!sets.length) {
-    return res.status(400).json({ message: "no fields to update" });
-  }
-
-  params.push(uid);
-
-  connect.query(
-    `UPDATE user SET ${sets.join(", ")} WHERE uid = ?`,
-    params,
-    (err, result) => {
-      if (err) return res.status(500).json({ error: "DB error", code: err.code });
-      if (result.affectedRows === 0) return res.status(404).json({ message: "user not found" });
-
-      connect.query(
-        `SELECT uid, user_name, telephone, email, address, blacklist, wallet, point, total_carbon_footprint
-         FROM user WHERE uid = ?`,
-        [uid],
-        (e2, rows) => {
-          if (e2) return res.status(500).json({ error: "DB error", code: e2.code });
-          res.json(rows[0]);
-        }
-      );
+    if (typeof point !== "undefined" && Number(point) !== Number(original.point)) {
+      sets.push('point = ?');
+      params.push(Number(point) || 0);
+      changedFields.push(`積分: ${original.point ?? 0} → ${Number(point) || 0}`);
     }
-  );
+
+    // blacklist 舊欄位
+    if (typeof blacklist !== "undefined") {
+      const origBlack = original.blacklist ? 1 : 0;
+      const newBlack = blacklist ? 1 : 0;
+      if (origBlack !== newBlack) {
+        sets.push('blacklist = ?');
+        params.push(newBlack);
+        changedFields.push(`黑名單: ${origBlack} → ${newBlack}`);
+      }
+    }
+
+    // status 新欄位（資料庫原始可能為 null）
+    const origStatus = (typeof original.status !== "undefined" && original.status !== null) ? String(original.status) : (original.blacklist ? "-1" : "0");
+    if (typeof status !== "undefined" && String(status) !== String(origStatus)) {
+      sets.push('status = ?');
+      params.push(String(status));
+      const labelMap = { "-1": "停權", "0": "正常", "1": "自行停權" };
+      changedFields.push(`狀態: ${labelMap[String(origStatus)] || origStatus} → ${labelMap[String(status)] || status}`);
+    }
+
+    if (!sets.length) {
+      console.log('沒有欄位需要更新');
+      return res.status(400).json({ message: "no fields to update" });
+    }
+
+    params.push(uid);
+
+    connect.query(
+      `UPDATE user SET ${sets.join(", ")} WHERE uid = ?`,
+      params,
+      (err, result) => {
+        if (err) return handleDBError(res, err);
+        if (result.affectedRows === 0) return res.status(404).json({ message: "user not found" });
+
+        // 取得更新後的完整資料（包含 status）
+        connect.query(
+          `SELECT uid, user_name, telephone, email, address, status, blacklist, wallet, point, total_carbon_footprint
+           FROM user WHERE uid = ?`,
+          [uid],
+          (e2, rows) => {
+            if (e2) return handleDBError(res, e2);
+            const updatedUser = rows[0];
+
+            // 記錄操作成功日誌 - 包含具體的修改內容
+            if (operator_id && changedFields.length > 0) {
+              const logContent = `UPDATE_USER-${JSON.stringify({
+                user_id: uid,
+                user_name: updatedUser.user_name,
+                changed_fields: changedFields,
+                timestamp: new Date().toISOString(),
+                status: 'success'
+              })}`;
+              
+              console.log('準備記錄操作日誌:', logContent);
+              
+              connect.query(
+                'INSERT INTO employee_log (employee_id, log, employee_log_date) VALUES (?, ?, NOW())',
+                [operator_id, logContent],
+                (logErr, logResult) => {
+                  if (logErr) {
+                    console.error('記錄員工操作日誌失敗:', logErr);
+                  } else {
+                    console.log('員工操作日誌記錄成功, log_id:', logResult.insertId);
+                  }
+                }
+              );
+            } else {
+              console.log('沒有 operator_id 或沒有變更欄位，跳過日誌記錄');
+            }
+
+            res.json(updatedUser);
+          }
+        );
+      }
+    );
+  });
 });
+
 
 // 站點清單
 app.get("/sites", (req, res) => {
@@ -1414,11 +1492,11 @@ app.get("/users", (req, res) => {
   console.log('查詢所有用戶列表...');
 
   connect.query(`
-    SELECT uid as user_id, uid, user_name, telephone, email, address, 
-           CASE 
-             WHEN blacklist = 1 THEN 'blacklist'
-             ELSE 'normal'
-           END as status,
+    SELECT uid as user_id, uid, user_name, telephone, email, address,
+           -- 優先使用資料表的 status 欄位；若沒有就根據 blacklist 回傳 '-1' 或 '0'
+           COALESCE(CAST(status AS CHAR), 
+                    CASE WHEN blacklist = 1 THEN '-1' ELSE '0' END
+           ) as status,
            blacklist, wallet, point, total_carbon_footprint
     FROM user 
     ORDER BY uid ASC
