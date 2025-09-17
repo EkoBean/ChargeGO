@@ -286,7 +286,7 @@ const mber_Register = () => {
       </>
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
-          {/* 返回上頁按鈕 */}
+         
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
               <h2 className={styles["register-title"]}>會員註冊</h2>
