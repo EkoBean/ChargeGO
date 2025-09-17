@@ -52,13 +52,10 @@ function NavbarWebsite(props) {
     // 沒有子選單，正常滾動並關閉選單
     if (!item.submenu) {
       // 在首頁時的處理
-      if (location.pathname === '/' && element && !item.submenu) {
+      if (location.pathname === '/' && element) {
         if (activeSubmenu === index) {
           element.scrollIntoView({ behavior: 'smooth' });
           setActiveSubmenu(null);
-        } else {
-          element.scrollIntoView({ behavior: 'smooth' });
-          setActiveSubmenu(index);
         }
       }
       // 不在首頁時的處理
