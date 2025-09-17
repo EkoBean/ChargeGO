@@ -530,6 +530,56 @@ const ApiService = {
     localStorage.removeItem('loginTime');
   },
 
+  // 新增充電器相關 API
+  async createCharger(payload) {
+    console.log('Creating charger with payload (raw):', payload);
+
+    // 確保狀態值為字串
+    const status = String(payload.status);
+    
+    // 驗證狀態值
+    const validStatuses = ['-1', '0', '1', '2', '3', '4'];
+    if (!validStatuses.includes(status)) {
+      throw new Error(`無效的狀態值: ${payload.status}`);
+    }
+
+    const body = {
+      charger_id: parseInt(payload.charger_id, 10),
+      site_id: payload.site_id,
+      status: status,  // 使用字串形式的狀態值
+      operator_id: payload.operator_id || parseInt(localStorage.getItem('employeeId'), 10)
+    };
+
+    console.log('Creating charger - normalized body (to send):', body);
+
+    try {
+      const result = await this.request('/chargers', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      
+      console.log('Charger created successfully (response):', result);
+      return result;
+      
+    } catch (error) {
+      console.error('Failed to create charger:', error);
+      throw new Error(`建立充電器失敗: ${error.message}`);
+    }
+  },
+
+  async updateCharger(chargerId, payload) {
+    return this.request(`/chargers/${chargerId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteCharger(chargerId) {
+    return this.request(`/chargers/${chargerId}`, {
+      method: 'DELETE',
+    });
+  },
+
 };
 
 // 訂單相關 API 函數
