@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_forgotpwd.module.scss";
-import NavBarApp from "../../components/NavBarApp";
+import NavbarWebsite from "../../components/NavBarWebsite";
 import { apiRoutes } from "../../components/apiRoutes";
 
 
@@ -119,7 +119,7 @@ const mber_ForgotPwd = () => {
       >
         ◀︎
       </span>
-      <NavBarApp />
+      <NavbarWebsite />
       <div className={styles.container}>
         <div className={styles.header}>
           <h2>忘記密碼</h2>

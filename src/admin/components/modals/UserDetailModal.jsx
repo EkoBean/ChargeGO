@@ -38,7 +38,17 @@ const UserDetailModal = ({
     return site ? site.site_name : "-";
   };
 
-  return (
+  const normalizeStatus = (u) => {
+    if (typeof u?.status !== "undefined" && u?.status !== null) return String(u.status);
+    return u?.blacklist ? "-1" : "0";
+  };
+  const statusLabel = (s) => {
+    const map = { "-1": "停權", "0": "正常", "1": "自行停權" };
+    return map[String(s)] || "未知";
+  };
+  const statusClass = (s) => (s === "0" ? "admin-success" : (s === "-1" ? "admin-danger" : "admin-warning"));
+ 
+   return (
     // overlay：點 overlay 可關閉 modal（除非正在 saving）
     <div className="admin-modal-overlay" onClick={() => !saving && onClose()}>
       {/* 內容區：阻止事件冒泡以避免點擊內容區也關閉 modal */}
@@ -139,27 +149,28 @@ const UserDetailModal = ({
               )}
             </div>
 
-            {/* 帳戶資訊區塊（錢包、點數、黑名單、碳足跡） */}
+            {/* 帳戶資訊區塊（代幣數量、點數、黑名單、碳足跡） */}
             <div className="admin-detail-section">
               <h4>帳戶資訊</h4>
 
               {!isEditing ? (
                 <>
-                  <p><strong>錢包餘額:</strong> NT$ {user.wallet}</p>
-                  <p><strong>點數:</strong> {user.point}</p>
+                  <p><strong>代幣數量:</strong>{user.wallet}</p>
+                  <p><strong>積分:</strong> {user.point}</p>
                   <p>
                     <strong>狀態:</strong>
-                    <span className={`admin-badge ${user.blacklist ? "admin-danger" : "admin-success"}`}>
-                      {user.blacklist ? "黑名單" : "正常"}
-                    </span>
+                    {(() => {
+                      const s = normalizeStatus(user);
+                      return <span className={`admin-badge ${statusClass(s)}`}>{statusLabel(s)}</span>;
+                    })()}
                   </p>
                   <p><strong>碳足跡:</strong> {user.total_carbon_footprint}</p>
                 </>
               ) : (
                 <div className="admin-form-grid">
-                  {/* 編輯模式下的錢包/點數/黑名單欄位（可編輯） */}
+                  {/* 編輯模式下的代幣數量/點數/黑名單欄位（可編輯） */}
                   <div className="admin-form-group">
-                    <label>錢包餘額</label>
+                    <label>代幣數量</label>
                     <input
                       type="number"
                       name="wallet"
@@ -181,21 +192,17 @@ const UserDetailModal = ({
                   <div className="admin-form-group">
                     <label>狀態</label>
                     <select
-                      name="blacklist"
-                      value={editUser?.blacklist ? "blacklist" : "normal"}
+                      name="status"
+                      value={String(editUser?.status ?? normalizeStatus(user))}
                       onChange={e => {
-                        // 轉換選擇值為 boolean
-                        onChange({
-                          target: {
-                            name: "blacklist",
-                            value: e.target.value === "blacklist"
-                          }
-                        });
+                        // 傳回類似事件物件給父層 onChange handler
+                        onChange({ target: { name: "status", value: e.target.value } });
                       }}
                       disabled={!isEditing}
                     >
-                      <option value="normal">正常</option>
-                      <option value="blacklist">黑名單</option>
+                      <option value="0">正常</option>
+                      <option value="-1">停權</option>
+                      <option value="1">自行停權</option>
                     </select>
                   </div>
                   <div className="admin-form-group">
