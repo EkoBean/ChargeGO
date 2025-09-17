@@ -163,7 +163,7 @@ const WebSite = () => {
   useEffect(() => {
     const targetId = location.state?.scrollToId;
     if (targetId && showServiceIntro) {
-      console.log('targetId :>> ', targetId);
+      console.log('targetId :>> ', targetId); 
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -172,6 +172,13 @@ const WebSite = () => {
     }
 
   }, [location.state, showServiceIntro, navigate]);
+
+  // debug =======
+useEffect(()=>{
+console.log('showServiceIntro :>> ', showServiceIntro);
+console.log('location.state :>> ', location.state);
+}, [showServiceIntro, location.state])
+  // ==============
 
   return (
     <>
