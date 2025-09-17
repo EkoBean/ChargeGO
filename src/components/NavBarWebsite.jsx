@@ -10,6 +10,8 @@ import ChargegoLogo from "./ChargegoLogo";
 
 
 function NavbarWebsite(props) {
+  const { showServiceIntro, className } = props; // 從 props 解構出來
+
   // hooks
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,7 +37,7 @@ function NavbarWebsite(props) {
       submenu: [
         { name: "會員登入", url: 'mber_login' },
         { name: "會員註冊", url: 'mber_register' },
-        { name: "會員資料", url: 'mber_info' },],
+        { name: "會員資料", url: 'mber_profile' },],
     },
     {
       title: "租借系統",
@@ -46,37 +48,38 @@ function NavbarWebsite(props) {
   const navHandler = (item, index) => {
     console.log('item :>> ', item);
     const element = document.getElementById(item.targetId);
-    // 在首頁時的處理
-    if (location.pathname === '/' && element) {
-      if (item.submenu) {
-        // 如果有子選單，點擊主選單只打開/關閉子選單
-        element.scrollIntoView({ behavior: 'smooth' });
-        setMobileMenuOpen(false);
-        setActiveSubmenu(false);
-      } else {
-        // 沒有子選單，正常滾動並關閉選單
+    const targetId = item.targetId;
+    // 沒有子選單，正常滾動並關閉選單
+    if (!item.submenu) {
+      // 在首頁時的處理
+      if (location.pathname === '/' && element && !item.submenu) {
         if (activeSubmenu === index) {
+          element.scrollIntoView({ behavior: 'smooth' });
           setActiveSubmenu(null);
         } else {
+          element.scrollIntoView({ behavior: 'smooth' });
           setActiveSubmenu(index);
         }
       }
-    }
-    // 不在首頁時的處理
-    else if (location.pathname !== '/') {
-      navigate('/');
-      // 等待首頁渲染完成後再滾動
-      setTimeout(() => {
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-      setMobileMenuOpen(false);
-      setActiveSubmenu(null);
+      // 不在首頁時的處理
+      else if (location.pathname !== '/') {
+        navigate('/', { state: { scrollToId: targetId } });
+        closeMobileMenu();
+      }
+      // 如果有子選單，點擊主選單只打開/關閉子選單
+      else if (item.submenu) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setMobileMenuOpen(false);
+        setActiveSubmenu(false);
+
+      }
     }
 
   }
-
+  const handleSubmunu = (subitem, subIdx) => {
+    navigate(`/mber_login`, { state: { url: subitem.url } });
+    closeMobileMenu();
+  }
 
   const handleHover = (e) => {
     // console.log("handleHover called!", e.target); // 確認函數被調用
@@ -174,7 +177,7 @@ function NavbarWebsite(props) {
       </svg>
 
       {/* navbar */}
-      <header className={`${styles["my-navbar"]} ${props.className || ""}`}>
+      <header className={`${styles["my-navbar"]} ${className || ""}`}>
         <div className={styles["left-placeholder"]}>
           <div className={styles.home}>
             <ChargegoLogo className={styles["chargego-logo"]} />
@@ -275,9 +278,7 @@ function NavbarWebsite(props) {
                           }
                         }}
                         onClick={() => {
-                          // console.log(`點擊了: ${subitem.name} - ${subitem}`);
-                          window.location.href = `/${subitem.url}`;
-                          closeMobileMenu();
+                          handleSubmunu(subitem, subIdx);
                         }}
                       >
                         {subitem.name}
