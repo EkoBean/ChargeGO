@@ -5,7 +5,7 @@ import crypto from "crypto-js";
 import styles from "../../styles/scss/mber_login.module.scss";
 import NavbarWebsite from "../../components/NavBarWebsite";
 import { apiRoutes } from "../../components/apiRoutes";
-import BackIcon from "../../components/backIcon";
+
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -114,8 +114,7 @@ const mber_Login = () => {
       <img className={styles.lightning} src="../../../public/lightning.png" />
       <div className={styles["login-container"]}>
         <div className={styles["login-form-section"]}>
-          {/* 返回按鈕移到最上方 */}
-          <BackIcon className={"d-sm-none"} />
+        
 
           {/* header區塊：arc+logo+標題 */}
           <div className={styles["mobile-arc-bg"]}>

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import styles from "../../styles/scss/mber_register.module.scss";
 import crypto from "crypto-js";
 import { apiRoutes } from "../../components/apiRoutes";
-import BackIcon from "../../components/backIcon";
 import NavbarWebsite from "../../components/NavBarWebsite";
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -287,8 +286,7 @@ const mber_Register = () => {
       </>
       <div className={styles["register-container"]}>
         <div className={styles["register-form-section"]}>
-          {/* 返回上頁按鈕 */}
-          <BackIcon className={"d-sm-none"} />
+         
           <div className={styles["mobile-arc-bg"]}>
             <div className={styles["mobile-arc-content"]}>
               <h2 className={styles["register-title"]}>會員註冊</h2>

@@ -112,13 +112,6 @@ const mber_ForgotPwd = () => {
 
   return (
     <div className={styles.mber_ForgotPwd}>
-      <span
-        className={styles["back-icon"] + " " + styles["mobile-only-back"]}
-        onClick={() => window.history.back()}
-        title="回到上頁"
-      >
-        ◀︎
-      </span>
       <NavbarWebsite />
       <div className={styles.container}>
         <div className={styles.header}>
