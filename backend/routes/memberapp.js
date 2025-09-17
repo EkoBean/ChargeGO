@@ -196,7 +196,7 @@ app.post('/check-auth', (req, res) => {
 });
 
 // 會員停權 API
-app.post('/api/user/deactivate', (req, res) => {
+app.post('/user/deactivate', (req, res) => {
     const { user_id, status } = req.body;
     if (!user_id || typeof status === 'undefined') {
         return res.status(400).json({ success: false, message: '缺少 user_id 或 status' });
