@@ -89,7 +89,19 @@ const SiteManagement = () => {
   const checker = {
     isDemical8: (n) => {
       const str = String(n);
-      return str.includes('.') && str.split('.')[1].length === 8;
+      
+      // 如果是整數，直接返回 true（不需要 8 位小數）
+      if (!str.includes('.')) {
+        return true;
+      }
+      
+      // 如果是小數，檢查小數位數
+      if (str.includes('.')) {
+        const decimalPart = str.split('.')[1];
+        return decimalPart && decimalPart.length <= 8; // 改為小於等於 8 位小數
+      }
+      
+      return true;
     },
     isValidLng: (n) => {
       const v = parseFloat(n);
@@ -343,10 +355,12 @@ const SiteManagement = () => {
       }
 
       if (!checker.isValidLng(longitude) || !checker.isValidLat(latitude)) {
-        throw new Error("經度/緯度為必填，且必須為數字（經度 -180~180；緯度 -90~90）");
+        throw new Error("經度/緯度為必填，且必須為數字（經度 119.5~122.5；緯度 21.5~25.5）");
       }
+      
+      // 修改為檢查小數位數不超過 8 位
       if (!checker.isDemical8(longitude) || !checker.isDemical8(latitude)) {
-        throw new Error("經度/緯度小數位數必須為 8 位");
+        throw new Error("經度/緯度小數位數不能超過 8 位");
       }
 
       const payload = {
@@ -355,7 +369,7 @@ const SiteManagement = () => {
         longitude,
         latitude,
         country,
-        operator_id: parseInt(localStorage.getItem('employeeId'), 10)  // 添加操作者ID
+        operator_id: parseInt(localStorage.getItem('employeeId'), 10)
       };
 
       if (creatingSite || !editSite.site_id) {
