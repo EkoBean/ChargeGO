@@ -206,7 +206,6 @@ const OrderManagement = () => {
         order_status: status,
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
-        total_amount: editOrder.total_amount || 0,
         operator_id: employeeId  // 添加操作者ID
       };
       
@@ -251,7 +250,6 @@ const OrderManagement = () => {
       end: order.end || "",
       comment: order.comment || "",
       user_name: order.user_name || "",
-      total_amount: order.total_amount || 0,
     };
     
     console.log('查看訂單詳情:', mapped);
@@ -408,7 +406,6 @@ const OrderManagement = () => {
         order_status: status,
         charger_id: Number(editOrder.charger_id),
         comment: editOrder.comment || '',
-        total_amount: editOrder.total_amount || 0,
         operator_id: employeeId  // 確保操作者ID被傳送
       };
       
@@ -482,7 +479,6 @@ const OrderManagement = () => {
       order_status: "0", // 預設為進行中
       charger_id: "",
       comment: "",
-      total_amount: 0,
     });
     
     setOrderSiteChargers([]);
@@ -598,7 +594,6 @@ const OrderManagement = () => {
                   <th>充電器</th>
                   <th>開始時間</th>
                   <th>結束時間</th>
-                  <th>總金額</th> 
                   <th>狀態</th>
                   <th>備註</th>
                   <th>操作</th>
@@ -623,7 +618,6 @@ const OrderManagement = () => {
                       <td>{order.charger_id}</td>
                       <td>{order.start_date ? new Date(order.start_date).toLocaleString() : "-"}</td>
                       <td>{order.end ? new Date(order.end).toLocaleString() : "-"}</td>
-                      <td>NT$ {order.total_amount || 0}</td>
                       <td>{getStatusBadge(normalizeOrderStatus(order))}</td>
                       <td>{order.comment ?? "-"}</td>
                       <td>
@@ -640,7 +634,7 @@ const OrderManagement = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="12" className="text-center py-4">
+                    <td colSpan="11" className="text-center py-4">
                       查無訂單資料
                     </td>
                   </tr>

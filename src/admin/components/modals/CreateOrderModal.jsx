@@ -241,24 +241,6 @@ const CreateOrderModal = ({
                   <option value="2">其他狀態</option> {/* 修改為唯一值 */}
                 </select>
               </div>
-
-              {/* 訂單金額 */}
-              <div className="admin-form-group">
-                <label>總金額</label>
-                <input
-                  type="number"
-                  name="total_amount"
-                  value={editOrder?.total_amount || 0}
-                  onChange={onChange}
-                  placeholder="0"
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: 8,
-                    border: '1px solid #e3e8ee',
-                    minHeight: 38
-                  }}
-                />
-              </div>
             </Col>
 
             <Col md={6}>
