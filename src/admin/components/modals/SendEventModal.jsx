@@ -8,8 +8,8 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   
-  // 篩選和選擇狀態
-  const [statusFilter, setStatusFilter] = useState('normal'); // normal | blacklist | all
+  // 篩選和選擇狀態 
+  const [statusFilter, setStatusFilter] = useState('normal'); // normal | all
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
 
@@ -39,11 +39,13 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
     }
   };
 
-  // 根據狀態篩選用戶
+  // 根據狀態篩選用戶 - 修正篩選邏輯
   const filteredUsers = users.filter(user => {
     if (statusFilter === 'all') return true;
-    if (statusFilter === 'normal') return user.status === 'normal';
-    if (statusFilter === 'blacklist') return user.status === 'blacklist';
+    if (statusFilter === 'normal') {
+      // 只顯示狀態為 0 的正常用戶
+      return user.status === '0' || user.status === 0;
+    }
     return true;
   });
 
@@ -157,6 +159,28 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
     }
   };
 
+  // 獲取狀態顯示文字
+  const getStatusText = (status) => {
+    const statusValue = String(status);
+    switch (statusValue) {
+      case '0': return '正常';
+      case '-1': return '停權';
+      case '1': return '自行停權';
+      default: return '未知';
+    }
+  };
+
+  // 獲取狀態顏色
+  const getStatusColor = (status) => {
+    const statusValue = String(status);
+    switch (statusValue) {
+      case '0': return '#28a745'; // 綠色
+      case '-1': return '#dc3545'; // 紅色
+      case '1': return '#ffc107'; // 黃色
+      default: return '#6c757d'; // 灰色
+    }
+  };
+
   return (
     <div className="admin-modal-overlay" onClick={() => !sending && onClose()}>
       <div className="admin-modal-content" onClick={e => e.stopPropagation()}>
@@ -196,7 +220,6 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
                   }}
                 >
                   <option value="normal">正常用戶</option>
-                  <option value="blacklist">黑名單用戶</option>
                   <option value="all">所有用戶</option>
                 </select>
               </div>
@@ -273,8 +296,8 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
                           </div>
                           <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
                             ID: {user.user_id || user.uid} | 
-                            狀態: <span style={{ color: user.status === 'blacklist' ? '#dc3545' : '#28a745' }}>
-                              {user.status === 'blacklist' ? '黑名單' : '正常'}
+                            狀態: <span style={{ color: getStatusColor(user.status) }}>
+                              {getStatusText(user.status)} ({user.status})
                             </span>
                           </div>
                         </label>
@@ -300,7 +323,7 @@ const SendEventModal = ({ event, onClose, onSuccess }) => {
               onClick={handleSendAll}
               disabled={sending || loading || filteredUsers.length === 0}
             >
-              {sending ? '發送中...' : `發送給所有${statusFilter === 'normal' ? '正常' : statusFilter === 'blacklist' ? '黑名單' : ''}用戶`}
+              {sending ? '發送中...' : `發送給所有${statusFilter === 'normal' ? '正常' : ''}用戶`}
             </button>
             <button 
               className="btn admin-btn admin-primary"
