@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ApiService from '../../services/api';
 
 //建立活動表單
@@ -12,6 +12,21 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [sites, setSites] = useState([]); // 新增：存儲站點列表
+
+  // 新增：組件加載時獲取站點列表
+  useEffect(() => {
+    const fetchSites = async () => {
+      try {
+        const sitesData = await ApiService.getSites();
+        setSites(sitesData);
+      } catch (err) {
+        console.error('獲取站點列表失敗:', err);
+        // 可以選擇顯示錯誤訊息或使用預設值
+      }
+    };
+    fetchSites();
+  }, []);
 
   // 處理表單變更
   const handleChange = e => {
@@ -149,15 +164,13 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                     />
                   </div>
                   
-                  {/* 站點編號 */}
+                  {/* 站點選擇 - 下拉選單 */}
                   <div className="admin-form-group">
-                    <label>站點編號</label>
-                    <input 
+                    <label>站點</label>
+                    <select 
                       name="site_id" 
                       value={newEvent.site_id} 
                       onChange={handleChange} 
-                      placeholder="留空代表全部站點"
-                      type="number"
                       style={{
                         padding: '10px 14px',
                         borderRadius: 8,
@@ -168,9 +181,16 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                         fontSize: '15px',
                         color: '#34495e'
                       }}
-                    />
+                    >
+                      <option value="">全部站點</option>
+                      {sites.map(site => (
+                        <option key={site.site_id} value={site.site_id}>
+                          {site.site_name}
+                        </option>
+                      ))}
+                    </select>
                     <small className="admin-input-hint">
-                      留空將套用至全部站點
+                      選擇「全部站點」將套用至所有站點
                     </small>
                   </div>
                 </div>
