@@ -14,6 +14,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
   const [saving, setSaving] = useState(false);
   const [sites, setSites] = useState([]); // 新增：存儲站點列表
 
+
   // 新增：組件加載時獲取站點列表
   useEffect(() => {
     const fetchSites = async () => {
@@ -185,7 +186,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                       <option value="">全部站點</option>
                       {sites.map(site => (
                         <option key={site.site_id} value={site.site_id}>
-                          {site.site_name}
+                          {`${site.site_id} ${site.site_name} \n\n (${site.country}${site.address})`}
                         </option>
                       ))}
                     </select>
