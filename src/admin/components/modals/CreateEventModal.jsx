@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ApiService from '../../services/api';
 
 //建立活動表單
@@ -12,6 +12,25 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [sites, setSites] = useState('');
+
+  // debug ===============
+  useEffect(() => {
+    console.log('sites :>> ', sites);
+  }, [sites])
+
+  // 載入站點清單
+  const getSites = async () =>{
+    try{
+      const sites = await ApiService.getSites()
+      setSites(sites); 
+    }catch(err){
+      console.error('載入站點清單失敗:', err);
+    }
+  }
+  useEffect(() => {getSites()}, [])
+ 
+
 
   // 處理表單變更
   const handleChange = e => {
@@ -24,7 +43,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
     e.preventDefault();
     setError('');
     setSaving(true);
-    
+
     try {
       const employeeId = localStorage.getItem('employeeId');
       console.log('當前操作員工ID:', employeeId);
@@ -32,7 +51,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
       // 驗證日期
       const startDate = new Date(newEvent.event_start_date);
       const endDate = new Date(newEvent.event_end_date);
-      
+
       if (endDate < startDate) {
         throw new Error('結束時間不能早於開始時間');
       }
@@ -44,10 +63,10 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
       };
 
       console.log('準備提交活動資料:', eventData);
-      
+
       const result = await ApiService.createEvent(eventData);
       console.log('活動建立結果:', result);
-      
+
       if (result.success) {
         onSuccess?.(`活動 "${newEvent.event_title}" 已成功建立！`);
         onClose();
@@ -68,14 +87,14 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
         <div className="admin-modal-header">
           <h3>建立活動</h3>
           <div>
-            <button 
-              className="btn admin-btn admin-small" 
+            <button
+              className="btn admin-btn admin-small"
               onClick={() => !saving && onClose()}
               disabled={saving}
             >
               取消
             </button>
-            <button 
+            <button
               type="submit"
               form="create-event-form"
               className="btn admin-btn admin-small admin-primary"
@@ -83,8 +102,8 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
             >
               {saving ? "建立中..." : "建立活動"}
             </button>
-            <button 
-              className="admin-close-btn" 
+            <button
+              className="admin-close-btn"
               onClick={() => !saving && onClose()}
               disabled={saving}
             >
@@ -92,24 +111,24 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
             </button>
           </div>
         </div>
-        
+
         <div className="admin-modal-body">
           <div className="admin-order-details">
             <form id="create-event-form" onSubmit={handleSubmit}>
               <div className="admin-detail-section">
                 <h4>活動資訊</h4>
-                <div className="admin-form-grid" style={{ 
-                  display: 'grid', 
+                <div className="admin-form-grid" style={{
+                  display: 'grid',
                   gridTemplateColumns: '1fr',
-                  gap: '20px' 
+                  gap: '20px'
                 }}>
                   {/* 活動標題 */}
                   <div className="admin-form-group">
                     <label>活動標題 <span className="admin-required">*</span></label>
-                    <input 
-                      name="event_title" 
-                      value={newEvent.event_title} 
-                      onChange={handleChange} 
+                    <input
+                      name="event_title"
+                      value={newEvent.event_title}
+                      onChange={handleChange}
                       required
                       placeholder="請輸入活動標題"
                       style={{
@@ -124,14 +143,14 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                       }}
                     />
                   </div>
-                  
+
                   {/* 活動內容 */}
                   <div className="admin-form-group">
                     <label>活動內容 <span className="admin-required">*</span></label>
-                    <textarea 
-                      name="event_content" 
-                      value={newEvent.event_content} 
-                      onChange={handleChange} 
+                    <textarea
+                      name="event_content"
+                      value={newEvent.event_content}
+                      onChange={handleChange}
                       required
                       placeholder="請輸入活動詳細內容"
                       rows={4}
@@ -148,11 +167,16 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                       }}
                     />
                   </div>
-                  
+
                   {/* 站點編號 */}
                   <div className="admin-form-group">
                     <label>站點編號</label>
-                    <input 
+                    <option value="" name='site_id'>
+                      <optgroup>
+                        <option value=""></option>
+                      </optgroup>
+                    </option>
+                    {/* <input 
                       name="site_id" 
                       value={newEvent.site_id} 
                       onChange={handleChange} 
@@ -168,7 +192,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                         fontSize: '15px',
                         color: '#34495e'
                       }}
-                    />
+                    /> */}
                     <small className="admin-input-hint">
                       留空將套用至全部站點
                     </small>
@@ -178,19 +202,19 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
 
               <div className="admin-detail-section">
                 <h4>時間設定</h4>
-                <div className="admin-form-grid" style={{ 
-                  display: 'grid', 
+                <div className="admin-form-grid" style={{
+                  display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
-                  gap: '20px' 
+                  gap: '20px'
                 }}>
                   {/* 開始時間 */}
                   <div className="admin-form-group">
                     <label>開始時間 <span className="admin-required">*</span></label>
-                    <input 
-                      name="event_start_date" 
+                    <input
+                      name="event_start_date"
                       type="date"
-                      value={newEvent.event_start_date} 
-                      onChange={handleChange} 
+                      value={newEvent.event_start_date}
+                      onChange={handleChange}
                       required
                       style={{
                         padding: '10px 14px',
@@ -204,15 +228,15 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                       }}
                     />
                   </div>
-                  
+
                   {/* 結束時間 */}
                   <div className="admin-form-group">
                     <label>結束時間 <span className="admin-required">*</span></label>
-                    <input 
-                      name="event_end_date" 
+                    <input
+                      name="event_end_date"
                       type="date"
-                      value={newEvent.event_end_date} 
-                      onChange={handleChange} 
+                      value={newEvent.event_end_date}
+                      onChange={handleChange}
                       required
                       style={{
                         padding: '10px 14px',
@@ -227,7 +251,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                     />
                   </div>
                 </div>
-                
+
                 <small className="admin-input-hint">
                   請確保結束時間晚於開始時間
                 </small>

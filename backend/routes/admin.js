@@ -244,7 +244,7 @@ app.put("/user/:uid", (req, res) => {
 // 站點清單
 app.get("/sites", (req, res) => {
   connect.query(`
-    SELECT site_id, site_name, country,address, longitude, latitude
+    SELECT site_id, site_name, country, address, longitude, latitude
     FROM charger_site ORDER BY site_id ASC
   `, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "DB error", code: err.code });

@@ -155,7 +155,7 @@ const UserDetailModal = ({
 
               {!isEditing ? (
                 <>
-                  <p><strong>代幣數量:</strong>{user.wallet}</p>
+                  {/* <p><strong>代幣數量:</strong>{user.wallet}</p> */}
                   <p><strong>積分:</strong> {user.point}</p>
                   <p>
                     <strong>狀態:</strong>
@@ -169,7 +169,7 @@ const UserDetailModal = ({
               ) : (
                 <div className="admin-form-grid">
                   {/* 編輯模式下的代幣數量/點數/黑名單欄位（可編輯） */}
-                  <div className="admin-form-group">
+                  {/* <div className="admin-form-group">
                     <label>代幣數量</label>
                     <input
                       type="number"
@@ -178,7 +178,7 @@ const UserDetailModal = ({
                       value={editUser?.wallet ?? 0}
                       onChange={onChange}
                     />
-                  </div>
+                  </div> */}
                   <div className="admin-form-group">
                     <label>點數</label>
                     <input
@@ -187,6 +187,7 @@ const UserDetailModal = ({
                       step="1"
                       value={editUser?.point ?? 0}
                       onChange={onChange}
+                      disabled
                     />
                   </div>
                   <div className="admin-form-group">
