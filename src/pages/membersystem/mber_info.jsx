@@ -75,8 +75,10 @@ const mber_Info = () => {
               <div className={styles.mber_info_info} key={notice.notice_id}>
                 <h4>{notice.notice_title}</h4>
                 <p>{notice.notice_content}</p>
+                <div className={styles.noticeFooter}>
                 <span>{notice.notice_date}</span>
-                <button className={styles.more_btn}>查看更多</button>
+                <button className={'btn btn-primary'}>查看更多</button>
+                </div>
                 <hr />
               </div>
             ))
