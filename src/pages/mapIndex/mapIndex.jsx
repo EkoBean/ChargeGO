@@ -31,7 +31,7 @@ import Notify from "../../components/notify";
 
 
 // ================= Constants ============================
-const mapId = "7ade7c4e6e2cc1087f2619a5";
+const mapId = import.meta.env.VITE_MAP_ID;
 let defaultCenter = { lat: 24.14815277439618, lng: 120.67403583217342 };
 
 // Warning time threshold in minutes (e.g., 4320 minutes = 3 days)
@@ -1121,7 +1121,7 @@ function MapIndex() {
           disableDefaultUI={true}
           draggingCursor={"default"}
           draggableCursor={"default"}
-          mapId={mapId}
+          mapId={mapId || 'default-map-id'}
         >
           <HudSet />
           <MarkerWithInfoWindow />
