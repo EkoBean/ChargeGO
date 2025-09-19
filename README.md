@@ -2,9 +2,9 @@
 
 ## 專案概述 (Project Overview)
 
-ChargeGO 是一個整合前後台的行動電源租借系統，旨在提供便利的電力支援服務。系統包含形象網站、租借平台及管理後台，支援手機與電腦端操作。
+ChargeGO 是一個整合前後台的行動電源租借系統。系統包含形象網站、租借平台及管理後台，支援手機與電腦端操作。
 
-ChargeGO is an integrated mobile power bank rental system designed to provide convenient power support services. The system includes an image website, rental platform, and admin backend, supporting both mobile and desktop operations.
+ChargeGO is an integrated mobile power bank rental system. The system includes an image website, rental platform, and admin backend, supporting both mobile and desktop operations.
 
 ## 頁面架構 (Page Architecture)
 
@@ -44,3 +44,5 @@ ChargeGO is an integrated mobile power bank rental system designed to provide co
 - 後端: Node.js, Express
 - 資料庫: MySQL
 - 地圖: Google Maps API
+
+
