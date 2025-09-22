@@ -192,3 +192,86 @@ figure.notify {
     height: 20px;
   }
 }
+
+// google map infowindow styles
+.gm-style-iw {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  padding-top: 0.5rem !important;
+
+  // header
+  .gm-style-iw-chr {
+
+    button.gm-ui-hover-effect {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: end !important;
+
+      span {
+        margin: 0 !important;
+        ;
+      }
+    }
+
+    .gm-style-iw-ch {
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      h4 {
+        margin: 0;
+        text-align: start;
+        font-size: 1.3rem !important;
+        font-weight: bold;
+        overflow: default;
+      }
+    }
+  }
+
+  .gm-style-iw-d {
+    overflow: hidden !important;
+
+    .content-box {
+      width: 100%;
+
+
+      img {
+        width: 100%;
+        height: 7rem;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+      }
+
+      .adress {
+        font-size: 1rem;
+        color: #555;
+      }
+
+      .bat-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: 1rem;
+
+        i {
+          display: inline-block;
+          vertical-align: middle;
+          text-align: center;
+          font-size: 1.2rem;
+          margin-right: 0.3rem;
+        }
+
+        p:nth-child(1) i {
+          color: $success;
+        }
+
+        p:nth-child(2) i {
+          color: $primary;
+        }
+
+      }
+    }
+  }
+}

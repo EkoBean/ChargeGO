@@ -188,7 +188,7 @@ app.patch('/return', async (req, res) => {
         // console.log(`租借時間: ${period} 分鐘, 共 ${periodSession} 個半小時時段, 費用: ${rentalFee} 元`);
 
         // ============= calculate discount ==============
-        if (readyToUseCoupon) {
+        if (readyToUseCoupon.id) {
             const rentalDiscountList = ['percent_off', 'rental_discount', 'free_minutes'];
             const couponValue = readyToUseCoupon.value;
             switch (readyToUseCoupon.type) {
@@ -220,7 +220,7 @@ app.patch('/return', async (req, res) => {
         const deviceBack = await connection.queryAsync(mapQuery.returnCharger, [batteryStatus, returnSite, deviceId]);
         if (!deviceBack || deviceBack.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Returning query error.' });
         // change coupon status
-        if(readyToUseCoupon){
+        if(readyToUseCoupon.id){
             const couponDeactive = await connection.queryAsync(mapQuery.deactivateCoupon, [readyToUseCoupon.id]);
             if(couponDeactive.affectedRows === 0) return res.status(404).json({ success: false, message: '歸還失敗，請稍後再試。', details: 'Coupon deactivate query error.' });
         }

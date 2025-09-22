@@ -4,7 +4,7 @@
 const selectAllStations = `SELECT * from charger_site`;
 // lookup info window data
 const selectInfoWindow = `
-SELECT cs.site_id, cs.site_name, cs.address, c.charger_id, c.status
+SELECT cs.site_id, cs.site_name,cs.img_url , cs.address, c.charger_id, c.status
 from charger_site as cs
 LEFT JOIN charger as c ON c.site_id = cs.site_id
 WHERE cs.site_id = ?`;

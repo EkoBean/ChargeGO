@@ -488,8 +488,8 @@ function MapIndex() {
                     {batteryLevel == 100
                       ? "滿電量"
                       : isCharging
-                      ? "充電中"
-                      : " "}
+                        ? "充電中"
+                        : " "}
                   </text>
                 </svg>
               </div>
@@ -498,8 +498,8 @@ function MapIndex() {
                 {batteryLevel == 100
                   ? ""
                   : isCharging
-                  ? `充電完成尚餘${chargingTimeText}`
-                  : `目前電量尚餘${dischargingTimeText}`}
+                    ? `充電完成尚餘${chargingTimeText}`
+                    : `目前電量尚餘${dischargingTimeText}`}
               </div>
             </div>
           );
@@ -542,16 +542,38 @@ function MapIndex() {
         ];
         function handleLocate() {
           if (!locationRef.current) return null;
-          const pos = locationRef.current;
-          if (!pos) {
-            // 沒有位置時可提示或觸發一次 getCurrentPosition
+
+          function success(pos) {
+            const crd = pos.coords;
+            const latLng = { lat: crd.latitude, lng: crd.longitude }; 
+            locationSetterRef.current(latLng);  
+            map.panTo(latLng);
+            map.setZoom(17);
+            markerBus.clear();
+          }
+          function error(err) {
+            console.warn(`err（${err.code}）：${err.message}`);
             alert("尚未取得定位，請稍候或允許定位權限");
             return;
           }
-          if (map && typeof map.panTo === "function") {
-            map.panTo(pos);
-            map.setZoom(17);
-          }
+          const options = {
+            enableHighAccuracy: true,
+            timeout: 1000,
+            maximumAge: 60000,
+          };
+          navigator.geolocation.getCurrentPosition(success, error, options);
+
+          // if (!pos) {
+          //   // 沒有位置時可提示或觸發一次 getCurrentPosition
+          //   alert("尚未取得定位，請稍候或允許定位權限");
+          //   return;
+          // }
+          // if (map && typeof map.panTo === "function") {
+          //   map.panTo(pos);
+          //   map.setZoom(17);
+          //   markerBus.clear();
+
+          // }
         }
         function handleLink(url) {
           window.location.href = url;
@@ -783,6 +805,10 @@ function MapIndex() {
                 // rest states
                 setRentMessage("歸還成功，感謝使用");
                 setReadyToUseCoupon(null);
+                setReturnWarning(false);
+                setOvertimeConfirm(false);
+                setOvertimeFee(null);
+
               } else if (res.data.success === false) {
                 // ======== Overtime return handling =========
                 if (res.data.overtime || returnWarning) {
@@ -986,11 +1012,53 @@ function MapIndex() {
       return (
         <>
           <SearchBar />
+          {/* Current Location Marker */}
+          <CurrentLocationMarker />
           <HudButton />
         </>
       );
     };
+    // =================location fetch =================
 
+    function CurrentLocationMarker() {
+      const [pos, setPos] = React.useState(null);
+
+      useEffect(() => {
+        locationSetterRef.current = setPos;
+        if (locationSetterRef.current) setPos(locationRef.current);
+        return () => {
+          locationSetterRef.current = null;
+        };
+      }, []);
+      useEffect(() => {
+        if (!navigator.geolocation) {
+          console.log("Geolocation is not supported by this browser.");
+          alert("Geolocation is not supported by this browser.");
+          return;
+        }
+        function success(position) {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          locationRef.current = pos; // 可選：同步 ref
+        }
+        function error() {
+          console.error("Unable to retrieve your location");
+          // Fallback to default center if geolocation fails
+        }
+        const pos = navigator.geolocation.watchPosition(success, error);
+      });
+      if (!pos) return null;
+
+      return (
+        <>
+          <AdvancedMarker position={pos} >
+            <img src="current location icon.svg" width={'50px'} ></img>
+          </AdvancedMarker>
+        </>
+      );
+    }
     // ================= Marker with InfoWindow =================
     const MarkerWithInfoWindow = () => {
       return (
@@ -1012,45 +1080,7 @@ function MapIndex() {
       const [markerRef, marker] = useAdvancedMarkerRef();
       const [activeMarkerId, setActiveMarkerId] = React.useState(null);
 
-      // =================location fetch =================
 
-      function CurrentLocationMarker() {
-        const [pos, setPos] = React.useState(null);
-
-        useEffect(() => {
-          locationSetterRef.current = setPos;
-          if (locationSetterRef.current) setPos(locationRef.current);
-          return () => {
-            locationSetterRef.current = null;
-          };
-        }, []);
-        useEffect(() => {
-          if (!navigator.geolocation) {
-            console.log("Geolocation is not supported by this browser.");
-            alert("Geolocation is not supported by this browser.");
-            return;
-          }
-          function success(position) {
-            const pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-            locationRef.current = pos; // 可選：同步 ref
-          }
-          function error() {
-            console.error("Unable to retrieve your location");
-            // Fallback to default center if geolocation fails
-          }
-          const pos = navigator.geolocation.watchPosition(success, error);
-        });
-        if (!pos) return null;
-
-        return (
-          <>
-            <AdvancedMarker position={pos} />
-          </>
-        );
-      }
 
       // =============== Info Window =================
       function InfoWin() {
@@ -1080,13 +1110,16 @@ function MapIndex() {
           ).length;
           const charging = info.filter((x) => x.status === "4").length;
           return (
-            <InfoWindow anchor={marker}>
-              <div>
-                <h4 className={`${styles.siteName}`}>{info[0].site_name}</h4>
-                <p className={`${styles.address}`}>{info[0].address}</p>
-                <div className={`${styles.batStatus}`}>
-                  <p>可租借 {rentable}</p>
-                  <p>充電中 {charging}</p>
+            <InfoWindow anchor={marker}
+              headerContent={<h4 className='site-name'>{info[0].site_name}</h4>}
+            >
+              <div className='content-box'>
+                {/* <h4 className='site-name'>{info[0].site_name}</h4> */}
+                <img src={info[0].img_url || 'station_images/Sample_station_default.png'} className='map-image' />
+                <p className='address'>{info[0].address}</p>
+                <div className='bat-status'>
+                  <p> <i class="bi bi-battery-full"></i>可租借 {rentable}</p>
+                  <p> <i class="bi bi-battery-charging"></i>充電中 {charging}</p>
                 </div>
               </div>
             </InfoWindow>
@@ -1120,8 +1153,7 @@ function MapIndex() {
 
       return (
         <>
-          {/* Current Location Marker */}
-          <CurrentLocationMarker />
+
 
           {/* Stations Marker */}
           <AdvancedMarker
@@ -1150,7 +1182,7 @@ function MapIndex() {
       const closeWindow = map.addListener(
         "click",
         () => (
-          markerBus.clear(), listBus.set(false), rentWindowRef.current(false)
+          markerBus.clear(), listBus.set(false), rentWindowRef.current(false), locationSetterRef.current(null)
         )
       );
       return () => closeWindow.remove();
