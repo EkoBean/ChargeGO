@@ -379,6 +379,8 @@ function MapIndex() {
         const [availableCoupons, setAvailableCoupons] = React.useState(null);
         const [readyToUseCoupon, setReadyToUseCoupon] = React.useState(null);
 
+
+
         // host device battery
         const [battery, setBattery] = React.useState(null);
         const [batteryLevel, setBatteryLevel] = React.useState(null);
@@ -386,6 +388,12 @@ function MapIndex() {
         const [chargingTimeText, setChargingTimeText] = React.useState("");
         const [dischargingTimeText, setDischargingTimeText] =
           React.useState("");
+
+        // debug ====================
+        useEffect(()=>{
+          console.log('dischargingTimeText', dischargingTimeText);
+        },[dischargingTimeText])
+        // debug ====================
         // ========== get hosting device battery =================
         function ChargingStatus() {
           // ===== bat parameters style =====
@@ -408,20 +416,26 @@ function MapIndex() {
 
                 // ===== charging time =========
                 const chargingTime = battery.chargingTime;
-                const chargingMin = Math.floor(chargingTime / 60);
-                const chargingHour = Math.floor(chargingMin / 60);
-                const chargingTimeText = `${chargingHour}小時${chargingMin}分鐘`;
-                setChargingTimeText(chargingTimeText);
+                if (chargingTime === Infinity) {
+                  setChargingTimeText(" 未知");
+                }else{
+                  const chargingMin = Math.floor(chargingTime % 60);
+                  const chargingHour = Math.floor(chargingMin / 3600);
+                  const chargingTimeText = `${chargingHour}小時${chargingMin}分鐘`;
+                  setChargingTimeText(chargingTimeText);
+                }
 
                 // ===== discharging time =========
-                const dischargingTime =
-                  battery.dischargingTime === Infinity
-                    ? ""
-                    : battery.dischargingTime;
-                const dischargingMin = Math.floor(dischargingTime / 60);
-                const dischargingHour = Math.floor(dischargingMin / 60);
-                const dischargingTimeText = `${dischargingHour}小時${dischargingMin}分鐘`;
-                setDischargingTimeText(dischargingTimeText);
+                const dischargingTime = battery.dischargingTime;
+                if (dischargingTime === Infinity) {
+                  setDischargingTimeText(" 未知");
+                }
+                else{
+                  const dischargingMin = Math.floor(dischargingTime % 60);
+                  const dischargingHour = Math.floor(dischargingTime / 3600);
+                  const dischargingTimeText = `${dischargingHour}小時${dischargingMin}分鐘`;
+                  setDischargingTimeText(dischargingTimeText);
+                }
 
                 // ===== listen for battery level changes =====
                 const levelChangeHandler = () => {
@@ -545,8 +559,8 @@ function MapIndex() {
 
           function success(pos) {
             const crd = pos.coords;
-            const latLng = { lat: crd.latitude, lng: crd.longitude }; 
-            locationSetterRef.current(latLng);  
+            const latLng = { lat: crd.latitude, lng: crd.longitude };
+            locationSetterRef.current(latLng);
             map.panTo(latLng);
             map.setZoom(17);
             markerBus.clear();
@@ -695,7 +709,7 @@ function MapIndex() {
           {
             type: "free_minutes",
             value: 30,
-            url: "coupon/min 30.png",
+            url: "coupon/min 30 .png",
             title: "免費分鐘券",
           },
         ];
