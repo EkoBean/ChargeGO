@@ -870,14 +870,14 @@ function MapIndex() {
                 </p>
                 <div className={`${styles.handleBtns}`}>
                   <button className="btn btn-primary" onClick={handleOvertime}>
-                    確認歸還
+                    確認
                   </button>
-                  <button
+                  {/* <button
                     className="btn btn-primary cancel"
                     onClick={() => setOvertimeReturnWindow(false)}
                   >
                     取消
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
